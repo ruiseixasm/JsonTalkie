@@ -1,31 +1,56 @@
+import json
+import threading
+import uuid
+from typing import Dict, Any
+
 from socket_udp import *
 
-# Example usage
-if __name__ == "__main__":
-    # Create a broadcaster instance
-    broadcaster = Broadcaster(device_name="MyDevice")
-    broadcaster.start()
+class JsonDevice:
+    """Device with managed socket lifecycle."""
     
-    try:
-        # Example: Send discovery and get responses
-        print("Discovering devices...")
-        devices = broadcaster.discover_devices()
-        print(f"Found {len(devices)} devices:")
-        for device in devices:
-            print(f"- {device['device_name']} ({device['device_id']})")
-            
-        # Example: Send custom message
-        broadcaster.send_broadcast({
-            'type': 'custom_message',
-            'content': 'Hello network!',
-            'sender': broadcaster.device_name,
-            'timestamp': time.time()
-        })
-        
-        # Keep running to receive messages
-        while True:
-            time.sleep(1)
-            
-    except KeyboardInterrupt:
-        print("Shutting down...")
-        broadcaster.stop()
+    def __init__(self, port: int, device_name: str = None):
+        self.port = port
+        self.socket = BroadcastSocket(port)
+        self.device_id = str(uuid.uuid4())
+        self.name = device_name or f"Device-{self.device_id[:8]}"
+        self._running = False
+    
+    def start(self) -> bool:
+        """Begin listening (opens socket)."""
+        if not self.socket.open():
+            return False
+        self._running = True
+        self._thread = threading.Thread(target=self._listen_loop, daemon=True)
+        self._thread.start()
+        return True
+    
+    def stop(self):
+        """Stop listening (closes socket)."""
+        self._running = False
+        if hasattr(self, '_thread'):
+            self._thread.join()
+        self.socket.close()
+    
+    def _listen_loop(self):
+        """Main receive loop."""
+        while self._running:
+            data = self.socket.receive()
+            if data:
+                self._handle_message(*data)
+    
+    def _handle_message(self, data: bytes, ip: str, port: int):
+        """Process incoming messages."""
+        try:
+            message = json.loads(data.decode('utf-8'))
+            self.on_message(message, ip, port)
+        except (UnicodeDecodeError, json.JSONDecodeError) as e:
+            print(f"[{self.name}] Invalid message: {e}")
+    
+    def send_json(self, message: Dict[str, Any]) -> bool:
+        """Broadcast JSON (fails if socket not open)."""
+        return self.socket.send(json.dumps(message).encode('utf-8'))
+    
+    def on_message(self, message: Dict[str, Any], ip: str, port: int):
+        """Override for custom message handling."""
+        print(f"[{self.name}] From {ip}:{port}: {message}")
+
