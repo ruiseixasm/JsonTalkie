@@ -19,7 +19,9 @@ if __name__ == "__main__":
     try:
         # Main loop
         while True:
-            json_device.send_json({'type': 'ping', 'from': json_device._name})
+            json_device.send_json(
+                {'command': 'call', 'device': 'Buzzer', 'function': 'buzz', 'from': json_device._name}
+            )
             time.sleep(3)  # Send ping every 3 seconds
             
     except KeyboardInterrupt:
