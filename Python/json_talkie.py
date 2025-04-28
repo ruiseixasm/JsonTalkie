@@ -15,6 +15,7 @@ class JsonTalkie:
         self._running: bool = False
         self._walkie: WalkieDevice = None
         self._waiting_since: float = None   # time.time()
+        self._last_id: str = None
 
 
     if TYPE_CHECKING:
@@ -42,7 +43,8 @@ class JsonTalkie:
         """Sends messages without network awareness."""
         if self._walkie:
             message['from'] = self._walkie._name
-            message['id'] = self.generate_message_id()
+            self._last_id = self.generate_message_id()
+            message['id'] = self._last_id
             message_talkie: Dict[str, Any] = {
                 'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
                 'message': message
