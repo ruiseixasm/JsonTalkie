@@ -39,7 +39,7 @@ class JsonTalkie:
     def send_json(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
         message_talkie: Dict[str, Any] = {
-            'checksum': JsonTalkie.checksum_8bit( json.dumps(message) ),
+            'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
             'message': message
         }
         return self._socket.send( json.dumps(message_talkie).encode('utf-8') )
@@ -71,7 +71,20 @@ class JsonTalkie:
         return checksum % 256  # Ensure 8-bit value
 
     @staticmethod
+    def checksum_16bit_bytes(data: bytes) -> int:
+        """16-bit XOR checksum for bytes"""
+        checksum = 0
+        for i in range(0, len(data), 2):
+            # Combine two bytes into 16-bit value
+            chunk = data[i] << 8
+            if i+1 < len(data):
+                chunk |= data[i+1]
+            checksum ^= chunk
+        return checksum & 0xFFFF
+
+
+    @staticmethod
     def check_message(message_talkie: Dict[str, Any]) -> bool:
         checksum_talkie: int = message_talkie['checksum']
-        return checksum_talkie == JsonTalkie.checksum_8bit( json.dumps(message_talkie['message']) )
+        return checksum_talkie == JsonTalkie.checksum_16bit_bytes( json.dumps(message_talkie['message']).encode('utf-8') )
 
