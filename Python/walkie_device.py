@@ -58,5 +58,5 @@ class WalkieDevice:
         """Override this to handle business logic."""
         print(f"[{self._name}] Received: {message}")
         return {
-            'message': 'Roger'
+            'roger': 'Roger'
         }
