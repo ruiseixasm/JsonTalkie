@@ -20,24 +20,24 @@ def buzz(duration_ms=500, freq=1000, volume=0.5):
     play_obj.wait_done()
 
 
-
-class WalkieDevice:
-    """Device with managed socket lifecycle."""
-
-    _manifesto: Dict[str, Any] = {
-        'talk': {
-            'name': 'Buzzer',
-            'description': 'This device does a 500ms buzz!'
-        },
-        'list': {
-            'call': {
-                'buzz': {
-                    'description': 'Triggers a 500ms buzzing sound',
-                    'function': buzz
-                }
+_manifesto: Dict[str, Any] = {
+    'talk': {
+        'name': 'Buzzer',
+        'description': 'This device does a 500ms buzz!'
+    },
+    'list': {
+        'call': {
+            'buzz': {
+                'description': 'Triggers a 500ms buzzing sound',
+                'function': buzz
             }
         }
     }
+}
+
+
+class WalkieDevice:
+    """Device with managed socket lifecycle."""
 
     def __init__(self, talkie: JsonTalkie, device_name: str = None):
         self._talkie = talkie  # Composition over inheritance
