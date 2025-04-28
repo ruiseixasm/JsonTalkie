@@ -45,12 +45,12 @@ class JsonTalkie:
             message['from'] = self._walkie._name
             self._message_id = self.generate_message_id()
             message['id'] = self._message_id
-            message_talkie: Dict[str, Any] = {
+            talk: Dict[str, Any] = {
                 'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
                 'message': message
             }
             self._message_time = time.time()
-            return self._socket.send( json.dumps(message_talkie).encode('utf-8') )
+            return self._socket.send( json.dumps(talk).encode('utf-8') )
         return False
     
     def _listen_loop(self):
@@ -64,11 +64,16 @@ class JsonTalkie:
     def _handle_message(self, data: bytes):
         """Handles message content only."""
         try:
-            message_talkie: Dict[str, Any] = json.loads(data.decode('utf-8'))
-            if JsonTalkie.check_message(message_talkie):
-                if self._walkie._name != message_talkie['message']['from']: # Makes sure sender doesn't process it's own messages
-                    
-                    self._walkie.roger(message_talkie['message'])
+            talk: Dict[str, Any] = json.loads(data.decode('utf-8'))
+            if JsonTalkie.validate_talk(talk):
+                if self._walkie._name != talk['message']['from']: # Makes sure sender doesn't process it's own messages
+
+                    match talk['message']['talk']:
+                        case "echo":
+                            if talk['message']['id'] == self._message_id:
+                                print(f"[{self._walkie._name}] Acknowledge")
+                        case _:
+                            self._walkie.roger(talk['message'])
         except (UnicodeDecodeError, json.JSONDecodeError) as e:
             print(f"[{self._walkie._name}] Invalid message: {e}")
 
@@ -103,7 +108,16 @@ class JsonTalkie:
 
 
     @staticmethod
-    def check_message(message_talkie: Dict[str, Any]) -> bool:
-        checksum_talkie: int = message_talkie['checksum']
-        return checksum_talkie == JsonTalkie.checksum_16bit_bytes( json.dumps(message_talkie['message']).encode('utf-8') )
+    def check_talk(talk: Dict[str, Any]) -> bool:
+        message_checksum: int = talk['checksum']
+        return message_checksum == JsonTalkie.checksum_16bit_bytes( json.dumps(talk['message']).encode('utf-8') )
+
+    @staticmethod
+    def validate_talk(talk: Dict[str, Any]) -> bool:
+        if 'checksum' in talk and 'message' in talk:
+            if JsonTalkie.check_talk(talk):
+                if 'talk' in talk['message'] and 'from' in talk['message'] and 'id' in talk['message']:
+                    return True
+        
+        return False
 
