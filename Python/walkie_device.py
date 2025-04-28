@@ -47,14 +47,14 @@ class WalkieDevice:
     def start(self) -> bool:
         return self._talkie.on(self)
     
+    def stop(self):
+        return self._talkie.off()
+    
     def talk(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
         return self._talkie.send_json( message )
     
-    def stop(self):
-        return self._talkie.off()
-    
-    def on_message(self, message: Dict[str, Any]):
+    def roger(self, message: Dict[str, Any]) -> bool:
         """Override this to handle business logic."""
         print(f"[{self._name}] Received: {message}")
-
+        return True
