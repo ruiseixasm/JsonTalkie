@@ -28,8 +28,10 @@ class WalkieDevice:
         'talk': 'This device does a 500ms buzz!',
         'list': {
             'call': {
-                'buzz': 'Triggers a 500ms buzzing sound',
-                'function': buzz
+                'buzz': {
+                    'description': 'Triggers a 500ms buzzing sound',
+                    'function': buzz
+                }
             }
         }
     }
