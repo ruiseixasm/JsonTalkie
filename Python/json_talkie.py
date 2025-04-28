@@ -54,7 +54,7 @@ class JsonTalkie:
         return False
     
     def wait(self, seconds: float = 2) -> bool:
-        return self._last_message and time.time() > self._message_time and time.time() - self._message_time < seconds
+        return self._last_message and time.time() - self._message_time < seconds
     
     def _listen_loop(self):
         """Processes raw bytes from socket."""
