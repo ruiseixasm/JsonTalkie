@@ -14,8 +14,8 @@ class JsonTalkie:
         self._socket: BroadcastSocket = socket  # Composition over inheritance
         self._running: bool = False
         self._walkie: WalkieDevice = None
-        self._talk_time: float = 0.0
-        self._talk_id: str = ""
+        self._message_time: float = 0.0
+        self._message_id: str = ""
 
 
     if TYPE_CHECKING:
@@ -43,13 +43,13 @@ class JsonTalkie:
         """Sends messages without network awareness."""
         if self._walkie:
             message['from'] = self._walkie._name
-            self._talk_id = self.generate_message_id()
-            message['id'] = self._talk_id
+            self._message_id = self.generate_message_id()
+            message['id'] = self._message_id
             message_talkie: Dict[str, Any] = {
                 'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
                 'message': message
             }
-            self._talk_time = time.time()
+            self._message_time = time.time()
             return self._socket.send( json.dumps(message_talkie).encode('utf-8') )
         return False
     
