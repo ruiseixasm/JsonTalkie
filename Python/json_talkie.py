@@ -67,6 +67,7 @@ class JsonTalkie:
             message_talkie: Dict[str, Any] = json.loads(data.decode('utf-8'))
             if JsonTalkie.check_message(message_talkie):
                 if self._walkie._name != message_talkie['message']['from']: # Makes sure sender doesn't process it's own messages
+                    
                     self._walkie.roger(message_talkie['message'])
         except (UnicodeDecodeError, json.JSONDecodeError) as e:
             print(f"[{self._walkie._name}] Invalid message: {e}")

@@ -22,7 +22,7 @@ if __name__ == "__main__":
         # Main loop
         while True:
             walkie_device.talk(
-                {'command': 'call', 'function': 'buzz', 'to': 'Buzzer'}
+                {'talk': 'call', 'function': 'buzz', 'to': 'Buzzer'}
             )
             time.sleep(3)  # Send ping every 3 seconds
             

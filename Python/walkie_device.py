@@ -21,7 +21,7 @@ def buzz(duration_ms=500, freq=1000, volume=0.5):
 
 
 def process(message: Dict[str, Any]) -> bool:
-    match message['command']:
+    match message['talk']:
         case "call":
             return JsonTalkie.call(message['function'])
         case "list":
