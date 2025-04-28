@@ -38,6 +38,7 @@ class JsonTalkie:
     
     def send_json(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
+        message['from'] = self._walkie._name
         message_talkie: Dict[str, Any] = {
             'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
             'message': message
