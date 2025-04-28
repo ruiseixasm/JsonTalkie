@@ -25,7 +25,10 @@ class WalkieDevice:
     """Device with managed socket lifecycle."""
 
     _manifesto: Dict[str, Any] = {
-        'talk': 'This device does a 500ms buzz!',
+        'talk': {
+            'name': 'Buzzer',
+            'description': 'This device does a 500ms buzz!'
+        },
         'list': {
             'call': {
                 'buzz': {
