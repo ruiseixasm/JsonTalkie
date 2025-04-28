@@ -3,6 +3,7 @@
         "DGRAM",
         "microcontrollers",
         "REUSEADDR",
+        "simpleaudio",
         "Walkie"
     ]
 }
