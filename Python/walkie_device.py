@@ -81,9 +81,8 @@ class WalkieDevice:
     
     def send_json(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
-        checksum: int = JsonTalkie.checksum_8bit( json.dumps(message) )
         message_talkie: Dict[str, Any] = {
-            'checksum': checksum,
+            'checksum': JsonTalkie.checksum_8bit( json.dumps(message) ),
             'message': message
         }
         return self._socket.send( json.dumps(message_talkie).encode('utf-8') )
