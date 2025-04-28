@@ -25,7 +25,7 @@ def process(message: Dict[str, Any]) -> bool:
         case "call":
             return JsonTalkie.call(message['function'])
         case "list":
-            return JsonTalkie.send_json({
+            return JsonTalkie.talk({
                 'description': 'This device does a 500ms buzz!'
             })
 
@@ -56,7 +56,7 @@ class WalkieDevice:
     
     def talk(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
-        return self._talkie.send_json( message )
+        return self._talkie.talk( message )
     
     def roger(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """Override this to handle business logic."""
