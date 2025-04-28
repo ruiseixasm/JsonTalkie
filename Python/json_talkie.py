@@ -14,8 +14,8 @@ class JsonTalkie:
         self._socket: BroadcastSocket = socket  # Composition over inheritance
         self._running: bool = False
         self._walkie: WalkieDevice = None
+        self._last_message: Dict[str, Any] = {}
         self._message_time: float = 0.0
-        self._message_id: str = ""
 
 
     if TYPE_CHECKING:
@@ -43,15 +43,18 @@ class JsonTalkie:
         """Sends messages without network awareness."""
         if self._walkie:
             message['from'] = self._walkie._name
-            self._message_id = self.generate_message_id()
-            message['id'] = self._message_id
+            message['id'] = self.generate_message_id()
             talk: Dict[str, Any] = {
                 'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
                 'message': message
             }
+            self._last_message = message
             self._message_time = time.time()
             return self._socket.send( json.dumps(talk).encode('utf-8') )
         return False
+    
+    def wait(self, seconds: float = 2) -> bool:
+        return self._last_message and time.time() > self._message_time and time.time() - self._message_time < seconds
     
     def _listen_loop(self):
         """Processes raw bytes from socket."""
@@ -70,8 +73,9 @@ class JsonTalkie:
 
                     match talk['message']['talk']:
                         case "echo":
-                            if talk['message']['id'] == self._message_id:
+                            if talk['message']['id'] == self._last_message['id']:
                                 print(f"[{self._walkie._name}] Acknowledge")
+                                self._last_message = {}
                         case _:
                             self._walkie.roger(talk['message'])
         except (UnicodeDecodeError, json.JSONDecodeError) as e:
