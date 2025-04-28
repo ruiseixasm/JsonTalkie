@@ -14,8 +14,8 @@ class JsonTalkie:
         self._socket: BroadcastSocket = socket  # Composition over inheritance
         self._running: bool = False
         self._walkie: WalkieDevice = None
-        self._waiting_since: float = None   # time.time()
-        self._last_id: str = None
+        self._sent_time: float = 0.0
+        self._last_id: str = ""
 
 
     if TYPE_CHECKING:
@@ -49,6 +49,7 @@ class JsonTalkie:
                 'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
                 'message': message
             }
+            self._sent_time = time.time()
             return self._socket.send( json.dumps(message_talkie).encode('utf-8') )
         return False
     
