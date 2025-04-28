@@ -39,15 +39,13 @@ if __name__ == "__main__":
             
             except KeyboardInterrupt:
                 print("\nShutting down...")
-            finally:
-                walkie_device.stop()  # Ensures socket cleanup
 
 
         elif command == "exit":
             print("Exiting...")
             break
         
-        else:
+        elif len(command) > 0:
             try:
                 walkie_device.talk(
                     { 'command': command }
@@ -56,8 +54,8 @@ if __name__ == "__main__":
             
             except KeyboardInterrupt:
                 print("\nShutting down...")
-            finally:
-                walkie_device.stop()  # Ensures socket cleanup
+        
+    walkie_device.stop()  # Ensures socket cleanup
 
 
 
