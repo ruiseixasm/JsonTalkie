@@ -74,8 +74,12 @@ class JsonTalkie:
                     match talk['message']['talk']:
                         case "echo":
                             if talk['message']['id'] == self._last_message['id']:
-                                print(f"[{self._walkie._name}] Acknowledge")
-                                self._last_message = {}
+                                match self._last_message['talk']:
+                                    case "list":
+                                        print(f"[{self._walkie._name}] Executed")
+                                    case "call":
+                                        print(f"[{self._walkie._name}] Executed")
+                                        self._last_message = {}
                         case _:
                             self._walkie.roger(talk['message'])
         except (UnicodeDecodeError, json.JSONDecodeError) as e:

@@ -20,28 +20,19 @@ def buzz(duration_ms=500, freq=1000, volume=0.5):
     play_obj.wait_done()
 
 
-def process(message: Dict[str, Any]) -> bool:
-    match message['talk']:
-        case "call":
-            return JsonTalkie.call(message['function'])
-        case "list":
-            return JsonTalkie.talk({
-                'description': 'This device does a 500ms buzz!'
-            })
-
-    return False
-
-
-def call(function: str) -> bool:
-    match function:
-        case "buzz":
-            buzz()
-
-    return True
-
 
 class WalkieDevice:
     """Device with managed socket lifecycle."""
+
+    # _manifesto: Dict[str, Any] = {
+    #     'talk': 'This device does a 500ms buzz!',
+    #     'list': {
+    #         'call': {
+    #             'buzz': 'Triggers a 500ms buzzing sound',
+    #             'function': buzz()
+    #         }
+    #     }
+    # }
 
     def __init__(self, talkie: JsonTalkie, device_name: str = None):
         self._talkie = talkie  # Composition over inheritance
