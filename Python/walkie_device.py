@@ -24,6 +24,10 @@ def process(message: Dict[str, Any]) -> bool:
     match message['command']:
         case "call":
             return JsonTalkie.call(message['function'])
+        case "list":
+            return JsonTalkie.send_json({
+                'description': 'This device does a 500ms buzz!'
+            })
 
     return False
 

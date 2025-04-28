@@ -24,22 +24,16 @@ if __name__ == "__main__":
     print("Type 'help' to see available commands.")
     
     while True:
-        command = input("> ").strip()
+        command: str = input("> ").strip()
         
         if command == "help":
             print("Available commands: greet, bye, exit")
-        
-        elif command == "greet":
-            print("Hello, world!")
-        
-        elif command == "bye":
-            print("Goodbye!")
         
         elif command == "talk":
             
             try:
                 walkie_device.talk(
-                    {'command': 'call', 'function': 'buzz', 'from': walkie_device._name, 'to': 'Buzzer'}
+                    {'command': 'call', 'function': 'buzz', 'to': 'Buzzer'}
                 )
                 time.sleep(2)  # Send ping every 2 seconds
             
@@ -54,6 +48,17 @@ if __name__ == "__main__":
             break
         
         else:
-            print(f"Unknown command: {command}")
+            try:
+                walkie_device.talk(
+                    { 'command': command }
+                )
+                time.sleep(2)  # Send ping every 2 seconds
+            
+            except KeyboardInterrupt:
+                print("\nShutting down...")
+            finally:
+                walkie_device.stop()  # Ensures socket cleanup
+
+
 
 
