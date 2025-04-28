@@ -54,7 +54,9 @@ class WalkieDevice:
         """Sends messages without network awareness."""
         return self._talkie.send_json( message )
     
-    def roger(self, message: Dict[str, Any]) -> bool:
+    def roger(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """Override this to handle business logic."""
         print(f"[{self._name}] Received: {message}")
-        return True
+        return {
+            'message': 'Roger'
+        }
