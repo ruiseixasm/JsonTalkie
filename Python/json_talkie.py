@@ -2,6 +2,7 @@ import json
 import threading
 import uuid
 from typing import Dict, Any, TYPE_CHECKING
+import time
 
 from broadcast_socket import BroadcastSocket
 
@@ -13,6 +14,7 @@ class JsonTalkie:
         self._socket: BroadcastSocket = socket  # Composition over inheritance
         self._running: bool = False
         self._walkie: WalkieDevice = None
+        self._waiting_since: float = None   # time.time()
 
 
     if TYPE_CHECKING:
@@ -35,11 +37,12 @@ class JsonTalkie:
         if hasattr(self, '_thread'):
             self._thread.join()
         self._socket.close()
-    
+
     def send_json(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
         if self._walkie:
             message['from'] = self._walkie._name
+            message['id'] = self.generate_message_id()
             message_talkie: Dict[str, Any] = {
                 'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
                 'message': message
@@ -66,6 +69,14 @@ class JsonTalkie:
             print(f"[{self._walkie._name}] Invalid message: {e}")
 
 
+    @staticmethod
+    def generate_message_id() -> str:
+        """Creates a unique message ID combining timestamp and UUID"""
+        # timestamp: str = hex(int(time.time() * 1000))[2:]  # Millisecond precision
+        message_id: str = uuid.uuid4().hex[:8]  # First 8 chars of UUID
+        # return f"{timestamp}-{message_id}"
+        return message_id
+    
     @staticmethod
     def checksum_8bit(message: str) -> int:
         """Lightweight checksum suitable for microcontrollers"""
