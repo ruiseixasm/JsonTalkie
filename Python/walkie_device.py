@@ -4,8 +4,9 @@ import uuid
 from typing import Dict, Any
 
 from broadcast_socket import BroadcastSocket
+from json_talkie import JsonTalkie
 
-class JsonDevice:
+class WalkieDevice:
     """Device with managed socket lifecycle."""
 
     def __init__(self, socket: BroadcastSocket, device_name: str = None):
@@ -41,14 +42,22 @@ class JsonDevice:
     def _handle_message(self, data: bytes):
         """Handles message content only."""
         try:
-            message = json.loads(data.decode('utf-8'))
-            self.on_message(message)  # No IP/port exposed!
+            message_talkie: Dict[str, Any] = json.loads(data.decode('utf-8'))
+            checksum_talkie: int = message_talkie['checksum']
+            checksum: int = JsonTalkie.checksum_8bit( json.dumps(message_talkie['message']) )
+            if checksum == checksum_talkie:
+                self.on_message(message_talkie['message'])
         except (UnicodeDecodeError, json.JSONDecodeError) as e:
             print(f"[{self._name}] Invalid message: {e}")
     
     def send_json(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
-        return self._socket.send(json.dumps(message).encode('utf-8'))
+        checksum: int = JsonTalkie.checksum_8bit( json.dumps(message) )
+        message_talkie: Dict[str, Any] = {
+            'checksum': checksum,
+            'message': message
+        }
+        return self._socket.send( json.dumps(message_talkie).encode('utf-8') )
     
     def on_message(self, message: Dict[str, Any]):
         """Override this to handle business logic."""
