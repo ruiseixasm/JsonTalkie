@@ -57,12 +57,9 @@ class CommandLine:
                         json_talkie.talk(message)
                         time.sleep(0.5) # Waits some time
                     case "run":
-                        if len(words) > 1:
-                            if len(words) > 2:
-                                message['to'] = words[1]
-                                message['function'] = words[2]
-                            else:
-                                message['function'] = words[1]
+                        if len(words) > 2:
+                            message['to'] = words[1]
+                            message['function'] = words[2]
                             json_talkie.talk(message)
                         else:
                             print(f"{words[0]} has not enough arguments!")
