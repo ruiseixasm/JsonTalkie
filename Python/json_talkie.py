@@ -36,7 +36,8 @@ class JsonTalkie:
     def talk(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
         message['from'] = self._manifesto['talker']['name']
-        message['id'] = self.generate_message_id()
+        if 'id' not in message:
+            message['id'] = self.generate_message_id()
         self._last_message = message
         talk: Dict[str, Any] = {
             'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
@@ -61,7 +62,13 @@ class JsonTalkie:
         """Handles message content only."""
         match message['type']:
             case "call":
-                self.echo(f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}", message['from'])
+                echo: Dict[str, Any] = {
+                    'type': 'echo',
+                    'response': f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}",
+                    'to': message['from'],
+                    'id': message['id']
+                }
+                self.talk(echo)
             case "list":
                 if 'run' in self._manifesto:
                     for key, value in self._manifesto['run'].items():
