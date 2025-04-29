@@ -114,7 +114,6 @@ class JsonTalkie:
                     })
             case "echo":
                 if message['id'] == self._last_message['id']:
-                # if True:
                     print(f"\t{message['response']}")
             case _:
                 print("\tUnknown command type!")
