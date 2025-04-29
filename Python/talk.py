@@ -1,24 +1,43 @@
 from typing import Dict, Any
 import time
+import uuid
 
 from broadcast_socket_udp import *
 from json_talkie import *
 from walkie_device import *
 
 
+def receive(self, message: Dict[str, Any]) -> bool:
+    """Handles message content only."""
+    if message['from'] != self._name: # Makes sure sender doesn't process it's own messages
+        match message['talk']:
+            case "echo":
+                if message['id'] == self._last_message['id']:
+                    match self._last_message['talk']:
+                        case "list":
+                            print(f"[{message['from']}] Listed")
+                        case "call":
+                            print(f"[{message['from']}] Executed")
+                            self._last_message = {}
+            case _:
+                self.roger(message)
+    return False
+
 
 if __name__ == "__main__":
 
     broadcast_socket: BroadcastSocket = BroadcastSocket_UDP()
     json_talkie: JsonTalkie = JsonTalkie(broadcast_socket)
-    walkie_device: WalkieDevice = WalkieDevice(json_talkie)
+    talker_name: str = f"Talker-{str(uuid.uuid4())[:8]}"
+    last_message: Dict[str, Any] = {}
+    message_time: float = 0.0
 
     # Start listening (opens socket)
-    if not walkie_device.start():
-        print("Failed to start device!")
+    if not json_talkie.on(receive):
+        print("Failed to turn jsonTalkie On!")
         exit(1)
     
-    print(f"Device {walkie_device._name} running. Press Ctrl+C to stop.")
+    print(f"{talker_name} running. Press Ctrl+C to stop.")
     
     print("Welcome to My Command Line!")
     print("Type 'help' to see available commands.")
@@ -32,7 +51,7 @@ if __name__ == "__main__":
         elif command == "talk":
             
             try:
-                walkie_device.talk(
+                json_talkie.talk(
                     {'talk': 'call', 'function': 'buzz', 'to': 'Buzzer'}
                 )
                 time.sleep(2)  # Send ping every 2 seconds
@@ -47,7 +66,7 @@ if __name__ == "__main__":
         
         elif len(command) > 0:
             try:
-                walkie_device.talk(
+                json_talkie.talk(
                     { 'talk': command }
                 )
                 time.sleep(2)  # Send ping every 2 seconds
@@ -55,7 +74,7 @@ if __name__ == "__main__":
             except KeyboardInterrupt:
                 print("\nShutting down...")
         
-    walkie_device.stop()  # Ensures socket cleanup
+    json_talkie.off()  # Turns jsonTalkie Off
 
 
 

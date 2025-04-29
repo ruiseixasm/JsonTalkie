@@ -1,7 +1,8 @@
 import json
 import threading
 import uuid
-from typing import Dict, Any
+from typing import Dict, Any, Callable
+import time
 
 from json_talkie import JsonTalkie
 
@@ -43,17 +44,42 @@ class WalkieDevice:
         self._talkie = talkie  # Composition over inheritance
         self._device_id = str(uuid.uuid4())
         self._name = device_name or f"Device-{self._device_id[:8]}"
+        self._last_message: Dict[str, Any] = {}
+        self._message_time: float = 0.0
     
     def start(self) -> bool:
-        return self._talkie.on(self)
+        return self._talkie.on(self.receive)    # Where the receiver is set
     
     def stop(self):
         return self._talkie.off()
     
-    def talk(self, message: Dict[str, Any]) -> bool:
+    def wait(self, seconds: float = 2) -> bool:
+        return self._last_message and time.time() - self._message_time < seconds
+    
+    def send(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
+        if 'from' not in message:
+            message['from'] = self._name
+        self._last_message = message
+        self._message_time = time.time()
         return self._talkie.talk( message )
     
+    def receive(self, message: Dict[str, Any]) -> bool:
+        """Handles message content only."""
+        if message['from'] != self._name: # Makes sure sender doesn't process it's own messages
+            match message['talk']:
+                case "echo":
+                    if message['id'] == self._last_message['id']:
+                        match self._last_message['talk']:
+                            case "list":
+                                print(f"[{message['from']}] Listed")
+                            case "call":
+                                print(f"[{message['from']}] Executed")
+                                self._last_message = {}
+                case _:
+                    self.roger(message)
+        return False
+
     def roger(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """Override this to handle business logic."""
         print(f"[{self._name}] Received: {message}")

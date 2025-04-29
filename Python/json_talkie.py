@@ -1,7 +1,7 @@
 import json
 import threading
 import uuid
-from typing import Dict, Any, TYPE_CHECKING
+from typing import Dict, Any, TYPE_CHECKING, Callable
 import time
 
 from broadcast_socket import BroadcastSocket
@@ -13,77 +13,54 @@ class JsonTalkie:
         from walkie_device import WalkieDevice
         self._socket: BroadcastSocket = socket  # Composition over inheritance
         self._running: bool = False
-        self._walkie: WalkieDevice = None
-        self._last_message: Dict[str, Any] = {}
-        self._message_time: float = 0.0
+        self._receiver: Callable[[Dict[str, Any]], bool] = None
 
 
     if TYPE_CHECKING:
         from walkie_device import WalkieDevice
 
-    def on(self, walkie: 'WalkieDevice') -> bool:
+    def on(self, receiver: Callable[[Dict[str, Any]], bool]) -> bool:
         """Start message processing (no network knowledge)."""
         if not self._socket.open():
             return False
         self._running = True
-        self._walkie = walkie
-        self._thread = threading.Thread(target=self._listen_loop, daemon=True)
+        self._receiver = receiver
+        self._thread = threading.Thread(target=self.listen, daemon=True)    # Where the listen is set
         self._thread.start()
         return True
     
     def off(self):
         """Stop processing (delegates cleanup to socket)."""
         self._running = False
-        self._walkie = None
+        self._receiver = None
         if hasattr(self, '_thread'):
             self._thread.join()
         self._socket.close()
 
     def talk(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
-        if self._walkie:
-            message['from'] = self._walkie._name
-            message['id'] = self.generate_message_id()
-            talk: Dict[str, Any] = {
-                'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
-                'message': message
-            }
-            self._last_message = message
-            self._message_time = time.time()
-            return self._socket.send( json.dumps(talk).encode('utf-8') )
-        return False
+        message['id'] = self.generate_message_id()
+        talk: Dict[str, Any] = {
+            'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
+            'message': message
+        }
+        return self._socket.send( json.dumps(talk).encode('utf-8') )
     
-    def wait(self, seconds: float = 2) -> bool:
-        return self._last_message and time.time() - self._message_time < seconds
-    
-    def _listen_loop(self):
+    def listen(self):
         """Processes raw bytes from socket."""
         while self._running:
             received = self._socket.receive()
             if received:
                 data, _ = received  # Explicitly ignore (ip, port)
-                self._handle_message(data)
-    
-    def _handle_message(self, data: bytes):
-        """Handles message content only."""
-        try:
-            talk: Dict[str, Any] = json.loads(data.decode('utf-8'))
-            if JsonTalkie.validate_talk(talk):
-                if self._walkie._name != talk['message']['from']: # Makes sure sender doesn't process it's own messages
+                if self._receiver:
+                    try:
+                        talk: Dict[str, Any] = json.loads(data.decode('utf-8'))
+                        if JsonTalkie.validate_talk(talk):
+                            self._receiver(talk['message'])
 
-                    match talk['message']['talk']:
-                        case "echo":
-                            if talk['message']['id'] == self._last_message['id']:
-                                match self._last_message['talk']:
-                                    case "list":
-                                        print(f"[{self._walkie._name}] Executed")
-                                    case "call":
-                                        print(f"[{self._walkie._name}] Executed")
-                                        self._last_message = {}
-                        case _:
-                            self._walkie.roger(talk['message'])
-        except (UnicodeDecodeError, json.JSONDecodeError) as e:
-            print(f"[{self._walkie._name}] Invalid message: {e}")
+                    except (UnicodeDecodeError, json.JSONDecodeError) as e:
+                        print(f"Invalid message: {e}")
+
 
 
     @staticmethod
