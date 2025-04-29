@@ -72,6 +72,14 @@ class JsonTalkie:
                         for key, value in self._manifesto['run'].items():
                             echo['response'] = f"[run {self._manifesto['talker']['name']} {key}]\t{value['description']}"
                             self.talk(echo)
+                    if 'set' in self._manifesto:
+                        for key, value in self._manifesto['set'].items():
+                            echo['response'] = f"[set {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                            self.talk(echo)
+                    if 'get' in self._manifesto:
+                        for key, value in self._manifesto['get'].items():
+                            echo['response'] = f"[get {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                            self.talk(echo)
                 else:
                     echo['response'] = f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}"
                     self.talk(echo)

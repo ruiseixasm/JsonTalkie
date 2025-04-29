@@ -62,9 +62,9 @@ class CommandLine:
                             message['function'] = words[2]
                             json_talkie.talk(message)
                         else:
-                            print(f"{words[0]} has not enough arguments!")
+                            print(f"'{words[0]}' has no enough arguments!")
             else:
-                print(f"\t{words[0]} is not a valid command type!")
+                print(f"\t'{words[0]}' is not a valid command type!")
 
 
 
