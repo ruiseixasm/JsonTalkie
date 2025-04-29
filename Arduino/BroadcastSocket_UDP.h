@@ -2,7 +2,8 @@
 #define BROADCAST_SOCKET_UDP_H
 
 #include "BroadcastSocket.h"
-#include <EthernetUdp.h>
+#include <Ethernet.h>      // For EthernetUDP and IPAddress
+#include <EthernetUdp.h>   // For UDP functionality
 
 class BroadcastSocket_UDP : public BroadcastSocket {
 public:
@@ -35,4 +36,4 @@ private:
     bool _isInitialized = false;
 };
 
-#endif
+#endif // BROADCAST_SOCKET_UDP_H
