@@ -1,9 +1,52 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
+import os
 import time
 import uuid
 
 from broadcast_socket_udp import *
 from json_talkie import *
+
+class CommandLine:
+    def __init__(self):
+        # Ensure history file exists
+        if not os.path.exists(".cmd_history"):
+            open(".cmd_history", 'w').close()
+            
+        self.session = PromptSession(history=FileHistory('.cmd_history'))
+
+    def run(self):
+        print("Interactive Command Line (Ctrl+D to exit)")
+        while True:
+            try:
+                cmd = self.session.prompt(">>> ").strip()
+                if not cmd:
+                    continue
+                
+                self._execute(cmd)
+                
+            except EOFError:  # Ctrl+D
+                print("\nExiting...")
+                break
+            except KeyboardInterrupt:  # Ctrl+C
+                print("\nUse Ctrl+D to exit")
+                continue
+            except Exception as e:
+                print(f"Error: {e}")
+
+    def _execute(self, cmd: str):
+        """Handle command execution"""
+        if cmd.lower() in ("exit", "quit"):
+            raise EOFError
+        elif cmd == "history":
+            # Print history from file
+            with open('.cmd_history', 'r') as f:
+                for i, line in enumerate(f, 1):
+                    print(f"{i}: {line.strip()}")
+        else:
+            print(f"Executing: {cmd}")
+            # Add your command processing here
 
 
 manifesto: Dict[str, Any] = {
@@ -25,38 +68,40 @@ if __name__ == "__main__":
         exit(1)
     
     print(f"{manifesto['talk']['name']} running. Press Ctrl+C to stop.")
-    
     print("Welcome to My Command Line!")
     print("Type 'help' to see available commands.")
+
+    cli = CommandLine()
+    cli.run()
     
-    while True:
-        command: str = input("> ").strip()
+    # while True:
+    #     command: str = input("> ").strip()
         
-        if command == "help":
-            print("Available commands: greet, bye, exit")
+    #     if command == "help":
+    #         print("Available commands: greet, bye, exit")
 
-        elif command == "talk":
-            message: Dict[str, Any] = {
-                'talk': 'talk'
-            }
-            try:
-                json_talkie.talk(message)
-                time.sleep(2)  # Send ping every 2 seconds
-            except KeyboardInterrupt:
-                print("\nShutting down...")
+    #     elif command == "talk":
+    #         message: Dict[str, Any] = {
+    #             'talk': 'talk'
+    #         }
+    #         try:
+    #             json_talkie.talk(message)
+    #             time.sleep(2)  # Send ping every 2 seconds
+    #         except KeyboardInterrupt:
+    #             print("\nShutting down...")
 
-        elif command == "exit":
-            print("Exiting...")
-            break
+    #     elif command == "exit":
+    #         print("Exiting...")
+    #         break
         
-        elif len(command) > 0:
-            try:
-                json_talkie.talk(
-                    { 'talk': command }
-                )
-                time.sleep(2)  # Send ping every 2 seconds
-            except KeyboardInterrupt:
-                print("\nShutting down...")
+    #     elif len(command) > 0:
+    #         try:
+    #             json_talkie.talk(
+    #                 { 'talk': command }
+    #             )
+    #             time.sleep(2)  # Send ping every 2 seconds
+    #         except KeyboardInterrupt:
+    #             print("\nShutting down...")
         
     json_talkie.off()  # Turns jsonTalkie Off
 

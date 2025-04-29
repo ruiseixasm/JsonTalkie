@@ -9,6 +9,7 @@ def buzz():
     print("BUZZING")
     print('\a')
 
+# Defines 'talk', 'list', 'call', 'run', 'set', 'get' parameters
 manifesto: Dict[str, Any] = {
     'talk': {
         'name': 'Buzzer',
