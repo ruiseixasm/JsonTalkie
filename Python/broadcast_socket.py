@@ -1,8 +1,6 @@
 from typing import Optional, Tuple
 
 class BroadcastSocket:
-    """UDP broadcast socket with explicit lifecycle control."""
-    
     def __init__(self, *parameters):
         self._socket = None  # Not initialized until open()
     
