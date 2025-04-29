@@ -66,18 +66,19 @@ class WalkieDevice:
     
     def receive(self, message: Dict[str, Any]) -> bool:
         """Handles message content only."""
-        if message['from'] != self._name: # Makes sure sender doesn't process it's own messages
-            match message['talk']:
-                case "echo":
-                    if message['id'] == self._last_message['id']:
-                        match self._last_message['talk']:
-                            case "list":
-                                print(f"[{message['from']}] Listed")
-                            case "call":
-                                print(f"[{message['from']}] Executed")
-                                self._last_message = {}
-                case _:
-                    self.roger(message)
+        if WalkieDevice.validate_message(message):
+            if message['from'] != self._name: # Makes sure sender doesn't process it's own messages
+                match message['talk']:
+                    case "echo":
+                        if message['id'] == self._last_message['id']:
+                            match self._last_message['talk']:
+                                case "list":
+                                    print(f"[{message['from']}] Listed")
+                                case "call":
+                                    print(f"[{message['from']}] Executed")
+                                    self._last_message = {}
+                    case _:
+                        self.roger(message)
         return False
 
     def roger(self, message: Dict[str, Any]) -> Dict[str, Any]:
@@ -86,3 +87,11 @@ class WalkieDevice:
         return {
             'roger': 'Roger'
         }
+
+
+    @staticmethod
+    def validate_message(message: Dict[str, Any]) -> bool:
+        if 'talk' in message and 'from' in message and 'id' in message:
+            return message['talk'] == "talk" or 'to' in message
+        return False
+    
