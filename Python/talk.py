@@ -4,7 +4,6 @@ import uuid
 
 from broadcast_socket_udp import *
 from json_talkie import *
-from walkie_device import *
 
 
 def receive(self, message: Dict[str, Any]) -> bool:
