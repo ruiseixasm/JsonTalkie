@@ -45,8 +45,9 @@ class Talker:
     def print_duration(self):
         print(f"\t{self._duration}")
 
-    def set_duration(self, duration: float):
+    def set_duration(self, duration: float) -> bool:
         self._duration = duration
+        return True
 
     def get_duration(self) -> float:
         return self._duration
@@ -67,7 +68,7 @@ if __name__ == "__main__":
     
     try:
         message: Dict[str, Any] = {
-            'type': 'run', 'function': 'buzz', 'to': 'Buzzer'
+            'type': 'run', 'what': 'buzz', 'to': 'Buzzer'
         }
         last_message = message
         # Main loop

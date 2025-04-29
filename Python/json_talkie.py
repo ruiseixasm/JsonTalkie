@@ -84,9 +84,34 @@ class JsonTalkie:
                     echo['response'] = f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}"
                     self.talk(echo)
             case "run":
-                if 'run' in self._manifesto:
-                    function = self._manifesto['run'][message['function']]['function']
+                if 'what' in message and 'run' in self._manifesto and message['what'] in self._manifesto['run']:
+                    function = self._manifesto['run'][message['what']]['function']
+                    self.talk({
+                        'type': 'echo',
+                        'to': message['from'],
+                        'id': message['id'],
+                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tCalled!"
+                    })
                     function()
+            case "set":
+                if 'what' in message and 'value' in message and 'set' in self._manifesto and message['what'] in self._manifesto['set']:
+                    function = self._manifesto['set'][message['what']]['function']
+                    if function(message['value']):
+                        self.talk({
+                            'type': 'echo',
+                            'to': message['from'],
+                            'id': message['id'],
+                            'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tSet to {message['value']}!"
+                        })
+            case "get":
+                if 'what' in message and 'get' in self._manifesto and message['what'] in self._manifesto['get']:
+                    function = self._manifesto['get'][message['what']]['function']
+                    self.talk({
+                        'type': 'echo',
+                        'to': message['from'],
+                        'id': message['id'],
+                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\t{function()}"
+                    })
             case "echo":
                 if message['id'] == self._last_message['id']:
                 # if True:
