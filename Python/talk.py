@@ -52,27 +52,30 @@ class CommandLine:
                 }
                 match words[0]:
                     case "talk":
-                        if len(words) > 1:  # Targeted talk
+                        if len(words) == 2: # Targeted talk
                             message["to"] = words[1]
-                        json_talkie.talk(message)
-                        time.sleep(0.5) # Wait some time
+                        if len(words) < 3:
+                            json_talkie.talk(message)
+                            time.sleep(0.5) # Wait some time
+                        else:
+                            print(f"'{words[0]}' has a wrong number of arguments!")
                     case "run" | "get":
-                        if len(words) > 2:
+                        if len(words) == 3:
                             message['to'] = words[1]
                             message['what'] = words[2]
                             json_talkie.talk(message)
                             time.sleep(0.5) # Wait some time
                         else:
-                            print(f"'{words[0]}' has no enough arguments!")
+                            print(f"'{words[0]}' has a wrong number of arguments!")
                     case "set":
-                        if len(words) > 3:
+                        if len(words) == 4:
                             message['to'] = words[1]
                             message['what'] = words[2]
                             message['value'] = words[3]
                             json_talkie.talk(message)
                             time.sleep(0.5) # Wait some time
                         else:
-                            print(f"'{words[0]}' has no enough arguments!")
+                            print(f"'{words[0]}' has a wrong number of arguments!")
             else:
                 print(f"\t'{words[0]}' is not a valid command type!")
 
