@@ -47,21 +47,16 @@ class CommandLine:
                     print(f"{i}: {line.strip()}")
         else:
             words = cmd.split()
-            if words[0] in ("list", "call", "run", "set", "get"):
+            if words[0] in ("list", "run", "set", "get"):
                 message: Dict[str, Any] = {
                     'type': words[0]
                 }
                 match words[0]:
                     case "list":
+                        if len(words) > 1:
+                            message["to"] = words[1]
                         json_talkie.talk(message)
                         time.sleep(1)  # Send ping every 2 seconds
-                    case "call":
-                        if len(words) > 1:
-                            message['to'] = words[1]
-                            json_talkie.talk(message)
-                            time.sleep(1)  # Send ping every 2 seconds
-                        else:
-                            print(f"{words[0]} has not enough arguments!")
                     case "run":
                         if len(words) > 2:
                             message['to'] = words[1]

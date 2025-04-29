@@ -64,12 +64,18 @@ class JsonTalkie:
             case "list":
                 echo: Dict[str, Any] = {
                     'type': 'echo',
-                    'response': f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}",
                     'to': message['from'],
                     'id': message['id']
                 }
-                # print(f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}")
-                self.talk(echo)
+                if 'to' in message:
+                    if 'run' in self._manifesto:
+                        for key, value in self._manifesto['run'].items():
+                            echo['response'] = f"[run {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                            self.talk(echo)
+                else:
+                    # print(f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}")
+                    echo['response'] = f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}"
+                    self.talk(echo)
             case "call":
                 if 'run' in self._manifesto:
                     for key, value in self._manifesto['run'].items():
@@ -100,7 +106,9 @@ class JsonTalkie:
             if message_checksum == JsonTalkie.checksum_16bit_bytes( json.dumps(talk['message']).encode('utf-8') ):
                 message: int = talk['message']
                 if 'type' in message and 'from' in message and 'id' in message:
-                    return 'to' in message and message['to'] == self._manifesto['talker']['name'] or message['type'] == "list"
+                    if 'to' in message:
+                        return message['to'] == self._manifesto['talker']['name']
+                    return message['type'] == "list"
         return False
 
 
