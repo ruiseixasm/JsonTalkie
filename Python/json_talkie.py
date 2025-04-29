@@ -38,7 +38,8 @@ class JsonTalkie:
         message['from'] = self._manifesto['talker']['name']
         if 'id' not in message:
             message['id'] = self.generate_message_id()
-        self._last_message = message
+        if message['type'] != "echo":
+            self._last_message = message
         talk: Dict[str, Any] = {
             'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
             'message': message
@@ -113,8 +114,10 @@ class JsonTalkie:
                         'response': f"[{self._manifesto['talker']['name']} {message['what']}]\t{function()}"
                     })
             case "echo":
-                if message['id'] == self._last_message['id']:
+                if self._last_message and message['id'] == self._last_message['id']:
                     print(f"\t{message['response']}")
+                    if self._last_message['type'] != "talk":    # talk receives multiple echoes
+                        self._last_message = {}
             case _:
                 print("\tUnknown command type!")
         return False
