@@ -77,7 +77,8 @@ class JsonTalkie:
                 function = self._manifesto['run'][message['function']]['function']
                 function()
             case "echo":
-                if message['id'] == self._last_message['id']:
+                # if message['id'] == self._last_message['id']:
+                if True:
                     match self._last_message['type']:
                         case "list":
                             print(f"[{message['from']}] Listed")
