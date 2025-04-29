@@ -10,14 +10,9 @@ from broadcast_socket import BroadcastSocket
 class JsonTalkie:
 
     def __init__(self, socket: BroadcastSocket):
-        from walkie_device import WalkieDevice
         self._socket: BroadcastSocket = socket  # Composition over inheritance
         self._running: bool = False
         self._receiver: Callable[[Dict[str, Any]], bool] = None
-
-
-    if TYPE_CHECKING:
-        from walkie_device import WalkieDevice
 
     def on(self, receiver: Callable[[Dict[str, Any]], bool]) -> bool:
         """Start message processing (no network knowledge)."""
@@ -96,6 +91,9 @@ class JsonTalkie:
     def validate_talk(talk: Dict[str, Any]) -> bool:
         if 'checksum' in talk and 'message' in talk:
             message_checksum: int = talk['checksum']
-            return message_checksum == JsonTalkie.checksum_16bit_bytes( json.dumps(talk['message']).encode('utf-8') )
+            if message_checksum == JsonTalkie.checksum_16bit_bytes( json.dumps(talk['message']).encode('utf-8') ):
+                message: int = talk['message']
+                if 'talk' in message and 'from' in message and 'id' in message:
+                    return 'to' in message or message['talk'] == "talk"
         return False
 
