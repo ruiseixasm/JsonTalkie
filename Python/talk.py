@@ -34,18 +34,16 @@ if __name__ == "__main__":
         
         if command == "help":
             print("Available commands: greet, bye, exit")
-        
+
         elif command == "talk":
-            
+            message: Dict[str, Any] = {
+                'talk': 'talk'
+            }
             try:
-                json_talkie.talk(
-                    {'talk': 'call', 'function': 'buzz', 'to': 'Buzzer'}
-                )
+                json_talkie.talk(message)
                 time.sleep(2)  # Send ping every 2 seconds
-            
             except KeyboardInterrupt:
                 print("\nShutting down...")
-
 
         elif command == "exit":
             print("Exiting...")
@@ -57,7 +55,6 @@ if __name__ == "__main__":
                     { 'talk': command }
                 )
                 time.sleep(2)  # Send ping every 2 seconds
-            
             except KeyboardInterrupt:
                 print("\nShutting down...")
         
