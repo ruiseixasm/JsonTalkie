@@ -75,7 +75,7 @@ if __name__ == "__main__":
         while True:
             message_time = time.time()
             json_talkie.talk(message)
-            time.sleep(3)  # Send ping every 3 seconds
+            time.sleep(30)  # Send ping every 3 seconds
     except KeyboardInterrupt:
         print("\tShutting down...")
     finally:
