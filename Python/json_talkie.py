@@ -93,17 +93,9 @@ class JsonTalkie:
 
 
     @staticmethod
-    def check_talk(talk: Dict[str, Any]) -> bool:
+    def validate_talk(talk: Dict[str, Any]) -> bool:
         if 'checksum' in talk and 'message' in talk:
             message_checksum: int = talk['checksum']
             return message_checksum == JsonTalkie.checksum_16bit_bytes( json.dumps(talk['message']).encode('utf-8') )
-        return False
-
-    @staticmethod
-    def validate_talk(talk: Dict[str, Any]) -> bool:
-        if JsonTalkie.check_talk(talk):
-            if 'talk' in talk['message'] and 'from' in talk['message'] and 'id' in talk['message']:
-                return True
-        
         return False
 
