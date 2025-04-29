@@ -5,10 +5,6 @@ from broadcast_socket_udp import *
 from json_talkie import *
 
 
-import numpy as np
-import simpleaudio as sa
-import sounddevice as sd  # Using sounddevice instead of soundaudio for better reliability
-
 def buzz():
     print("BUZZING")
     print('\a')
@@ -29,46 +25,17 @@ manifesto: Dict[str, Any] = {
 }
 
 
-
-talker_name: str = manifesto['talk']['name']
-last_message: Dict[str, Any] = {}
-message_time: float = 0.0
-
-def wait(seconds: float = 2) -> bool:
-    return last_message and time.time() - message_time < seconds
-    
-
-def receive(message: Dict[str, Any]) -> bool:
-    """Handles message content only."""
-    match message['talk']:
-        case "talk":
-            print(f"[{manifesto['talk']['name']}] \t {manifesto['talk']['description']}")
-        case "call":
-            function = manifesto['list']['call'][message['function']]['function']
-            function()
-        case "echo":
-            if message['id'] == last_message['id']:
-                match last_message['talk']:
-                    case "list":
-                        print(f"[{message['from']}] Listed")
-                    case "call":
-                        print(f"[{message['from']}] Executed")
-                        last_message = {}
-        case _:
-            print("Unknown talking!")
-    return False
-
 if __name__ == "__main__":
 
     broadcast_socket: BroadcastSocket = BroadcastSocket_UDP()
-    json_talkie: JsonTalkie = JsonTalkie(broadcast_socket)
+    json_talkie: JsonTalkie = JsonTalkie(broadcast_socket, manifesto)
 
     # Start listening (opens socket)
-    if not json_talkie.on(receive):
+    if not json_talkie.on():
         print("Failed to turn jsonTalkie On!")
         exit(1)
     
-    print(f"Talker {talker_name} running. Press Ctrl+C to stop.")
+    print(f"Talker {manifesto['talk']['name']} running. Press Ctrl+C to stop.")
     
     try:
         message: Dict[str, Any] = {
