@@ -36,6 +36,7 @@ class JsonTalkie:
 
     def talk(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
+        message['from'] = self._talker_name
         message['id'] = self.generate_message_id()
         talk: Dict[str, Any] = {
             'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
@@ -79,6 +80,14 @@ class JsonTalkie:
     def wait(self, seconds: float = 2) -> bool:
         return self._last_message and time.time() - self._message_time < seconds
 
+    def validate_talk(self, talk: Dict[str, Any]) -> bool:
+        if 'checksum' in talk and 'message' in talk:
+            message_checksum: int = talk['checksum']
+            if message_checksum == JsonTalkie.checksum_16bit_bytes( json.dumps(talk['message']).encode('utf-8') ):
+                message: int = talk['message']
+                if 'talk' in message and 'from' in message and 'id' in message:
+                    return 'to' in message and message['to'] == self._talker_name or message['talk'] == "talk"
+        return False
 
 
     @staticmethod
@@ -108,13 +117,4 @@ class JsonTalkie:
                 chunk |= data[i+1]
             checksum ^= chunk
         return checksum & 0xFFFF
-
-    def validate_talk(self, talk: Dict[str, Any]) -> bool:
-        if 'checksum' in talk and 'message' in talk:
-            message_checksum: int = talk['checksum']
-            if message_checksum == JsonTalkie.checksum_16bit_bytes( json.dumps(talk['message']).encode('utf-8') ):
-                message: int = talk['message']
-                if 'talk' in message and 'from' in message and 'id' in message:
-                    return 'to' in message and message['to'] == self._talker_name or message['talk'] == "talk"
-        return False
 

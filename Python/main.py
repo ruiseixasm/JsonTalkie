@@ -39,8 +39,7 @@ if __name__ == "__main__":
     
     try:
         message: Dict[str, Any] = {
-            'talk': 'call', 'function': 'buzz',
-            'to': 'Buzzer', 'from': "Dummy"
+            'talk': 'call', 'function': 'buzz', 'to': 'Buzzer'
         }
         last_message = message
         # Main loop
@@ -48,7 +47,6 @@ if __name__ == "__main__":
             message_time = time.time()
             json_talkie.talk(message)
             time.sleep(3)  # Send ping every 3 seconds
-            
     except KeyboardInterrupt:
         print("\nShutting down...")
     finally:
