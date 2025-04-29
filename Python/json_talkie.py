@@ -61,7 +61,7 @@ class JsonTalkie:
     def receive(self, message: Dict[str, Any]) -> bool:
         """Handles message content only."""
         match message['type']:
-            case "call":
+            case "list":
                 echo: Dict[str, Any] = {
                     'type': 'echo',
                     'response': f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}",
@@ -70,7 +70,7 @@ class JsonTalkie:
                 }
                 # print(f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}")
                 self.talk(echo)
-            case "list":
+            case "call":
                 if 'run' in self._manifesto:
                     for key, value in self._manifesto['run'].items():
                         echo: Dict[str, Any] = {
@@ -100,7 +100,7 @@ class JsonTalkie:
             if message_checksum == JsonTalkie.checksum_16bit_bytes( json.dumps(talk['message']).encode('utf-8') ):
                 message: int = talk['message']
                 if 'type' in message and 'from' in message and 'id' in message:
-                    return 'to' in message and message['to'] == self._manifesto['talker']['name'] or message['type'] == "call"
+                    return 'to' in message and message['to'] == self._manifesto['talker']['name'] or message['type'] == "list"
         return False
 
 

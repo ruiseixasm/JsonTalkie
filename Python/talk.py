@@ -47,15 +47,15 @@ class CommandLine:
                     print(f"{i}: {line.strip()}")
         else:
             words = cmd.split()
-            if words[0] in ("call", "list", "run", "set", "get"):
+            if words[0] in ("list", "call", "run", "set", "get"):
                 message: Dict[str, Any] = {
                     'type': words[0]
                 }
                 match words[0]:
-                    case "call":
+                    case "list":
                         json_talkie.talk(message)
                         time.sleep(1)  # Send ping every 2 seconds
-                    case "list":
+                    case "call":
                         if len(words) > 1:
                             message['to'] = words[1]
                             json_talkie.talk(message)
@@ -76,7 +76,7 @@ class CommandLine:
 
 manifesto: Dict[str, Dict[str, Any]] = {
     'talker': {
-        'name': f"Talker-{str(uuid.uuid4())[:8]}",
+        'name': f"Talker-{str(uuid.uuid4())[:2]}",
         'description': 'A simple Talker!'
     }
 }
