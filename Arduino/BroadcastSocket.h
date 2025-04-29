@@ -1,6 +1,7 @@
 #ifndef BROADCAST_SOCKET_H
 #define BROADCAST_SOCKET_H
 
+#include <Arduino.h>
 #include <cstddef> // for size_t
 #include <cstdint> // for uint8_t
 
