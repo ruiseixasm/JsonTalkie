@@ -1,50 +1,53 @@
 #include "BroadcastSocket_EtherCard.h"
 
-// Network configuration
-uint8_t mymac[] = { 0x74, 0x69, 0x69, 0x2D, 0x30, 0x31 };
-const uint8_t CS_PIN = 8; // ENC28J60 Chip Select pin
+// ENC28J60 configuration
+uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
+uint8_t myip[] = { 192,168,1,100 }; // Fallback IP
+const int CS_PIN = 10; // Chip Select pin
 
-// Single instance created in .ino file
 BroadcastSocket_EtherCard udp(5005);
 
 void setup() {
   Serial.begin(9600);
-  while (!Serial); // Wait for serial on Leonardo
-  
   Serial.println(F("\n[ENC28J60 UDP Broadcast]"));
   
   // Initialize Ethernet
-  if (!udp.begin(mymac, CS_PIN)) {
-    Serial.println(F("Failed to initialize Ethernet"));
+  if (ether.begin(ETHER_BUFFER_SIZE, mymac, CS_PIN)) {
+    Serial.println(F("Failed to access Ethernet controller"));
     while(1);
   }
   
-  // Configure network
+  // Network configuration
   if (!ether.dhcpSetup()) {
     Serial.println(F("DHCP failed, using static IP"));
-    uint8_t staticip[] = {192,168,1,100};
-    ether.staticSetup(staticip);
+    ether.staticSetup(myip);
   }
   
-  ether.printIp("IP Address: ", ether.myip);
+  // Start UDP
+  if (!udp.begin()) {
+    Serial.println(F("Failed to start UDP"));
+    while(1);
+  }
+  
+  ether.printIp("IP: ", ether.myip);
   Serial.println(F("UDP broadcast ready"));
 }
 
 void loop() {
-  // 1. Process incoming packets
+  // Process incoming packets
   ether.packetLoop(ether.packetReceive());
   
-  // 2. Broadcast message every 3 seconds
+  // Broadcast every 3 seconds
   static uint32_t lastBroadcast = 0;
   if (millis() - lastBroadcast >= 3000) {
-    const char message[] = "Hello from Arduino";
-    if (udp.write((uint8_t*)message, strlen(message))) {
+    const char msg[] = "Hello from ENC28J60";
+    if (udp.write((uint8_t*)msg, strlen(msg))) {
       Serial.println(F("Broadcast sent"));
     }
     lastBroadcast = millis();
   }
   
-  // 3. Handle received packets
+  // Handle received packets
   if (udp.available()) {
     uint8_t buffer[UDP_BUFFER_SIZE];
     size_t len = udp.read(buffer, sizeof(buffer));
