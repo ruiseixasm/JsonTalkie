@@ -37,7 +37,8 @@ class CommandLine:
 
     def _execute(self, cmd: str):
         """Handle command execution"""
-        if cmd.lower() in ("exit", "quit"):
+        cmd = cmd.strip().lower()
+        if cmd in ("exit", "quit"):
             raise EOFError
         elif cmd == "history":
             # Print history from file
@@ -45,10 +46,30 @@ class CommandLine:
                 for i, line in enumerate(f, 1):
                     print(f"{i}: {line.strip()}")
         else:
+            words = cmd.split()
+            if words[0] in ("call", "list", "run", "set", "get"):
+                message: Dict[str, Any] = {
+                    'type': words[0]
+                }
+                match words[0]:
+                    case "call":
+                        json_talkie.talk(message)
+                    case "list":
+                        if len(words) > 1:
+                            message['to'] = words[1]
+                            json_talkie.talk(message)
+                        else:
+                            print(f"{words[0]} has not enough arguments!")
+                    case "run":
+                        if len(words) > 2:
+                            message['to'] = words[1]
+                            message['function'] = words[2]
+                            json_talkie.talk(message)
+                        else:
+                            print(f"{words[0]} has not enough arguments!")
+            else:
+                print(f"{words[0]} is not a valid command type!")
 
-
-            print(f"Executing: {cmd}")
-            # Add your command processing here
 
 
 manifesto: Dict[str, Dict[str, Any]] = {
@@ -76,35 +97,6 @@ if __name__ == "__main__":
     cli = CommandLine()
     cli.run()
 
-    # while True:
-    #     command: str = input("> ").strip()
-        
-    #     if command == "help":
-    #         print("Available commands: greet, bye, exit")
-
-    #     elif command == "talk":
-    #         message: Dict[str, Any] = {
-    #             'talk': 'talk'
-    #         }
-    #         try:
-    #             json_talkie.talk(message)
-    #             time.sleep(2)  # Send ping every 2 seconds
-    #         except KeyboardInterrupt:
-    #             print("\nShutting down...")
-
-    #     elif command == "exit":
-    #         print("Exiting...")
-    #         break
-        
-    #     elif len(command) > 0:
-    #         try:
-    #             json_talkie.talk(
-    #                 { 'talk': command }
-    #             )
-    #             time.sleep(2)  # Send ping every 2 seconds
-    #         except KeyboardInterrupt:
-    #             print("\nShutting down...")
-        
     json_talkie.off()  # Turns jsonTalkie Off
 
 
