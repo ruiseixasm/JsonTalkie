@@ -91,7 +91,7 @@ class JsonTalkie:
                         'type': 'echo',
                         'to': message['from'],
                         'id': message['id'],
-                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tCalled!"
+                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tCalled"
                     })
                     function()
             case "set":
@@ -102,7 +102,7 @@ class JsonTalkie:
                             'type': 'echo',
                             'to': message['from'],
                             'id': message['id'],
-                            'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tSet to {message['value']}!"
+                            'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tSet to {message['value']}"
                         })
             case "get":
                 if 'what' in message and 'get' in self._manifesto and message['what'] in self._manifesto['get']:
@@ -116,8 +116,6 @@ class JsonTalkie:
             case "echo":
                 if self._last_message and message['id'] == self._last_message['id']:
                     print(f"\t{message['response']}")
-                    if self._last_message['type'] != "talk":    # talk receives multiple echoes
-                        self._last_message = {}
             case _:
                 print("\tUnknown command type!")
         return False
@@ -131,9 +129,10 @@ class JsonTalkie:
             if message_checksum == JsonTalkie.checksum_16bit_bytes( json.dumps(talk['message']).encode('utf-8') ):
                 message: int = talk['message']
                 if 'type' in message and 'from' in message and 'id' in message:
-                    if 'to' in message and message['to'] != "*":
-                        return message['to'] == self._manifesto['talker']['name']
-                    return True
+                    if 'to' in message:
+                        return message['to'] == "*" or message['to'] == self._manifesto['talker']['name']
+                    else:
+                        return message['type'] == "talk"
         return False
 
 
