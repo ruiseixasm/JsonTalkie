@@ -45,12 +45,14 @@ class CommandLine:
                 for i, line in enumerate(f, 1):
                     print(f"{i}: {line.strip()}")
         else:
+
+
             print(f"Executing: {cmd}")
             # Add your command processing here
 
 
-manifesto: Dict[str, Any] = {
-    'talk': {
+manifesto: Dict[str, Dict[str, Any]] = {
+    'talker': {
         'name': f"Talker-{str(uuid.uuid4())[:8]}",
         'description': 'A simple Talker!'
     }
@@ -67,13 +69,13 @@ if __name__ == "__main__":
         print("Failed to turn jsonTalkie On!")
         exit(1)
     
-    print(f"{manifesto['talk']['name']} running. Press Ctrl+C to stop.")
+    print(f"{manifesto['talker']['name']} running. Press Ctrl+C to stop.")
     print("Welcome to My Command Line!")
     print("Type 'help' to see available commands.")
 
     cli = CommandLine()
     cli.run()
-    
+
     # while True:
     #     command: str = input("> ").strip()
         

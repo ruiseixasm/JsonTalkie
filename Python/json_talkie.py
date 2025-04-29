@@ -9,10 +9,9 @@ from broadcast_socket import BroadcastSocket
 
 class JsonTalkie:
 
-    def __init__(self, socket: BroadcastSocket, manifesto: Dict[str, Any]):
+    def __init__(self, socket: BroadcastSocket, manifesto: Dict[str, Dict[str, Any]]):
         self._socket: BroadcastSocket = socket  # Composition over inheritance
-        self._manifesto: Dict[str, Any] = manifesto
-        self._talker_name: str = self._manifesto['talk']['name']
+        self._manifesto: Dict[str, Dict[str, Any]] = manifesto
         self._last_message: Dict[str, Any] = {}
         self._message_time: float = 0.0
         self._running: bool = False
@@ -36,7 +35,7 @@ class JsonTalkie:
 
     def talk(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
-        message['from'] = self._talker_name
+        message['from'] = self._manifesto['talker']['name']
         message['id'] = self.generate_message_id()
         talk: Dict[str, Any] = {
             'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
@@ -59,22 +58,27 @@ class JsonTalkie:
 
     def receive(self, message: Dict[str, Any]) -> bool:
         """Handles message content only."""
-        match message['talk']:
-            case "talk":
-                print(f"[{self._manifesto['talk']['name']}] \t {self._manifesto['talk']['description']}")
+        match message['type']:
             case "call":
-                function = self._manifesto['list']['call'][message['function']]['function']
+                print(f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}")
+            case "list":
+                if 'run' in self._manifesto:
+                    print(f"[{self._manifesto['talker']['name']}] 'run':")
+                    for key, value in self._manifesto['run'].items():
+                        print(f"\t'{key}'\t{value['description']}")
+            case "run":
+                function = self._manifesto['run'][message['function']]['function']
                 function()
             case "echo":
                 if message['id'] == last_message['id']:
-                    match last_message['talk']:
+                    match last_message['type']:
                         case "list":
                             print(f"[{message['from']}] Listed")
-                        case "call":
+                        case "run":
                             print(f"[{message['from']}] Executed")
                             last_message = {}
             case _:
-                print("Unknown talking!")
+                print("Unknown command type!")
         return False
 
     def wait(self, seconds: float = 2) -> bool:
@@ -85,8 +89,8 @@ class JsonTalkie:
             message_checksum: int = talk['checksum']
             if message_checksum == JsonTalkie.checksum_16bit_bytes( json.dumps(talk['message']).encode('utf-8') ):
                 message: int = talk['message']
-                if 'talk' in message and 'from' in message and 'id' in message:
-                    return 'to' in message and message['to'] == self._talker_name or message['talk'] == "talk"
+                if 'type' in message and 'from' in message and 'id' in message:
+                    return 'to' in message and message['to'] == self._manifesto['talker']['name'] or message['type'] == "call"
         return False
 
 
