@@ -37,7 +37,7 @@ class CommandLine:
 
     def _execute(self, cmd: str):
         """Handle command execution"""
-        cmd = cmd.strip().lower()
+        cmd = cmd.strip()
         if cmd in ("exit", "quit"):
             raise EOFError
         elif cmd == "history":
