@@ -1,5 +1,4 @@
 #include "BroadcastSocket_UDP.h"
-#include <Arduino.h>
 
 BroadcastSocket_UDP::BroadcastSocket_UDP(uint16_t port) : _port(port) {}
 

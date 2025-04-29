@@ -1,5 +1,5 @@
-#ifndef UDP_BROADCAST_H
-#define UDP_BROADCAST_H
+#ifndef BROADCAST_SOCKET_UDP_H
+#define BROADCAST_SOCKET_UDP_H
 
 #include "BroadcastSocket.h"
 #include <EthernetUdp.h>
