@@ -1,63 +1,55 @@
 #include "BroadcastSocket_EtherCard.h"
 
-// ENC28J60 configuration
-uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
-uint8_t myip[] = { 192,168,1,100 }; // Fallback IP
-const int CS_PIN = 10; // Chip Select pin
+BroadcastSocket_EtherCard* BroadcastSocket_EtherCard::_instance = nullptr;
 
-BroadcastSocket_EtherCard udp(5005);
-
-void setup() {
-  Serial.begin(9600);
-  Serial.println(F("\n[ENC28J60 UDP Broadcast]"));
-  
-  // Initialize Ethernet
-  if (ether.begin(ETHER_BUFFER_SIZE, mymac, CS_PIN)) {
-    Serial.println(F("Failed to access Ethernet controller"));
-    while(1);
-  }
-  
-  // Network configuration
-  if (!ether.dhcpSetup()) {
-    Serial.println(F("DHCP failed, using static IP"));
-    ether.staticSetup(myip);
-  }
-  
-  // Start UDP
-  if (!udp.begin()) {
-    Serial.println(F("Failed to start UDP"));
-    while(1);
-  }
-  
-  ether.printIp("IP: ", ether.myip);
-  Serial.println(F("UDP broadcast ready"));
+BroadcastSocket_EtherCard::BroadcastSocket_EtherCard(uint16_t port, uint8_t* mac, uint8_t csPin) 
+  : _port(port), _mac(mac), _csPin(csPin), _remotePort(0), _recvLength(0) {
+    memset(_remoteIp, 0, sizeof(_remoteIp));
+    memset(_recvBuffer, 0, sizeof(_recvBuffer));
+    _instance = this;
 }
 
-void loop() {
-  // Process incoming packets
-  ether.packetLoop(ether.packetReceive());
-  
-  // Broadcast every 3 seconds
-  static uint32_t lastBroadcast = 0;
-  if (millis() - lastBroadcast >= 3000) {
-    const char msg[] = "Hello from ENC28J60";
-    if (udp.write((uint8_t*)msg, strlen(msg))) {
-      Serial.println(F("Broadcast sent"));
+bool BroadcastSocket_EtherCard::begin() {
+    if (ether.begin(ETHER_BUFFER_SIZE, _mac, _csPin)) {
+        ether.udpServerListenOnPort(udpCallback, _port);
+        return true;
     }
-    lastBroadcast = millis();
-  }
-  
-  // Handle received packets
-  if (udp.available()) {
-    uint8_t buffer[UDP_BUFFER_SIZE];
-    size_t len = udp.read(buffer, sizeof(buffer));
-    
-    Serial.print(F("Received from "));
-    ether.printIp(udp.getSenderIP());
-    Serial.print(F(":"));
-    Serial.print(udp.getSenderPort());
-    Serial.print(F(" - "));
-    Serial.write(buffer, len);
-    Serial.println();
-  }
+    return false;
+}
+
+void BroadcastSocket_EtherCard::end() {
+    _instance = nullptr;
+}
+
+bool BroadcastSocket_EtherCard::write(const uint8_t* data, size_t length) {
+    if (length > UDP_BUFFER_SIZE) return false;
+    uint8_t broadcastIp[] = {255,255,255,255};
+    ether.sendUdp((char*)data, length, _port, broadcastIp, _port);
+    return true;
+}
+
+bool BroadcastSocket_EtherCard::available() {
+    return _recvLength > 0;
+}
+
+size_t BroadcastSocket_EtherCard::read(uint8_t* buffer, size_t size) {
+    if (!buffer || size == 0) return 0;
+    size_t toCopy = min(size, _recvLength);
+    memcpy(buffer, _recvBuffer, toCopy);
+    _recvLength = 0;
+    return toCopy;
+}
+
+void BroadcastSocket_EtherCard::handlePacket(uint16_t dest_port, uint8_t* src_ip, uint16_t src_port, const char* data, uint16_t len) {
+    if (len > UDP_BUFFER_SIZE) return;
+    memcpy(_recvBuffer, data, len);
+    _recvLength = len;
+    memcpy(_remoteIp, src_ip, 4);
+    _remotePort = src_port;
+}
+
+void BroadcastSocket_EtherCard::udpCallback(uint16_t dest_port, uint8_t* src_ip, uint16_t src_port, const char* data, uint16_t len) {
+    if (_instance) {
+        _instance->handlePacket(dest_port, src_ip, src_port, data, len);
+    }
 }

@@ -1,50 +1,44 @@
 #include "BroadcastSocket_EtherCard.h"
 
-// Network configuration
-uint8_t mymac[] = { 0x74, 0x69, 0x69, 0x2D, 0x30, 0x31 };
-const uint8_t CS_PIN = 8; // ENC28J60 Chip Select pin
+uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
+const uint8_t CS_PIN = 8;
 
-// Single instance created in .ino file
-BroadcastSocket_EtherCard udp(5005);
+// MAC and CS pin in constructor
+BroadcastSocket_EtherCard udp(5005, mymac, CS_PIN);
 
 void setup() {
   Serial.begin(9600);
-  while (!Serial); // Wait for serial on Leonardo
+  while (!Serial); // Wait for serial port
   
   Serial.println(F("\n[ENC28J60 UDP Broadcast]"));
   
-  // Initialize Ethernet
-  if (!udp.begin(mymac, CS_PIN)) {
+  if (!udp.begin()) {
     Serial.println(F("Failed to initialize Ethernet"));
     while(1);
   }
   
-  // Configure network
   if (!ether.dhcpSetup()) {
-    Serial.println(F("DHCP failed, using static IP"));
+    Serial.println(F("DHCP failed"));
     uint8_t staticip[] = {192,168,1,100};
     ether.staticSetup(staticip);
   }
   
-  ether.printIp("IP Address: ", ether.myip);
+  ether.printIp("IP: ", ether.myip);
   Serial.println(F("UDP broadcast ready"));
 }
 
 void loop() {
-  // 1. Process incoming packets
   ether.packetLoop(ether.packetReceive());
   
-  // 2. Broadcast message every 3 seconds
   static uint32_t lastBroadcast = 0;
   if (millis() - lastBroadcast >= 3000) {
-    const char message[] = "Hello from Arduino";
-    if (udp.write((uint8_t*)message, strlen(message))) {
+    const char msg[] = "Hello from ENC28J60";
+    if (udp.write((uint8_t*)msg, strlen(msg))) {
       Serial.println(F("Broadcast sent"));
     }
     lastBroadcast = millis();
   }
   
-  // 3. Handle received packets
   if (udp.available()) {
     uint8_t buffer[UDP_BUFFER_SIZE];
     size_t len = udp.read(buffer, sizeof(buffer));
