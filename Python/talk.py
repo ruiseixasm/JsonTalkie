@@ -17,7 +17,6 @@ class CommandLine:
         self.session = PromptSession(history=FileHistory('.cmd_history'))
 
     def run(self):
-        print("Interactive Command Line (Ctrl+D to exit)")
         while True:
             try:
                 cmd = self.session.prompt(">>> ").strip()
@@ -27,13 +26,13 @@ class CommandLine:
                 self._execute(cmd)
                 
             except EOFError:  # Ctrl+D
-                print("\nExiting...")
+                print("\tExiting...")
                 break
             except KeyboardInterrupt:  # Ctrl+C
                 print("\nUse Ctrl+D to exit")
                 continue
             except Exception as e:
-                print(f"Error: {e}")
+                print(f"\tError: {e}")
 
     def _execute(self, cmd: str):
         """Handle command execution"""
@@ -87,10 +86,7 @@ if __name__ == "__main__":
         print("Failed to turn jsonTalkie On!")
         exit(1)
     
-    print(f"{manifesto['talker']['name']} running. Press Ctrl+C to stop.")
-    print("Welcome to My Command Line!")
-    print("Type 'help' to see available commands.")
-
+    print(f"[{manifesto['talker']['name']}] running. Type 'exit' to exit or 'talk' to make them talk.")
     cli = CommandLine()
     cli.run()
 
