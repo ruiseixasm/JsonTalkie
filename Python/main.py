@@ -10,17 +10,15 @@ def buzz():
     print('\a')
 
 # Defines 'talk', 'list', 'call', 'run', 'set', 'get' parameters
-manifesto: Dict[str, Any] = {
-    'talk': {
+manifesto: Dict[str, Dict[str, Any]] = {
+    'talker': {
         'name': 'Buzzer',
         'description': 'This device does a 500ms buzz!'
     },
-    'list': {
-        'call': {
-            'buzz': {
-                'description': 'Triggers a 500ms buzzing sound',
-                'function': buzz
-            }
+    'run': {
+        'buzz': {
+            'description': 'Triggers a 500ms buzzing sound',
+            'function': buzz
         }
     }
 }
@@ -36,11 +34,11 @@ if __name__ == "__main__":
         print("Failed to turn jsonTalkie On!")
         exit(1)
     
-    print(f"Talker {manifesto['talk']['name']} running. Press Ctrl+C to stop.")
+    print(f"Talker {manifesto['talker']['name']} running. Press Ctrl+C to stop.")
     
     try:
         message: Dict[str, Any] = {
-            'talk': 'call', 'function': 'buzz', 'to': 'Buzzer'
+            'type': 'run', 'function': 'buzz', 'to': 'Buzzer'
         }
         last_message = message
         # Main loop
