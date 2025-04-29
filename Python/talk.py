@@ -6,37 +6,25 @@ from broadcast_socket_udp import *
 from json_talkie import *
 
 
-def receive(self, message: Dict[str, Any]) -> bool:
-    """Handles message content only."""
-    if message['from'] != self._name: # Makes sure sender doesn't process it's own messages
-        match message['talk']:
-            case "echo":
-                if message['id'] == self._last_message['id']:
-                    match self._last_message['talk']:
-                        case "list":
-                            print(f"[{message['from']}] Listed")
-                        case "call":
-                            print(f"[{message['from']}] Executed")
-                            self._last_message = {}
-            case _:
-                self.roger(message)
-    return False
+manifesto: Dict[str, Any] = {
+    'talk': {
+        'name': f"Talker-{str(uuid.uuid4())[:8]}",
+        'description': 'A simple Talker!'
+    }
+}
 
 
 if __name__ == "__main__":
 
     broadcast_socket: BroadcastSocket = BroadcastSocket_UDP()
-    json_talkie: JsonTalkie = JsonTalkie(broadcast_socket)
-    talker_name: str = f"Talker-{str(uuid.uuid4())[:8]}"
-    last_message: Dict[str, Any] = {}
-    message_time: float = 0.0
+    json_talkie: JsonTalkie = JsonTalkie(broadcast_socket, manifesto)
 
     # Start listening (opens socket)
-    if not json_talkie.on(receive):
+    if not json_talkie.on():
         print("Failed to turn jsonTalkie On!")
         exit(1)
     
-    print(f"{talker_name} running. Press Ctrl+C to stop.")
+    print(f"{manifesto['talk']['name']} running. Press Ctrl+C to stop.")
     
     print("Welcome to My Command Line!")
     print("Type 'help' to see available commands.")
