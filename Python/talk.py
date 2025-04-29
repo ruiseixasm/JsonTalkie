@@ -54,12 +54,12 @@ class CommandLine:
                 match words[0]:
                     case "call":
                         json_talkie.talk(message)
-                        time.sleep(2)  # Send ping every 2 seconds
+                        time.sleep(1)  # Send ping every 2 seconds
                     case "list":
                         if len(words) > 1:
                             message['to'] = words[1]
                             json_talkie.talk(message)
-                            time.sleep(2)  # Send ping every 2 seconds
+                            time.sleep(1)  # Send ping every 2 seconds
                         else:
                             print(f"{words[0]} has not enough arguments!")
                     case "run":

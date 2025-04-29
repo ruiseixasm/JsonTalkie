@@ -68,34 +68,28 @@ class JsonTalkie:
                     'to': message['from'],
                     'id': message['id']
                 }
+                # print(f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}")
                 self.talk(echo)
             case "list":
                 if 'run' in self._manifesto:
                     for key, value in self._manifesto['run'].items():
-                        self.echo(f"[run {self._manifesto['talker']['name']} {key}]\t{value['description']}", message['from'])
+                        echo: Dict[str, Any] = {
+                            'type': 'echo',
+                            'response': f"[run {self._manifesto['talker']['name']} {key}]\t{value['description']}",
+                            'to': message['from'],
+                            'id': message['id']
+                        }
+                        self.talk(echo)
             case "run":
                 function = self._manifesto['run'][message['function']]['function']
                 function()
             case "echo":
-                # if message['id'] == self._last_message['id']:
-                if True:
-                    match self._last_message['type']:
-                        case "list":
-                            print(f"[{message['from']}] Listed")
-                        case "run":
-                            print(f"[{message['from']}] Executed")
-                            self._last_message = {}
+                if message['id'] == self._last_message['id']:
+                # if True:
+                    print(f"{message['response']}")
             case _:
                 print("Unknown command type!")
         return False
-
-    def echo(self, response: str, to: str) -> bool:
-        message: Dict[str, Any] = {
-            'type': 'echo',
-            'response': response,
-            'to': to
-        }
-        return self.talk(message)
 
     def wait(self, seconds: float = 2) -> bool:
         return self._last_message and time.time() - self._message_time < seconds
