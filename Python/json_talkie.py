@@ -96,7 +96,7 @@ class JsonTalkie:
             if message_checksum == JsonTalkie.checksum_16bit_bytes( json.dumps(talk['message']).encode('utf-8') ):
                 message: int = talk['message']
                 if 'type' in message and 'from' in message and 'id' in message:
-                    if 'to' in message:
+                    if 'to' in message and message['to'] != "*":
                         return message['to'] == self._manifesto['talker']['name']
                     return True
         return False
