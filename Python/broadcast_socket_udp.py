@@ -6,9 +6,8 @@ from broadcast_socket import BroadcastSocket
 class BroadcastSocket_UDP(BroadcastSocket):
     """UDP broadcast socket with explicit lifecycle control."""
     
-    def __init__(self, port: int = 5005, broadcast_addr: str = '255.255.255.255'):
+    def __init__(self, port: int = 5005):
         self._port = port
-        self._broadcast_addr = broadcast_addr
         self._socket = None  # Not initialized until open()
     
     def open(self) -> bool:
@@ -35,7 +34,7 @@ class BroadcastSocket_UDP(BroadcastSocket):
         if not self._socket:
             return False
         try:
-            self._socket.sendto(data, (self._broadcast_addr, self._port))
+            self._socket.sendto(data, ('255.255.255.255', self._port))
             return True
         except Exception as e:
             print(f"Send failed: {e}")
