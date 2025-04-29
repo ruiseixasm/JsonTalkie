@@ -6,7 +6,7 @@ from json_talkie import *
 
 
 def buzz():
-    print("BUZZING")
+    print("\tBUZZING")
     print('\a')
 
 # Defines 'talk', 'run', 'set', 'get' parameters
@@ -31,10 +31,10 @@ if __name__ == "__main__":
 
     # Start listening (opens socket)
     if not json_talkie.on():
-        print("Failed to turn jsonTalkie On!")
+        print("\tFailed to turn jsonTalkie On!")
         exit(1)
     
-    print(f"Talker {manifesto['talker']['name']} running. Press Ctrl+C to stop.")
+    print(f"\tTalker {manifesto['talker']['name']} running. Press Ctrl+C to stop.")
     
     try:
         message: Dict[str, Any] = {
@@ -47,7 +47,7 @@ if __name__ == "__main__":
             json_talkie.talk(message)
             time.sleep(3)  # Send ping every 3 seconds
     except KeyboardInterrupt:
-        print("\nShutting down...")
+        print("\tShutting down...")
     finally:
         json_talkie.off()  # Ensures socket cleanup
 

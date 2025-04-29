@@ -56,7 +56,7 @@ class JsonTalkie:
                     if self.validate_talk(talk):
                         self.receive(talk['message'])
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
-                    print(f"Invalid message: {e}")
+                    print(f"\tInvalid message: {e}")
 
     def receive(self, message: Dict[str, Any]) -> bool:
         """Handles message content only."""
@@ -70,11 +70,10 @@ class JsonTalkie:
                 if 'to' in message:
                     if 'run' in self._manifesto:
                         for key, value in self._manifesto['run'].items():
-                            echo['response'] = f"\t[run {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                            echo['response'] = f"[run {self._manifesto['talker']['name']} {key}]\t{value['description']}"
                             self.talk(echo)
                 else:
-                    # print(f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}")
-                    echo['response'] = f"\t[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}"
+                    echo['response'] = f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}"
                     self.talk(echo)
             case "call":
                 if 'run' in self._manifesto:
@@ -92,9 +91,9 @@ class JsonTalkie:
             case "echo":
                 if message['id'] == self._last_message['id']:
                 # if True:
-                    print(f"{message['response']}")
+                    print(f"\t{message['response']}")
             case _:
-                print("Unknown command type!")
+                print("\tUnknown command type!")
         return False
 
     def wait(self, seconds: float = 2) -> bool:

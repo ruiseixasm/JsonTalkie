@@ -29,7 +29,7 @@ class CommandLine:
                 print("\tExiting...")
                 break
             except KeyboardInterrupt:  # Ctrl+C
-                print("\nUse Ctrl+D to exit")
+                print("\tUse Ctrl+D to exit")
                 continue
             except Exception as e:
                 print(f"\tError: {e}")
@@ -64,7 +64,7 @@ class CommandLine:
                         else:
                             print(f"{words[0]} has not enough arguments!")
             else:
-                print(f"{words[0]} is not a valid command type!")
+                print(f"\t{words[0]} is not a valid command type!")
 
 
 
@@ -83,10 +83,10 @@ if __name__ == "__main__":
 
     # Start listening (opens socket)
     if not json_talkie.on():
-        print("Failed to turn jsonTalkie On!")
+        print("\tFailed to turn jsonTalkie On!")
         exit(1)
     
-    print(f"[{manifesto['talker']['name']}] running. Type 'exit' to exit or 'talk' to make them talk.")
+    print(f"\t[{manifesto['talker']['name']}] running. Type 'exit' to exit or 'talk' to make them talk.")
     cli = CommandLine()
     cli.run()
 
