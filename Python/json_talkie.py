@@ -37,6 +37,7 @@ class JsonTalkie:
         """Sends messages without network awareness."""
         message['from'] = self._manifesto['talker']['name']
         message['id'] = self.generate_message_id()
+        self._last_message = message
         talk: Dict[str, Any] = {
             'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
             'message': message
@@ -60,26 +61,33 @@ class JsonTalkie:
         """Handles message content only."""
         match message['type']:
             case "call":
-                print(f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}")
+                self.echo(f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}", message['from'])
             case "list":
                 if 'run' in self._manifesto:
-                    print(f"[{self._manifesto['talker']['name']}] 'run':")
                     for key, value in self._manifesto['run'].items():
-                        print(f"\t'{key}'\t{value['description']}")
+                        self.echo(f"[run {self._manifesto['talker']['name']} {key}]\t{value['description']}", message['from'])
             case "run":
                 function = self._manifesto['run'][message['function']]['function']
                 function()
             case "echo":
-                if message['id'] == last_message['id']:
-                    match last_message['type']:
+                if message['id'] == self._last_message['id']:
+                    match self._last_message['type']:
                         case "list":
                             print(f"[{message['from']}] Listed")
                         case "run":
                             print(f"[{message['from']}] Executed")
-                            last_message = {}
+                            self._last_message = {}
             case _:
                 print("Unknown command type!")
         return False
+
+    def echo(self, response: str, to: str) -> bool:
+        message: Dict[str, Any] = {
+            'type': 'echo',
+            'response': response,
+            'to': to
+        }
+        return self.talk(message)
 
     def wait(self, seconds: float = 2) -> bool:
         return self._last_message and time.time() - self._message_time < seconds
