@@ -4,6 +4,7 @@
         "microcontrollers",
         "REUSEADDR",
         "simpleaudio",
+        "soundaudio",
         "Walkie"
     ]
 }

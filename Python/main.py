@@ -7,17 +7,11 @@ from json_talkie import *
 
 import numpy as np
 import simpleaudio as sa
+import sounddevice as sd  # Using sounddevice instead of soundaudio for better reliability
 
-def buzz(duration_ms=500, freq=1000, volume=0.5):
-    """High-quality buzzer sound"""
-    sample_rate = 44100  # CD quality
-    t = np.linspace(0, duration_ms/1000, int(sample_rate * duration_ms/1000), False)
-    wave = np.sin(2 * np.pi * freq * t) * volume
-    
-    # Convert to 16-bit PCM
-    audio = (wave * 32767).astype(np.int16)
-    play_obj = sa.play_buffer(audio, 1, 2, sample_rate)
-    play_obj.wait_done()
+def buzz():
+    print("BUZZING")
+    print('\a')
 
 manifesto: Dict[str, Any] = {
     'talk': {
