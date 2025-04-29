@@ -5,36 +5,65 @@ from broadcast_socket_udp import *
 from json_talkie import *
 
 
-def buzz():
-    print("\tBUZZING")
-    print('\a')
-
-# Defines 'talk', 'run', 'set', 'get' parameters
-manifesto: Dict[str, Dict[str, Any]] = {
-    'talker': {
-        'name': 'Buzzer',
-        'description': 'This device does a 500ms buzz!'
-    },
-    'run': {
-        'buzz': {
-            'description': 'Triggers a 500ms buzzing sound',
-            'function': buzz
+class Talker:
+    def __init__(self):
+        # Defines 'talk', 'run', 'set', 'get' parameters
+        self.manifesto: Dict[str, Dict[str, Any]] = {
+            'talker': {
+                'name': 'Buzzer',
+                'description': 'This device does a 500ms buzz!'
+            },
+            'run': {
+                'buzz': {
+                    'description': 'Triggers a 500ms buzzing sound',
+                    'function': self.buzz
+                },
+                'print':{
+                    'description': 'Prints the duration on the device',
+                    'function': self.print_duration
+                }
+            },
+            'set': {
+                'duration': {
+                    'description': 'Sets the duration of Buzzing in seconds',
+                    'function': self.set_duration
+                }
+            },
+            'get': {
+                'duration': {
+                    'description': 'Gets the duration of Buzzing in seconds',
+                    'function': self.get_duration
+                }
+            }
         }
-    }
-}
+        # Talker self variables
+        self._duration: float = 0.5
+
+    def buzz(self):
+        print(f"\tBUZZING for {self._duration} seconds!\a")
+
+    def print_duration(self):
+        print(f"\t{self._duration}")
+
+    def set_duration(self, duration: float):
+        self._duration = duration
+
+    def get_duration(self) -> float:
+        return self._duration
 
 
 if __name__ == "__main__":
 
+    talker = Talker()
     broadcast_socket: BroadcastSocket = BroadcastSocket_UDP()
-    json_talkie: JsonTalkie = JsonTalkie(broadcast_socket, manifesto)
+    json_talkie: JsonTalkie = JsonTalkie(broadcast_socket, talker.manifesto)
 
     # Start listening (opens socket)
     if not json_talkie.on():
         print("\tFailed to turn jsonTalkie On!")
         exit(1)
     
-    print(f"\tTalker {manifesto['talker']['name']} running. Press Ctrl+C to stop.")
+    print(f"\tTalker {talker.manifesto['talker']['name']} running. Press Ctrl+C to stop.")
     
     try:
         message: Dict[str, Any] = {

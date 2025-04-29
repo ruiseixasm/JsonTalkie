@@ -75,19 +75,10 @@ class JsonTalkie:
                 else:
                     echo['response'] = f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}"
                     self.talk(echo)
-            case "call":
-                if 'run' in self._manifesto:
-                    for key, value in self._manifesto['run'].items():
-                        echo: Dict[str, Any] = {
-                            'type': 'echo',
-                            'response': f"\t[run {self._manifesto['talker']['name']} {key}]\t{value['description']}",
-                            'to': message['from'],
-                            'id': message['id']
-                        }
-                        self.talk(echo)
             case "run":
-                function = self._manifesto['run'][message['function']]['function']
-                function()
+                if 'run' in self._manifesto:
+                    function = self._manifesto['run'][message['function']]['function']
+                    function()
             case "echo":
                 if message['id'] == self._last_message['id']:
                 # if True:
@@ -107,7 +98,7 @@ class JsonTalkie:
                 if 'type' in message and 'from' in message and 'id' in message:
                     if 'to' in message:
                         return message['to'] == self._manifesto['talker']['name']
-                    return message['type'] == "talk"
+                    return True
         return False
 
 
