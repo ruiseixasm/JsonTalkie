@@ -69,8 +69,8 @@ class Talker:
             # Handle cases where conversion fails
             return f"Duration of '{duration}' is NOT a float!"
 
-    def get_duration(self) -> float:
-        return self._duration
+    def get_duration(self) -> str:
+        return str(self._duration)
     
     def echo(self, message: Dict[str, Any], response: str) -> bool:
         print(f"\t{response}")
