@@ -67,7 +67,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
             if time.time() - self._time > 1:
                 self._time = time.time()
                 random_number: int = random.randint(0, 1000)
-                if random.randint(0, 1000) < 100:
+                if random.randint(0, 1000) < 10:
                     divide: float = 1/random_number
                     message = self.messages[random_number % len(self.messages)]
                     message['id'] = BroadcastSocket_Dummy.message_id()
