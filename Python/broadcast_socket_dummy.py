@@ -53,8 +53,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
             divide: float = 1/random.randint(0, 1000)
             print(f"DUMMY SENT: {data}")
             talk: Dict[str, Any] = BroadcastSocket_Dummy.decode(data)
-            message: Dict[str, Any] = talk['message']
-            self._sent_message = message
+            self._sent_message = talk['message']
             return True
         except Exception as e:
             print(f"DUMMY Send failed: {e}")
