@@ -34,7 +34,8 @@ class Talker:
                     'description': 'Gets the duration of Buzzing in seconds',
                     'function': self.get_duration
                 }
-            }
+            },
+            'echo': self.echo
         }
         # Talker self variables
         self._duration: float = 0.5
@@ -51,6 +52,10 @@ class Talker:
 
     def get_duration(self) -> float:
         return self._duration
+    
+    def echo(self, message: Dict[str, Any], response: str) -> bool:
+        print(f"\t{response}")
+        return True
 
 
 if __name__ == "__main__":
