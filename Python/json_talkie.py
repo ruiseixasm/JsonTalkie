@@ -158,10 +158,7 @@ class JsonTalkie:
 
     @staticmethod
     def message_id() -> str:
-        """Creates a unique message ID combining timestamp and UUID"""
-        # timestamp: str = hex(int(time.time() * 1000))[2:]  # Millisecond precision
-        # id: str = uuid.uuid4().hex[:8]  # First 8 chars of UUID
-        # return f"{timestamp}-{id}"
+        """Creates a unique message ID"""
         return uuid.uuid4().hex[:8]
     
     @staticmethod
