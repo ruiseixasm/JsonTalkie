@@ -66,7 +66,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
                 if random.randint(0, 1000) < 10:
                     divide: float = 1/random_number
                     data = self.receives[random_number % len(self.receives)]
-                    talk = data.decode('utf-8')
+                    talk = BroadcastSocket_Dummy.decode(data)
                     
                     print(f"DUMMY RECEIVED: {data}")
                     return data
@@ -74,16 +74,24 @@ class BroadcastSocket_Dummy(BroadcastSocket):
         except BlockingIOError:
             return None
         except Exception as e:
-            print(f"Receive error: {e}")
+            print(f"DUMMY Receive error: {e}")
             return None
-        
-    receives: tuple[tuple] = [
-        (b'{"checksum": 7018, "message": {"type": "run", "what": "buzz", "to": "Buzzer", "from": "Buzzer", "id": "bc40fd17"}}', ('192.168.31.22', 5005)),
-        (b'{"checksum": 23366, "message": {"type": "echo", "to": "Buzzer", "id": "bc40fd17", "response": "[Buzzer buzz]\\tCalled", "from": "Buzzer"}}', ('192.168.31.22', 5005)),
-        (b'{"checksum": 9331, "message": {"type": "talk", "from": "Talker-a6", "id": "dce4fac7"}}', ('192.168.31.22', 5005)),
-        (b'{"checksum": 31299, "message": {"type": "echo", "to": "Talker-a6", "id": "dce4fac7", "response": "[Talker-a6]\\tA simple Talker!", "from": "Talker-a6"}}', ('192.168.31.22', 5005))
-    ]
 
+    messages: tuple[Dict[str, Any]] = (
+        {"type": "run", "what": "buzz", "to": "Buzzer", "from": "Buzzer", "id": "bc40fd17"},
+        {"type": "echo", "to": "Buzzer", "id": "bc40fd17", "response": "[Buzzer buzz]\\tCalled", "from": "Buzzer"},
+        {"type": "talk", "from": "Dummy", "id": "dce4fac7"},
+        {"type": "echo", "to": "Talker-a6", "id": "dce4fac7", "response": "[Talker-a6]\\tA simple Talker!", "from": "Talker-a6"}
+    )
+
+    @staticmethod
+    def message_id() -> str:
+        """Creates a unique message ID combining timestamp and UUID"""
+        # timestamp: str = hex(int(time.time() * 1000))[2:]  # Millisecond precision
+        # id: str = uuid.uuid4().hex[:8]  # First 8 chars of UUID
+        # return f"{timestamp}-{id}"
+        return uuid.uuid4().hex[:8]
+    
     @staticmethod
     def checksum_16bit_bytes(data: bytes) -> int:
         """16-bit XOR checksum for bytes"""
@@ -95,6 +103,14 @@ class BroadcastSocket_Dummy(BroadcastSocket):
                 chunk |= data[i+1]
             checksum ^= chunk
         return checksum & 0xFFFF
+
+    @staticmethod
+    def encode(talk: Dict[str, Any]) -> bytes:
+        return json.dumps(talk).encode('utf-8')
+
+    @staticmethod
+    def decode(data: bytes) -> Dict[str, Any]:
+        return data.decode('utf-8')
 
     @staticmethod
     def checksum(message: Dict[str, Any]) -> int:
