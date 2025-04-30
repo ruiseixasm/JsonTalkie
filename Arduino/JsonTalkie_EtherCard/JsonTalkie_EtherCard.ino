@@ -1,4 +1,5 @@
 #include "BroadcastSocket_EtherCard.h"
+uint8_t Ethernet::buffer[ETHER_BUFFER_SIZE]; // Essential for EtherCard
 
 uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
 const uint8_t CS_PIN = 8;
