@@ -143,9 +143,6 @@ class JsonTalkie:
                 print("\tUnknown command type!")
         return False
 
-    def wait(self, seconds: float = 2) -> bool:
-        return self._last_message and time.time() - self._message_time < seconds
-
     def validate_talk(self, talk: Dict[str, Any]) -> bool:
         if isinstance(talk, dict) and 'checksum' in talk and 'message' in talk:
             message_checksum: int = talk['checksum']
@@ -167,14 +164,6 @@ class JsonTalkie:
         # return f"{timestamp}-{id}"
         return uuid.uuid4().hex[:8]
     
-    @staticmethod
-    def checksum_8bit(message: str) -> int:
-        """Lightweight checksum suitable for microcontrollers"""
-        checksum = 0
-        for char in message:
-            checksum ^= ord(char)  # XOR each character
-        return checksum % 256  # Ensure 8-bit value
-
     @staticmethod
     def checksum_16bit_bytes(data: bytes) -> int:
         """16-bit XOR checksum for bytes"""
