@@ -12,9 +12,10 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 '''
 import socket
+import json
 import random
 import time
-from typing import Optional, Tuple, Any
+from typing import Optional, Tuple, Any, Dict
 
 from broadcast_socket import BroadcastSocket
 
@@ -94,3 +95,8 @@ class BroadcastSocket_Dummy(BroadcastSocket):
                 chunk |= data[i+1]
             checksum ^= chunk
         return checksum & 0xFFFF
+
+    @staticmethod
+    def checksum(message: Dict[str, Any]) -> int:
+        data = json.dumps(message).encode('utf-8')
+        return BroadcastSocket_Dummy.checksum_16bit_bytes(data)
