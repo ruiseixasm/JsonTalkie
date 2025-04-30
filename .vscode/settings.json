@@ -6,5 +6,9 @@
         "simpleaudio",
         "soundaudio",
         "Walkie"
-    ]
+    ],
+    "files.associations": {
+        "*.txt": "cmake",
+        "xlocale": "cpp"
+    }
 }
