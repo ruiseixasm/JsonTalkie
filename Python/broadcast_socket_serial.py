@@ -23,16 +23,18 @@ from broadcast_socket import BroadcastSocket
 class BroadcastSocket_Serial(BroadcastSocket):
     """Dummy broadcast socket with explicit lifecycle control."""
     
-    def __init__(self, baud: int = 9600):
-        self._baud = baud
+    def __init__(self, port: str = 'COM4'):
+        self._port = port
         self._socket = None  # Not initialized until open()
-        self._time: float = time.time()
     
     def open(self) -> bool:
         """Initialize and bind the socket."""
         try:
-            divide: float = 1/random.randint(0, 1000)
-            self._socket = True
+            self._socket = serial.Serial(
+                port=self._port,
+                baudrate=9600,
+                timeout=1
+            )
             return True
         except Exception as e:
             print(f"Socket open failed: {e}")
@@ -41,6 +43,7 @@ class BroadcastSocket_Serial(BroadcastSocket):
     def close(self):
         """Release socket resources."""
         if self._socket:
+            self._socket.close()
             self._socket = None
     
     def send(self, data: bytes) -> bool:
@@ -48,7 +51,7 @@ class BroadcastSocket_Serial(BroadcastSocket):
         if not self._socket:
             return False
         try:
-            divide: float = 1/random.randint(0, 1000)
+            self._socket.write(data)  # Send with newline
             return True
         except Exception as e:
             print(f"Send failed: {e}")
@@ -59,34 +62,13 @@ class BroadcastSocket_Serial(BroadcastSocket):
         if not self._socket:
             return None
         try:
-            if time.time() - self._time > 1:
-                self._time = time.time()
-                random_number: int = random.randint(0, 1000)
-                if random.randint(0, 1000) < 100:
-                    divide: float = 1/random_number
-                    return self.receives[random_number % len(self.receives)]
+            data = self._socket.readline().decode().strip()
+            if data:
+                return data
             return None
         except BlockingIOError:
             return None
         except Exception as e:
             print(f"Receive error: {e}")
             return None
-        
-    receives: tuple[tuple] = [
-        (b'{"checksum": 7018, "message": {"type": "run", "what": "buzz", "to": "Buzzer", "from": "Buzzer", "id": "bc40fd17"}}', ('192.168.31.22', 5005)),
-        (b'{"checksum": 23366, "message": {"type": "echo", "to": "Buzzer", "id": "bc40fd17", "response": "[Buzzer buzz]\\tCalled", "from": "Buzzer"}}', ('192.168.31.22', 5005)),
-        (b'{"checksum": 9331, "message": {"type": "talk", "from": "Talker-a6", "id": "dce4fac7"}}', ('192.168.31.22', 5005)),
-        (b'{"checksum": 31299, "message": {"type": "echo", "to": "Talker-a6", "id": "dce4fac7", "response": "[Talker-a6]\\tA simple Talker!", "from": "Talker-a6"}}', ('192.168.31.22', 5005))
-    ]
 
-    @staticmethod
-    def checksum_16bit_bytes(data: bytes) -> int:
-        """16-bit XOR checksum for bytes"""
-        checksum = 0
-        for i in range(0, len(data), 2):
-            # Combine two bytes into 16-bit value
-            chunk = data[i] << 8
-            if i+1 < len(data):
-                chunk |= data[i+1]
-            checksum ^= chunk
-        return checksum & 0xFFFF
