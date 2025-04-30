@@ -12,13 +12,15 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 '''
 from typing import Dict, Any, List
-from prompt_toolkit import PromptSession
+from prompt_toolkit import PromptSession    # python3.13 -m pip install prompt_toolkit
 from prompt_toolkit.history import FileHistory
 import os
 import time
 import uuid
 
 from broadcast_socket_udp import *
+from broadcast_socket_dummy import *
+from broadcast_socket_serial import *
 from json_talkie import *
 
 class CommandLine:
@@ -105,12 +107,20 @@ class CommandLine:
         return True
 
 
-
-
 if __name__ == "__main__":
 
+    SOCKET = "DUMMY"
+
+    broadcast_socket: BroadcastSocket = None
+    match SOCKET:
+        case "SERIAL":
+            broadcast_socket = BroadcastSocket_Serial()
+        case "DUMMY":
+            broadcast_socket = BroadcastSocket_Dummy()
+        case _:
+            broadcast_socket = BroadcastSocket_UDP()
+
     cli = CommandLine()
-    broadcast_socket: BroadcastSocket = BroadcastSocket_UDP()
     json_talkie: JsonTalkie = JsonTalkie(broadcast_socket, cli.manifesto)
 
     # Start listening (opens socket)
