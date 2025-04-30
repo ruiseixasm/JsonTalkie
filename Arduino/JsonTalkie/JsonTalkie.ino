@@ -11,39 +11,51 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
+#include "JsonTalkie.h"
 #include "BroadcastSocket_Serial.h"
 
-BroadcastSocket_Serial serialSocket(9600); // Using default Serial
+BroadcastSocket_Serial socket(9600);
+const char* manifesto = R"(
+{
+    "talker": {
+        "name": "Arduino1",
+        "description": "Basic Arduino Talker"
+    },
+    "get": {
+        "temperature": {
+            "description": "Current temperature",
+            "function": "getTemp"
+        }
+    }
+}
+)";
+
+JsonTalkie talkie(&socket, manifesto);
+
+float getTemperature() {
+    return 25.0; // Example temperature reading
+}
 
 void setup() {
-    Serial.begin(115200); // For debug output
-    while(!Serial); // Wait for serial port to connect (for USB)
+    Serial.begin(115200);
+    while (!Serial);
     
-    if (!serialSocket.begin()) {
-        Serial.println("Failed to initialize serial!");
+    if (!talkie.begin()) {
+        Serial.println("Failed to initialize JsonTalkie!");
         while(1);
     }
-    Serial.println("Ready for JSON communication");
+    Serial.println("JsonTalkie ready");
 }
 
 void loop() {
-    // Example: Send JSON data
-    const char* jsonMsg = "{\"status\":\"ok\"}";
-    if (!serialSocket.write((const uint8_t*)jsonMsg, strlen(jsonMsg))) {
-        Serial.println("Send failed");
-    }
-
-    // Check for incoming data
-    if (serialSocket.available()) {
-        uint8_t buffer[256];
-        size_t bytesRead = serialSocket.read(buffer, sizeof(buffer)-1);
-        
-        if (bytesRead > 0) {
-            buffer[bytesRead] = '\0';
-            Serial.print("Received JSON: ");
-            Serial.println((char*)buffer);
-        }
-    }
+    talkie.listen();
     
-    delay(1000);
+    // Example: Send a message every 5 seconds
+    static unsigned long lastSend = 0;
+    if (millis() - lastSend > 5000) {
+        DynamicJsonDocument doc(128);
+        doc["type"] = "talk";
+        talkie.talk(doc.as<JsonObject>());
+        lastSend = millis();
+    }
 }
