@@ -53,15 +53,21 @@ class Talker:
         # Talker self variables
         self._duration: float = 0.5
 
-    def buzz(self):
+    def buzz(self) -> str:
         print(f"\tBUZZING for {self._duration} seconds!\a")
+        time.sleep(self._duration) # Take its time
+        return f"Buzzing done for {self._duration}"
 
-    def print_duration(self):
+    def print_duration(self) -> str:
         print(f"\t{self._duration}")
 
-    def set_duration(self, duration: float) -> bool:
-        self._duration = duration
-        return True
+    def set_duration(self, duration: str) -> str:
+        try:
+            self._duration = float(duration)
+            return f"Duration is now set to {self._duration}"
+        except (ValueError, TypeError):
+            # Handle cases where conversion fails
+            return f"Duration of '{duration}' is NOT a float!"
 
     def get_duration(self) -> float:
         return self._duration

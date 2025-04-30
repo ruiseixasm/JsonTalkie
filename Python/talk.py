@@ -109,7 +109,7 @@ class CommandLine:
 
 if __name__ == "__main__":
 
-    SOCKET = "DUMMY"
+    SOCKET = "UDP"
 
     broadcast_socket: BroadcastSocket = None
     match SOCKET:

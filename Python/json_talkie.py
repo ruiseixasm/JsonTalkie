@@ -100,23 +100,31 @@ class JsonTalkie:
             case "run":
                 if 'what' in message and 'run' in self._manifesto and message['what'] in self._manifesto['run']:
                     function = self._manifesto['run'][message['what']]['function']
-                    self.talk({
+                    echo: Dict[str, Any] = {
                         'type': 'echo',
                         'to': message['from'],
                         'id': message['id'],
-                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tCalled"
-                    })
-                    function()
+                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tCalled..."
+                    }
+                    self.talk(echo)
+                    function_response: str = function()
+                    if function_response and isinstance(function_response, str):
+                        echo['response'] = function_response
+                        self.talk(echo)
             case "set":
                 if 'what' in message and 'value' in message and 'set' in self._manifesto and message['what'] in self._manifesto['set']:
                     function = self._manifesto['set'][message['what']]['function']
-                    if function(message['value']):
-                        self.talk({
-                            'type': 'echo',
-                            'to': message['from'],
-                            'id': message['id'],
-                            'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tSet to {message['value']}"
-                        })
+                    echo: Dict[str, Any] = {
+                        'type': 'echo',
+                        'to': message['from'],
+                        'id': message['id'],
+                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tSetting to {message['value']}..."
+                    }
+                    self.talk(echo)
+                    function_response: str = function(message['value'])
+                    if function_response and isinstance(function_response, str):
+                        echo['response'] = function_response
+                        self.talk(echo)
             case "get":
                 if 'what' in message and 'get' in self._manifesto and message['what'] in self._manifesto['get']:
                     function = self._manifesto['get'][message['what']]['function']
