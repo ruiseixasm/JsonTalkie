@@ -120,7 +120,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
 
     @staticmethod
     def decode(data: bytes) -> Dict[str, Any]:
-        return data.decode('utf-8')
+        return json.loads(data.decode('utf-8'))
 
     @staticmethod
     def checksum(message: Dict[str, Any]) -> int:
