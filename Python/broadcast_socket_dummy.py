@@ -13,6 +13,8 @@ https://github.com/ruiseixasm/JsonTalkie
 '''
 import socket
 import json
+import threading
+import uuid
 import random
 import time
 from typing import Optional, Tuple, Any, Dict
@@ -26,7 +28,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
         self._port = port
         self._socket = None  # Not initialized until open()
         self._time: float = time.time()
-        self._last_talker: str = "Buzzer"
+        self._sent_message: Dict[str, Any] = {}
     
     def open(self) -> bool:
         """Initialize and bind the socket."""
@@ -50,9 +52,12 @@ class BroadcastSocket_Dummy(BroadcastSocket):
         try:
             divide: float = 1/random.randint(0, 1000)
             print(f"DUMMY SENT: {data}")
+            talk: Dict[str, Any] = BroadcastSocket_Dummy.decode(data)
+            message: Dict[str, Any] = talk['message']
+            self._sent_message = message
             return True
         except Exception as e:
-            print(f"Send failed: {e}")
+            print(f"DUMMY Send failed: {e}")
             return False
     
     def receive(self) -> Optional[Tuple[bytes, Tuple[str, int]]]:
@@ -65,9 +70,14 @@ class BroadcastSocket_Dummy(BroadcastSocket):
                 random_number: int = random.randint(0, 1000)
                 if random.randint(0, 1000) < 10:
                     divide: float = 1/random_number
-                    data = self.receives[random_number % len(self.receives)]
-                    talk = BroadcastSocket_Dummy.decode(data)
-                    
+                    message = self.messages[random_number % len(self.messages)]
+                    message['id'] = BroadcastSocket_Dummy.message_id()
+                    checksum = BroadcastSocket_Dummy.checksum(message)
+                    talk: Dict[str, Any] = {
+                        'checksum': checksum,
+                        'message': message
+                    }
+                    data = BroadcastSocket_Dummy.encode(talk)
                     print(f"DUMMY RECEIVED: {data}")
                     return data
             return None
