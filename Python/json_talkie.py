@@ -50,14 +50,14 @@ class JsonTalkie:
         """Sends messages without network awareness."""
         message['from'] = self._manifesto['talker']['name']
         if 'id' not in message:
-            message['id'] = self.generate_message_id()
+            message['id'] = JsonTalkie.message_id()
         if message['type'] != "echo":
             self._last_message = message
         talk: Dict[str, Any] = {
             'checksum': JsonTalkie.checksum(message),
             'message': message
         }
-        return self._socket.send( json.dumps(talk).encode('utf-8') )
+        return self._socket.send( JsonTalkie.encode(talk) )
     
     def listen(self):
         """Processes raw bytes from socket."""
@@ -66,7 +66,7 @@ class JsonTalkie:
             if received:
                 data, _ = received  # Explicitly ignore (ip, port)
                 try:
-                    talk: Dict[str, Any] = json.loads(data.decode('utf-8'))
+                    talk: Dict[str, Any] = JsonTalkie.decode(data)
                     if self.validate_talk(talk):
                         self.receive(talk['message'])
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
@@ -152,12 +152,12 @@ class JsonTalkie:
 
 
     @staticmethod
-    def generate_message_id() -> str:
+    def message_id() -> str:
         """Creates a unique message ID combining timestamp and UUID"""
         # timestamp: str = hex(int(time.time() * 1000))[2:]  # Millisecond precision
-        message_id: str = uuid.uuid4().hex[:8]  # First 8 chars of UUID
-        # return f"{timestamp}-{message_id}"
-        return message_id
+        # id: str = uuid.uuid4().hex[:8]  # First 8 chars of UUID
+        # return f"{timestamp}-{id}"
+        return uuid.uuid4().hex[:8]
     
     @staticmethod
     def checksum_8bit(message: str) -> int:
@@ -178,6 +178,14 @@ class JsonTalkie:
                 chunk |= data[i+1]
             checksum ^= chunk
         return checksum & 0xFFFF
+
+    @staticmethod
+    def encode(talk: Dict[str, Any]) -> bytes:
+        return json.dumps(talk).encode('utf-8')
+
+    @staticmethod
+    def decode(data: bytes) -> Dict[str, Any]:
+        return data.decode('utf-8')
 
     @staticmethod
     def checksum(message: Dict[str, Any]) -> int:
