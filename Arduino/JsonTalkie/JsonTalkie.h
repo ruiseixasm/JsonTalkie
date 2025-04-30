@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define JSON_TALKIE_H
 
 #include <Arduino.h>
-#include <ArduinoJson.h>
+#include <ArduinoJson.h>    // Install ArduinoJson Library
 
 class BroadcastSocket; // Forward declaration
 
@@ -28,7 +28,6 @@ private:
     bool _running;
 
     bool validateTalk(JsonObjectConst talk);
-    void processMessage(JsonObjectConst message);
 
 public:
     JsonTalkie(BroadcastSocket* socket, const char* manifesto);
