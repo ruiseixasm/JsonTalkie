@@ -47,6 +47,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
             return False
         try:
             divide: float = 1/random.randint(0, 1000)
+            print(f"DUMMY SENT: {data}")
             return True
         except Exception as e:
             print(f"Send failed: {e}")
@@ -60,9 +61,11 @@ class BroadcastSocket_Dummy(BroadcastSocket):
             if time.time() - self._time > 1:
                 self._time = time.time()
                 random_number: int = random.randint(0, 1000)
-                if random.randint(0, 1000) < 100:
+                if random.randint(0, 1000) < 10:
                     divide: float = 1/random_number
-                    return self.receives[random_number % len(self.receives)]
+                    data = self.receives[random_number % len(self.receives)]
+                    print(f"DUMMY RECEIVED: {data}")
+                    return data
             return None
         except BlockingIOError:
             return None
