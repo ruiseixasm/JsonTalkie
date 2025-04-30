@@ -193,7 +193,12 @@ class JsonTalkie:
 
     @staticmethod
     def decode(data: bytes) -> Dict[str, Any]:
-        return json.loads(data.decode('utf-8'))
+        data_str = data.decode('utf-8')
+        try:
+            data_dict = json.loads(data_str)
+            return data_dict
+        except (json.JSONDecodeError):
+            return None
 
     @staticmethod
     def checksum(message: Dict[str, Any]) -> int:
