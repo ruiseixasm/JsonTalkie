@@ -13,7 +13,15 @@ class CommandLine:
         # Ensure history file exists
         if not os.path.exists(".cmd_history"):
             open(".cmd_history", 'w').close()
-            
+        # Defines 'talk', 'run', 'set', 'get' parameters
+        self.manifesto: Dict[str, Dict[str, Any]] = {
+            'talker': {
+                'name': f"Talker-{str(uuid.uuid4())[:2]}",
+                'description': 'A simple Talker!'
+            },
+            'echo': self.echo
+        }
+
         self.session = PromptSession(history=FileHistory('.cmd_history'))
 
     def run(self):
@@ -79,28 +87,25 @@ class CommandLine:
             else:
                 print(f"\t'{words[0]}' is not a valid command type!")
 
+    def echo(self, message: Dict[str, Any], response: str) -> bool:
+        print(f"\t{response}")
+        return True
 
 
-manifesto: Dict[str, Dict[str, Any]] = {
-    'talker': {
-        'name': f"Talker-{str(uuid.uuid4())[:2]}",
-        'description': 'A simple Talker!'
-    }
-}
 
 
 if __name__ == "__main__":
 
+    cli = CommandLine()
     broadcast_socket: BroadcastSocket = BroadcastSocket_UDP()
-    json_talkie: JsonTalkie = JsonTalkie(broadcast_socket, manifesto)
+    json_talkie: JsonTalkie = JsonTalkie(broadcast_socket, cli.manifesto)
 
     # Start listening (opens socket)
     if not json_talkie.on():
         print("\tFailed to turn jsonTalkie On!")
         exit(1)
     
-    print(f"\t[{manifesto['talker']['name']}] running. Type 'exit' to exit or 'talk' to make them talk.")
-    cli = CommandLine()
+    print(f"\t[{cli.manifesto['talker']['name']}] running. Type 'exit' to exit or 'talk' to make them talk.")
     cli.run()
 
     json_talkie.off()  # Turns jsonTalkie Off

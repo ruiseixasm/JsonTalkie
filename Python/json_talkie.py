@@ -115,7 +115,9 @@ class JsonTalkie:
                     })
             case "echo":
                 if self._last_message and message['id'] == self._last_message['id']:
-                    print(f"\t{message['response']}")
+                    if 'echo' in self._manifesto:
+                        echo = self._manifesto['echo']
+                        echo(self._last_message, message['response'])
             case _:
                 print("\tUnknown command type!")
         return False
