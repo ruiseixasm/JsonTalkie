@@ -76,3 +76,15 @@ class BroadcastSocket_Dummy(BroadcastSocket):
         (b'{"checksum": 9331, "message": {"type": "talk", "from": "Talker-a6", "id": "dce4fac7"}}', ('192.168.31.22', 5005)),
         (b'{"checksum": 31299, "message": {"type": "echo", "to": "Talker-a6", "id": "dce4fac7", "response": "[Talker-a6]\\tA simple Talker!", "from": "Talker-a6"}}', ('192.168.31.22', 5005))
     ]
+
+    @staticmethod
+    def checksum_16bit_bytes(data: bytes) -> int:
+        """16-bit XOR checksum for bytes"""
+        checksum = 0
+        for i in range(0, len(data), 2):
+            # Combine two bytes into 16-bit value
+            chunk = data[i] << 8
+            if i+1 < len(data):
+                chunk |= data[i+1]
+            checksum ^= chunk
+        return checksum & 0xFFFF
