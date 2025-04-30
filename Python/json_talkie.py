@@ -139,7 +139,7 @@ class JsonTalkie:
         return self._last_message and time.time() - self._message_time < seconds
 
     def validate_talk(self, talk: Dict[str, Any]) -> bool:
-        if 'checksum' in talk and 'message' in talk:
+        if isinstance(talk, dict) and 'checksum' in talk and 'message' in talk:
             message_checksum: int = talk['checksum']
             if message_checksum == JsonTalkie.checksum(talk['message']):
                 message: int = talk['message']
