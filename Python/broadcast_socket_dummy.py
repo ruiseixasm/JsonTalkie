@@ -25,6 +25,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
         self._port = port
         self._socket = None  # Not initialized until open()
         self._time: float = time.time()
+        self._last_talker: str = "Buzzer"
     
     def open(self) -> bool:
         """Initialize and bind the socket."""
@@ -64,6 +65,8 @@ class BroadcastSocket_Dummy(BroadcastSocket):
                 if random.randint(0, 1000) < 10:
                     divide: float = 1/random_number
                     data = self.receives[random_number % len(self.receives)]
+                    talk = data.decode('utf-8')
+                    
                     print(f"DUMMY RECEIVED: {data}")
                     return data
             return None

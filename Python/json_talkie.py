@@ -54,7 +54,7 @@ class JsonTalkie:
         if message['type'] != "echo":
             self._last_message = message
         talk: Dict[str, Any] = {
-            'checksum': JsonTalkie.checksum_16bit_bytes( json.dumps(message).encode('utf-8') ),
+            'checksum': JsonTalkie.checksum(message),
             'message': message
         }
         return self._socket.send( json.dumps(talk).encode('utf-8') )
@@ -141,7 +141,7 @@ class JsonTalkie:
     def validate_talk(self, talk: Dict[str, Any]) -> bool:
         if 'checksum' in talk and 'message' in talk:
             message_checksum: int = talk['checksum']
-            if message_checksum == JsonTalkie.checksum_16bit_bytes( json.dumps(talk['message']).encode('utf-8') ):
+            if message_checksum == JsonTalkie.checksum(talk['message']):
                 message: int = talk['message']
                 if 'type' in message and 'from' in message and 'id' in message:
                     if 'to' in message:
@@ -178,4 +178,9 @@ class JsonTalkie:
                 chunk |= data[i+1]
             checksum ^= chunk
         return checksum & 0xFFFF
+
+    @staticmethod
+    def checksum(message: Dict[str, Any]) -> int:
+        data = json.dumps(message).encode('utf-8')
+        return JsonTalkie.checksum_16bit_bytes(data)
 
