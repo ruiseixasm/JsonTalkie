@@ -104,7 +104,7 @@ class JsonTalkie:
                         'type': 'echo',
                         'to': message['from'],
                         'id': message['id'],
-                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tCalled..."
+                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tRUN"
                     }
                     self.talk(echo)
                     function_response: str = function()
@@ -118,7 +118,7 @@ class JsonTalkie:
                         'type': 'echo',
                         'to': message['from'],
                         'id': message['id'],
-                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tSetting to {message['value']}..."
+                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tSET"
                     }
                     self.talk(echo)
                     function_response: str = function(message['value'])
