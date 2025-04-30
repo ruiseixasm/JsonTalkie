@@ -72,17 +72,44 @@ void JsonTalkie::listen() {
             DeserializationError error = deserializeJson(doc, (const char*)buffer);
             
             if (!error && validateTalk(doc.as<JsonObject>())) {
-                processMessage(doc["message"]);
+                receive(doc["message"]);
             }
         }
     }
 }
 
 bool JsonTalkie::receive(JsonObjectConst message) {
-    // Implementation of message processing
-    // Similar to Python version but adapted for ArduinoJson
-    // ...
-    return true;
+    const char* type = message["type"];
+    
+    if (!type) return false;
+
+    if (strcmp(type, "talk") == 0) {
+        DynamicJsonDocument echoDoc(256);
+        JsonObject echo = echoDoc.to<JsonObject>();
+        echo["type"] = "echo";
+        echo["to"] = message["from"];
+        echo["id"] = message["id"];
+        
+        if (message.containsKey("to")) {
+            // Handle commands (run/set/get)
+            if (_manifesto.containsKey("run")) {
+                for (JsonPair kv : _manifesto["run"].as<JsonObject>()) {
+                    echo["response"] = "[run " + _manifesto["talker"]["name"].as<String>() + " " + kv.key().c_str() + "]\t" + kv.value()["description"].as<String>();
+                    talk(echo);
+                }
+            }
+            // Similar blocks for "set" and "get"...
+        } else {
+            echo["response"] = "[" + _manifesto["talker"]["name"].as<String>() + "]\t" + _manifesto["talker"]["description"].as<String>();
+            talk(echo);
+        }
+    }
+    else if (strcmp(type, "run") == 0) {
+        // Implement run command handling...
+    }
+    // Other message types...
+    
+    return false;
 }
 
 bool JsonTalkie::validateTalk(JsonObjectConst talk) {
