@@ -51,7 +51,8 @@ class BroadcastSocket_Serial(BroadcastSocket):
         if not self._socket:
             return False
         try:
-            self._socket.write(data)  # Send with newline
+            serial_data: str = BroadcastSocket_Serial.decode(data)
+            self._socket.write(serial_data)  # Send with newline
             return True
         except Exception as e:
             print(f"Send failed: {e}")
@@ -62,13 +63,23 @@ class BroadcastSocket_Serial(BroadcastSocket):
         if not self._socket:
             return None
         try:
-            data = self._socket.readline().decode().strip()
-            if data:
-                return data
+            serial_data = self._socket.readline().decode().strip()
+            if serial_data:
+                data: bytes = BroadcastSocket_Serial.encode(serial_data)
+                return (data, None) # As data_tuple
             return None
         except BlockingIOError:
             return None
         except Exception as e:
             print(f"Receive error: {e}")
             return None
+
+
+    @staticmethod
+    def encode(text: str) -> bytes:
+        return text.encode('utf-8')
+
+    @staticmethod
+    def decode(data: bytes) -> str:
+        return data.decode('utf-8')
 
