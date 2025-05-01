@@ -20,45 +20,17 @@ https://github.com/ruiseixasm/JsonTalkie
 
 namespace JsonTalkie {
 
-    // HELPER METHODS
+    String serialize(JsonObjectConst obj);
+    DynamicJsonDocument parse(const char* json);
 
+    // HELPER METHODS
+    
     // Place this ABOVE your Talker class definition
     char* floatToStr(float val, uint8_t decimals = 2) {
         static char buffer[16]; // Holds "-327.00" (large enough for most cases)
         dtostrf(val, 0, decimals, buffer); // Works on ALL Arduino boards
         return buffer;
     }
-
-    String generateMessageId() {
-        // Simple ID generation for Arduino
-        return String(millis(), HEX) + "-" + String(random(0xFFFF), HEX);
-    }
-
-    uint16_t calculateChecksum(JsonObjectConst message) {
-        String output;
-        serializeJson(message, output);
-        
-        uint16_t checksum = 0;
-        const char* str = output.c_str();
-        for (size_t i = 0; str[i] != '\0'; i++) {
-            checksum = (checksum << 5) + checksum + str[i];
-        }
-        return checksum;
-    }
-
-    bool validateTalk(JsonObjectConst talk) {
-        if (!talk.containsKey("checksum") || !talk.containsKey("message")) {
-            return false;
-        }
-        
-        uint16_t checksum = talk["checksum"];
-        JsonObjectConst message = talk["message"];
-        return checksum == calculateChecksum(message);
-    }
-    
-    String serialize(JsonObjectConst obj);
-
-    DynamicJsonDocument parse(const char* json);
 
 
     // MANIFESTO PROTOTYPING
@@ -97,40 +69,38 @@ namespace JsonTalkie {
         static const Get getCommands[];
         static const size_t getSize;        // Declaration only
         static bool (*echo)(StaticJsonDocument<256>*, const char*);
+
+        static const Device* talk() {
+            return &Manifesto::device;
+        }
+    
+        static const char* run(const char* cmd) {
+            for (int index = 0; index < Manifesto::runSize; ++index) {
+                if (strcmp(cmd, Manifesto::runCommands[index].name) == 0) {
+                    return (Manifesto::runCommands[index].function)();  // Call the function
+                }
+            }
+            return "Command not found";
+        }
+    
+        static const char* set(const char* cmd, const char* value) {
+            for (int index = 0; index < Manifesto::runSize; ++index) {
+                if (strcmp(cmd, Manifesto::setCommands[index].name) == 0) {
+                    return (Manifesto::setCommands[index].function)(value);  // Call the function
+                }
+            }
+            return "Command not found";
+        }
+    
+        static const char* get(const char* cmd) {
+            for (int index = 0; index < Manifesto::runSize; ++index) {
+                if (strcmp(cmd, Manifesto::getCommands[index].name) == 0) {
+                    return (Manifesto::getCommands[index].function)();  // Call the function
+                }
+            }
+            return "Command not found";
+        }
     };
-
-    // Triggering methods definitions
-
-    const Device* talk() {
-        return &Manifesto::device;
-    }
-
-    const char* run(const char* cmd) {
-        for (int index = 0; index < Manifesto::runSize; ++index) {
-            if (strcmp(cmd, Manifesto::runCommands[index].name) == 0) {
-                return (Manifesto::runCommands[index].function)();  // Call the function
-            }
-        }
-        return "Command not found";
-    }
-
-    const char* set(const char* cmd, const char* value) {
-        for (int index = 0; index < Manifesto::runSize; ++index) {
-            if (strcmp(cmd, Manifesto::setCommands[index].name) == 0) {
-                return (Manifesto::setCommands[index].function)(value);  // Call the function
-            }
-        }
-        return "Command not found";
-    }
-
-    const char* get(const char* cmd) {
-        for (int index = 0; index < Manifesto::runSize; ++index) {
-            if (strcmp(cmd, Manifesto::getCommands[index].name) == 0) {
-                return (Manifesto::getCommands[index].function)();  // Call the function
-            }
-        }
-        return "Command not found";
-    }
 
 
     // JSONTALKIE DEFINITIONS
@@ -141,6 +111,57 @@ namespace JsonTalkie {
         DynamicJsonDocument _lastMessage{256};
         unsigned long _messageTime;
         bool _running;
+
+    private:
+        static String generateMessageId() {
+            // Simple ID generation for Arduino
+            return String(millis(), HEX) + "-" + String(random(0xFFFF), HEX);
+        }
+
+        static uint16_t calculateChecksum(JsonObjectConst message) {
+            String output;
+            serializeJson(message, output);
+            
+            uint16_t checksum = 0;
+            const char* str = output.c_str();
+            for (size_t i = 0; str[i] != '\0'; i++) {
+                checksum = (checksum << 5) + checksum + str[i];
+            }
+            return checksum;
+        }
+
+        static bool validateTalk(JsonObjectConst talk) {
+            if (!talk.containsKey("checksum") || !talk.containsKey("message")) {
+                return false;
+            }
+            
+            uint16_t checksum = talk["checksum"];
+            JsonObjectConst message = talk["message"];
+            return checksum == calculateChecksum(message);
+        }
+        
+        static bool receive(JsonObjectConst message) {
+            const char* type = message["type"];
+            
+            if (!type) return false;
+        
+            if (strcmp(type, "talk") == 0) {
+                DynamicJsonDocument echoDoc(256);
+                char buffer[256]; // Adjust size as needed
+                snprintf(buffer, sizeof(buffer), "[%s]\t%s", Manifesto::talk()->name, Manifesto::talk()->desc);
+                JsonObject echo = echoDoc.to<JsonObject>();
+                echo["response"] = buffer;
+                echo["type"] = "echo";
+                echo["to"] = message["from"];
+                echo["id"] = message["id"];
+                // talk(echo);
+            } else if (strcmp(type, "run") == 0) {
+                // Implement run command handling...
+            }
+            // Other message types...
+            
+            return false;
+        }
 
     public:
         Talker(BroadcastSocket* socket) : _socket(socket) {}
@@ -200,29 +221,6 @@ namespace JsonTalkie {
                     }
                 }
             }
-        }
-
-        bool receive(JsonObjectConst message) {
-            const char* type = message["type"];
-            
-            if (!type) return false;
-        
-            if (strcmp(type, "talk") == 0) {
-                DynamicJsonDocument echoDoc(256);
-                char buffer[256]; // Adjust size as needed
-                snprintf(buffer, sizeof(buffer), "[%s]\t%s", talk()->name, talk()->desc);
-                JsonObject echo = echoDoc.to<JsonObject>();
-                echo["response"] = buffer;
-                echo["type"] = "echo";
-                echo["to"] = message["from"];
-                echo["id"] = message["id"];
-                // talk(echo);
-            } else if (strcmp(type, "run") == 0) {
-                // Implement run command handling...
-            }
-            // Other message types...
-            
-            return false;
         }
 
 
