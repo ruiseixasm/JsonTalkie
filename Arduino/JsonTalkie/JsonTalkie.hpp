@@ -196,45 +196,34 @@ namespace JsonTalkie {
                     DeserializationError error = deserializeJson(doc, (const char*)buffer);
                     
                     if (!error && validateTalk(doc.as<JsonObject>())) {
-                        // receive(doc["message"]);
+                        receive(doc["message"]);
                     }
                 }
             }
         }
 
-        // bool receive(JsonObjectConst message) {
-        //     const char* type = message["type"];
+        bool receive(JsonObjectConst message) {
+            const char* type = message["type"];
             
-        //     if (!type) return false;
+            if (!type) return false;
         
-        //     if (strcmp(type, "talk") == 0) {
-        //         DynamicJsonDocument echoDoc(256);
-        //         JsonObject echo = echoDoc.to<JsonObject>();
-        //         echo["type"] = "echo";
-        //         echo["to"] = message["from"];
-        //         echo["id"] = message["id"];
-                
-        //         if (message.containsKey("to")) {
-        //             // Handle commands (run/set/get)
-        //             if (_manifesto.containsKey("run")) {
-        //                 for (JsonPair kv : _manifesto["run"].as<JsonObject>()) {
-        //                     echo["response"] = "[run " + _manifesto["device"]["name"].as<String>() + " " + kv.key().c_str() + "]\t" + kv.value()["description"].as<String>();
-        //                     talk(echo);
-        //                 }
-        //             }
-        //             // Similar blocks for "set" and "get"...
-        //         } else {
-        //             echo["response"] = "[" + _manifesto["device"]["name"].as<String>() + "]\t" + _manifesto["device"]["description"].as<String>();
-        //             talk(echo);
-        //         }
-        //     }
-        //     else if (strcmp(type, "run") == 0) {
-        //         // Implement run command handling...
-        //     }
-        //     // Other message types...
+            if (strcmp(type, "talk") == 0) {
+                DynamicJsonDocument echoDoc(256);
+                char buffer[256]; // Adjust size as needed
+                snprintf(buffer, sizeof(buffer), "[%s]\t%s", talk()->name, talk()->desc);
+                JsonObject echo = echoDoc.to<JsonObject>();
+                echo["response"] = buffer;
+                echo["type"] = "echo";
+                echo["to"] = message["from"];
+                echo["id"] = message["id"];
+                // talk(echo);
+            } else if (strcmp(type, "run") == 0) {
+                // Implement run command handling...
+            }
+            // Other message types...
             
-        //     return false;
-        // }
+            return false;
+        }
 
 
 
