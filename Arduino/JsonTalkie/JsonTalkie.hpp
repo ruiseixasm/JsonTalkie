@@ -106,7 +106,7 @@ const char* get(const char* cmd) {
 class JsonTalkie {
 private:
     BroadcastSocket* _socket;
-    DynamicJsonDocument _lastMessage;
+    DynamicJsonDocument _lastMessage{256};
     unsigned long _messageTime;
     bool _running;
 
@@ -126,94 +126,97 @@ public:
         _socket->end();
     }
 
-    bool talk(JsonObjectConst message) {
-        DynamicJsonDocument doc(256);
-        JsonObject talk = doc.to<JsonObject>();
+    // bool talk(JsonObjectConst message) {
+    //     DynamicJsonDocument doc(256);
+    //     JsonObject talk = doc.to<JsonObject>();
         
-        // Create a copy of the message to modify
-        JsonObject msgCopy = talk.createNestedObject("message");
-        for (JsonPairConst kv : message) {
-            msgCopy[kv.key()] = kv.value();
-        }
+    //     // Create a copy of the message to modify
+    //     JsonObject msgCopy = talk.createNestedObject("message");
+    //     for (JsonPairConst kv : message) {
+    //         msgCopy[kv.key()] = kv.value();
+    //     }
         
-        // Set default fields if missing
-        if (!msgCopy.containsKey("from")) {
-            msgCopy["from"] = _manifesto["talker"]["name"].as<String>();
-        }
-        if (!msgCopy.containsKey("id")) {
-            msgCopy["id"] = generateMessageId();
-        }
+    //     // Set default fields if missing
+    //     if (!msgCopy.containsKey("from")) {
+    //         msgCopy["from"] = _manifesto["talker"]["name"].as<String>();
+    //     }
+    //     if (!msgCopy.containsKey("id")) {
+    //         msgCopy["id"] = generateMessageId();
+    //     }
         
-        talk["checksum"] = calculateChecksum(msgCopy);
+    //     talk["checksum"] = calculateChecksum(msgCopy);
         
-        String output;
-        serializeJson(talk, output);
-        return _socket->write((const uint8_t*)output.c_str(), output.length());
-    }
+    //     String output;
+    //     serializeJson(talk, output);
+    //     return _socket->write((const uint8_t*)output.c_str(), output.length());
+    // }
 
-    void listen() {
-        if (!_running) return;
+    // void listen() {
+    //     if (!_running) return;
     
-        if (_socket->available()) {
-            uint8_t buffer[256];
-            size_t bytesRead = _socket->read(buffer, sizeof(buffer)-1);
+    //     if (_socket->available()) {
+    //         uint8_t buffer[256];
+    //         size_t bytesRead = _socket->read(buffer, sizeof(buffer)-1);
             
-            if (bytesRead > 0) {
-                buffer[bytesRead] = '\0';
-                DynamicJsonDocument doc(256);
-                DeserializationError error = deserializeJson(doc, (const char*)buffer);
+    //         if (bytesRead > 0) {
+    //             buffer[bytesRead] = '\0';
+    //             DynamicJsonDocument doc(256);
+    //             DeserializationError error = deserializeJson(doc, (const char*)buffer);
                 
-                if (!error && validateTalk(doc.as<JsonObject>())) {
-                    receive(doc["message"]);
-                }
-            }
-        }
-    }
+    //             if (!error && validateTalk(doc.as<JsonObject>())) {
+    //                 receive(doc["message"]);
+    //             }
+    //         }
+    //     }
+    // }
 
-    bool receive(JsonObjectConst message) {
-        const char* type = message["type"];
+    // bool receive(JsonObjectConst message) {
+    //     const char* type = message["type"];
         
-        if (!type) return false;
+    //     if (!type) return false;
     
-        if (strcmp(type, "talk") == 0) {
-            DynamicJsonDocument echoDoc(256);
-            JsonObject echo = echoDoc.to<JsonObject>();
-            echo["type"] = "echo";
-            echo["to"] = message["from"];
-            echo["id"] = message["id"];
+    //     if (strcmp(type, "talk") == 0) {
+    //         DynamicJsonDocument echoDoc(256);
+    //         JsonObject echo = echoDoc.to<JsonObject>();
+    //         echo["type"] = "echo";
+    //         echo["to"] = message["from"];
+    //         echo["id"] = message["id"];
             
-            if (message.containsKey("to")) {
-                // Handle commands (run/set/get)
-                if (_manifesto.containsKey("run")) {
-                    for (JsonPair kv : _manifesto["run"].as<JsonObject>()) {
-                        echo["response"] = "[run " + _manifesto["talker"]["name"].as<String>() + " " + kv.key().c_str() + "]\t" + kv.value()["description"].as<String>();
-                        talk(echo);
-                    }
-                }
-                // Similar blocks for "set" and "get"...
-            } else {
-                echo["response"] = "[" + _manifesto["talker"]["name"].as<String>() + "]\t" + _manifesto["talker"]["description"].as<String>();
-                talk(echo);
-            }
-        }
-        else if (strcmp(type, "run") == 0) {
-            // Implement run command handling...
-        }
-        // Other message types...
+    //         if (message.containsKey("to")) {
+    //             // Handle commands (run/set/get)
+    //             if (_manifesto.containsKey("run")) {
+    //                 for (JsonPair kv : _manifesto["run"].as<JsonObject>()) {
+    //                     echo["response"] = "[run " + _manifesto["talker"]["name"].as<String>() + " " + kv.key().c_str() + "]\t" + kv.value()["description"].as<String>();
+    //                     talk(echo);
+    //                 }
+    //             }
+    //             // Similar blocks for "set" and "get"...
+    //         } else {
+    //             echo["response"] = "[" + _manifesto["talker"]["name"].as<String>() + "]\t" + _manifesto["talker"]["description"].as<String>();
+    //             talk(echo);
+    //         }
+    //     }
+    //     else if (strcmp(type, "run") == 0) {
+    //         // Implement run command handling...
+    //     }
+    //     // Other message types...
         
-        return false;
-    }
+    //     return false;
+    // }
 
-    bool validateTalk(JsonObjectConst talk) {
-        if (!talk.containsKey("checksum") || !talk.containsKey("message")) {
-            return false;
-        }
+    // bool validateTalk(JsonObjectConst talk) {
+    //     if (!talk.containsKey("checksum") || !talk.containsKey("message")) {
+    //         return false;
+    //     }
         
-        uint16_t checksum = talk["checksum"];
-        JsonObjectConst message = talk["message"];
-        return checksum == calculateChecksum(message);
-    }
+    //     uint16_t checksum = talk["checksum"];
+    //     JsonObjectConst message = talk["message"];
+    //     return checksum == calculateChecksum(message);
+    // }
     
+
+
+
     static String generateMessageId() {
         // Simple ID generation for Arduino
         return String(millis(), HEX) + "-" + String(random(0xFFFF), HEX);
