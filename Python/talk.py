@@ -69,7 +69,7 @@ class CommandLine:
                     print(f"{i}: {line.strip()}")
         else:
             words = cmd.split()
-            if words[0] in ("talk", "run", "set", "get"):
+            if words:
                 message: Dict[str, Any] = {
                     'type': words[0]
                 }
@@ -78,6 +78,13 @@ class CommandLine:
                         if len(words) == 2: # Targeted talk
                             message["to"] = words[1]
                         if len(words) < 3:
+                            json_talkie.talk(message)
+                            time.sleep(0.5) # Wait some time
+                        else:
+                            print(f"'{words[0]}' has a wrong number of arguments!")
+                    case "list":
+                        if len(words) == 2: # Targeted talk
+                            message["to"] = words[1]
                             json_talkie.talk(message)
                             time.sleep(0.5) # Wait some time
                         else:
@@ -99,8 +106,8 @@ class CommandLine:
                             time.sleep(0.5) # Wait some time
                         else:
                             print(f"'{words[0]}' has a wrong number of arguments!")
-            else:
-                print(f"\t'{words[0]}' is not a valid command type!")
+                    case _:
+                        print(f"\t'{words[0]}' is not a valid command type!")
 
     def echo(self, message: Dict[str, Any], response: str) -> bool:
         print(f"\t{response}")
@@ -109,7 +116,7 @@ class CommandLine:
 
 if __name__ == "__main__":
 
-    SOCKET = "SERIAL"
+    SOCKET = "UDP"
 
     broadcast_socket: BroadcastSocket = None
     match SOCKET:
