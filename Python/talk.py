@@ -107,7 +107,13 @@ class CommandLine:
                         else:
                             print(f"'{words[0]}' has a wrong number of arguments!")
                     case _:
-                        print(f"\t'{words[0]}' is not a valid command type!")
+                        print(f"\t[talk]\tShows all devices' 'name' and description.")
+                        print(f"\t[list 'device']\tList the entire 'device' manifesto.")
+                        print(f"\t[run 'device' 'what']\tRuns the named function.")
+                        print(f"\t[set 'device' 'what']\tSets the named variable.")
+                        print(f"\t[get 'device' 'what']\tGets the named variable value.")
+                        print(f"\t[exit]\tExits the command line (Ctrl+D).")
+                        print(f"\t[help]\tShows the present help.")                        
 
     def echo(self, message: Dict[str, Any], response: str) -> bool:
         print(f"\t{response}")
