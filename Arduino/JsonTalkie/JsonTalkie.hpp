@@ -29,6 +29,27 @@ namespace JsonTalkie {
         return buffer;
     }
 
+    String generateMessageId() {
+        // Simple ID generation for Arduino
+        return String(millis(), HEX) + "-" + String(random(0xFFFF), HEX);
+    }
+
+    uint16_t calculateChecksum(JsonObjectConst message) {
+        String output;
+        serializeJson(message, output);
+        
+        uint16_t checksum = 0;
+        const char* str = output.c_str();
+        for (size_t i = 0; str[i] != '\0'; i++) {
+            checksum = (checksum << 5) + checksum + str[i];
+        }
+        return checksum;
+    }
+
+    String serialize(JsonObjectConst obj);
+
+    DynamicJsonDocument parse(const char* json);
+
 
     // MANIFESTO PROTOTYPING
 
@@ -217,27 +238,6 @@ namespace JsonTalkie {
         
 
 
-
-        static String generateMessageId() {
-            // Simple ID generation for Arduino
-            return String(millis(), HEX) + "-" + String(random(0xFFFF), HEX);
-        }
-
-        static uint16_t calculateChecksum(JsonObjectConst message) {
-            String output;
-            serializeJson(message, output);
-            
-            uint16_t checksum = 0;
-            const char* str = output.c_str();
-            for (size_t i = 0; str[i] != '\0'; i++) {
-                checksum = (checksum << 5) + checksum + str[i];
-            }
-            return checksum;
-        }
-
-        static String serialize(JsonObjectConst obj);
-
-        static DynamicJsonDocument parse(const char* json);
 
     };
 }
