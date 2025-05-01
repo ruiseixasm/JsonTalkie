@@ -11,30 +11,16 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#include "JsonTalkie.h"
-#include "BroadcastSocket_Serial.h"
+#include "BroadcastSocket_Serial.hpp"
+#include "JsonTalkie.hpp"
 
-BroadcastSocket_Serial socket(9600);
-const char* manifesto = R"(
-{
-    "talker": {
-        "name": "Arduino1",
-        "description": "Basic Arduino Talker"
-    },
-    "get": {
-        "temperature": {
-            "description": "Current temperature",
-            "function": "getTemp"
-        }
-    }
-}
-)";
+BroadcastSocket_Serial socket_serial(9600);
+JsonTalkie json_talkie(&socket_serial);
 
-JsonTalkie talkie(&socket, manifesto);
 
-float getTemperature() {
-    return 25.0; // Example temperature reading
-}
+
+
+
 
 void setup() {
     Serial.begin(115200);
