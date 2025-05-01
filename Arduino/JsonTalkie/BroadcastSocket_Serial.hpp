@@ -11,24 +11,38 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#ifndef BROADCAST_SOCKET_SERIAL_H
-#define BROADCAST_SOCKET_SERIAL_H
+#ifndef BROADCAST_SOCKET_SERIAL_HPP
+#define BROADCAST_SOCKET_SERIAL_HPP
 
-#include "BroadcastSocket.h"
+#include "BroadcastSocket.hpp"
 #include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
 
 class BroadcastSocket_Serial : public BroadcastSocket {
-public:
-    BroadcastSocket_Serial(long baud = 9600);
-    
-    bool begin() override;
-    void end() override;
-    bool write(const uint8_t* data, size_t length) override;
-    bool available() override;
-    size_t read(uint8_t* buffer, size_t size) override;
-
 private:
-    long baudRate;
+    long _baudRate;
+
+public:
+    BroadcastSocket_Serial(long baud = 9600) : _baudRate(baud) {}
+    
+    bool begin() override {
+        Serial.begin(_baudRate);
+        return true;
+    }
+    void end() override {
+        Serial.end();
+    }
+    bool write(const uint8_t* data, size_t length) override {
+        return Serial.write(data, length) == length;
+    }
+
+    bool available() override {
+        return Serial.available();
+    }
+
+    size_t read(uint8_t* buffer, size_t size) override {
+        return Serial.readBytes((char*)buffer, size);
+    }
+
 };
 
-#endif // BROADCAST_SOCKET_SERIAL_H
+#endif // BROADCAST_SOCKET_SERIAL_HPP
