@@ -55,24 +55,24 @@ void setup() {
     Serial.begin(115200);
     while (!Serial);
     
-    if (!talkie.begin()) {
-        Serial.println("Failed to initialize JsonTalkie!");
-        while(1);
-    }
+    // if (!talkie.begin()) {
+    //     Serial.println("Failed to initialize JsonTalkie!");
+    //     while(1);
+    // }
     Serial.println("JsonTalkie ready");
 }
 
 void loop() {
-    talkie.listen();
+    // json_talkie.listen();
     
-    // Example: Send a message every 5 seconds
-    static unsigned long lastSend = 0;
-    if (millis() - lastSend > 5000) {
-        DynamicJsonDocument doc(128);
-        doc["type"] = "talk";
-        talkie.talk(doc.as<JsonObject>());
-        lastSend = millis();
-    }
+    // // Example: Send a message every 5 seconds
+    // static unsigned long lastSend = 0;
+    // if (millis() - lastSend > 5000) {
+    //     DynamicJsonDocument doc(128);
+    //     doc["type"] = "talk";
+    //     json_talkie.talk(doc.as<JsonObject>());
+    //     lastSend = millis();
+    // }
 }
 
 
@@ -101,6 +101,6 @@ const char* get_duration() {
 }
 
 bool process_response(StaticJsonDocument<256>* message, const char* response) {
-    Serial.println((*msg)["response"].as<String>()); // The magic fix
+    Serial.println((*message)["response"].as<String>()); // The magic fix
     return true;
 }
