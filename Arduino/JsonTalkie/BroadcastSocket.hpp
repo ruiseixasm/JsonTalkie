@@ -11,8 +11,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#ifndef BROADCAST_SOCKET_H
-#define BROADCAST_SOCKET_H
+#ifndef BROADCAST_SOCKET_HPP
+#define BROADCAST_SOCKET_HPP
 
 // Arduino-compatible type definitions
 typedef unsigned char uint8_t;
@@ -30,4 +30,4 @@ public:
 };
 
 
-#endif
+#endif // BROADCAST_SOCKET_HPP
