@@ -52,7 +52,7 @@ bool (*JsonTalkie::Manifesto::echo)(StaticJsonDocument<256>*, const char*) = pro
 
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
     while (!Serial);
     
     // if (!talkie.begin()) {
@@ -63,7 +63,7 @@ void setup() {
 }
 
 void loop() {
-    // json_talkie.listen();
+    json_talkie.listen();
     
     // // Example: Send a message every 5 seconds
     // static unsigned long lastSend = 0;
