@@ -89,7 +89,7 @@ namespace JsonTalkie {
     // Structure Definition
     struct Manifesto {
 
-        static const Device talker;         // Declaration only
+        static const Device device;         // Declaration only
         static const Run runCommands[];     // Declaration only
         static const size_t runSize;        // Declaration only
         static const Set setCommands[];
@@ -102,7 +102,7 @@ namespace JsonTalkie {
     // Triggering methods definitions
 
     const Device* talk() {
-        return &Manifesto::talker;
+        return &Manifesto::device;
     }
 
     const char* run(const char* cmd) {
@@ -170,7 +170,7 @@ namespace JsonTalkie {
             
         //     // Set default fields if missing
         //     if (!msgCopy.containsKey("from")) {
-        //         msgCopy["from"] = _manifesto["talker"]["name"].as<String>();
+        //         msgCopy["from"] = _manifesto["device"]["name"].as<String>();
         //     }
         //     if (!msgCopy.containsKey("id")) {
         //         msgCopy["id"] = generateMessageId();
@@ -218,13 +218,13 @@ namespace JsonTalkie {
         //             // Handle commands (run/set/get)
         //             if (_manifesto.containsKey("run")) {
         //                 for (JsonPair kv : _manifesto["run"].as<JsonObject>()) {
-        //                     echo["response"] = "[run " + _manifesto["talker"]["name"].as<String>() + " " + kv.key().c_str() + "]\t" + kv.value()["description"].as<String>();
+        //                     echo["response"] = "[run " + _manifesto["device"]["name"].as<String>() + " " + kv.key().c_str() + "]\t" + kv.value()["description"].as<String>();
         //                     talk(echo);
         //                 }
         //             }
         //             // Similar blocks for "set" and "get"...
         //         } else {
-        //             echo["response"] = "[" + _manifesto["talker"]["name"].as<String>() + "]\t" + _manifesto["talker"]["description"].as<String>();
+        //             echo["response"] = "[" + _manifesto["device"]["name"].as<String>() + "]\t" + _manifesto["device"]["description"].as<String>();
         //             talk(echo);
         //         }
         //     }
