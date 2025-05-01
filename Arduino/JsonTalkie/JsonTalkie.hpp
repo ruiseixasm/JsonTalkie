@@ -31,7 +31,7 @@ char* floatToStr(float val, uint8_t decimals = 2) {
 
 // MANIFESTO PROTOTYPING
 
-struct Talker {
+struct Device {
     const char* name;      // Name of the Device (Talker)
     const char* desc;      // Description of the Device
 };
@@ -57,7 +57,7 @@ struct Get {
 // Structure Definition
 struct Manifesto {
 
-    static const Talker talker;         // Declaration only
+    static const Device talker;         // Declaration only
     static const Run runCommands[];     // Declaration only
     static const size_t runSize;        // Declaration only
     static const Set setCommands[];
@@ -69,7 +69,7 @@ struct Manifesto {
 
 // Triggering methods definitions
 
-const Talker* talk() {
+const Device* talk() {
     return &Manifesto::talker;
 }
 
