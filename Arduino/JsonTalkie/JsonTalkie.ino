@@ -16,36 +16,36 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 BroadcastSocket_Serial socket_serial(9600);
-JsonTalkie json_talkie(&socket_serial);
+JsonTalkie::Talker json_talkie(&socket_serial);
 
 
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-const Device Manifesto::talker = {
+const JsonTalkie::Device JsonTalkie::Manifesto::talker = {
     'Buzzer', 'This device does a 500ms buzz!'
 };
 
 const char* buzz();
-const Run Manifesto::runCommands[] = {
+const JsonTalkie::Run JsonTalkie::Manifesto::runCommands[] = {
     {"buzz", "Triggers buzzing", buzz}
 };
-const size_t Manifesto::runSize = sizeof(Manifesto::runCommands) / sizeof(Run);
+const size_t JsonTalkie::Manifesto::runSize = sizeof(JsonTalkie::Manifesto::runCommands) / sizeof(JsonTalkie::Run);
 
 const char* set_duration(const char* duration);
-const Set Manifesto::setCommands[] = {
+const JsonTalkie::Set JsonTalkie::Manifesto::setCommands[] = {
     {"duration", "Sets duration", set_duration}
 };
-const size_t Manifesto::setSize = sizeof(Manifesto::setCommands) / sizeof(Set);
+const size_t JsonTalkie::Manifesto::setSize = sizeof(JsonTalkie::Manifesto::setCommands) / sizeof(JsonTalkie::Set);
 
 const char* get_duration();
-const Get Manifesto::getCommands[] = {
+const JsonTalkie::Get JsonTalkie::Manifesto::getCommands[] = {
     {"duration", "Gets duration", get_duration}
 };
-const size_t Manifesto::getSize = sizeof(Manifesto::getCommands) / sizeof(Get);
+const size_t JsonTalkie::Manifesto::getSize = sizeof(JsonTalkie::Manifesto::getCommands) / sizeof(JsonTalkie::Get);
 
 bool process_response(StaticJsonDocument<256>* message, const char* response);
-bool (*Manifesto::echo)(StaticJsonDocument<256>*, const char*) = process_response;
+bool (*JsonTalkie::Manifesto::echo)(StaticJsonDocument<256>*, const char*) = process_response;
 
 // END OF MANIFESTO
 
@@ -56,10 +56,10 @@ void setup() {
     while (!Serial);
     
     // if (!talkie.begin()) {
-    //     Serial.println("Failed to initialize JsonTalkie!");
+    //     Serial.println("Failed to initialize Talker!");
     //     while(1);
     // }
-    Serial.println("JsonTalkie ready");
+    Serial.println("Talker ready");
 }
 
 void loop() {
@@ -90,7 +90,7 @@ const char* buzz() {
 const char* set_duration(const char* duration) {
     _duration = String(duration).toFloat();
     static char buffer[32];  // Reusable buffer
-    snprintf(buffer, sizeof(buffer), "Set duration: %ss", floatToStr(_duration));
+    snprintf(buffer, sizeof(buffer), "Set duration: %ss", JsonTalkie::floatToStr(_duration));
     return buffer;
 }
 
