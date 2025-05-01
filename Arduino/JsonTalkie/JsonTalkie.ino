@@ -22,7 +22,7 @@ JsonTalkie::Talker json_talkie(&socket_serial);
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-const JsonTalkie::Device JsonTalkie::Manifesto::talker = {
+const JsonTalkie::Device JsonTalkie::Manifesto::device = {
     'Buzzer', 'This device does a 500ms buzz!'
 };
 
