@@ -106,6 +106,9 @@ const char* get(const char* cmd) {
 class JsonTalkie {
 private:
     BroadcastSocket* _socket;
+    DynamicJsonDocument _lastMessage;
+    unsigned long _messageTime;
+    bool _running;
 
 public:
     JsonTalkie(BroadcastSocket* socket) : _socket(socket) {}
