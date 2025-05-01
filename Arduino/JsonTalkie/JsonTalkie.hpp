@@ -24,7 +24,7 @@ namespace JsonTalkie {
     DynamicJsonDocument parse(const char* json);
 
     // HELPER METHODS
-    
+
     // Place this ABOVE your Talker class definition
     char* floatToStr(float val, uint8_t decimals = 2) {
         static char buffer[16]; // Holds "-327.00" (large enough for most cases)
@@ -140,21 +140,21 @@ namespace JsonTalkie {
             return checksum == calculateChecksum(message);
         }
         
-        static bool receive(JsonObjectConst message) {
+        bool receive(JsonObjectConst message) {
             const char* type = message["type"];
             
             if (!type) return false;
         
             if (strcmp(type, "talk") == 0) {
                 DynamicJsonDocument echoDoc(256);
-                char buffer[256]; // Adjust size as needed
-                snprintf(buffer, sizeof(buffer), "[%s]\t%s", Manifesto::talk()->name, Manifesto::talk()->desc);
+                char response[256]; // Adjust size as needed
+                snprintf(response, sizeof(response), "[%s]\t%s", Manifesto::talk()->name, Manifesto::talk()->desc);
                 JsonObject echo = echoDoc.to<JsonObject>();
-                echo["response"] = buffer;
+                echo["response"] = response;
                 echo["type"] = "echo";
                 echo["to"] = message["from"];
                 echo["id"] = message["id"];
-                // talk(echo);
+                talk(echo);
             } else if (strcmp(type, "run") == 0) {
                 // Implement run command handling...
             }
@@ -179,30 +179,30 @@ namespace JsonTalkie {
             _socket->end();
         }
 
-        // bool talk(JsonObjectConst message) {
-        //     DynamicJsonDocument doc(256);
-        //     JsonObject talk = doc.to<JsonObject>();
+        bool talk(JsonObjectConst message) {
+            DynamicJsonDocument doc(256);
+            JsonObject talking = doc.to<JsonObject>();
+            // Create a copy of the message to modify
+            JsonObject msgCopy = talking.createNestedObject("message");
+
+            for (JsonPairConst kv : message) {
+                msgCopy[kv.key()] = kv.value();
+            }
             
-        //     // Create a copy of the message to modify
-        //     JsonObject msgCopy = talk.createNestedObject("message");
-        //     for (JsonPairConst kv : message) {
-        //         msgCopy[kv.key()] = kv.value();
-        //     }
+            // Set default fields if missing
+            if (!msgCopy.containsKey("from")) {
+                msgCopy["from"] = Manifesto::talk()->name;
+            }
+            if (!msgCopy.containsKey("id")) {
+                msgCopy["id"] = generateMessageId();
+            }
             
-        //     // Set default fields if missing
-        //     if (!msgCopy.containsKey("from")) {
-        //         msgCopy["from"] = _manifesto["device"]["name"].as<String>();
-        //     }
-        //     if (!msgCopy.containsKey("id")) {
-        //         msgCopy["id"] = generateMessageId();
-        //     }
+            talking["checksum"] = calculateChecksum(msgCopy);
             
-        //     talk["checksum"] = calculateChecksum(msgCopy);
-            
-        //     String output;
-        //     serializeJson(talk, output);
-        //     return _socket->write((const uint8_t*)output.c_str(), output.length());
-        // }
+            String output;
+            serializeJson(talking, output);
+            return _socket->write((const uint8_t*)output.c_str(), output.length());
+        }
 
         void listen() {
             if (!_running) return;
