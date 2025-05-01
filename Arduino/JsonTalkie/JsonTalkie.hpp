@@ -46,6 +46,16 @@ namespace JsonTalkie {
         return checksum;
     }
 
+    bool validateTalk(JsonObjectConst talk) {
+        if (!talk.containsKey("checksum") || !talk.containsKey("message")) {
+            return false;
+        }
+        
+        uint16_t checksum = talk["checksum"];
+        JsonObjectConst message = talk["message"];
+        return checksum == calculateChecksum(message);
+    }
+    
     String serialize(JsonObjectConst obj);
 
     DynamicJsonDocument parse(const char* json);
@@ -173,24 +183,24 @@ namespace JsonTalkie {
         //     return _socket->write((const uint8_t*)output.c_str(), output.length());
         // }
 
-        // void listen() {
-        //     if (!_running) return;
+        void listen() {
+            if (!_running) return;
         
-        //     if (_socket->available()) {
-        //         uint8_t buffer[256];
-        //         size_t bytesRead = _socket->read(buffer, sizeof(buffer)-1);
+            if (_socket->available()) {
+                uint8_t buffer[256];
+                size_t bytesRead = _socket->read(buffer, sizeof(buffer)-1);
                 
-        //         if (bytesRead > 0) {
-        //             buffer[bytesRead] = '\0';
-        //             DynamicJsonDocument doc(256);
-        //             DeserializationError error = deserializeJson(doc, (const char*)buffer);
+                if (bytesRead > 0) {
+                    buffer[bytesRead] = '\0';
+                    DynamicJsonDocument doc(256);
+                    DeserializationError error = deserializeJson(doc, (const char*)buffer);
                     
-        //             if (!error && validateTalk(doc.as<JsonObject>())) {
-        //                 receive(doc["message"]);
-        //             }
-        //         }
-        //     }
-        // }
+                    if (!error && validateTalk(doc.as<JsonObject>())) {
+                        // receive(doc["message"]);
+                    }
+                }
+            }
+        }
 
         // bool receive(JsonObjectConst message) {
         //     const char* type = message["type"];
@@ -226,16 +236,6 @@ namespace JsonTalkie {
         //     return false;
         // }
 
-        // bool validateTalk(JsonObjectConst talk) {
-        //     if (!talk.containsKey("checksum") || !talk.containsKey("message")) {
-        //         return false;
-        //     }
-            
-        //     uint16_t checksum = talk["checksum"];
-        //     JsonObjectConst message = talk["message"];
-        //     return checksum == calculateChecksum(message);
-        // }
-        
 
 
 
