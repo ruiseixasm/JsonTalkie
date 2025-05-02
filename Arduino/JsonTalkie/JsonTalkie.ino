@@ -87,7 +87,7 @@ void setup() {
 }
 
 void loop() {
-    // json_talkie.listen();
+    json_talkie.listen();
 
     static unsigned long lastSend = 0;
     if (millis() - lastSend > 10000) {
