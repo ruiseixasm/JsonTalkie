@@ -17,6 +17,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define SOCKET_ETHERCARD 3
 #define SOCKET_DUMMY 0
 
+// Choose Broadcast Socket here ---vvv
 #define BROADCAST_SOCKET SOCKET_SERIAL
 
 #if BROADCAST_SOCKET == SOCKET_SERIAL
