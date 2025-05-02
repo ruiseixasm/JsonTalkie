@@ -54,8 +54,8 @@ class JsonTalkie:
         if message['type'] != "echo":
             self._last_message = message
         talk: Dict[str, Any] = {
-            'checksum': JsonTalkie.checksum(message),
-            'message': message
+            'message': message,
+            'checksum': JsonTalkie.checksum(message)
         }
         return self._socket.send( JsonTalkie.encode(talk) )
     
