@@ -69,7 +69,14 @@ void setup() {
 
 void loop() {
     // json_talkie.listen();
-    
+
+    static unsigned long lastSend = 0;
+    if (millis() - lastSend > 10000) {
+        DynamicJsonDocument doc(128);
+        doc["type"] = "talk";
+        json_talkie.talk(doc.as<JsonObject>());
+        lastSend = millis();
+    }
 }
 
 

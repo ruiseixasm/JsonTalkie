@@ -67,6 +67,11 @@ class JsonTalkie:
                 data, _ = received  # Explicitly ignore (ip, port)
                 try:
                     talk: Dict[str, Any] = JsonTalkie.decode(data)
+                    
+                    if talk:
+                        print(talk)
+                        print(f"Python checksum: {JsonTalkie.checksum(talk['message'])}")
+
                     if self.validate_talk(talk):
                         self.receive(talk['message'])
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
@@ -76,6 +81,7 @@ class JsonTalkie:
         """Handles message content only."""
         match message['type']:
             case "talk":
+                print(message)
                 echo: Dict[str, Any] = {
                     'type': 'echo',
                     'to': message['from'],
@@ -192,6 +198,6 @@ class JsonTalkie:
 
     @staticmethod
     def checksum(message: Dict[str, Any]) -> int:
-        data = json.dumps(message).encode('utf-8')
+        data = json.dumps(message, separators=(',', ':')).encode('utf-8')
         return JsonTalkie.checksum_16bit_bytes(data)
 
