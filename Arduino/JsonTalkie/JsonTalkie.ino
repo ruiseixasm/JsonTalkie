@@ -12,15 +12,20 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
 
-#define BROADCAST_SOCKET 0  // 0=SERIAL, 1=UDP, 2=ETHERCARD, 3=DUMMY
+#define SOCKET_SERIAL 1
+#define SOCKET_UDP 2
+#define SOCKET_ETHERCARD 3
+#define SOCKET_DUMMY 0
 
-#if BROADCAST_SOCKET == 0
+#define BROADCAST_SOCKET SOCKET_SERIAL
+
+#if BROADCAST_SOCKET == SOCKET_SERIAL
     #include "sockets/BroadcastSocket_Serial.hpp"
     BroadcastSocket_Serial broadcast_socket;
-#elif BROADCAST_SOCKET == 1
+#elif BROADCAST_SOCKET == SOCKET_UDP
     #include "sockets/BroadcastSocket_UDP.hpp"
     BroadcastSocket_UDP broadcast_socket;
-#elif BROADCAST_SOCKET == 2
+#elif BROADCAST_SOCKET == SOCKET_ETHERCARD
     #include "sockets/BroadcastSocket_EtherCard.hpp"
     BroadcastSocket_EtherCard broadcast_socket;
 #else
