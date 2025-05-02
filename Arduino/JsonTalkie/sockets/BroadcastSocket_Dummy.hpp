@@ -26,7 +26,15 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         StaticJsonDocument<256> _lastMessage;
         uint8_t _receiveBuffer[256];
         size_t _receiveLength = 0;
-    
+
+        // Helper function to safely create char* from buffer
+        static const char* decode(const uint8_t* data, size_t length) {
+            char temp[length + 1];
+            memcpy(temp, data, length);
+            temp[length] = '\0';
+            return temp;
+        }
+
     public:
         ~BroadcastSocket_Dummy() override = default;
     
@@ -41,13 +49,13 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         }
     
         bool write(const uint8_t* data, size_t length) override {
-            // if (!_isOpen) return false;
+            if (!_isOpen) return false;
             
-            // String message((const char*)data, length);
-            // Serial.print("DUMMY SENT: ");
-            // Serial.println(message);
+            const char* message = decode(data, length);
+            Serial.print("DUMMY SENT: ");
+            Serial.println(message);
             
-            // deserializeJson(_lastMessage, message);
+            deserializeJson(_lastMessage, message);
             return true;
         }
     
