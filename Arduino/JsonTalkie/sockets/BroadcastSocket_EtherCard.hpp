@@ -19,6 +19,10 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <EtherCard.h>
 
 
+class BroadcastSocket_EtherCard : public BroadcastSocket {
+    
+
+};  
 
 
 #endif // BROADCAST_SOCKET_ETHERCARD_HPP

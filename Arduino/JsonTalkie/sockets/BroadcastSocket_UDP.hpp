@@ -20,6 +20,10 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <EthernetUdp.h>
 
 
+class BroadcastSocket_UDP : public BroadcastSocket {
+    
+
+};
 
 
 #endif // BROADCAST_SOCKET_UDP_HPP
