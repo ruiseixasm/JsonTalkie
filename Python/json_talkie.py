@@ -171,7 +171,11 @@ class JsonTalkie:
     
     @staticmethod
     def encode(talk: Dict[str, Any]) -> bytes:
-        return json.dumps(talk).encode('utf-8')
+        # If specified, separators should be an (item_separator, key_separator)
+        #     tuple. The default is (', ', ': ') if indent is None and
+        #     (',', ': ') otherwise. To get the most compact JSON representation,
+        #     you should specify (',', ':') to eliminate whitespace.
+        return json.dumps(talk, separators=(',', ':')).encode('utf-8')
 
     @staticmethod
     def decode(data: bytes) -> Dict[str, Any]:
