@@ -114,8 +114,15 @@ namespace JsonTalkie {
 
     private:
         static String generateMessageId() {
-            // Simple ID generation for Arduino
-            return String(millis(), HEX) + "-" + String(random(0xFFFF), HEX);
+            // Combine random values with system metrics for better uniqueness
+            uint32_t r1 = random(0xFFFF);
+            uint32_t r2 = random(0xFFFF);
+            uint32_t r3 = millis() & 0xFFFF;
+            uint32_t combined = (r1 << 16) | r2 ^ r3;
+            // Equivalent to the Python: return uuid.uuid4().hex[:8]
+            char buffer[9]; // 8 chars + null terminator
+            snprintf(buffer, sizeof(buffer), "%08lx", combined);
+            return String(buffer);
         }
 
         static uint16_t calculateChecksum(JsonObjectConst message) {
@@ -181,26 +188,24 @@ namespace JsonTalkie {
 
         bool talk(JsonObjectConst message) {
             DynamicJsonDocument doc(256);
-            JsonObject talking = doc.to<JsonObject>();
+            JsonObject talk_json = doc.to<JsonObject>();
             // Create a copy of the message to modify
-            JsonObject msgCopy = talking.createNestedObject("message");
+            JsonObject message_json = talk_json.createNestedObject("message");
 
             for (JsonPairConst kv : message) {
-                msgCopy[kv.key()] = kv.value();
+                message_json[kv.key()] = kv.value();
             }
             
             // Set default fields if missing
-            if (!msgCopy.containsKey("from")) {
-                msgCopy["from"] = Manifesto::talk()->name;
-            }
-            if (!msgCopy.containsKey("id")) {
-                msgCopy["id"] = generateMessageId();
+            message_json["from"] = Manifesto::talk()->name;
+            if (!message_json.containsKey("id")) {
+                message_json["id"] = generateMessageId();
             }
             
-            talking["checksum"] = calculateChecksum(msgCopy);
+            talk_json["checksum"] = calculateChecksum(message_json);
             
             String output;
-            serializeJson(talking, output);
+            serializeJson(talk_json, output);
             return _socket->write((const uint8_t*)output.c_str(), output.length());
         }
 

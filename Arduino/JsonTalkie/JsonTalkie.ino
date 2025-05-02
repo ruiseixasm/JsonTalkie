@@ -59,20 +59,17 @@ void setup() {
         Serial.println("Failed to initialize Talker!");
         while(1);
     }
+
     Serial.println("Talker ready");
+    Serial.println("Sending JSON...");
+    DynamicJsonDocument doc(256);
+    doc["type"] = "talk";
+    json_talkie.talk(doc.as<JsonObject>());
 }
 
 void loop() {
-    json_talkie.listen();
+    // json_talkie.listen();
     
-    // Example: Send a message every 5 seconds
-    static unsigned long lastSend = 0;
-    if (millis() - lastSend > 5000) {
-        DynamicJsonDocument doc(128);
-        doc["type"] = "talk";
-        json_talkie.talk(doc.as<JsonObject>());
-        lastSend = millis();
-    }
 }
 
 

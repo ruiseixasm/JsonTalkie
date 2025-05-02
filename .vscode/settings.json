@@ -12,6 +12,7 @@
     "files.associations": {
         "*.txt": "cmake",
         "xlocale": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "xiosbase": "cpp"
     }
 }
