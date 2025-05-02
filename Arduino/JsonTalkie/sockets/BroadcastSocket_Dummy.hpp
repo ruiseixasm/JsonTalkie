@@ -28,11 +28,10 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         size_t _receiveLength = 0;
 
         // Helper function to safely create char* from buffer
-        static const char* decode(const uint8_t* data, size_t length) {
-            char temp[length + 1];
-            memcpy(temp, data, length);
-            temp[length] = '\0';
-            return temp;
+        static const char* decode(const uint8_t* data, size_t length, char* talk) {
+            memcpy(talk, data, length);
+            talk[length] = '\0';
+            return talk;
         }
 
     public:
@@ -53,8 +52,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                 return false;
                 
             char message[length + 1];
-            memcpy(message, data, length);
-            message[length] = '\0';
+            decode(data, length, message);
             Serial.print("DUMMY SENT: ");
             Serial.println(message);
             
