@@ -187,6 +187,11 @@ namespace JsonTalkie {
         }
 
         bool talk(JsonObjectConst message) {
+
+            // Serial.print("A: ");
+            // serializeJson(message, Serial);
+            // Serial.println();  // optional: just to add a newline after the JSON
+
             DynamicJsonDocument doc(256);
             JsonObject talk_json = doc.to<JsonObject>();
             // Create a copy of the message to modify
@@ -195,15 +200,14 @@ namespace JsonTalkie {
             for (JsonPairConst kv : message) {
                 message_json[kv.key()] = kv.value();
             }
-            
             // Set default fields if missing
-            message_json["from"] = Manifesto::talk()->name;
             if (!message_json.containsKey("id")) {
                 message_json["id"] = generateMessageId();
             }
+            message_json["from"] = Manifesto::talk()->name;
             
             talk_json["checksum"] = calculateChecksum(message_json);
-            
+
             String output;
             serializeJson(talk_json, output);
             return _socket->write((const uint8_t*)output.c_str(), output.length());
