@@ -11,12 +11,25 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#include "sockets/BroadcastSocket_Serial.hpp"
+
+#define BROADCAST_SOCKET 0  // 0=SERIAL, 1=UDP, 2=ETHERCARD, 3=DUMMY
+
+#if BROADCAST_SOCKET == 0
+    #include "sockets/BroadcastSocket_Serial.hpp"
+    BroadcastSocket_Serial broadcast_socket;
+#elif BROADCAST_SOCKET == 1
+    #include "sockets/BroadcastSocket_UDP.hpp"
+    BroadcastSocket_UDP broadcast_socket;
+#elif BROADCAST_SOCKET == 2
+    #include "sockets/BroadcastSocket_EtherCard.hpp"
+    BroadcastSocket_EtherCard broadcast_socket;
+#else
+    #include "sockets/BroadcastSocket_Dummy.hpp"
+    BroadcastSocket_Dummy broadcast_socket;
+#endif
+
 #include "JsonTalkie.hpp"
-
-
-BroadcastSocket_Serial socket_serial(9600);
-JsonTalkie::Talker json_talkie(&socket_serial);
+JsonTalkie::Talker json_talkie(&broadcast_socket);
 
 
 // MANIFESTO DEFINITION

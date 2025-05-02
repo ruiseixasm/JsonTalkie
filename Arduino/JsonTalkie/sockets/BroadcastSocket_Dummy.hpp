@@ -18,7 +18,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
 
 
-class BroadcastSocket_Dummy {
+class BroadcastSocket_Dummy : public BroadcastSocket {
 private:
     bool _socket = false;
     unsigned long _lastTime = 0;
@@ -85,6 +85,6 @@ public:
         return sum;
     }
 };
-    
+
 
 #endif // BROADCAST_SOCKET_DUMMY_HPP
