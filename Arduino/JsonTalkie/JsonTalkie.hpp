@@ -126,13 +126,17 @@ namespace JsonTalkie {
         }
 
         static uint16_t calculateChecksum(JsonObjectConst message) {
-            String output;
-            serializeJson(message, output);
-            
+            // Use a static buffer size, large enough for your JSON
+            char buffer[256];
+            size_t len = serializeJson(message, buffer);
+            // 16-bit word and XORing
             uint16_t checksum = 0;
-            const char* str = output.c_str();
-            for (size_t i = 0; str[i] != '\0'; i++) {
-                checksum = (checksum << 5) + checksum + str[i];
+            for (size_t i = 0; i < len; i += 2) {
+                uint16_t chunk = buffer[i] << 8;
+                if (i + 1 < len) {
+                    chunk |= buffer[i + 1];
+                }
+                checksum ^= chunk;
             }
             return checksum;
         }
