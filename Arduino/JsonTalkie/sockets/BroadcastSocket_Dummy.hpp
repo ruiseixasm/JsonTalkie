@@ -28,7 +28,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         size_t _receiveLength = 0;
 
         // Helper function to safely create char* from buffer
-        static const char* decode(const uint8_t* data, size_t length, char* talk) {
+        static const char* decode(const uint8_t* data, const size_t length, char* talk) {
             memcpy(talk, data, length);
             talk[length] = '\0';
             return talk;
