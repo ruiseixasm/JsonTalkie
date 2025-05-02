@@ -63,37 +63,35 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
             if (!_isOpen) return false;
             
             if (millis() - _lastTime > 1000) {
-                // _lastTime = millis();
-                // if (random(1000) < 10) { // 1% chance to receive
-                //     const char* messages[] = {
-                //         R"({"type":"run","what":"buzz","to":"Buzzer","from":"Buzzer"})",
-                //         R"({"type":"echo","to":"Buzzer","response":"[Buzzer buzz]\\tCalled","from":"Buzzer"})",
-                //         R"({"type":"talk","from":"Dummy"})",
-                //         R"({"type":"echo","to":"Talker-a6","response":"[Talker-a6]\\tA simple Talker!","from":"Talker-a6"})"
-                //     };
+                _lastTime = millis();
+                if (random(1000) < 10) { // 1% chance to receive
+                    const char* messages[] = {
+                        R"({"type":"run","what":"buzz","to":"Buzzer","from":"Buzzer"})",
+                        R"({"type":"echo","to":"Buzzer","response":"[Buzzer buzz]\\tCalled","from":"Buzzer"})",
+                        R"({"type":"talk","from":"Dummy"})",
+                        R"({"type":"echo","to":"Talker-a6","response":"[Talker-a6]\\tA simple Talker!","from":"Talker-a6"})"
+                    };
                     
-                //     const char* chosen = messages[random(4)];
-                //     _receiveLength = strlen(chosen);
-                //     memcpy(_receiveBuffer, chosen, _receiveLength);
-                //     return true;
-                // }
+                    const char* chosen = messages[random(4)];
+                    _receiveLength = strlen(chosen);
+                    memcpy(_receiveBuffer, chosen, _receiveLength);
+                    return true;
+                }
             }
             return false;
         }
     
         size_t read(uint8_t* buffer, size_t size) override {
-            // if (!available() || size < _receiveLength) return 0;
+            if (!available() || size < _receiveLength) return 0;
             
-            // size_t toCopy = min(size, _receiveLength);
-            // memcpy(buffer, _receiveBuffer, toCopy);
-            // _receiveLength = 0; // Clear buffer after reading
+            size_t toCopy = min(size, _receiveLength);
+            memcpy(buffer, _receiveBuffer, toCopy);
+            _receiveLength = 0; // Clear buffer after reading
             
-            // Serial.print("DUMMY RECEIVED: ");
-            // Serial.println((const char*)buffer);
+            Serial.print("DUMMY RECEIVED: ");
+            Serial.println((const char*)buffer);
             
-            // return toCopy;
-
-            return 0;
+            return toCopy;
         }
     
         static String generateMessageId() {
