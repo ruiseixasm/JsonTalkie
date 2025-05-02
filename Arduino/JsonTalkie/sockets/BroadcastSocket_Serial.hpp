@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #ifndef BROADCAST_SOCKET_SERIAL_HPP
 #define BROADCAST_SOCKET_SERIAL_HPP
 
-#include "BroadcastSocket.hpp"
+#include "../BroadcastSocket.hpp"
 #include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
 
 class BroadcastSocket_Serial : public BroadcastSocket {
