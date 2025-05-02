@@ -16,75 +16,83 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #include "../BroadcastSocket.hpp"
 #include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
+#include <ArduinoJson.h>
 
 
 class BroadcastSocket_Dummy : public BroadcastSocket {
-private:
-    bool _socket = false;
-    unsigned long _lastTime = 0;
-    StaticJsonDocument<256> _sentMessage;
-
-    const char* _messages[4] = {
-        "{\"type\":\"run\",\"what\":\"buzz\",\"to\":\"Buzzer\",\"from\":\"Buzzer\"}",
-        "{\"type\":\"echo\",\"to\":\"Buzzer\",\"response\":\"[Buzzer buzz]\\tCalled\",\"from\":\"Buzzer\"}",
-        "{\"type\":\"talk\",\"from\":\"Dummy\"}",
-        "{\"type\":\"echo\",\"to\":\"Talker-a6\",\"response\":\"[Talker-a6]\\tA simple Talker!\",\"from\":\"Talker-a6\"}"
-    };
-
-public:
-    bool open() {
-        _socket = random(1000) > 50;
-        return _socket;
-    }
-
-    void close() { _socket = false; }
-
-    bool send(const String& data) {
-        if (!_socket) return false;
-        deserializeJson(_sentMessage, data);
-        Serial.print("DUMMY SENT: ");
-        Serial.println(data);
-        return true;
-    }
-
-    String receive() {
-        if (!_socket || millis() - _lastTime < 1000) return "";
-        _lastTime = millis();
-        
-        if (random(1000) >= 10) return "";
-        
-        String message = _messages[random(4)];
-        message.replace("\"id\":\"", "\"id\":\"" + message_id());
-        
-        StaticJsonDocument<256> doc;
-        deserializeJson(doc, message);
-        uint16_t chk = checksum(doc.as<JsonObject>());
-        
-        doc["checksum"] = chk;
-        String output;
-        serializeJson(doc, output);
-        
-        Serial.print("DUMMY RECEIVED: ");
-        Serial.println(output);
-        return output;
-    }
-
-    static String message_id() {
-        char buf[9];
-        sprintf(buf, "%08lx", random());
-        return String(buf);
-    }
-
-    static uint16_t checksum(const JsonObject& obj) {
-        String s;
-        serializeJson(obj, s);
-        uint16_t sum = 0;
-        for (size_t i = 0; i < s.length(); i++) {
-            sum = (sum << 5) + sum + s[i];
+    private:
+        bool _isOpen = false;
+        unsigned long _lastTime = 0;
+        StaticJsonDocument<256> _lastMessage;
+        uint8_t _receiveBuffer[256];
+        size_t _receiveLength = 0;
+    
+    public:
+        ~BroadcastSocket_Dummy() override = default;
+    
+        bool begin() override {
+            _isOpen = random(1000) > 50; // 95% success rate
+            return _isOpen;
         }
-        return sum;
-    }
-};
+    
+        void end() override {
+            _isOpen = false;
+            _receiveLength = 0;
+        }
+    
+        bool write(const uint8_t* data, size_t length) override {
+            // if (!_isOpen) return false;
+            
+            // String message((const char*)data, length);
+            // Serial.print("DUMMY SENT: ");
+            // Serial.println(message);
+            
+            // deserializeJson(_lastMessage, message);
+            return true;
+        }
+    
+        bool available() override {
+            if (!_isOpen) return false;
+            
+            if (millis() - _lastTime > 1000) {
+                // _lastTime = millis();
+                // if (random(1000) < 10) { // 1% chance to receive
+                //     const char* messages[] = {
+                //         R"({"type":"run","what":"buzz","to":"Buzzer","from":"Buzzer"})",
+                //         R"({"type":"echo","to":"Buzzer","response":"[Buzzer buzz]\\tCalled","from":"Buzzer"})",
+                //         R"({"type":"talk","from":"Dummy"})",
+                //         R"({"type":"echo","to":"Talker-a6","response":"[Talker-a6]\\tA simple Talker!","from":"Talker-a6"})"
+                //     };
+                    
+                //     const char* chosen = messages[random(4)];
+                //     _receiveLength = strlen(chosen);
+                //     memcpy(_receiveBuffer, chosen, _receiveLength);
+                //     return true;
+                // }
+            }
+            return false;
+        }
+    
+        size_t read(uint8_t* buffer, size_t size) override {
+            // if (!available() || size < _receiveLength) return 0;
+            
+            // size_t toCopy = min(size, _receiveLength);
+            // memcpy(buffer, _receiveBuffer, toCopy);
+            // _receiveLength = 0; // Clear buffer after reading
+            
+            // Serial.print("DUMMY RECEIVED: ");
+            // Serial.println((const char*)buffer);
+            
+            // return toCopy;
 
+            return 0;
+        }
+    
+        static String generateMessageId() {
+            char buf[9];
+            snprintf(buf, sizeof(buf), "%08lx", random(0x10000000, 0xFFFFFFFF));
+            return String(buf);
+        }
+    };
 
 #endif // BROADCAST_SOCKET_DUMMY_HPP

@@ -18,7 +18,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define SOCKET_DUMMY 0
 
 // Choose Broadcast Socket here ---vvv
-#define BROADCAST_SOCKET SOCKET_SERIAL
+#define BROADCAST_SOCKET SOCKET_DUMMY
 
 #if BROADCAST_SOCKET == SOCKET_SERIAL
     #include "sockets/BroadcastSocket_Serial.hpp"
