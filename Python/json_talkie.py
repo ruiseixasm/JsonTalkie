@@ -67,11 +67,6 @@ class JsonTalkie:
                 data, _ = received  # Explicitly ignore (ip, port)
                 try:
                     talk: Dict[str, Any] = JsonTalkie.decode(data)
-                    
-                    if talk:
-                        print(talk)
-                        print(f"Python checksum: {JsonTalkie.checksum(talk['message'])}")
-
                     if self.validate_talk(talk):
                         self.receive(talk['message'])
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
@@ -155,7 +150,10 @@ class JsonTalkie:
 
     def validate_talk(self, talk: Dict[str, Any]) -> bool:
         if isinstance(talk, dict) and 'checksum' in talk and 'message' in talk:
-            message_checksum: int = talk['checksum']
+            try:
+                message_checksum: int = int(talk.get('checksum', None))
+            except (ValueError, TypeError):
+                return False
             if message_checksum == JsonTalkie.checksum(talk['message']):
                 message: int = talk['message']
                 if 'type' in message and 'from' in message and 'id' in message:
@@ -172,18 +170,6 @@ class JsonTalkie:
         return uuid.uuid4().hex[:8]
     
     @staticmethod
-    def checksum_16bit_bytes(data: bytes) -> int:
-        """16-bit XOR checksum for bytes"""
-        checksum = 0
-        for i in range(0, len(data), 2):
-            # Combine two bytes into 16-bit value
-            chunk = data[i] << 8
-            if i+1 < len(data):
-                chunk |= data[i+1]
-            checksum ^= chunk
-        return checksum & 0xFFFF
-
-    @staticmethod
     def encode(talk: Dict[str, Any]) -> bytes:
         return json.dumps(talk).encode('utf-8')
 
@@ -198,6 +184,18 @@ class JsonTalkie:
 
     @staticmethod
     def checksum(message: Dict[str, Any]) -> int:
+        # If specified, separators should be an (item_separator, key_separator)
+        #     tuple. The default is (', ', ': ') if indent is None and
+        #     (',', ': ') otherwise. To get the most compact JSON representation,
+        #     you should specify (',', ':') to eliminate whitespace.
         data = json.dumps(message, separators=(',', ':')).encode('utf-8')
-        return JsonTalkie.checksum_16bit_bytes(data)
+        # 16-bit word and XORing
+        checksum = 0
+        for i in range(0, len(data), 2):
+            # Combine two bytes into 16-bit value
+            chunk = data[i] << 8
+            if i+1 < len(data):
+                chunk |= data[i+1]
+            checksum ^= chunk
+        return checksum & 0xFFFF
 
