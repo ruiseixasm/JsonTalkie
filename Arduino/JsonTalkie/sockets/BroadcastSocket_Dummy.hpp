@@ -49,9 +49,12 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         }
     
         bool write(const uint8_t* data, size_t length) override {
-            if (!_isOpen) return false;
-            
-            const char* message = decode(data, length);
+            if (!_isOpen)
+                return false;
+                
+            char message[length + 1];
+            memcpy(message, data, length);
+            message[length] = '\0';
             Serial.print("DUMMY SENT: ");
             Serial.println(message);
             
