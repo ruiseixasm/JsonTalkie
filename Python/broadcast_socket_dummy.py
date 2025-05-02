@@ -116,7 +116,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
 
     @staticmethod
     def encode(talk: Dict[str, Any]) -> bytes:
-        return json.dumps(talk).encode('utf-8')
+        return json.dumps(talk, separators=(',', ':')).encode('utf-8')
 
     @staticmethod
     def decode(data: bytes) -> Dict[str, Any]:
@@ -124,5 +124,5 @@ class BroadcastSocket_Dummy(BroadcastSocket):
 
     @staticmethod
     def checksum(message: Dict[str, Any]) -> int:
-        data = json.dumps(message).encode('utf-8')
+        data = json.dumps(message, separators=(',', ':')).encode('utf-8')
         return BroadcastSocket_Dummy.checksum_16bit_bytes(data)
