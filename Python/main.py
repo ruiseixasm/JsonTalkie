@@ -15,6 +15,8 @@ from typing import Dict, Any
 import time
 
 from broadcast_socket_udp import *
+from broadcast_socket_dummy import *
+from broadcast_socket_serial import *
 from json_talkie import *
 
 
@@ -80,7 +82,7 @@ class Talker:
 if __name__ == "__main__":
 
     talker = Talker()
-    broadcast_socket: BroadcastSocket = BroadcastSocket_UDP()
+    broadcast_socket: BroadcastSocket = BroadcastSocket_Serial()
     json_talkie: JsonTalkie = JsonTalkie(broadcast_socket, talker.manifesto)
 
     # Start listening (opens socket)
