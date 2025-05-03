@@ -63,8 +63,8 @@ const JsonTalkie::Get JsonTalkie::Manifesto::getCommands[] = {
 };
 const size_t JsonTalkie::Manifesto::getSize = sizeof(JsonTalkie::Manifesto::getCommands) / sizeof(JsonTalkie::Get);
 
-bool process_response(StaticJsonDocument<256>* message, const char* response);
-bool (*JsonTalkie::Manifesto::echo)(StaticJsonDocument<256>*, const char*) = process_response;
+bool process_response(JsonObjectConst message, const char* response);
+bool (*JsonTalkie::Manifesto::echo)(JsonObjectConst, const char*) = process_response;
 
 // END OF MANIFESTO
 
@@ -129,7 +129,7 @@ const char* get_duration() {
     return buffer;
 }
 
-bool process_response(StaticJsonDocument<256>* message, const char* response) {
+bool process_response(JsonObjectConst message, const char* response) {
     // Serial.println((*message)["response"].as<String>()); // The magic fix
     return true;
 }

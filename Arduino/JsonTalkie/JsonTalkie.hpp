@@ -65,7 +65,7 @@ namespace JsonTalkie {
         static const size_t setSize;        // Declaration only
         static const Get getCommands[];
         static const size_t getSize;        // Declaration only
-        static bool (*echo)(StaticJsonDocument<256>*, const char*);
+        static bool (*echo)(JsonObjectConst, const char*);
 
         static const Device* talk() {
             return &Manifesto::device;
