@@ -197,21 +197,34 @@ namespace JsonTalkie {
                 // echo["i"] = message["i"];
                 // talk(echo);
             } else if (strcmp(command, "run") == 0) {
-                StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
-                JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
-                echo["c"] = "echo";
-                echo["t"] = message["f"];
-                echo["i"] = message["i"];
+                message["c"] = "echo";
+                message["t"] = message["f"];
                 const Run* run = Manifesto::run(message["w"]);
                 if (run == nullptr) {
-                    echo["r"] = "UNKNOWN";
+                    message["r"] = "UNKNOWN";
                 } else {
-                    echo["r"] = "ROGER";
+                    message["r"] = "ROGER";
                 }
-                talk(echo);
+                talk(message);
                 if (run != nullptr) {
-                    run->function(message, echo["r"]);
+                    run->function(message, message["r"]);
                 }
+
+                // StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
+                // JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
+                // echo["c"] = "echo";
+                // echo["t"] = message["f"];
+                // echo["i"] = message["i"];
+                // const Run* run = Manifesto::run(message["w"]);
+                // if (run == nullptr) {
+                //     echo["r"] = "UNKNOWN";
+                // } else {
+                //     echo["r"] = "ROGER";
+                // }
+                // talk(echo);
+                // if (run != nullptr) {
+                //     run->function(message, echo["r"]);
+                // }
             }
             // Other message types...
             
