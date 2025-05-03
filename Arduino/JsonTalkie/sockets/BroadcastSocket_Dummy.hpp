@@ -91,13 +91,13 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         
                     // 5. JSON Handling with Memory Checks
                     {
-                        DynamicJsonDocument doc(256);
-                        if (doc.capacity() == 0) {
-                            Serial.println("Failed to allocate JSON doc");
+                        DynamicJsonDocument talk_doc(256);
+                        if (talk_doc.capacity() == 0) {
+                            Serial.println("Failed to allocate JSON talk_doc");
                             return 0;
                         }
 
-                        JsonObject talk_json = doc.to<JsonObject>();
+                        JsonObject talk_json = talk_doc.to<JsonObject>();
 
                         // // Create message sub-object
                         // JsonObject message_json = talk_json.createNestedObject("message");
@@ -111,7 +111,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         
                         // 6. Safer Serialization
                         char json_buffer[256];
-                        size_t json_len = serializeJson(doc, json_buffer);
+                        size_t json_len = serializeJson(talk_doc, json_buffer);
                         
                         if (json_len == 0 || json_len >= sizeof(json_buffer)) {
                             Serial.println("Serialization failed/buffer overflow");
@@ -120,9 +120,9 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         
                         Serial.print("DUMMY READ: ");
                         Serial.println(json_buffer);
-                        // serializeJsonPretty(doc, Serial);  // Pretty-print for verification
+                        // serializeJsonPretty(talk_doc, Serial);  // Pretty-print for verification
                         // Serial.println();
-                    } // JSON doc freed here
+                    } // JSON talk_doc freed here
         
                     return read_size;
                 }
