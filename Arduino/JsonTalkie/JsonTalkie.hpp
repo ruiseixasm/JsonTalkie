@@ -224,8 +224,8 @@ namespace JsonTalkie {
             // serializeJson(message, Serial);
             // Serial.println();  // optional: just to add a newline after the JSON
 
-            StaticJsonDocument<JSON_TALKIE_SIZE> doc;
-            JsonObject talk_json = doc.to<JsonObject>();
+            StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
+            JsonObject talk_json = talk_doc.to<JsonObject>();
             // Create a copy of the message to modify
             JsonObject message_json = talk_json.createNestedObject("m");
 
@@ -254,15 +254,15 @@ namespace JsonTalkie {
                 
                 if (bytesRead > 0) {
                     buffer[bytesRead] = '\0';
-                    StaticJsonDocument<JSON_TALKIE_SIZE> doc;
-                    DeserializationError error = deserializeJson(doc, (const char*)buffer);
+                    StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
+                    DeserializationError error = deserializeJson(talk_doc, (const char*)buffer);
                     
                     Serial.print("Z: ");
-                    serializeJson(doc["m"], Serial);
+                    serializeJson(talk_doc["m"], Serial);
                     Serial.println();  // optional: just to add a newline after the JSON
 
-                    if (!error && validateTalk(doc.as<JsonObject>())) {
-                        receive(doc["m"]);
+                    if (!error && validateTalk(talk_doc.as<JsonObject>())) {
+                        receive(talk_doc["m"]);
                     }
                 }
             }
