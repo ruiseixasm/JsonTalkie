@@ -91,7 +91,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         
                     // 5. JSON Handling with Memory Checks
                     {
-                        DynamicJsonDocument talk_doc(256);
+                        StaticJsonDocument<256> talk_doc;
                         if (talk_doc.capacity() == 0) {
                             Serial.println("Failed to allocate JSON talk_doc");
                             return 0;
