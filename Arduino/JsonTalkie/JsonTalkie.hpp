@@ -160,7 +160,7 @@ namespace JsonTalkie {
                 StaticJsonDocument<256> echo_soc;
                 char response[256]; // Adjust size as needed
                 snprintf(response, sizeof(response), "[%s]\t%s", Manifesto::talk()->name, Manifesto::talk()->desc);
-                JsonObject echo = echo_soc.to<JsonObject>();
+                JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
                 echo["response"] = response;
                 echo["type"] = "echo";
                 echo["to"] = message["from"];
@@ -170,7 +170,7 @@ namespace JsonTalkie {
                 StaticJsonDocument<256> echo_soc;
                 char response[256]; // Adjust size as needed
                 snprintf(response, sizeof(response), "[%s]\tRUN", Manifesto::talk()->name);
-                JsonObject echo = echo_soc.to<JsonObject>();
+                JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
                 echo["response"] = response;
                 echo["type"] = "echo";
                 echo["to"] = message["from"];
