@@ -179,11 +179,11 @@ namespace JsonTalkie {
         }
         
         bool receive(JsonObject message) {
-            const char* type = message["c"];
+            const char* command = message["c"];
             
-            if (!type) return false;
+            if (!command) return false;
         
-            if (strcmp(type, "talk") == 0) {
+            if (strcmp(command, "talk") == 0) {
                 // message["c"] = "echo";
                 // message["t"] = message["f"];
                 // message["r"] = Manifesto::talk()->desc;
@@ -196,7 +196,7 @@ namespace JsonTalkie {
                 echo["t"] = message["f"];
                 echo["i"] = message["i"];
                 talk(echo);
-            } else if (strcmp(type, "run") == 0) {
+            } else if (strcmp(command, "run") == 0) {
                 StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
                 echo["c"] = "echo";
