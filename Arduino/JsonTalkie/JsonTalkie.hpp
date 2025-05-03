@@ -108,7 +108,7 @@ namespace JsonTalkie {
     class Talker {
     private:
         BroadcastSocket* _socket;
-        DynamicJsonDocument _sentMessage{256};
+        StaticJsonDocument<256> _sentMessage;
         unsigned long _messageTime;
         bool _running;
 
