@@ -61,7 +61,7 @@ const JsonTalkie::Set JsonTalkie::Manifesto::setCommands[] = {
 };
 const size_t JsonTalkie::Manifesto::setSize = sizeof(JsonTalkie::Manifesto::setCommands) / sizeof(JsonTalkie::Set);
 
-bool get_duration(JsonObjectConst json_message, JsonVariant reply);
+size_t get_duration(JsonObjectConst json_message, JsonVariant reply);
 const JsonTalkie::Get JsonTalkie::Manifesto::getCommands[] = {
     // {"duration", "Gets duration", get_duration}
 };
@@ -118,34 +118,27 @@ bool buzz(JsonObjectConst json_message, JsonVariant reply) {
     digitalWrite(buzzer_pin, HIGH);
     delay(_duration * 1000); 
     digitalWrite(buzzer_pin, LOW);
-    static char buffer[32];  // Reusable buffer
-    snprintf(buffer, sizeof(buffer), "Buzzed for %.1fs", _duration);
-    return buffer;
+    return true;
 }
 
 bool led_on(JsonObjectConst json_message, JsonVariant reply) {
     digitalWrite(LED_BUILTIN, HIGH);
-    return "";
+    return true;
 }
 
 bool led_off(JsonObjectConst json_message, JsonVariant reply) {
     digitalWrite(LED_BUILTIN, LOW);
-    return "";
+    return true;
 }
 
 
 bool set_duration(JsonObjectConst json_message, JsonVariant reply, size_t duration) {
-    // _duration = String(duration).toFloat();
     _duration = duration;
-    static char buffer[32];  // Reusable buffer
-    snprintf(buffer, sizeof(buffer), "Set duration: %ss", JsonTalkie::floatToStr(_duration));
-    return buffer;
+    return true;
 }
 
-bool get_duration(JsonObjectConst json_message, JsonVariant reply) {
-    static char buffer[32];  // Reusable buffer
-    snprintf(buffer, sizeof(buffer), "Get duration: %ds", _duration);
-    return buffer;
+size_t get_duration(JsonObjectConst json_message, JsonVariant reply) {
+    return _duration;
 }
 
 
