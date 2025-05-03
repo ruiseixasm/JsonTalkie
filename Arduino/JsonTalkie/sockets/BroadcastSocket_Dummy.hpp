@@ -71,8 +71,8 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                     const char* messages[] = {
                         R"({"type":"talk","from":"Dummy","id":"4bc70d90"})",
                         R"({"type":"run","from":"Dummy","to":"Buzzer","what":"buzz","id":"4bc70d91"})",
-                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_on","id":"4bc70d92"})",
-                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_off","id":"4bc70d93"})"
+                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"on","id":"4bc70d92"})",
+                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"off","id":"4bc70d93"})"
                     };
                     const size_t num_messages = sizeof(messages)/sizeof(char*);
                     

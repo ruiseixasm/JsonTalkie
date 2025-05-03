@@ -236,6 +236,10 @@ namespace JsonTalkie {
                     StaticJsonDocument<256> doc;
                     DeserializationError error = deserializeJson(doc, (const char*)buffer);
                     
+                    Serial.print("Z: ");
+                    serializeJson(doc["message"], Serial);
+                    Serial.println();  // optional: just to add a newline after the JSON
+
                     if (!error && validateTalk(doc.as<JsonObject>())) {
                         receive(doc["message"]);
                     }
