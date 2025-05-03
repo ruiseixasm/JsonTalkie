@@ -53,13 +53,13 @@ const size_t JsonTalkie::Manifesto::runSize = sizeof(JsonTalkie::Manifesto::runC
 
 const char* set_duration(const char* duration);
 const JsonTalkie::Set JsonTalkie::Manifesto::setCommands[] = {
-    {"duration", "Sets duration", set_duration}
+    // {"duration", "Sets duration", set_duration}
 };
 const size_t JsonTalkie::Manifesto::setSize = sizeof(JsonTalkie::Manifesto::setCommands) / sizeof(JsonTalkie::Set);
 
 const char* get_duration();
 const JsonTalkie::Get JsonTalkie::Manifesto::getCommands[] = {
-    {"duration", "Gets duration", get_duration}
+    // {"duration", "Gets duration", get_duration}
 };
 const size_t JsonTalkie::Manifesto::getSize = sizeof(JsonTalkie::Manifesto::getCommands) / sizeof(JsonTalkie::Get);
 
@@ -130,6 +130,6 @@ const char* get_duration() {
 }
 
 bool process_response(StaticJsonDocument<256>* message, const char* response) {
-    Serial.println((*message)["response"].as<String>()); // The magic fix
+    // Serial.println((*message)["response"].as<String>()); // The magic fix
     return true;
 }
