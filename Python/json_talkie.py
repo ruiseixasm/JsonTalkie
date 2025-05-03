@@ -48,7 +48,7 @@ class JsonTalkie:
 
     def talk(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
-        message['from'] = self._manifesto['talker']['name']
+        message["f"] = self._manifesto['talker']['name']
         if "i" not in message:
             message["i"] = JsonTalkie.message_id()
         if message["c"] != "echo":
@@ -79,7 +79,7 @@ class JsonTalkie:
                 print(message)
                 echo: Dict[str, Any] = {
                     "c": 'echo',
-                    "t": message['from'],
+                    "t": message["f"],
                     "i": message["i"]
                 }
                 echo["r"] = f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}"
@@ -87,7 +87,7 @@ class JsonTalkie:
             case "list":
                 echo: Dict[str, Any] = {
                     "c": 'echo',
-                    "t": message['from'],
+                    "t": message["f"],
                     "i": message["i"]
                 }
                 if 'run' in self._manifesto:
@@ -103,13 +103,13 @@ class JsonTalkie:
                         echo["r"] = f"[get {self._manifesto['talker']['name']} {key}]\t{value['description']}"
                         self.talk(echo)
             case "run":
-                if 'what' in message and 'run' in self._manifesto and message['what'] in self._manifesto['run']:
-                    function = self._manifesto['run'][message['what']]['function']
+                if "w" in message and 'run' in self._manifesto and message["w"] in self._manifesto['run']:
+                    function = self._manifesto['run'][message["w"]]['function']
                     echo: Dict[str, Any] = {
                         "c": 'echo',
-                        "t": message['from'],
+                        "t": message["f"],
                         "i": message["i"],
-                        "r": f"[{self._manifesto['talker']['name']} {message['what']}]\tRUN"
+                        "r": f"[{self._manifesto['talker']['name']} {message["w"]}]\tRUN"
                     }
                     self.talk(echo)
                     function_response: str = function()
@@ -117,13 +117,13 @@ class JsonTalkie:
                         echo["r"] = function_response
                         self.talk(echo)
             case "set":
-                if 'what' in message and 'value' in message and 'set' in self._manifesto and message['what'] in self._manifesto['set']:
-                    function = self._manifesto['set'][message['what']]['function']
+                if "w" in message and 'value' in message and 'set' in self._manifesto and message["w"] in self._manifesto['set']:
+                    function = self._manifesto['set'][message["w"]]['function']
                     echo: Dict[str, Any] = {
                         "c": 'echo',
-                        "t": message['from'],
+                        "t": message["f"],
                         "i": message["i"],
-                        "r": f"[{self._manifesto['talker']['name']} {message['what']}]\tSET"
+                        "r": f"[{self._manifesto['talker']['name']} {message["w"]}]\tSET"
                     }
                     self.talk(echo)
                     function_response: str = function(message['value'])
@@ -131,13 +131,13 @@ class JsonTalkie:
                         echo["r"] = function_response
                         self.talk(echo)
             case "get":
-                if 'what' in message and 'get' in self._manifesto and message['what'] in self._manifesto['get']:
-                    function = self._manifesto['get'][message['what']]['function']
+                if "w" in message and 'get' in self._manifesto and message["w"] in self._manifesto['get']:
+                    function = self._manifesto['get'][message["w"]]['function']
                     self.talk({
                         "c": 'echo',
-                        "t": message['from'],
+                        "t": message["f"],
                         "i": message["i"],
-                        "r": f"[{self._manifesto['talker']['name']} {message['what']}]\t{function()}"
+                        "r": f"[{self._manifesto['talker']['name']} {message["w"]}]\t{function()}"
                     })
             case "echo":
                 if self._last_message and message["i"] == self._last_message["i"]:
@@ -156,7 +156,7 @@ class JsonTalkie:
                 return False
             if message_checksum == JsonTalkie.checksum(talk["m"]):
                 message: int = talk["m"]
-                if "c" in message and 'from' in message and "i" in message:
+                if "c" in message and "f" in message and "i" in message:
                     if "t" in message:
                         return message["t"] == "*" or message["t"] == self._manifesto['talker']['name']
                     else:

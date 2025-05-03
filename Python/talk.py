@@ -92,7 +92,7 @@ class CommandLine:
                     case "run" | "get":
                         if len(words) == 3:
                             message["t"] = words[1]
-                            message['what'] = words[2]
+                            message["w"] = words[2]
                             json_talkie.talk(message)
                             time.sleep(0.5) # Wait some time
                         else:
@@ -100,7 +100,7 @@ class CommandLine:
                     case "set":
                         if len(words) == 4:
                             message["t"] = words[1]
-                            message['what'] = words[2]
+                            message["w"] = words[2]
                             message['value'] = words[3]
                             json_talkie.talk(message)
                             time.sleep(0.5) # Wait some time
@@ -109,9 +109,9 @@ class CommandLine:
                     case _:
                         print(f"\t[talk]\tShows all devices' 'name' and description.")
                         print(f"\t[list 'device']\tList the entire 'device' manifesto.")
-                        print(f"\t[run 'device' 'what']\tRuns the named function.")
-                        print(f"\t[set 'device' 'what']\tSets the named variable.")
-                        print(f"\t[get 'device' 'what']\tGets the named variable value.")
+                        print(f"\t[run 'device' "w"]\tRuns the named function.")
+                        print(f"\t[set 'device' "w"]\tSets the named variable.")
+                        print(f"\t[get 'device' "w"]\tGets the named variable value.")
                         print(f"\t[exit]\tExits the command line (Ctrl+D).")
                         print(f"\t[help]\tShows the present help.")                        
 
