@@ -145,17 +145,17 @@ namespace JsonTalkie {
         }
 
         static bool validateTalk(JsonObjectConst talk) {
-            if (!talk.containsKey("sum") || !talk.containsKey("message")) {
+            if (!talk.containsKey("s") || !talk.containsKey("m")) {
                 return false;
             }
             
-            uint16_t checksum = talk["sum"];
-            JsonObjectConst message = talk["message"];
+            uint16_t checksum = talk["s"];
+            JsonObjectConst message = talk["m"];
             return checksum == calculateChecksum(message);
         }
         
         bool receive(JsonObjectConst message) {
-            const char* type = message["type"];
+            const char* type = message["c"];
             
             if (!type) return false;
         
@@ -164,28 +164,27 @@ namespace JsonTalkie {
                 char reply[JSON_TALKIE_SIZE]; // Adjust size as needed
                 snprintf(reply, sizeof(reply), "[%s]\t%s", Manifesto::talk()->name, Manifesto::talk()->desc);
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
-                echo["reply"] = reply;
-                echo["type"] = "echo";
-                echo["to"] = message["from"];
-                echo["id"] = message["id"];
+                echo["r"] = reply;
+                echo["c"] = "echo";
+                echo["t"] = message["from"];
+                echo["i"] = message["i"];
                 talk(echo);
             } else if (strcmp(type, "run") == 0) {
                 StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
                 char reply[JSON_TALKIE_SIZE]; // Adjust size as needed
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
-                echo["type"] = "echo";
-                echo["to"] = message["from"];
-                echo["id"] = message["id"];
+                echo["c"] = "echo";
+                echo["t"] = message["from"];
+                echo["i"] = message["i"];
                 const Run* run = Manifesto::run(message["what"]);
                 if (run == nullptr) {
-                    snprintf(reply, sizeof(reply), "[%s]\tUNKNOWN", Manifesto::talk()->name);
+                    echo["r"] = "UNKNOWN";
                 } else {
-                    snprintf(reply, sizeof(reply), "[%s]\tROGER", Manifesto::talk()->name);
+                    echo["r"] = "ROGER";
                 }
-                echo["reply"] = reply;
                 talk(echo);
                 if (run != nullptr) {
-                    run->function(message, echo["reply"]);
+                    run->function(message, echo["r"]);
                 }
             }
             // Other message types...
@@ -218,18 +217,18 @@ namespace JsonTalkie {
             StaticJsonDocument<JSON_TALKIE_SIZE> doc;
             JsonObject talk_json = doc.to<JsonObject>();
             // Create a copy of the message to modify
-            JsonObject message_json = talk_json.createNestedObject("message");
+            JsonObject message_json = talk_json.createNestedObject("m");
 
             for (JsonPairConst kv : message) {
                 message_json[kv.key()] = kv.value();
             }
             // Set default fields if missing
-            if (!message_json.containsKey("id")) {
-                message_json["id"] = generateMessageId();
+            if (!message_json.containsKey("i")) {
+                message_json["i"] = generateMessageId();
             }
             message_json["from"] = Manifesto::talk()->name;
             
-            talk_json["sum"] = calculateChecksum(message_json);
+            talk_json["s"] = calculateChecksum(message_json);
 
             String output;
             serializeJson(talk_json, output);
@@ -249,11 +248,11 @@ namespace JsonTalkie {
                     DeserializationError error = deserializeJson(doc, (const char*)buffer);
                     
                     Serial.print("Z: ");
-                    serializeJson(doc["message"], Serial);
+                    serializeJson(doc["m"], Serial);
                     Serial.println();  // optional: just to add a newline after the JSON
 
                     if (!error && validateTalk(doc.as<JsonObject>())) {
-                        receive(doc["message"]);
+                        receive(doc["m"]);
                     }
                 }
             }

@@ -53,7 +53,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
             divide: float = 1/random.randint(0, 1000)
             print(f"DUMMY SENT: {data}")
             talk: Dict[str, Any] = BroadcastSocket_Dummy.decode(data)
-            self._sent_message = talk['message']
+            self._sent_message = talk["m"]
             return True
         except Exception as e:
             print(f"DUMMY Send failed: {e}")
@@ -70,11 +70,11 @@ class BroadcastSocket_Dummy(BroadcastSocket):
                 if random.randint(0, 1000) < 10:
                     divide: float = 1/random_number
                     message = self.messages[random_number % len(self.messages)]
-                    message['id'] = BroadcastSocket_Dummy.message_id()
+                    message["i"] = BroadcastSocket_Dummy.message_id()
                     checksum = BroadcastSocket_Dummy.checksum(message)
                     talk: Dict[str, Any] = {
-                        'sum': checksum,
-                        'message': message
+                        "s": checksum,
+                        "m": message
                     }
                     data = BroadcastSocket_Dummy.encode(talk)
                     print(f"DUMMY RECEIVED: {data}")
@@ -88,10 +88,10 @@ class BroadcastSocket_Dummy(BroadcastSocket):
             return None
 
     messages: tuple[Dict[str, Any]] = (
-        {"type": "run", "what": "buzz", "to": "Buzzer", "from": "Buzzer", "id": "bc40fd17"},
-        {"type": "echo", "to": "Buzzer", "id": "bc40fd17", "reply": "[Buzzer buzz]\\tCalled", "from": "Buzzer"},
-        {"type": "talk", "from": "Dummy", "id": "dce4fac7"},
-        {"type": "echo", "to": "Talker-a6", "id": "dce4fac7", "reply": "[Talker-a6]\\tA simple Talker!", "from": "Talker-a6"}
+        {"c": "run", "what": "buzz", "t": "Buzzer", "from": "Buzzer", "i": "bc40fd17"},
+        {"c": "echo", "t": "Buzzer", "i": "bc40fd17", "r": "[Buzzer buzz]\\tCalled", "from": "Buzzer"},
+        {"c": "talk", "from": "Dummy", "i": "dce4fac7"},
+        {"c": "echo", "t": "Talker-a6", "i": "dce4fac7", "r": "[Talker-a6]\\tA simple Talker!", "from": "Talker-a6"}
     )
 
     @staticmethod

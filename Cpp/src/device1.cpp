@@ -13,7 +13,7 @@ int main() {
     device.setMessageCallback([&](const std::string& msg) {
         try {
             auto j = json::parse(msg);
-            if (j["type"] == "pong") {
+            if (j["c"] == "pong") {
                 std::cout << "✨ Received pong from " << j["sender"] << std::endl;
             }
         } catch (...) {
@@ -29,7 +29,7 @@ int main() {
     try {
         while (true) {
             json msg = {
-                {"type", "ping"},
+                {"c", "ping"},
                 {"sender", device.getName()},
                 {"time", std::time(nullptr)}
             };

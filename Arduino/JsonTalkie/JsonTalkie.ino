@@ -94,7 +94,7 @@ void setup() {
     Serial.println("Talker ready");
     Serial.println("Sending JSON...");
     StaticJsonDocument<JSON_TALKIE_SIZE> doc;
-    doc["type"] = "talk";
+    doc["c"] = "talk";
     json_talkie.talk(doc.as<JsonObject>());
 }
 
@@ -104,7 +104,7 @@ void loop() {
     static unsigned long lastSend = 0;
     if (millis() - lastSend > 39000) {
         StaticJsonDocument<JSON_TALKIE_SIZE> doc;
-        doc["type"] = "talk";
+        doc["c"] = "talk";
         json_talkie.talk(doc.as<JsonObject>());
         lastSend = millis();
     }

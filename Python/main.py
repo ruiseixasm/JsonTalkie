@@ -94,7 +94,7 @@ if __name__ == "__main__":
     
     try:
         message: Dict[str, Any] = {
-            'type': 'run', 'what': 'buzz', 'to': 'Buzzer'
+            "c": 'run', 'what': 'buzz', "t": 'Buzzer'
         }
         last_message = message
         # Main loop
