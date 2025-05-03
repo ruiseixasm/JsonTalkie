@@ -218,7 +218,7 @@ namespace JsonTalkie {
             _socket->end();
         }
 
-        bool talk(JsonObjectConst message) {
+        bool talk(JsonObject message) {
 
             // Serial.print("A: ");
             // serializeJson(message, Serial);
@@ -226,19 +226,17 @@ namespace JsonTalkie {
 
             StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
             JsonObject talk_json = talk_doc.to<JsonObject>();
-            // Create a copy of the message to modify
-            JsonObject message_json = talk_json.createNestedObject("m");
 
-            for (JsonPairConst kv : message) {
-                message_json[kv.key()] = kv.value();
-            }
+            // Directly nest the editable message under "m"
+            talk_json["m"] = message;  // No copy needed (refers to original)
+
             // Set default 'id' field if missing
-            if (!message_json.containsKey("i")) {
-                message_json["i"] = generateMessageId();
+            if (!talk_json["m"].containsKey("i")) {
+                talk_json["m"]["i"] = generateMessageId();
             }
-            message_json["f"] = Manifesto::talk()->name;
+            talk_json["m"]["f"] = Manifesto::talk()->name;
             
-            talk_json["s"] = calculateChecksum(message_json);
+            talk_json["s"] = calculateChecksum(talk_json["m"]);
 
             String output;
             serializeJson(talk_json, output);
