@@ -111,7 +111,7 @@ void loop() {
 }
 
 
-size_t _duration = 20;  // Example variable
+size_t _duration = 5;  // Example variable
 
 // Command implementations
 bool buzz(JsonObjectConst json_message, JsonVariant reply) {
