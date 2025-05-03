@@ -46,8 +46,12 @@ const JsonTalkie::Device JsonTalkie::Manifesto::device = {
 };
 
 const char* buzz();
+const char* led_on();
+const char* led_off();
 const JsonTalkie::Run JsonTalkie::Manifesto::runCommands[] = {
-    {"buzz", "Triggers buzzing", buzz}
+    {"buzz", "Triggers buzzing", buzz},
+    {"on", "Turns led On", led_on},
+    {"off", "Turns led Off", led_off}
 };
 const size_t JsonTalkie::Manifesto::runSize = sizeof(JsonTalkie::Manifesto::runCommands) / sizeof(JsonTalkie::Run);
 
@@ -83,6 +87,8 @@ void setup() {
 
     pinMode(buzzer_pin, OUTPUT);
     digitalWrite(buzzer_pin, LOW);
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
 
     Serial.println("Talker ready");
     Serial.println("Sending JSON...");
@@ -108,13 +114,24 @@ float _duration = 0.2f;  // Example variable
 
 // Command implementations
 const char* buzz() {
-    static char buffer[32];  // Reusable buffer
-    snprintf(buffer, sizeof(buffer), "Buzzed for %.1fs", _duration);
     digitalWrite(buzzer_pin, HIGH);
     delay(_duration * 1000); 
     digitalWrite(buzzer_pin, LOW);
+    static char buffer[32];  // Reusable buffer
+    snprintf(buffer, sizeof(buffer), "Buzzed for %.1fs", _duration);
     return buffer;
 }
+
+const char* led_on() {
+    digitalWrite(LED_BUILTIN, HIGH);
+    return "";
+}
+
+const char* led_off() {
+    digitalWrite(LED_BUILTIN, LOW);
+    return "";
+}
+
 
 const char* set_duration(const char* duration) {
     _duration = String(duration).toFloat();
