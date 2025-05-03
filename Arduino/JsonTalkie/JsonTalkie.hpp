@@ -185,17 +185,14 @@ namespace JsonTalkie {
         
             if (strcmp(type, "talk") == 0) {
                 StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
-                char reply[JSON_TALKIE_SIZE]; // Adjust size as needed
-                snprintf(reply, sizeof(reply), "[%s]\t%s", Manifesto::talk()->name, Manifesto::talk()->desc);
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
-                echo["r"] = reply;
+                echo["r"] = Manifesto::talk()->desc;
                 echo["c"] = "echo";
                 echo["t"] = message["f"];
                 echo["i"] = message["i"];
                 talk(echo);
             } else if (strcmp(type, "run") == 0) {
                 StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
-                char reply[JSON_TALKIE_SIZE]; // Adjust size as needed
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
                 echo["c"] = "echo";
                 echo["t"] = message["f"];
