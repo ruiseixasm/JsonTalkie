@@ -86,12 +86,11 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                     size_t read_size = min(size - 1, message_size); // R"()" misses the '\0' demanding ad-oc insertion
                     
                     memcpy(buffer, message, read_size);
-                    // R"()" format demands a ending '\0' ad-oc insertion
-                    buffer[read_size] = '\0';
+                    buffer[read_size] = '\0';   // R"()" format demands a ending '\0' ad-oc insertion
         
                     // 5. JSON Handling with Memory Checks
                     {
-                        StaticJsonDocument<256> talk_doc;
+                        StaticJsonDocument<128> talk_doc;
                         if (talk_doc.capacity() == 0) {
                             Serial.println("Failed to allocate JSON talk_doc");
                             return 0;
@@ -99,18 +98,11 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
 
                         JsonObject talk_json = talk_doc.to<JsonObject>();
 
-                        // // Create message sub-object
-                        // JsonObject message_json = talk_json.createNestedObject("message");
-                        // deserializeJson(message_json, message);  // Parse into nested object
-                        // // message_json["id"] = "4bc70d90";
-    
-                        // talk_json["checksum"] = message_checksum(buffer, read_size);
-        
                         talk_json["message"] = message;
                         talk_json["checksum"] = message_checksum(buffer, read_size);
         
                         // 6. Safer Serialization
-                        char json_buffer[256];
+                        char json_buffer[128];
                         size_t json_len = serializeJson(talk_doc, json_buffer);
                         
                         if (json_len == 0 || json_len >= sizeof(json_buffer)) {
@@ -120,8 +112,6 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         
                         Serial.print("DUMMY READ: ");
                         Serial.println(json_buffer);
-                        // serializeJsonPretty(talk_doc, Serial);  // Pretty-print for verification
-                        // Serial.println();
                     } // JSON talk_doc freed here
         
                     return read_size;
