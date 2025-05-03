@@ -76,7 +76,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                         R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_on"})",
                         R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_off"})"
                     };
-                    const size_t num_messages = sizeof(messages)/sizeof(messages[0]);
+                    const size_t num_messages = sizeof(messages)/sizeof(char*);
                     
                     // 3. Safer Random Selection
                     const char* message = messages[random(num_messages)];
