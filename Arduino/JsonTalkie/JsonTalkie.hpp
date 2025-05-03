@@ -118,7 +118,7 @@ namespace JsonTalkie {
     class Talker {
     private:
         BroadcastSocket* _socket;
-        StaticJsonDocument<JSON_TALKIE_SIZE> _sentMessage;
+        char _sent_message_id[9]; // 8 chars + null terminator
         unsigned long _messageTime;
         bool _running;
 
@@ -178,12 +178,17 @@ namespace JsonTalkie {
             return checksum == calculateChecksum(message);
         }
         
-        bool receive(JsonObjectConst message) {
+        bool receive(JsonObject message) {
             const char* type = message["c"];
             
             if (!type) return false;
         
             if (strcmp(type, "talk") == 0) {
+                // message["c"] = "echo";
+                // message["t"] = message["f"];
+                // message["r"] = Manifesto::talk()->desc;
+                // talk(message);
+
                 StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
                 echo["r"] = Manifesto::talk()->desc;
@@ -250,6 +255,9 @@ namespace JsonTalkie {
                 
                 talk_json["s"] = calculateChecksum(talk_json["m"]);
                 len = serializeJson(talk_json, buffer, sizeof(buffer));
+
+                strncpy(_sent_message_id, talk_json["m"]["i"], sizeof(_sent_message_id)); // Explicit copy
+                _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
             }
             
             return _socket->write((uint8_t*)buffer, len);

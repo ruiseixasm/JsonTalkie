@@ -42,7 +42,7 @@ JsonTalkie::Talker json_talkie(&broadcast_socket);
 
 // Define the commands (stored in RAM)
 const JsonTalkie::Device JsonTalkie::Manifesto::device = {
-    "Buzzer", "This device does a 500ms buzz!"
+    "Buzzer", "I do a 500ms buzz!"
 };
 
 bool buzz(JsonObjectConst json_message, JsonVariant reply);
@@ -111,12 +111,12 @@ void loop() {
 }
 
 
-float _duration = 0.2f;  // Example variable
+size_t _duration = 20;  // Example variable
 
 // Command implementations
 bool buzz(JsonObjectConst json_message, JsonVariant reply) {
     digitalWrite(buzzer_pin, HIGH);
-    delay(_duration * 1000); 
+    delay(_duration); 
     digitalWrite(buzzer_pin, LOW);
     return true;
 }

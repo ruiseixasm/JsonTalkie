@@ -22,6 +22,12 @@
         "limits": "cpp",
         "utility": "cpp",
         "system_error": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "locale": "cpp",
+        "thread": "cpp",
+        "xlocmes": "cpp",
+        "xlocmon": "cpp",
+        "xlocnum": "cpp",
+        "xloctime": "cpp"
     }
 }
