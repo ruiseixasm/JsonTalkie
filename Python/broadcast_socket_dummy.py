@@ -73,7 +73,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
                     message['id'] = BroadcastSocket_Dummy.message_id()
                     checksum = BroadcastSocket_Dummy.checksum(message)
                     talk: Dict[str, Any] = {
-                        'checksum': checksum,
+                        'sum': checksum,
                         'message': message
                     }
                     data = BroadcastSocket_Dummy.encode(talk)

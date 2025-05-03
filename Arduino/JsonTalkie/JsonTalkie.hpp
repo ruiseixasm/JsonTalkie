@@ -142,11 +142,11 @@ namespace JsonTalkie {
         }
 
         static bool validateTalk(JsonObjectConst talk) {
-            if (!talk.containsKey("checksum") || !talk.containsKey("message")) {
+            if (!talk.containsKey("sum") || !talk.containsKey("message")) {
                 return false;
             }
             
-            uint16_t checksum = talk["checksum"];
+            uint16_t checksum = talk["sum"];
             JsonObjectConst message = talk["message"];
             return checksum == calculateChecksum(message);
         }
@@ -226,7 +226,7 @@ namespace JsonTalkie {
             }
             message_json["from"] = Manifesto::talk()->name;
             
-            talk_json["checksum"] = calculateChecksum(message_json);
+            talk_json["sum"] = calculateChecksum(message_json);
 
             String output;
             serializeJson(talk_json, output);

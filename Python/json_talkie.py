@@ -55,7 +55,7 @@ class JsonTalkie:
             self._last_message = message
         talk: Dict[str, Any] = {
             'message': message,
-            'checksum': JsonTalkie.checksum(message)
+            'sum': JsonTalkie.checksum(message)
         }
         return self._socket.send( JsonTalkie.encode(talk) )
     
@@ -149,9 +149,9 @@ class JsonTalkie:
         return False
 
     def validate_talk(self, talk: Dict[str, Any]) -> bool:
-        if isinstance(talk, dict) and 'checksum' in talk and 'message' in talk:
+        if isinstance(talk, dict) and 'sum' in talk and 'message' in talk:
             try:
-                message_checksum: int = int(talk.get('checksum', None))
+                message_checksum: int = int(talk.get('sum', None))
             except (ValueError, TypeError):
                 return False
             if message_checksum == JsonTalkie.checksum(talk['message']):

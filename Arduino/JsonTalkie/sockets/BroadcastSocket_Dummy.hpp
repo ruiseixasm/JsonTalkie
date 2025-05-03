@@ -105,7 +105,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
 
                         JsonObject message_json = message_doc.as<JsonObject>();
                         talk_json["message"] = message_json;
-                        talk_json["checksum"] = calculateChecksum(message_json);
+                        talk_json["sum"] = calculateChecksum(message_json);
         
                         size_t json_len = serializeJson(talk_doc, buffer, size);
 
