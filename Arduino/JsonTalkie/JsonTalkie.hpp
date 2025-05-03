@@ -184,18 +184,18 @@ namespace JsonTalkie {
             if (!command) return false;
         
             if (strcmp(command, "talk") == 0) {
-                // message["c"] = "echo";
-                // message["t"] = message["f"];
-                // message["r"] = Manifesto::talk()->desc;
-                // talk(message);
+                message["c"] = "echo";
+                message["t"] = message["f"];
+                message["r"] = Manifesto::talk()->desc;
+                talk(message);
 
-                StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
-                JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
-                echo["r"] = Manifesto::talk()->desc;
-                echo["c"] = "echo";
-                echo["t"] = message["f"];
-                echo["i"] = message["i"];
-                talk(echo);
+                // StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
+                // JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
+                // echo["r"] = Manifesto::talk()->desc;
+                // echo["c"] = "echo";
+                // echo["t"] = message["f"];
+                // echo["i"] = message["i"];
+                // talk(echo);
             } else if (strcmp(command, "run") == 0) {
                 StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
