@@ -237,10 +237,10 @@ namespace JsonTalkie {
             talk_json["m"]["f"] = Manifesto::talk()->name;
             
             talk_json["s"] = calculateChecksum(talk_json["m"]);
-
-            String output;
-            serializeJson(talk_json, output);
-            return _socket->write((const uint8_t*)output.c_str(), output.length());
+            
+            char buffer[JSON_TALKIE_SIZE];
+            size_t len = serializeJson(talk_json, buffer, sizeof(buffer));
+            return _socket->write((uint8_t*)buffer, len);
         }
 
         void listen() {

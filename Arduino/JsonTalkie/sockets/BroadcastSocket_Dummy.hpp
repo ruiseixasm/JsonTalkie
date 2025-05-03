@@ -18,6 +18,9 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
 #include <ArduinoJson.h>
 
+// Readjust if absolutely necessary
+#define JSON_TALKIE_SIZE 128
+
 
 class BroadcastSocket_Dummy : public BroadcastSocket {
     private:
@@ -82,7 +85,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                     
                     // 5. JSON Handling with Memory Checks
                     {
-                        StaticJsonDocument<256> message_doc;
+                        StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
                         if (message_doc.capacity() == 0) {
                             Serial.println("Failed to allocate JSON message_doc");
                             return 0;
@@ -95,7 +98,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                             return 0;
                         }
                         
-                        StaticJsonDocument<256> talk_doc;
+                        StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
                         if (talk_doc.capacity() == 0) {
                             Serial.println("Failed to allocate JSON talk_doc");
                             return 0;
@@ -114,7 +117,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                             return 0;
                         }
 
-                        char dummy_read[256];
+                        char dummy_read[JSON_TALKIE_SIZE];
                         serializeJson(talk_doc, dummy_read);
                         Serial.print("DUMMY READ: ");
                         Serial.println(dummy_read);
@@ -141,7 +144,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         
         static uint16_t calculateChecksum(JsonObjectConst message) {
             // Use a static buffer size, large enough for your JSON
-            char buffer[256];
+            char buffer[JSON_TALKIE_SIZE];
             size_t len = serializeJson(message, buffer);
             // 16-bit word and XORing
             uint16_t checksum = 0;
