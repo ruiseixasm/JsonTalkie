@@ -19,7 +19,17 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <ArduinoJson.h>    // Install ArduinoJson Library
 
 // Readjust if absolutely necessary
-#define JSON_TALKIE_SIZE 200
+#define JSON_TALKIE_SIZE 128
+
+// Keys:
+//     m: message
+//     c: command
+//     t: to
+//     f: from
+//     i: id
+//     r: reply
+//     w: what
+//     s: checksum
 
 namespace JsonTalkie {
 
@@ -166,7 +176,7 @@ namespace JsonTalkie {
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
                 echo["r"] = reply;
                 echo["c"] = "echo";
-                echo["t"] = message["from"];
+                echo["t"] = message["f"];
                 echo["i"] = message["i"];
                 talk(echo);
             } else if (strcmp(type, "run") == 0) {
@@ -174,9 +184,9 @@ namespace JsonTalkie {
                 char reply[JSON_TALKIE_SIZE]; // Adjust size as needed
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
                 echo["c"] = "echo";
-                echo["t"] = message["from"];
+                echo["t"] = message["f"];
                 echo["i"] = message["i"];
-                const Run* run = Manifesto::run(message["what"]);
+                const Run* run = Manifesto::run(message["w"]);
                 if (run == nullptr) {
                     echo["r"] = "UNKNOWN";
                 } else {
@@ -226,7 +236,7 @@ namespace JsonTalkie {
             if (!message_json.containsKey("i")) {
                 message_json["i"] = generateMessageId();
             }
-            message_json["from"] = Manifesto::talk()->name;
+            message_json["f"] = Manifesto::talk()->name;
             
             talk_json["s"] = calculateChecksum(message_json);
 
