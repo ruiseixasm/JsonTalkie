@@ -71,10 +71,10 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                 if (random(1000) < 100) { // 10% chance
                     // 2. Message Selection
                     const char* messages[] = {
-                        R"({"type":"talk","from":"Dummy"})",
-                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"buzz"})",
-                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_on"})",
-                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_off"})"
+                        R"({"type":"talk","from":"Dummy","id":4bc70d90"})",
+                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"buzz","id":4bc70d91"})",
+                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_on","id":4bc70d92"})",
+                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_off","id":4bc70d93"})"
                     };
                     const size_t num_messages = sizeof(messages)/sizeof(char*);
                     
