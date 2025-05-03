@@ -277,24 +277,35 @@ namespace JsonTalkie {
         }
 
         void listen() {
-            if (!_running) return;
+            if (!_running)
+                return;
         
             if (_socket->available()) {
-                uint8_t buffer[JSON_TALKIE_SIZE];
-                size_t bytesRead = _socket->read(buffer, sizeof(buffer) - 1);
-                
-                if (bytesRead > 0) {
-                    buffer[bytesRead] = '\0';
-                    StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
-                    DeserializationError error = deserializeJson(talk_doc, (const char*)buffer);
+
+                StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;  // Lives until end of function
+                size_t bytesRead = 0;
+
+                {
+                    uint8_t buffer[JSON_TALKIE_SIZE];
+                    bytesRead = _socket->read(buffer, sizeof(buffer) - 1);
+                    
+                    if (bytesRead > 0) {
+                        buffer[bytesRead] = '\0';
+                        DeserializationError error = deserializeJson(talk_doc, (const char*)buffer);
+                        if (error) {
+                            Serial.println("Failed to deserialize buffer");
+                            return;
+                        }
+                    }
+                }   // buffer is destroyed here (memory freed)
+
+                if (bytesRead > 0 && validateTalk(talk_doc.as<JsonObject>())) {
                     
                     Serial.print("Z: ");
                     serializeJson(talk_doc["m"], Serial);
                     Serial.println();  // optional: just to add a newline after the JSON
-
-                    if (!error && validateTalk(talk_doc.as<JsonObject>())) {
-                        receive(talk_doc["m"]);
-                    }
+    
+                    receive(talk_doc["m"]);
                 }
             }
         }
