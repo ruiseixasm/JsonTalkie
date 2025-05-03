@@ -162,8 +162,8 @@ namespace JsonTalkie {
                 }
                 checksum ^= chunk;
             }
-            Serial.print("Message checksum: ");
-            Serial.println(checksum);  // optional: just to add a newline after the JSON
+            // Serial.print("Message checksum: ");
+            // Serial.println(checksum);  // optional: just to add a newline after the JSON
 
             return checksum;
         }
