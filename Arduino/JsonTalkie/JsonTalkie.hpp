@@ -220,26 +220,27 @@ namespace JsonTalkie {
 
         bool talk(JsonObject message) {
 
-            // Serial.print("A: ");
-            // serializeJson(message, Serial);
-            // Serial.println();  // optional: just to add a newline after the JSON
-
-            StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
-            JsonObject talk_json = talk_doc.to<JsonObject>();
-
-            // Directly nest the editable message under "m"
-            talk_json["m"] = message;  // No copy needed (refers to original)
-
-            // Set default 'id' field if missing
-            if (!talk_json["m"].containsKey("i")) {
-                talk_json["m"]["i"] = generateMessageId();
-            }
-            talk_json["m"]["f"] = Manifesto::talk()->name;
-            
-            talk_json["s"] = calculateChecksum(talk_json["m"]);
-            
             char buffer[JSON_TALKIE_SIZE];
-            size_t len = serializeJson(talk_json, buffer, sizeof(buffer));
+            size_t len = 0;
+
+            // In order to release memory when done
+            {
+                StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
+                JsonObject talk_json = talk_doc.to<JsonObject>();
+
+                // Directly nest the editable message under "m"
+                talk_json["m"] = message;  // No copy needed (refers to original)
+
+                // Set default 'id' field if missing
+                if (!talk_json["m"].containsKey("i")) {
+                    talk_json["m"]["i"] = generateMessageId();
+                }
+                talk_json["m"]["f"] = Manifesto::talk()->name;
+                
+                talk_json["s"] = calculateChecksum(talk_json["m"]);
+                len = serializeJson(talk_json, buffer, sizeof(buffer));
+            }
+            
             return _socket->write((uint8_t*)buffer, len);
         }
 
