@@ -229,7 +229,7 @@ namespace JsonTalkie {
         
             if (_socket->available()) {
                 uint8_t buffer[256];
-                size_t bytesRead = _socket->read(buffer, sizeof(buffer)-1);
+                size_t bytesRead = _socket->read(buffer, sizeof(buffer) - 1);
                 
                 if (bytesRead > 0) {
                     buffer[bytesRead] = '\0';
