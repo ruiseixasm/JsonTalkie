@@ -20,6 +20,8 @@
         "xutility": "cpp",
         "chrono": "cpp",
         "limits": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "system_error": "cpp",
+        "functional": "cpp"
     }
 }

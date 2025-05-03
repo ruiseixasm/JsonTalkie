@@ -40,19 +40,19 @@ namespace JsonTalkie {
     struct Run {
         const char* name;      // "buzz", "print", etc.
         const char* desc;      // Description
-        const char* (*function)();  // Function pointer (no args)
+        bool (*function)(JsonObjectConst, JsonVariant);  // Function pointer (no args)
     };
 
     struct Set {
         const char* name;      // "buzz", "print", etc.
         const char* desc;      // Description
-        const char* (*function)(const char*);  // Function pointer (const char*)
+        bool (*function)(JsonObjectConst, JsonVariant, size_t);  // Function pointer (const char*)
     };
 
     struct Get {
         const char* name;      // "buzz", "print", etc.
         const char* desc;      // Description
-        const char* (*function)();  // Function pointer (no args)
+        size_t (*function)(JsonObjectConst, JsonVariant);  // Function pointer (no args)
     };
 
     // Structure Definition
@@ -65,37 +65,37 @@ namespace JsonTalkie {
         static const size_t setSize;        // Declaration only
         static const Get getCommands[];
         static const size_t getSize;        // Declaration only
-        static bool (*echo)(JsonObjectConst, const char*);
+        static bool (*echo)(JsonVariantConst);
 
         static const Device* talk() {
             return &Manifesto::device;
         }
     
-        static const char* run(const char* cmd) {
+        static const Run* run(const char* cmd) {
             for (int index = 0; index < Manifesto::runSize; ++index) {
                 if (strcmp(cmd, Manifesto::runCommands[index].name) == 0) {
-                    return (Manifesto::runCommands[index].function)();  // Call the function
+                    return &Manifesto::runCommands[index];  // Returns the function
                 }
             }
-            return "Command not found";
+            return nullptr;
         }
     
-        static const char* set(const char* cmd, const char* value) {
+        static const Set* set(const char* cmd) {
             for (int index = 0; index < Manifesto::runSize; ++index) {
                 if (strcmp(cmd, Manifesto::setCommands[index].name) == 0) {
-                    return (Manifesto::setCommands[index].function)(value);  // Call the function
+                    return &Manifesto::setCommands[index];  // Returns the function
                 }
             }
-            return "Command not found";
+            return nullptr;
         }
     
-        static const char* get(const char* cmd) {
+        static const Get* get(const char* cmd) {
             for (int index = 0; index < Manifesto::runSize; ++index) {
                 if (strcmp(cmd, Manifesto::getCommands[index].name) == 0) {
-                    return (Manifesto::getCommands[index].function)();  // Call the function
+                    return &Manifesto::getCommands[index];  // Returns the function
                 }
             }
-            return "Command not found";
+            return nullptr;
         }
     };
 
@@ -169,15 +169,21 @@ namespace JsonTalkie {
             } else if (strcmp(type, "run") == 0) {
                 StaticJsonDocument<256> echo_soc;
                 char response[256]; // Adjust size as needed
-                snprintf(response, sizeof(response), "[%s]\tRUN", Manifesto::talk()->name);
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
-                echo["response"] = response;
                 echo["type"] = "echo";
                 echo["to"] = message["from"];
                 echo["id"] = message["id"];
+                const Run* run = Manifesto::run(message["what"]);
+                if (run == nullptr) {
+                    snprintf(response, sizeof(response), "[%s]\tUNKNOWN", Manifesto::talk()->name);
+                } else {
+                    snprintf(response, sizeof(response), "[%s]\tROGER", Manifesto::talk()->name);
+                }
+                echo["response"] = response;
                 talk(echo);
-                echo["response"] = Manifesto::run(message["what"]);
-                talk(echo);
+                if (run != nullptr) {
+                    run->function(message, echo["response"]);
+                }
             }
             // Other message types...
             
