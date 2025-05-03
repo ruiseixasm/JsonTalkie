@@ -49,13 +49,13 @@ class JsonTalkie:
     def talk(self, message: Dict[str, Any]) -> bool:
         """Sends messages without network awareness."""
         message['from'] = self._manifesto['talker']['name']
-        if 'id' not in message:
-            message['id'] = JsonTalkie.message_id()
-        if message['type'] != "echo":
+        if "i" not in message:
+            message["i"] = JsonTalkie.message_id()
+        if message["c"] != "echo":
             self._last_message = message
         talk: Dict[str, Any] = {
-            'message': message,
-            'sum': JsonTalkie.checksum(message)
+            "m": message,
+            "s": JsonTalkie.checksum(message)
         }
         return self._socket.send( JsonTalkie.encode(talk) )
     
@@ -68,99 +68,99 @@ class JsonTalkie:
                 try:
                     talk: Dict[str, Any] = JsonTalkie.decode(data)
                     if self.validate_talk(talk):
-                        self.receive(talk['message'])
+                        self.receive(talk["m"])
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
                     print(f"\tInvalid message: {e}")
 
     def receive(self, message: Dict[str, Any]) -> bool:
         """Handles message content only."""
-        match message['type']:
+        match message["c"]:
             case "talk":
                 print(message)
                 echo: Dict[str, Any] = {
-                    'type': 'echo',
-                    'to': message['from'],
-                    'id': message['id']
+                    "c": 'echo',
+                    "t": message['from'],
+                    "i": message["i"]
                 }
-                echo['reply'] = f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}"
+                echo["r"] = f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}"
                 self.talk(echo)
             case "list":
                 echo: Dict[str, Any] = {
-                    'type': 'echo',
-                    'to': message['from'],
-                    'id': message['id']
+                    "c": 'echo',
+                    "t": message['from'],
+                    "i": message["i"]
                 }
                 if 'run' in self._manifesto:
                     for key, value in self._manifesto['run'].items():
-                        echo['reply'] = f"[run {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                        echo["r"] = f"[run {self._manifesto['talker']['name']} {key}]\t{value['description']}"
                         self.talk(echo)
                 if 'set' in self._manifesto:
                     for key, value in self._manifesto['set'].items():
-                        echo['reply'] = f"[set {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                        echo["r"] = f"[set {self._manifesto['talker']['name']} {key}]\t{value['description']}"
                         self.talk(echo)
                 if 'get' in self._manifesto:
                     for key, value in self._manifesto['get'].items():
-                        echo['reply'] = f"[get {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                        echo["r"] = f"[get {self._manifesto['talker']['name']} {key}]\t{value['description']}"
                         self.talk(echo)
             case "run":
                 if 'what' in message and 'run' in self._manifesto and message['what'] in self._manifesto['run']:
                     function = self._manifesto['run'][message['what']]['function']
                     echo: Dict[str, Any] = {
-                        'type': 'echo',
-                        'to': message['from'],
-                        'id': message['id'],
-                        'reply': f"[{self._manifesto['talker']['name']} {message['what']}]\tRUN"
+                        "c": 'echo',
+                        "t": message['from'],
+                        "i": message["i"],
+                        "r": f"[{self._manifesto['talker']['name']} {message['what']}]\tRUN"
                     }
                     self.talk(echo)
                     function_response: str = function()
                     if function_response and isinstance(function_response, str):
-                        echo['reply'] = function_response
+                        echo["r"] = function_response
                         self.talk(echo)
             case "set":
                 if 'what' in message and 'value' in message and 'set' in self._manifesto and message['what'] in self._manifesto['set']:
                     function = self._manifesto['set'][message['what']]['function']
                     echo: Dict[str, Any] = {
-                        'type': 'echo',
-                        'to': message['from'],
-                        'id': message['id'],
-                        'reply': f"[{self._manifesto['talker']['name']} {message['what']}]\tSET"
+                        "c": 'echo',
+                        "t": message['from'],
+                        "i": message["i"],
+                        "r": f"[{self._manifesto['talker']['name']} {message['what']}]\tSET"
                     }
                     self.talk(echo)
                     function_response: str = function(message['value'])
                     if function_response and isinstance(function_response, str):
-                        echo['reply'] = function_response
+                        echo["r"] = function_response
                         self.talk(echo)
             case "get":
                 if 'what' in message and 'get' in self._manifesto and message['what'] in self._manifesto['get']:
                     function = self._manifesto['get'][message['what']]['function']
                     self.talk({
-                        'type': 'echo',
-                        'to': message['from'],
-                        'id': message['id'],
-                        'reply': f"[{self._manifesto['talker']['name']} {message['what']}]\t{function()}"
+                        "c": 'echo',
+                        "t": message['from'],
+                        "i": message["i"],
+                        "r": f"[{self._manifesto['talker']['name']} {message['what']}]\t{function()}"
                     })
             case "echo":
-                if self._last_message and message['id'] == self._last_message['id']:
+                if self._last_message and message["i"] == self._last_message["i"]:
                     if 'echo' in self._manifesto:
                         echo = self._manifesto['echo']
-                        echo(self._last_message, message['reply'])
+                        echo(self._last_message, message["r"])
             case _:
                 print("\tUnknown command type!")
         return False
 
     def validate_talk(self, talk: Dict[str, Any]) -> bool:
-        if isinstance(talk, dict) and 'sum' in talk and 'message' in talk:
+        if isinstance(talk, dict) and "s" in talk and "m" in talk:
             try:
-                message_checksum: int = int(talk.get('sum', None))
+                message_checksum: int = int(talk.get("s", None))
             except (ValueError, TypeError):
                 return False
-            if message_checksum == JsonTalkie.checksum(talk['message']):
-                message: int = talk['message']
-                if 'type' in message and 'from' in message and 'id' in message:
-                    if 'to' in message:
-                        return message['to'] == "*" or message['to'] == self._manifesto['talker']['name']
+            if message_checksum == JsonTalkie.checksum(talk["m"]):
+                message: int = talk["m"]
+                if "c" in message and 'from' in message and "i" in message:
+                    if "t" in message:
+                        return message["t"] == "*" or message["t"] == self._manifesto['talker']['name']
                     else:
-                        return message['type'] == "talk"
+                        return message["c"] == "talk"
         return False
 
 
