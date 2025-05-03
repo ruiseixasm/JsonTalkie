@@ -67,51 +67,61 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                 _lastTime = millis();
                 if (random(1000) < 100) { // 10% chance
                     // 2. Message Selection
+                    // ALWAYS VALIDATE THE MESSAGES FOR BAD FORMATING !!
                     const char* messages[] = {
-                        R"({"type":"talk","from":"Dummy","id":4bc70d90"})",
-                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"buzz","id":4bc70d91"})",
-                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_on","id":4bc70d92"})",
-                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_off","id":4bc70d93"})"
+                        R"({"type":"talk","from":"Dummy","id":"4bc70d90"})",
+                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"buzz","id":"4bc70d91"})",
+                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_on","id":"4bc70d92"})",
+                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_off","id":"4bc70d93"})"
                     };
                     const size_t num_messages = sizeof(messages)/sizeof(char*);
                     
                     // 3. Safer Random Selection
                     const char* message = messages[random(num_messages)];
-        
-                    // 4. Buffer Copy with Validation
                     size_t message_size = strlen(message);
-                    size_t read_size = min(size - 1, message_size); // R"()" misses the '\0' demanding ad-oc insertion
                     
-                    memcpy(buffer, message, read_size);
-                    buffer[read_size] = '\0';   // R"()" format demands a ending '\0' ad-oc insertion
-        
                     // 5. JSON Handling with Memory Checks
                     {
-                        StaticJsonDocument<128> talk_doc;
+                        StaticJsonDocument<256> message_doc;
+                        if (message_doc.capacity() == 0) {
+                            Serial.println("Failed to allocate JSON message_doc");
+                            return 0;
+                        }
+                        
+                        // Message needs to be '\0' terminated and thus buffer is used instead
+                        DeserializationError error = deserializeJson(message_doc, message, message_size);
+                        if (error) {
+                            Serial.println("Failed to deserialize message");
+                            return 0;
+                        }
+                        
+                        StaticJsonDocument<256> talk_doc;
                         if (talk_doc.capacity() == 0) {
                             Serial.println("Failed to allocate JSON talk_doc");
                             return 0;
                         }
-
                         JsonObject talk_json = talk_doc.to<JsonObject>();
+                        talk_json.createNestedObject("message");
 
-                        talk_json["message"] = message;
-                        talk_json["checksum"] = message_checksum(buffer, read_size);
+                        JsonObject message_json = message_doc.as<JsonObject>();
+                        talk_json["message"] = message_json;
+                        talk_json["checksum"] = calculateChecksum(message_json);
         
-                        // 6. Safer Serialization
-                        char json_buffer[128];
-                        size_t json_len = serializeJson(talk_doc, json_buffer);
-                        
-                        if (json_len == 0 || json_len >= sizeof(json_buffer)) {
+                        size_t json_len = serializeJson(talk_doc, buffer, size);
+
+                        if (json_len == 0 || json_len >= size) {
                             Serial.println("Serialization failed/buffer overflow");
                             return 0;
                         }
-        
+
+                        char dummy_read[256];
+                        serializeJson(talk_doc, dummy_read);
                         Serial.print("DUMMY READ: ");
-                        Serial.println(json_buffer);
+                        Serial.println(dummy_read);
+
+                        return json_len;
+                    
                     } // JSON talk_doc freed here
-        
-                    return read_size;
                 }
             }
             return 0;
@@ -129,13 +139,16 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
             return String(buffer);
         }
         
-        static uint16_t message_checksum(const char* message, size_t len) {
+        static uint16_t calculateChecksum(JsonObjectConst message) {
+            // Use a static buffer size, large enough for your JSON
+            char buffer[256];
+            size_t len = serializeJson(message, buffer);
             // 16-bit word and XORing
             uint16_t checksum = 0;
             for (size_t i = 0; i < len; i += 2) {
-                uint16_t chunk = message[i] << 8;
+                uint16_t chunk = buffer[i] << 8;
                 if (i + 1 < len) {
-                    chunk |= message[i + 1];
+                    chunk |= buffer[i + 1];
                 }
                 checksum ^= chunk;
             }
