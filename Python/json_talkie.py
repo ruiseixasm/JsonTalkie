@@ -82,7 +82,7 @@ class JsonTalkie:
                     'to': message['from'],
                     'id': message['id']
                 }
-                echo['response'] = f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}"
+                echo['reply'] = f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}"
                 self.talk(echo)
             case "list":
                 echo: Dict[str, Any] = {
@@ -92,15 +92,15 @@ class JsonTalkie:
                 }
                 if 'run' in self._manifesto:
                     for key, value in self._manifesto['run'].items():
-                        echo['response'] = f"[run {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                        echo['reply'] = f"[run {self._manifesto['talker']['name']} {key}]\t{value['description']}"
                         self.talk(echo)
                 if 'set' in self._manifesto:
                     for key, value in self._manifesto['set'].items():
-                        echo['response'] = f"[set {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                        echo['reply'] = f"[set {self._manifesto['talker']['name']} {key}]\t{value['description']}"
                         self.talk(echo)
                 if 'get' in self._manifesto:
                     for key, value in self._manifesto['get'].items():
-                        echo['response'] = f"[get {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                        echo['reply'] = f"[get {self._manifesto['talker']['name']} {key}]\t{value['description']}"
                         self.talk(echo)
             case "run":
                 if 'what' in message and 'run' in self._manifesto and message['what'] in self._manifesto['run']:
@@ -109,12 +109,12 @@ class JsonTalkie:
                         'type': 'echo',
                         'to': message['from'],
                         'id': message['id'],
-                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tRUN"
+                        'reply': f"[{self._manifesto['talker']['name']} {message['what']}]\tRUN"
                     }
                     self.talk(echo)
                     function_response: str = function()
                     if function_response and isinstance(function_response, str):
-                        echo['response'] = function_response
+                        echo['reply'] = function_response
                         self.talk(echo)
             case "set":
                 if 'what' in message and 'value' in message and 'set' in self._manifesto and message['what'] in self._manifesto['set']:
@@ -123,12 +123,12 @@ class JsonTalkie:
                         'type': 'echo',
                         'to': message['from'],
                         'id': message['id'],
-                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\tSET"
+                        'reply': f"[{self._manifesto['talker']['name']} {message['what']}]\tSET"
                     }
                     self.talk(echo)
                     function_response: str = function(message['value'])
                     if function_response and isinstance(function_response, str):
-                        echo['response'] = function_response
+                        echo['reply'] = function_response
                         self.talk(echo)
             case "get":
                 if 'what' in message and 'get' in self._manifesto and message['what'] in self._manifesto['get']:
@@ -137,13 +137,13 @@ class JsonTalkie:
                         'type': 'echo',
                         'to': message['from'],
                         'id': message['id'],
-                        'response': f"[{self._manifesto['talker']['name']} {message['what']}]\t{function()}"
+                        'reply': f"[{self._manifesto['talker']['name']} {message['what']}]\t{function()}"
                     })
             case "echo":
                 if self._last_message and message['id'] == self._last_message['id']:
                     if 'echo' in self._manifesto:
                         echo = self._manifesto['echo']
-                        echo(self._last_message, message['response'])
+                        echo(self._last_message, message['reply'])
             case _:
                 print("\tUnknown command type!")
         return False

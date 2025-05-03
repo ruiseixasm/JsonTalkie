@@ -89,9 +89,9 @@ class BroadcastSocket_Dummy(BroadcastSocket):
 
     messages: tuple[Dict[str, Any]] = (
         {"type": "run", "what": "buzz", "to": "Buzzer", "from": "Buzzer", "id": "bc40fd17"},
-        {"type": "echo", "to": "Buzzer", "id": "bc40fd17", "response": "[Buzzer buzz]\\tCalled", "from": "Buzzer"},
+        {"type": "echo", "to": "Buzzer", "id": "bc40fd17", "reply": "[Buzzer buzz]\\tCalled", "from": "Buzzer"},
         {"type": "talk", "from": "Dummy", "id": "dce4fac7"},
-        {"type": "echo", "to": "Talker-a6", "id": "dce4fac7", "response": "[Talker-a6]\\tA simple Talker!", "from": "Talker-a6"}
+        {"type": "echo", "to": "Talker-a6", "id": "dce4fac7", "reply": "[Talker-a6]\\tA simple Talker!", "from": "Talker-a6"}
     )
 
     @staticmethod
