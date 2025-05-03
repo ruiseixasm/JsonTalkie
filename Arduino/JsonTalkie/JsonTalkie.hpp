@@ -232,7 +232,7 @@ namespace JsonTalkie {
             for (JsonPairConst kv : message) {
                 message_json[kv.key()] = kv.value();
             }
-            // Set default fields if missing
+            // Set default 'id' field if missing
             if (!message_json.containsKey("i")) {
                 message_json["i"] = generateMessageId();
             }
