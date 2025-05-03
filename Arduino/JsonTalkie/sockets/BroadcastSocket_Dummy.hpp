@@ -117,10 +117,10 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                             return 0;
                         }
 
-                        char dummy_read[JSON_TALKIE_SIZE];
-                        serializeJson(talk_doc, dummy_read);
-                        Serial.print("DUMMY READ: ");
-                        Serial.println(dummy_read);
+                        // char dummy_read[JSON_TALKIE_SIZE];
+                        // serializeJson(talk_doc, dummy_read);
+                        // Serial.print("DUMMY READ: ");
+                        // Serial.println(dummy_read);
 
                         return json_len;
                     

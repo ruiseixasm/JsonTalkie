@@ -135,6 +135,20 @@ namespace JsonTalkie {
             return String(buffer);
         }
 
+        static const char* getId_8bytes() {
+            // Combine random values with system metrics for better uniqueness
+            uint32_t r1 = random(0xFFFF);
+            uint32_t r2 = random(0xFFFF);
+            uint32_t r3 = millis() & 0xFFFF;
+            uint32_t combined = (r1 << 16) | r2 ^ r3;
+            // Equivalent to the Python: return uuid.uuid4().hex[:8]
+            static char buffer[9]; // 8 chars + null terminator
+            buffer[8] = '\0';
+            snprintf(buffer, sizeof(buffer), "%08lx", combined);
+            return buffer;
+        }
+
+
         static uint16_t calculateChecksum(JsonObjectConst message) {
             // Use a static buffer size, large enough for your JSON
             char buffer[JSON_TALKIE_SIZE];
