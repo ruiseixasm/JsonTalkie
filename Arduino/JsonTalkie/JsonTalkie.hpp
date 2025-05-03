@@ -256,7 +256,7 @@ namespace JsonTalkie {
                 talk_json["s"] = calculateChecksum(talk_json["m"]);
                 len = serializeJson(talk_json, buffer, sizeof(buffer));
 
-                strncpy(_sent_message_id, talk_json["m"]["i"], sizeof(_sent_message_id)); // Explicit copy
+                strncpy(_sent_message_id, talk_json["m"]["i"], sizeof(_sent_message_id) - 1); // Explicit copy
                 _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
             }
             
