@@ -29,12 +29,12 @@ int main() {
             if (j["type"] == "ping") {
                 std::cout << "🏓 Received ping from " << j["sender"] << std::endl;
                 
-                json response = {
+                json reply = {
                     {"type", "pong"},
                     {"sender", device.getName()},
                     {"original_time", j["time"]}
                 };
-                device.sendJson(response.dump());
+                device.sendJson(reply.dump());
             }
         } catch (...) {
             std::cerr << "Invalid JSON received" << std::endl;
