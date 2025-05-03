@@ -74,8 +74,8 @@ class Talker:
     def get_duration(self) -> str:
         return str(self._duration)
     
-    def echo(self, message: Dict[str, Any], response: str) -> bool:
-        print(f"\t{response}")
+    def echo(self, message: Dict[str, Any], reply: str) -> bool:
+        print(f"\t{reply}")
         return True
 
 

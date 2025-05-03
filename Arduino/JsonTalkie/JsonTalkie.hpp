@@ -158,31 +158,31 @@ namespace JsonTalkie {
         
             if (strcmp(type, "talk") == 0) {
                 StaticJsonDocument<256> echo_soc;
-                char response[256]; // Adjust size as needed
-                snprintf(response, sizeof(response), "[%s]\t%s", Manifesto::talk()->name, Manifesto::talk()->desc);
+                char reply[256]; // Adjust size as needed
+                snprintf(reply, sizeof(reply), "[%s]\t%s", Manifesto::talk()->name, Manifesto::talk()->desc);
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
-                echo["response"] = response;
+                echo["reply"] = reply;
                 echo["type"] = "echo";
                 echo["to"] = message["from"];
                 echo["id"] = message["id"];
                 talk(echo);
             } else if (strcmp(type, "run") == 0) {
                 StaticJsonDocument<256> echo_soc;
-                char response[256]; // Adjust size as needed
+                char reply[256]; // Adjust size as needed
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
                 echo["type"] = "echo";
                 echo["to"] = message["from"];
                 echo["id"] = message["id"];
                 const Run* run = Manifesto::run(message["what"]);
                 if (run == nullptr) {
-                    snprintf(response, sizeof(response), "[%s]\tUNKNOWN", Manifesto::talk()->name);
+                    snprintf(reply, sizeof(reply), "[%s]\tUNKNOWN", Manifesto::talk()->name);
                 } else {
-                    snprintf(response, sizeof(response), "[%s]\tROGER", Manifesto::talk()->name);
+                    snprintf(reply, sizeof(reply), "[%s]\tROGER", Manifesto::talk()->name);
                 }
-                echo["response"] = response;
+                echo["reply"] = reply;
                 talk(echo);
                 if (run != nullptr) {
-                    run->function(message, echo["response"]);
+                    run->function(message, echo["reply"]);
                 }
             }
             // Other message types...

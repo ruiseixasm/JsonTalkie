@@ -115,8 +115,8 @@ class CommandLine:
                         print(f"\t[exit]\tExits the command line (Ctrl+D).")
                         print(f"\t[help]\tShows the present help.")                        
 
-    def echo(self, message: Dict[str, Any], response: str) -> bool:
-        print(f"\t{response}")
+    def echo(self, message: Dict[str, Any], reply: str) -> bool:
+        print(f"\t{reply}")
         return True
 
 
