@@ -83,9 +83,10 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         
                     // 4. Buffer Copy with Validation
                     size_t message_size = strlen(message);
-                    size_t read_size = min(size - 1, message_size);
+                    size_t read_size = min(size - 1, message_size); // R"()" misses the '\0' demanding ad-oc insertion
                     
                     memcpy(buffer, message, read_size);
+                    // R"()" format demands a ending '\0' ad-oc insertion
                     buffer[read_size] = '\0';
         
                     // 5. JSON Handling with Memory Checks
@@ -95,10 +96,18 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                             Serial.println("Failed to allocate JSON doc");
                             return 0;
                         }
+
+                        JsonObject talk_json = doc.to<JsonObject>();
+
+                        // // Create message sub-object
+                        // JsonObject message_json = talk_json.createNestedObject("message");
+                        // deserializeJson(message_json, message);  // Parse into nested object
+                        // // message_json["id"] = "4bc70d90";
+    
+                        // talk_json["checksum"] = message_checksum(buffer, read_size);
         
-                        JsonObject root = doc.to<JsonObject>();
-                        root["message"] = message;
-                        root["checksum"] = message_checksum(buffer, read_size);
+                        talk_json["message"] = message;
+                        talk_json["checksum"] = message_checksum(buffer, read_size);
         
                         // 6. Safer Serialization
                         char json_buffer[256];
@@ -111,6 +120,8 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         
                         Serial.print("DUMMY READ: ");
                         Serial.println(json_buffer);
+                        // serializeJsonPretty(doc, Serial);  // Pretty-print for verification
+                        // Serial.println();
                     } // JSON doc freed here
         
                     return read_size;
