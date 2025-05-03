@@ -140,7 +140,7 @@ class JsonTalkie:
                         'response': f"[{self._manifesto['talker']['name']} {message['what']}]\t{function()}"
                     })
             case "echo":
-                if self._last_message and message['id'] == self._last_message['id']:
+                if self._last_message and message['from'] == self._last_message['to'] and message['id'] == self._last_message['id']:
                     if 'echo' in self._manifesto:
                         echo = self._manifesto['echo']
                         echo(self._last_message, message['response'])
