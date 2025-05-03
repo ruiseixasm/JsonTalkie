@@ -23,7 +23,6 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
     private:
         bool _isOpen = false;
         unsigned long _lastTime = 0;
-        StaticJsonDocument<256> _sentMessage;
 
         // Helper function to safely create char* from buffer
         static char* decode(const uint8_t* data, const size_t length, char* talk) {
@@ -51,8 +50,6 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
             Serial.print("DUMMY SENT: ");
             char talk[length + 1];
             Serial.println(decode(data, length, talk));
-            
-            deserializeJson(_sentMessage, talk);
             return true;
         }
     
