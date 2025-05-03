@@ -23,9 +23,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
     private:
         bool _isOpen = false;
         unsigned long _lastTime = 0;
-        StaticJsonDocument<256> _lastMessage;
-        uint8_t _receiveBuffer[256];
-        size_t _receiveLength = 0;
+        StaticJsonDocument<256> _sentMessage;
 
         // Helper function to safely create char* from buffer
         static char* decode(const uint8_t* data, const size_t length, char* talk) {
@@ -44,7 +42,6 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
     
         void end() override {
             _isOpen = false;
-            _receiveLength = 0;
         }
     
         bool write(const uint8_t* data, size_t length) override {
@@ -55,49 +52,52 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
             char talk[length + 1];
             Serial.println(decode(data, length, talk));
             
-            deserializeJson(_lastMessage, talk);
+            deserializeJson(_sentMessage, talk);
             return true;
         }
     
         bool available() override {
-            if (!_isOpen) return false;
-            
+            return _isOpen;
+        }
+    
+        size_t read(uint8_t* buffer, size_t size) override {
+            if (!_isOpen)
+                return 0;
+
             if (millis() - _lastTime > 1000) {
                 _lastTime = millis();
                 if (random(1000) < 10) { // 1% chance to receive
                     const char* messages[] = {
-                        R"({"type":"run","what":"buzz","to":"Buzzer","from":"Buzzer"})",
-                        R"({"type":"echo","to":"Buzzer","response":"[Buzzer buzz]\\tCalled","from":"Buzzer"})",
                         R"({"type":"talk","from":"Dummy"})",
-                        R"({"type":"echo","to":"Talker-a6","response":"[Talker-a6]\\tA simple Talker!","from":"Talker-a6"})"
+                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"buzz"})",
+                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_on"})",
+                        R"({"type":"run","from":"Dummy","to":"Buzzer","what":"light_off"})"
                     };
                     
-                    const char* chosen = messages[random(4)];
-                    _receiveLength = strlen(chosen);
-                    memcpy(_receiveBuffer, chosen, _receiveLength);
-                    return true;
+                    const char* message = messages[random(4)];
+                    size_t message_size = strlen(message);
+                    size_t receive_size = min(size, message_size);
+                    memcpy(buffer, message, receive_size);
+
+                    Serial.print("DUMMY READ: ");
+                    Serial.println((const char*)buffer);
+                    
+                    return receive_size;
                 }
             }
-            return false;
-        }
-    
-        size_t read(uint8_t* buffer, size_t size) override {
-            if (!available() || size < _receiveLength) return 0;
-            
-            size_t toCopy = min(size, _receiveLength);
-            memcpy(buffer, _receiveBuffer, toCopy);
-            _receiveLength = 0; // Clear buffer after reading
-            
-            Serial.print("DUMMY RECEIVED: ");
-            Serial.println((const char*)buffer);
-            
-            return toCopy;
+            return 0;
         }
     
         static String generateMessageId() {
-            char buf[9];
-            snprintf(buf, sizeof(buf), "%08lx", random(0x10000000, 0xFFFFFFFF));
-            return String(buf);
+            // Combine random values with system metrics for better uniqueness
+            uint32_t r1 = random(0xFFFF);
+            uint32_t r2 = random(0xFFFF);
+            uint32_t r3 = millis() & 0xFFFF;
+            uint32_t combined = (r1 << 16) | r2 ^ r3;
+            // Equivalent to the Python: return uuid.uuid4().hex[:8]
+            char buffer[9]; // 8 chars + null terminator
+            snprintf(buffer, sizeof(buffer), "%08lx", combined);
+            return String(buffer);
         }
     };
 

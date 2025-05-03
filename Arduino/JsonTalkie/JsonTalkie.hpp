@@ -108,7 +108,7 @@ namespace JsonTalkie {
     class Talker {
     private:
         BroadcastSocket* _socket;
-        DynamicJsonDocument _lastMessage{256};
+        DynamicJsonDocument _sentMessage{256};
         unsigned long _messageTime;
         bool _running;
 
@@ -167,7 +167,17 @@ namespace JsonTalkie {
                 echo["id"] = message["id"];
                 talk(echo);
             } else if (strcmp(type, "run") == 0) {
-                // Implement run command handling...
+                DynamicJsonDocument echoDoc(256);
+                char response[256]; // Adjust size as needed
+                snprintf(response, sizeof(response), "[%s]\tRUN", Manifesto::talk()->name);
+                JsonObject echo = echoDoc.to<JsonObject>();
+                echo["response"] = response;
+                echo["type"] = "echo";
+                echo["to"] = message["from"];
+                echo["id"] = message["id"];
+                talk(echo);
+                echo["response"] = Manifesto::run(message["what"]);
+                talk(echo);
             }
             // Other message types...
             
