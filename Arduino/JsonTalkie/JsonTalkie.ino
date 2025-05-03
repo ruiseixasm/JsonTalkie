@@ -86,7 +86,7 @@ void setup() {
 
     Serial.println("Talker ready");
     Serial.println("Sending JSON...");
-    DynamicJsonDocument doc(256);
+    StaticJsonDocument<256> doc;
     doc["type"] = "talk";
     json_talkie.talk(doc.as<JsonObject>());
 }
@@ -96,7 +96,7 @@ void loop() {
 
     static unsigned long lastSend = 0;
     if (millis() - lastSend > 30000) {
-        DynamicJsonDocument doc(128);
+        StaticJsonDocument<256> doc;
         doc["type"] = "talk";
         json_talkie.talk(doc.as<JsonObject>());
         lastSend = millis();

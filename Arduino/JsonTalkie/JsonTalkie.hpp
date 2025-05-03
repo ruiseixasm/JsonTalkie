@@ -20,9 +20,6 @@ https://github.com/ruiseixasm/JsonTalkie
 
 namespace JsonTalkie {
 
-    String serialize(JsonObjectConst obj);
-    DynamicJsonDocument parse(const char* json);
-
     // HELPER METHODS
 
     // Place this ABOVE your Talker class definition
@@ -206,7 +203,7 @@ namespace JsonTalkie {
             // serializeJson(message, Serial);
             // Serial.println();  // optional: just to add a newline after the JSON
 
-            DynamicJsonDocument doc(256);
+            StaticJsonDocument<256> doc;
             JsonObject talk_json = doc.to<JsonObject>();
             // Create a copy of the message to modify
             JsonObject message_json = talk_json.createNestedObject("message");
@@ -236,7 +233,7 @@ namespace JsonTalkie {
                 
                 if (bytesRead > 0) {
                     buffer[bytesRead] = '\0';
-                    DynamicJsonDocument doc(256);
+                    StaticJsonDocument<256> doc;
                     DeserializationError error = deserializeJson(doc, (const char*)buffer);
                     
                     if (!error && validateTalk(doc.as<JsonObject>())) {
