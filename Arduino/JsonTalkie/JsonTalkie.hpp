@@ -18,6 +18,9 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <Arduino.h>
 #include <ArduinoJson.h>    // Install ArduinoJson Library
 
+// Readjust if absolutely necessary
+#define JSON_TALKIE_SIZE 200
+
 namespace JsonTalkie {
 
     // HELPER METHODS
@@ -105,7 +108,7 @@ namespace JsonTalkie {
     class Talker {
     private:
         BroadcastSocket* _socket;
-        StaticJsonDocument<256> _sentMessage;
+        StaticJsonDocument<JSON_TALKIE_SIZE> _sentMessage;
         unsigned long _messageTime;
         bool _running;
 
@@ -124,7 +127,7 @@ namespace JsonTalkie {
 
         static uint16_t calculateChecksum(JsonObjectConst message) {
             // Use a static buffer size, large enough for your JSON
-            char buffer[256];
+            char buffer[JSON_TALKIE_SIZE];
             size_t len = serializeJson(message, buffer);
             // 16-bit word and XORing
             uint16_t checksum = 0;
@@ -157,8 +160,8 @@ namespace JsonTalkie {
             if (!type) return false;
         
             if (strcmp(type, "talk") == 0) {
-                StaticJsonDocument<256> echo_soc;
-                char reply[256]; // Adjust size as needed
+                StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
+                char reply[JSON_TALKIE_SIZE]; // Adjust size as needed
                 snprintf(reply, sizeof(reply), "[%s]\t%s", Manifesto::talk()->name, Manifesto::talk()->desc);
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
                 echo["reply"] = reply;
@@ -167,8 +170,8 @@ namespace JsonTalkie {
                 echo["id"] = message["id"];
                 talk(echo);
             } else if (strcmp(type, "run") == 0) {
-                StaticJsonDocument<256> echo_soc;
-                char reply[256]; // Adjust size as needed
+                StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
+                char reply[JSON_TALKIE_SIZE]; // Adjust size as needed
                 JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
                 echo["type"] = "echo";
                 echo["to"] = message["from"];
@@ -212,7 +215,7 @@ namespace JsonTalkie {
             // serializeJson(message, Serial);
             // Serial.println();  // optional: just to add a newline after the JSON
 
-            StaticJsonDocument<256> doc;
+            StaticJsonDocument<JSON_TALKIE_SIZE> doc;
             JsonObject talk_json = doc.to<JsonObject>();
             // Create a copy of the message to modify
             JsonObject message_json = talk_json.createNestedObject("message");
@@ -237,12 +240,12 @@ namespace JsonTalkie {
             if (!_running) return;
         
             if (_socket->available()) {
-                uint8_t buffer[256];
+                uint8_t buffer[JSON_TALKIE_SIZE];
                 size_t bytesRead = _socket->read(buffer, sizeof(buffer) - 1);
                 
                 if (bytesRead > 0) {
                     buffer[bytesRead] = '\0';
-                    StaticJsonDocument<256> doc;
+                    StaticJsonDocument<JSON_TALKIE_SIZE> doc;
                     DeserializationError error = deserializeJson(doc, (const char*)buffer);
                     
                     Serial.print("Z: ");
