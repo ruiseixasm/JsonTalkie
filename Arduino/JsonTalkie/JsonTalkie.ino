@@ -89,6 +89,7 @@ void setup() {
     digitalWrite(buzzer_pin, LOW);
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED_BUILTIN, LOW);
 
     Serial.println("Talker ready");
     Serial.println("Sending JSON...");
@@ -101,7 +102,7 @@ void loop() {
     json_talkie.listen();
 
     static unsigned long lastSend = 0;
-    if (millis() - lastSend > 30000) {
+    if (millis() - lastSend > 39000) {
         StaticJsonDocument<256> doc;
         doc["type"] = "talk";
         json_talkie.talk(doc.as<JsonObject>());
