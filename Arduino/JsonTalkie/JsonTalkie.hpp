@@ -157,20 +157,20 @@ namespace JsonTalkie {
             if (!type) return false;
         
             if (strcmp(type, "talk") == 0) {
-                DynamicJsonDocument echoDoc(256);
+                StaticJsonDocument<256> echo_soc;
                 char response[256]; // Adjust size as needed
                 snprintf(response, sizeof(response), "[%s]\t%s", Manifesto::talk()->name, Manifesto::talk()->desc);
-                JsonObject echo = echoDoc.to<JsonObject>();
+                JsonObject echo = echo_soc.to<JsonObject>();
                 echo["response"] = response;
                 echo["type"] = "echo";
                 echo["to"] = message["from"];
                 echo["id"] = message["id"];
                 talk(echo);
             } else if (strcmp(type, "run") == 0) {
-                DynamicJsonDocument echoDoc(256);
+                StaticJsonDocument<256> echo_soc;
                 char response[256]; // Adjust size as needed
                 snprintf(response, sizeof(response), "[%s]\tRUN", Manifesto::talk()->name);
-                JsonObject echo = echoDoc.to<JsonObject>();
+                JsonObject echo = echo_soc.to<JsonObject>();
                 echo["response"] = response;
                 echo["type"] = "echo";
                 echo["to"] = message["from"];
