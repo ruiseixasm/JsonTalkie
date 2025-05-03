@@ -69,6 +69,8 @@ bool (*JsonTalkie::Manifesto::echo)(StaticJsonDocument<256>*, const char*) = pro
 // END OF MANIFESTO
 
 
+// Buzzer pin
+#define buzzer_pin 3
 
 void setup() {
     Serial.begin(9600);
@@ -78,6 +80,9 @@ void setup() {
         Serial.println("Failed to initialize Talker!");
         while(1);
     }
+
+    pinMode(buzzer_pin, OUTPUT);
+    digitalWrite(buzzer_pin, LOW);
 
     Serial.println("Talker ready");
     Serial.println("Sending JSON...");
@@ -99,14 +104,15 @@ void loop() {
 }
 
 
-
-float _duration = 0.5f;  // Example variable
+float _duration = 0.2f;  // Example variable
 
 // Command implementations
 const char* buzz() {
     static char buffer[32];  // Reusable buffer
     snprintf(buffer, sizeof(buffer), "Buzzed for %.1fs", _duration);
-    delay(_duration * 1000);
+    digitalWrite(buzzer_pin, HIGH);
+    delay(_duration * 1000); 
+    digitalWrite(buzzer_pin, LOW);
     return buffer;
 }
 
