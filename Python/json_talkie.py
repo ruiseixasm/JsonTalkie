@@ -16,6 +16,7 @@ import threading
 import uuid
 from typing import Dict, Any, TYPE_CHECKING, Callable
 import time
+import platform
 
 from broadcast_socket import BroadcastSocket
 
@@ -173,6 +174,14 @@ class JsonTalkie:
                     else:
                         echo["r"] = "UNKNOWN"
                         self.talk(echo)
+            case "sys":
+                echo: Dict[str, Any] = {
+                    "c": 'echo',
+                    "t": message["f"],
+                    "i": message["i"]
+                }
+                echo["r"] = f"{platform.platform()}"
+                self.talk(echo)
             case "echo":
                 if self._last_message and message["i"] == self._last_message["i"]:
                     if 'echo' in self._manifesto:
