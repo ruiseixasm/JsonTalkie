@@ -36,6 +36,10 @@ public:
     }
 
     bool available() override {
+        if (Serial.available()) {
+            Serial.println("Data Available");
+            return true;
+        }
         return Serial.available();
     }
 
