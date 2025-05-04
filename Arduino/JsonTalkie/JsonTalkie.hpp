@@ -177,25 +177,27 @@ namespace JsonTalkie {
             if (!talk.containsKey("s") || !talk.containsKey("m")) {
                 return false;
             }
-            
+            // NEEDS TO BE COMPLETED
             uint16_t checksum = talk["s"];
             JsonObjectConst message = talk["m"];
             return checksum == calculateChecksum(message);
         }
         
         bool receive(JsonObject message) {
+
             const char* command = message["c"];
             
-            if (!command) return false;
+            if (!command)
+                return false;
+
+            message["t"] = message["f"];
         
             if (strcmp(command, "talk") == 0) {
                 message["c"] = "echo";
-                message["t"] = message["f"];
                 message["r"] = Manifesto::talk()->desc;
                 talk(message);
             } else if (strcmp(command, "run") == 0) {
                 message["c"] = "echo";
-                message["t"] = message["f"];
                 const Run* run = Manifesto::run(message["w"]);
                 if (run == nullptr) {
                     message["r"] = "UNKNOWN";
@@ -209,7 +211,6 @@ namespace JsonTalkie {
             } else if (strcmp(command, "set") == 0) {
                 if (message.containsKey("v") && message["v"].is<int>()) {
                     message["c"] = "echo";
-                    message["t"] = message["f"];
                     const Set* set = Manifesto::set(message["w"]);
                     if (set == nullptr) {
                         message["r"] = "UNKNOWN";
@@ -223,7 +224,6 @@ namespace JsonTalkie {
                 }
             } else if (strcmp(command, "get") == 0) {
                 message["c"] = "echo";
-                message["t"] = message["f"];
                 const Get* get = Manifesto::get(message["w"]);
                 if (get == nullptr) {
                     message["r"] = "UNKNOWN";
@@ -234,7 +234,6 @@ namespace JsonTalkie {
                 talk(message);
             } else if (strcmp(command, "sys") == 0) {
                 message["c"] = "echo";
-                message["t"] = message["f"];
 
                 // AVR Boards (Uno, Nano, Mega) - Check RAM size
                 #ifdef __AVR__
@@ -267,7 +266,6 @@ namespace JsonTalkie {
                 talk(message);
             } else if (strcmp(command, "echo") == 0) {
                 message["c"] = "echo";
-                message["t"] = message["f"];
                 message["w"] = "echo";
                 if (Manifesto::echo != nullptr) {
                     if (Manifesto::echo(message)) {
