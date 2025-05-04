@@ -83,7 +83,8 @@ class JsonTalkie:
                     if self.validate_talk(talk):
                         self.receive(talk["m"])
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
-                    print(f"\tInvalid message: {e}")
+                    # print(f"\tInvalid message: {e}")
+                    pass
 
     def receive(self, message: Dict[str, Any]) -> bool:
         """Handles message content only."""
