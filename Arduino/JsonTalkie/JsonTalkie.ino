@@ -91,7 +91,7 @@ void setup() {
         while(1);
     }
 
-    delay(4000);    // Just to give some time to Serial
+    delay(3000);    // Just to give some time to Serial
     Serial.println("Talker ready");
 
     #if BROADCAST_SOCKET != SOCKET_SERIAL
