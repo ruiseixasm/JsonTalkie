@@ -70,7 +70,7 @@ class JsonTalkie:
             "m": message,
             "s": JsonTalkie.checksum(message)
         }
-        print(f"\tLocal response: {talk}")
+        print(f"\tLocal: {talk}")
         return self._socket.send( JsonTalkie.encode(talk) )
     
     def listen(self):

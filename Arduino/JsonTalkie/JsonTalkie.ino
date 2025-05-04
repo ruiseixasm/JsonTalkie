@@ -93,8 +93,10 @@ void setup() {
     digitalWrite(LED_BUILTIN, HIGH);
     digitalWrite(LED_BUILTIN, LOW);
 
+    #if BROADCAST_SOCKET != SOCKET_SERIAL
     Serial.println("Talker ready");
     Serial.println("Sending JSON...");
+    #endif
     StaticJsonDocument<JSON_TALKIE_SIZE> doc;
     doc["c"] = "talk";
     json_talkie.talk(doc.as<JsonObject>());
