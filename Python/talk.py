@@ -142,12 +142,12 @@ class CommandLine:
 
 if __name__ == "__main__":
 
-    SOCKET = "UDP"
+    SOCKET = "SERIAL"
 
     broadcast_socket: BroadcastSocket = None
     match SOCKET:
         case "SERIAL":
-            broadcast_socket = BroadcastSocket_Serial()
+            broadcast_socket = BroadcastSocket_Serial("COM5")
         case "DUMMY":
             broadcast_socket = BroadcastSocket_Dummy()
         case _:

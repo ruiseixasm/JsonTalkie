@@ -70,6 +70,7 @@ class JsonTalkie:
             "m": message,
             "s": JsonTalkie.checksum(message)
         }
+        print(f"\tLocal response: {talk}")
         return self._socket.send( JsonTalkie.encode(talk) )
     
     def listen(self):
@@ -78,9 +79,11 @@ class JsonTalkie:
             received = self._socket.receive()
             if received:
                 data, _ = received  # Explicitly ignore (ip, port)
+                print(f"\tReceived data: {data}")
                 try:
                     talk: Dict[str, Any] = JsonTalkie.decode(data)
                     if self.validate_talk(talk):
+                        print(f"\tValid message!")
                         self.receive(talk["m"])
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
                     print(f"\tInvalid message: {e}")
@@ -194,6 +197,7 @@ class JsonTalkie:
         if isinstance(talk, dict) and "s" in talk and "m" in talk:
             try:
                 message_checksum: int = int(talk.get("s", None))
+                print(f"\tLocal checksum: {JsonTalkie.checksum(talk["m"])}")
             except (ValueError, TypeError):
                 return False
             if message_checksum == JsonTalkie.checksum(talk["m"]):
