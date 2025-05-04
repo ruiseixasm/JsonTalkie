@@ -40,7 +40,7 @@ public:
             Serial.println("Data Available");
             return true;
         }
-        return Serial.available();
+        return false;
     }
 
     size_t read(uint8_t* buffer, size_t size) override {
