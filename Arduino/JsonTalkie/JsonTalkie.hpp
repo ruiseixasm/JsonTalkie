@@ -291,6 +291,8 @@ namespace JsonTalkie {
         }
 
         bool talk(JsonObject message) {
+            if (!_running)
+                return false;
 
             char buffer[JSON_TALKIE_SIZE];
             size_t len = 0;
@@ -345,6 +347,8 @@ namespace JsonTalkie {
                     
                     if (bytesRead > 0) {
                         buffer[bytesRead] = '\0';
+                        Serial.print("Received data: ");
+                        Serial.println((char*)buffer);
                         DeserializationError error = deserializeJson(talk_doc, (const char*)buffer);
                         if (error) {
                             Serial.println("Failed to deserialize buffer");
