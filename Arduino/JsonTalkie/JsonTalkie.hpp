@@ -30,6 +30,7 @@ https://github.com/ruiseixasm/JsonTalkie
 //     r: reply
 //     w: what
 //     s: checksum
+//     v: value
 
 namespace JsonTalkie {
 
@@ -53,19 +54,19 @@ namespace JsonTalkie {
     struct Run {
         const char* name;      // "buzz", "print", etc.
         const char* desc;      // Description
-        bool (*function)(JsonObjectConst, JsonVariant);  // Function pointer (no args)
+        bool (*function)(JsonObject);  // Function pointer (no args)
     };
 
     struct Set {
         const char* name;      // "buzz", "print", etc.
         const char* desc;      // Description
-        bool (*function)(JsonObjectConst, JsonVariant, size_t);  // Function pointer (const char*)
+        bool (*function)(JsonObject, size_t);  // Function pointer (const char*)
     };
 
     struct Get {
         const char* name;      // "buzz", "print", etc.
         const char* desc;      // Description
-        size_t (*function)(JsonObjectConst, JsonVariant);  // Function pointer (no args)
+        size_t (*function)(JsonObject);  // Function pointer (no args)
     };
 
     // Structure Definition
@@ -78,7 +79,7 @@ namespace JsonTalkie {
         static const size_t setSize;        // Declaration only
         static const Get getCommands[];
         static const size_t getSize;        // Declaration only
-        static bool (*echo)(JsonVariantConst);
+        static bool (*echo)(JsonObject);
 
         static const Device* talk() {
             return &Manifesto::device;
@@ -188,14 +189,6 @@ namespace JsonTalkie {
                 message["t"] = message["f"];
                 message["r"] = Manifesto::talk()->desc;
                 talk(message);
-
-                // StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
-                // JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
-                // echo["r"] = Manifesto::talk()->desc;
-                // echo["c"] = "echo";
-                // echo["t"] = message["f"];
-                // echo["i"] = message["i"];
-                // talk(echo);
             } else if (strcmp(command, "run") == 0) {
                 message["c"] = "echo";
                 message["t"] = message["f"];
@@ -207,27 +200,34 @@ namespace JsonTalkie {
                 }
                 talk(message);
                 if (run != nullptr) {
-                    run->function(message, message["r"]);
+                    run->function(message);
                 }
-
-                // StaticJsonDocument<JSON_TALKIE_SIZE> echo_soc;
-                // JsonObject echo = echo_soc.to<JsonObject>();    // echo_soc.to releases memory and resets echo_soc
-                // echo["c"] = "echo";
-                // echo["t"] = message["f"];
-                // echo["i"] = message["i"];
-                // const Run* run = Manifesto::run(message["w"]);
-                // if (run == nullptr) {
-                //     echo["r"] = "UNKNOWN";
-                // } else {
-                //     echo["r"] = "ROGER";
-                // }
-                // talk(echo);
-                // if (run != nullptr) {
-                //     run->function(message, echo["r"]);
-                // }
+            } else if (strcmp(command, "set") == 0) {
+                if (message.containsKey("v") && message["v"].is<size_t>()) {
+                    message["c"] = "echo";
+                    message["t"] = message["f"];
+                    const Set* set = Manifesto::set(message["w"]);
+                    if (set == nullptr) {
+                        message["r"] = "UNKNOWN";
+                    } else {
+                        message["r"] = "ROGER";
+                    }
+                    talk(message);
+                    if (set != nullptr) {
+                        set->function(message, message["v"].as<size_t>());
+                    }
+                }
+            } else if (strcmp(command, "get") == 0) {
+                message["c"] = "echo";
+                message["t"] = message["f"];
+                const Get* get = Manifesto::get(message["w"]);
+                if (get == nullptr) {
+                    message["r"] = "UNKNOWN";
+                } else {
+                    message["r"] = get->function(message);
+                }
+                talk(message);
             }
-            // Other message types...
-            
             return false;
         }
 
@@ -300,7 +300,7 @@ namespace JsonTalkie {
                 }   // buffer is destroyed here (memory freed)
 
                 if (bytesRead > 0 && validateTalk(talk_doc.as<JsonObject>())) {
-                    
+
                     Serial.print("Z: ");
                     serializeJson(talk_doc["m"], Serial);
                     Serial.println();  // optional: just to add a newline after the JSON
