@@ -232,6 +232,49 @@ namespace JsonTalkie {
                     message["v"] = get->function(message);
                 }
                 talk(message);
+            } else if (strcmp(command, "sys") == 0) {
+                message["c"] = "echo";
+                message["t"] = message["f"];
+
+                // AVR Boards (Uno, Nano, Mega) - Check RAM size
+                #ifdef __AVR__
+                uint16_t ramSize = RAMEND - RAMSTART + 1;
+                if (ramSize == 2048)
+                    message["r"] = "Arduino Uno/Nano (ATmega328P)";
+                else if (ramSize == 8192)
+                    message["r"] = "Arduino Mega (ATmega2560)";
+                else
+                    message["r"] = "Unknown AVR Board";
+              
+                // ESP8266
+                #elif defined(ESP8266)
+                message["r"] = "ESP8266 (Chip ID: " + String(ESP.getChipId()) + ")";
+                
+                // ESP32
+                #elif defined(ESP32)
+                message["r"] = "ESP32 (Rev: " + String(ESP.getChipRevision()) + ")";
+                
+                // ARM (Due, Zero, etc.)
+                #elif defined(__arm__)
+                message["r"] = "ARM-based Board";
+
+                // Unknown Board
+                #else
+                message["r"] = "Unknown Board";
+
+                #endif
+
+                talk(message);
+            } else if (strcmp(command, "echo") == 0) {
+                message["c"] = "echo";
+                message["t"] = message["f"];
+                message["w"] = "echo";
+                if (Manifesto::echo != nullptr) {
+                    if (Manifesto::echo(message)) {
+                        message["r"] = "ROGER";
+                        talk(message);
+                    }
+                }
             }
             return false;
         }
@@ -279,8 +322,10 @@ namespace JsonTalkie {
                 talk_json["s"] = calculateChecksum(talk_json["m"]);
                 len = serializeJson(talk_json, buffer, sizeof(buffer));
 
-                strncpy(_sent_message_id, talk_json["m"]["i"], sizeof(_sent_message_id) - 1); // Explicit copy
-                _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
+                if (strcmp(message["c"], "echo") != 0) {
+                    strncpy(_sent_message_id, talk_json["m"]["i"], sizeof(_sent_message_id) - 1); // Explicit copy
+                    _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
+                }
             }
             
             return _socket->write((uint8_t*)buffer, len);
