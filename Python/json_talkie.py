@@ -19,6 +19,18 @@ import time
 
 from broadcast_socket import BroadcastSocket
 
+# Keys:
+#     m: message
+#     c: command
+#     t: to
+#     f: from
+#     i: id
+#     r: reply
+#     w: what
+#     s: checksum
+#     v: value
+#     l: list
+
 
 class JsonTalkie:
 
@@ -91,16 +103,19 @@ class JsonTalkie:
                 }
                 if 'run' in self._manifesto:
                     for key, value in self._manifesto['run'].items():
+                        echo["l"] = "run"
                         echo["w"] = key
                         echo["r"] = value['description']
                         self.talk(echo)
                 if 'set' in self._manifesto:
                     for key, value in self._manifesto['set'].items():
+                        echo["l"] = "set"
                         echo["w"] = key
                         echo["r"] = value['description']
                         self.talk(echo)
                 if 'get' in self._manifesto:
                     for key, value in self._manifesto['get'].items():
+                        echo["l"] = "get"
                         echo["w"] = key
                         echo["r"] = value['description']
                         self.talk(echo)
