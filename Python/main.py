@@ -13,6 +13,7 @@ https://github.com/ruiseixasm/JsonTalkie
 '''
 from typing import Dict, Any
 import time
+import random
 
 from broadcast_socket_udp import *
 from broadcast_socket_dummy import *
@@ -91,7 +92,7 @@ class Talker:
 if __name__ == "__main__":
 
     talker = Talker()
-    broadcast_socket: BroadcastSocket = BroadcastSocket_UDP()
+    broadcast_socket: BroadcastSocket = BroadcastSocket_Serial("COM5")
     json_talkie: JsonTalkie = JsonTalkie(broadcast_socket, talker.manifesto)
 
     # Start listening (opens socket)
@@ -102,15 +103,18 @@ if __name__ == "__main__":
     print(f"\tTalker {talker.manifesto['talker']['name']} running. Press Ctrl+C to stop.")
     
     try:
-        message: Dict[str, Any] = {
-            "c": 'run', "w": 'buzz', "t": 'Buzzer'
-        }
-        last_message = message
+        messages: tuple[Dict[str, Any]] = (
+            {"c": 'run', "w": 'buzz', "t": 'Buzzer'},
+            {"c": 'run', "w": 'on', "t": 'Buzzer'},
+            {"c": 'run', "w": 'off', "t": 'Buzzer'}
+        )
+
         # Main loop
+        message_time = time.time()
         while True:
-            message_time = time.time()
-            json_talkie.talk(message)
-            time.sleep(30)  # Send ping every 3 seconds
+            if time.time() - message_time > 10:
+                json_talkie.talk(messages[random.randint(0, len(messages) - 1)])
+                message_time = time.time()
     except KeyboardInterrupt:
         print("\tShutting down...")
     finally:

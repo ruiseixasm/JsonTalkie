@@ -18,7 +18,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define SOCKET_DUMMY 0
 
 // Choose Broadcast Socket here ---vvv
-#define BROADCAST_SOCKET SOCKET_DUMMY
+#define BROADCAST_SOCKET SOCKET_SERIAL
 
 #if BROADCAST_SOCKET == SOCKET_SERIAL
     #include "sockets/BroadcastSocket_Serial.hpp"
@@ -102,7 +102,7 @@ void loop() {
     json_talkie.listen();
 
     static unsigned long lastSend = 0;
-    if (millis() - lastSend > 39000) {
+    if (millis() - lastSend > 15000) {
         StaticJsonDocument<JSON_TALKIE_SIZE> doc;
         doc["c"] = "talk";
         json_talkie.talk(doc.as<JsonObject>());
