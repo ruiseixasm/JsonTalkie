@@ -109,12 +109,21 @@ class CommandLine:
                                 print(f"\t'{words[3]}' is not an integer!")
                         else:
                             print(f"'{words[0]}' has a wrong number of arguments!")
+                    case "sys":
+                        if len(words) == 2: # Targeted talk
+                            message["t"] = words[1]
+                        if len(words) < 3:
+                            json_talkie.talk(message)
+                            time.sleep(0.5) # Wait some time
+                        else:
+                            print(f"\t'{words[0]}' has a wrong number of arguments!")
                     case _:
-                        print(f"\t[talk]\tShows all devices' 'name' and description.")
+                        print(f"\t[talk]\tPrints all devices' 'name' and description.")
                         print(f"\t[list 'device']\tList the entire 'device' manifesto.")
                         print(f"\t[run 'device' 'what']\tRuns the named function.")
                         print(f"\t[set 'device' 'what']\tSets the named variable.")
                         print(f"\t[get 'device' 'what']\tGets the named variable value.")
+                        print(f"\t[sys]\tPrints the platform of the Device.")
                         print(f"\t[exit]\tExits the command line (Ctrl+D).")
                         print(f"\t[help]\tShows the present help.")                        
 
