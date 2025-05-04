@@ -81,14 +81,14 @@ class CommandLine:
                             json_talkie.talk(message)
                             time.sleep(0.5) # Wait some time
                         else:
-                            print(f"'{words[0]}' has a wrong number of arguments!")
+                            print(f"\t'{words[0]}' has a wrong number of arguments!")
                     case "list":
                         if len(words) == 2: # Targeted talk
                             message["t"] = words[1]
                             json_talkie.talk(message)
                             time.sleep(0.5) # Wait some time
                         else:
-                            print(f"'{words[0]}' has a wrong number of arguments!")
+                            print(f"\t'{words[0]}' has a wrong number of arguments!")
                     case "run" | "get":
                         if len(words) == 3:
                             message["t"] = words[1]
@@ -96,33 +96,36 @@ class CommandLine:
                             json_talkie.talk(message)
                             time.sleep(0.5) # Wait some time
                         else:
-                            print(f"'{words[0]}' has a wrong number of arguments!")
+                            print(f"\t'{words[0]}' has a wrong number of arguments!")
                     case "set":
                         if len(words) == 4:
-                            message["t"] = words[1]
-                            message["w"] = words[2]
-                            message["v"] = words[3]
-                            json_talkie.talk(message)
-                            time.sleep(0.5) # Wait some time
+                            if isinstance(words[3], int):
+                                message["t"] = words[1]
+                                message["w"] = words[2]
+                                message["v"] = words[3]
+                                json_talkie.talk(message)
+                                time.sleep(0.5) # Wait some time
+                            else:
+                                print(f"\t'{words[3]}' is not an integer!")
                         else:
                             print(f"'{words[0]}' has a wrong number of arguments!")
                     case _:
                         print(f"\t[talk]\tShows all devices' 'name' and description.")
                         print(f"\t[list 'device']\tList the entire 'device' manifesto.")
-                        print(f"\t[run 'device' "w"]\tRuns the named function.")
-                        print(f"\t[set 'device' "w"]\tSets the named variable.")
-                        print(f"\t[get 'device' "w"]\tGets the named variable value.")
+                        print(f"\t[run 'device' 'what']\tRuns the named function.")
+                        print(f"\t[set 'device' 'what']\tSets the named variable.")
+                        print(f"\t[get 'device' 'what']\tGets the named variable value.")
                         print(f"\t[exit]\tExits the command line (Ctrl+D).")
                         print(f"\t[help]\tShows the present help.")                        
 
-    def echo(self, message: Dict[str, Any], reply: str) -> bool:
-        print(f"\t{reply}")
+    def echo(self, message: Dict[str, Any]) -> bool:
+        print(f"\t[{message["f"]}]\t{message["r"]}")
         return True
 
 
 if __name__ == "__main__":
 
-    SOCKET = "UDP"
+    SOCKET = "Serial"
 
     broadcast_socket: BroadcastSocket = None
     match SOCKET:
