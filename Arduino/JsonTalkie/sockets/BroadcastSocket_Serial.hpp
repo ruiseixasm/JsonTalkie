@@ -36,12 +36,7 @@ public:
     }
 
     bool available() override {
-        // Serial.println("TRY!");
-        if (Serial.available() > 0) {
-            Serial.println("Data Available");
-            return true;
-        }
-        return false;
+        return Serial.available() > 0;
     }
 
     size_t read(uint8_t* buffer, size_t size) override {

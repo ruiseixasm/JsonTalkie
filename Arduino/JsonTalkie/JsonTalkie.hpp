@@ -348,8 +348,6 @@ namespace JsonTalkie {
                     
                     if (bytesRead > 0) {
                         buffer[bytesRead] = '\0';
-                        Serial.print("Received data: ");
-                        Serial.println((char*)buffer);
                         DeserializationError error = deserializeJson(talk_doc, (const char*)buffer);
                         if (error) {
                             Serial.println("Failed to deserialize buffer");
@@ -360,9 +358,9 @@ namespace JsonTalkie {
 
                 if (bytesRead > 0 && validateTalk(talk_doc.as<JsonObject>())) {
 
-                    Serial.print("Z: ");
-                    serializeJson(talk_doc["m"], Serial);
-                    Serial.println();  // optional: just to add a newline after the JSON
+                    // Serial.print("Remote: ");
+                    // serializeJson(talk_doc, Serial);
+                    // Serial.println();  // optional: just to add a newline after the JSON
 
                     receive(talk_doc["m"]);
                 }
