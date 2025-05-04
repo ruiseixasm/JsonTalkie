@@ -18,6 +18,9 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
 #include <ArduinoJson.h>
 
+// To occupy less Flash memory
+#define ARDUINO_JSON_VERSION 6
+
 // Readjust if absolutely necessary
 #define JSON_TALKIE_SIZE 128
 
@@ -85,11 +88,19 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                     
                     // 5. JSON Handling with Memory Checks
                     {
+                        #if ARDUINO_JSON_VERSION == 6
                         StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
                         if (message_doc.capacity() == 0) {
                             Serial.println("Failed to allocate JSON message_doc");
                             return 0;
                         }
+                        #else
+                        JsonDocument message_doc;
+                        if (message_doc.overflowed()) {
+                            Serial.println("Failed to allocate JSON message_doc");
+                            return 0;
+                        }
+                        #endif
                         
                         // Message needs to be '\0' terminated and thus buffer is used instead
                         DeserializationError error = deserializeJson(message_doc, message, message_size);
@@ -98,6 +109,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                             return 0;
                         }
                         
+                        #if ARDUINO_JSON_VERSION == 6
                         StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
                         if (talk_doc.capacity() == 0) {
                             Serial.println("Failed to allocate JSON talk_doc");
@@ -105,6 +117,15 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                         }
                         JsonObject talk_json = talk_doc.to<JsonObject>();
                         talk_json.createNestedObject("m");
+                        #else
+                        JsonDocument talk_doc;
+                        if (talk_doc.overflowed()) {
+                            Serial.println("Failed to allocate JSON talk_doc");
+                            return 0;
+                        }
+                        JsonObject talk_json = talk_doc.to<JsonObject>();
+                        talk_json.add<JsonObject>("m");
+                        #endif        
 
                         JsonObject message_json = message_doc.as<JsonObject>();
                         talk_json["m"] = message_json;
