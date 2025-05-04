@@ -45,9 +45,9 @@ const JsonTalkie::Device JsonTalkie::Manifesto::device = {
     "Buzzer", "I do a 500ms buzz!"
 };
 
-bool buzz(JsonObjectConst json_message, JsonVariant reply);
-bool led_on(JsonObjectConst json_message, JsonVariant reply);
-bool led_off(JsonObjectConst json_message, JsonVariant reply);
+bool buzz(JsonObject json_message);
+bool led_on(JsonObject json_message);
+bool led_off(JsonObject json_message);
 const JsonTalkie::Run JsonTalkie::Manifesto::runCommands[] = {
     {"buzz", "Triggers buzzing", buzz},
     {"on", "Turns led On", led_on},
@@ -55,20 +55,20 @@ const JsonTalkie::Run JsonTalkie::Manifesto::runCommands[] = {
 };
 const size_t JsonTalkie::Manifesto::runSize = sizeof(JsonTalkie::Manifesto::runCommands) / sizeof(JsonTalkie::Run);
 
-bool set_duration(JsonObjectConst json_message, JsonVariant reply, const char* duration);
+bool set_duration(JsonObject json_message, const char* duration);
 const JsonTalkie::Set JsonTalkie::Manifesto::setCommands[] = {
     // {"duration", "Sets duration", set_duration}
 };
 const size_t JsonTalkie::Manifesto::setSize = sizeof(JsonTalkie::Manifesto::setCommands) / sizeof(JsonTalkie::Set);
 
-size_t get_duration(JsonObjectConst json_message, JsonVariant reply);
+size_t get_duration(JsonObject json_message);
 const JsonTalkie::Get JsonTalkie::Manifesto::getCommands[] = {
     // {"duration", "Gets duration", get_duration}
 };
 const size_t JsonTalkie::Manifesto::getSize = sizeof(JsonTalkie::Manifesto::getCommands) / sizeof(JsonTalkie::Get);
 
-bool process_response(JsonVariantConst reply);
-bool (*JsonTalkie::Manifesto::echo)(JsonVariantConst) = process_response;
+bool process_response(JsonObject json_message);
+bool (*JsonTalkie::Manifesto::echo)(JsonObject) = process_response;
 
 // END OF MANIFESTO
 
@@ -114,36 +114,36 @@ void loop() {
 size_t _duration = 5;  // Example variable
 
 // Command implementations
-bool buzz(JsonObjectConst json_message, JsonVariant reply) {
+bool buzz(JsonObject json_message) {
     digitalWrite(buzzer_pin, HIGH);
     delay(_duration); 
     digitalWrite(buzzer_pin, LOW);
     return true;
 }
 
-bool led_on(JsonObjectConst json_message, JsonVariant reply) {
+bool led_on(JsonObject json_message) {
     digitalWrite(LED_BUILTIN, HIGH);
     return true;
 }
 
-bool led_off(JsonObjectConst json_message, JsonVariant reply) {
+bool led_off(JsonObject json_message) {
     digitalWrite(LED_BUILTIN, LOW);
     return true;
 }
 
 
-bool set_duration(JsonObjectConst json_message, JsonVariant reply, size_t duration) {
+bool set_duration(JsonObject json_message, size_t duration) {
     _duration = duration;
     return true;
 }
 
-size_t get_duration(JsonObjectConst json_message, JsonVariant reply) {
+size_t get_duration(JsonObject json_message) {
     return _duration;
 }
 
 
 
-bool process_response(JsonVariantConst reply) {
-    Serial.println(reply.as<String>()); // The magic fix
+bool process_response(JsonObject json_message) {
+    Serial.println(json_message["r"].as<String>()); // The magic fix
     return true;
 }
