@@ -119,13 +119,16 @@ class CommandLine:
                         print(f"\t[help]\tShows the present help.")                        
 
     def echo(self, message: Dict[str, Any]) -> bool:
-        print(f"\t[{message["f"]}]\t{message["r"]}")
+        if "w" in message:
+            print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}")
+        else:
+            print(f"\t[{message["f"]}]\t{message["r"]}")
         return True
 
 
 if __name__ == "__main__":
 
-    SOCKET = "Serial"
+    SOCKET = "UDP"
 
     broadcast_socket: BroadcastSocket = None
     match SOCKET:

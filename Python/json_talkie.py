@@ -76,13 +76,12 @@ class JsonTalkie:
         """Handles message content only."""
         match message["c"]:
             case "talk":
-                print(message)
                 echo: Dict[str, Any] = {
                     "c": 'echo',
                     "t": message["f"],
                     "i": message["i"]
                 }
-                echo["r"] = f"[{self._manifesto['talker']['description']}"
+                echo["r"] = f"{self._manifesto['talker']['description']}"
                 self.talk(echo)
             case "list":
                 echo: Dict[str, Any] = {
@@ -92,15 +91,18 @@ class JsonTalkie:
                 }
                 if 'run' in self._manifesto:
                     for key, value in self._manifesto['run'].items():
-                        echo["r"] = f"[run {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                        echo["w"] = key
+                        echo["r"] = value['description']
                         self.talk(echo)
                 if 'set' in self._manifesto:
                     for key, value in self._manifesto['set'].items():
-                        echo["r"] = f"[set {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                        echo["w"] = key
+                        echo["r"] = value['description']
                         self.talk(echo)
                 if 'get' in self._manifesto:
                     for key, value in self._manifesto['get'].items():
-                        echo["r"] = f"[get {self._manifesto['talker']['name']} {key}]\t{value['description']}"
+                        echo["w"] = key
+                        echo["r"] = value['description']
                         self.talk(echo)
             case "run":
                 if "w" in message and 'run' in self._manifesto and message["w"] in self._manifesto['run']:
