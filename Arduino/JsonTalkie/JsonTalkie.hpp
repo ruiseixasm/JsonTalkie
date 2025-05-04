@@ -291,7 +291,7 @@ namespace JsonTalkie {
         }
 
         bool talk(JsonObject message) {
-            if (!_running || !_socket->available())
+            if (!_running)
                 return false;
 
             char buffer[JSON_TALKIE_SIZE];
@@ -329,40 +329,43 @@ namespace JsonTalkie {
         }
 
         void listen() {
-            if (!_running || !_socket->available())
+            if (!_running)
                 return;
         
-            // Lives until end of function
-            #if ARDUINO_JSON_VERSION == 6
-            StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
-            #else
-            JsonDocument talk_doc;
-            #endif
-            size_t bytesRead = 0;
+            if (_socket->available()) { // Data in the socket buffer
 
-            {
-                uint8_t buffer[JSON_TALKIE_SIZE];
-                bytesRead = _socket->read(buffer, sizeof(buffer) - 1);
-                
-                if (bytesRead > 0) {
-                    buffer[bytesRead] = '\0';
-                    Serial.print("Received data: ");
-                    Serial.println((char*)buffer);
-                    DeserializationError error = deserializeJson(talk_doc, (const char*)buffer);
-                    if (error) {
-                        Serial.println("Failed to deserialize buffer");
-                        return;
+                // Lives until end of function
+                #if ARDUINO_JSON_VERSION == 6
+                StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
+                #else
+                JsonDocument talk_doc;
+                #endif
+                size_t bytesRead = 0;
+
+                {
+                    uint8_t buffer[JSON_TALKIE_SIZE];
+                    bytesRead = _socket->read(buffer, sizeof(buffer) - 1);
+                    
+                    if (bytesRead > 0) {
+                        buffer[bytesRead] = '\0';
+                        Serial.print("Received data: ");
+                        Serial.println((char*)buffer);
+                        DeserializationError error = deserializeJson(talk_doc, (const char*)buffer);
+                        if (error) {
+                            Serial.println("Failed to deserialize buffer");
+                            return;
+                        }
                     }
+                }   // buffer is destroyed here (memory freed)
+
+                if (bytesRead > 0 && validateTalk(talk_doc.as<JsonObject>())) {
+
+                    Serial.print("Z: ");
+                    serializeJson(talk_doc["m"], Serial);
+                    Serial.println();  // optional: just to add a newline after the JSON
+
+                    receive(talk_doc["m"]);
                 }
-            }   // buffer is destroyed here (memory freed)
-
-            if (bytesRead > 0 && validateTalk(talk_doc.as<JsonObject>())) {
-
-                Serial.print("Z: ");
-                serializeJson(talk_doc["m"], Serial);
-                Serial.println();  // optional: just to add a newline after the JSON
-
-                receive(talk_doc["m"]);
             }
         }
     };
