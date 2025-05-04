@@ -268,10 +268,7 @@ namespace JsonTalkie {
                 message["c"] = "echo";
                 message["w"] = "echo";
                 if (Manifesto::echo != nullptr) {
-                    if (Manifesto::echo(message)) {
-                        message["r"] = "ROGER";
-                        talk(message);
-                    }
+                    Manifesto::echo(message);
                 }
             }
             return false;
