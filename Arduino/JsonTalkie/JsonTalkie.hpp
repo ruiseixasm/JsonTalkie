@@ -224,7 +224,8 @@ namespace JsonTalkie {
                 if (get == nullptr) {
                     message["r"] = "UNKNOWN";
                 } else {
-                    message["r"] = get->function(message);
+                    message["r"] = "ROGER";
+                    message["v"] = get->function(message);
                 }
                 talk(message);
             }
