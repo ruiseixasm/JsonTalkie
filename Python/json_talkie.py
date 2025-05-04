@@ -202,7 +202,7 @@ class JsonTalkie:
                     if "t" in message:
                         return message["t"] == "*" or message["t"] == self._manifesto['talker']['name']
                     else:
-                        return message["c"] == "talk"
+                        return message["c"] == "talk" or message["c"] == "sys"
         return False
 
 
