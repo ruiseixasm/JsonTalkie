@@ -77,8 +77,10 @@ bool (*JsonTalkie::Manifesto::echo)(JsonObject) = process_response;
 #define buzzer_pin 3
 
 void setup() {
+    #if BROADCAST_SOCKET != SOCKET_SERIAL
     Serial.begin(9600);
     while (!Serial);
+    #endif
     
     if (!json_talkie.begin()) {
         Serial.println("Failed to initialize Talker!");
