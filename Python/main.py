@@ -74,15 +74,18 @@ class Talker:
     def get_duration(self) -> str:
         return str(self._duration)
     
-    def echo(self, message: Dict[str, Any], reply: str) -> bool:
-        print(f"\t{reply}")
+    def echo(self, message: Dict[str, Any]) -> bool:
+        if "w" in message:
+            print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}")
+        else:
+            print(f"\t[{message["f"]}]\t{message["r"]}")
         return True
 
 
 if __name__ == "__main__":
 
     talker = Talker()
-    broadcast_socket: BroadcastSocket = BroadcastSocket_Serial()
+    broadcast_socket: BroadcastSocket = BroadcastSocket_UDP()
     json_talkie: JsonTalkie = JsonTalkie(broadcast_socket, talker.manifesto)
 
     # Start listening (opens socket)
