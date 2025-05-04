@@ -25,10 +25,16 @@ https://github.com/ruiseixasm/JsonTalkie
     BroadcastSocket_Serial broadcast_socket;
 #elif BROADCAST_SOCKET == SOCKET_UDP
     #include "sockets/BroadcastSocket_UDP.hpp"
-    BroadcastSocket_UDP broadcast_socket;
+    // Network configuration
+    byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+    BroadcastSocket_UDP broadcast_socket(5005);  // Port set in constructor
 #elif BROADCAST_SOCKET == SOCKET_ETHERCARD
     #include "sockets/BroadcastSocket_EtherCard.hpp"
-    BroadcastSocket_EtherCard broadcast_socket;
+    uint8_t Ethernet::buffer[ETHER_BUFFER_SIZE]; // Essential for EtherCard
+    uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
+    const uint8_t CS_PIN = 8;
+    // MAC and CS pin in constructor
+    BroadcastSocket_EtherCard broadcast_socket(5005, mymac, CS_PIN);
 #else
     #include "sockets/BroadcastSocket_Dummy.hpp"
     BroadcastSocket_Dummy broadcast_socket;
