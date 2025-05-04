@@ -55,28 +55,32 @@ class Talker:
         # Talker self variables
         self._duration: float = 0.5
 
-    def buzz(self) -> str:
+    def buzz(self, message: Dict[str, Any]) -> bool:
         print(f"\tBUZZING for {self._duration} seconds!\a")
         time.sleep(self._duration) # Take its time
-        return f"Buzzing done for {self._duration}"
+        return True
 
-    def print_duration(self) -> str:
+    def print_duration(self, message: Dict[str, Any]) -> bool:
         print(f"\t{self._duration}")
+        return True
 
-    def set_duration(self, duration: str) -> str:
+    def set_duration(self, message: Dict[str, Any], duration: int) -> bool:
         try:
             self._duration = float(duration)
-            return f"Duration is now set to {self._duration}"
+            return True
         except (ValueError, TypeError):
             # Handle cases where conversion fails
-            return f"Duration of '{duration}' is NOT a float!"
+            return False
 
-    def get_duration(self) -> str:
-        return str(self._duration)
+    def get_duration(self, message: Dict[str, Any]) -> int:
+        return self._duration
     
     def echo(self, message: Dict[str, Any]) -> bool:
         if "w" in message:
-            print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}")
+            if "v" in message:
+                print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}\t{message["v"]}")
+            else:
+                print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}")
         else:
             print(f"\t[{message["f"]}]\t{message["r"]}")
         return True

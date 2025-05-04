@@ -105,47 +105,63 @@ class JsonTalkie:
                         echo["r"] = value['description']
                         self.talk(echo)
             case "run":
-                if "w" in message and 'run' in self._manifesto and message["w"] in self._manifesto['run']:
-                    function = self._manifesto['run'][message["w"]]['function']
+                if "w" in message and 'run' in self._manifesto:
                     echo: Dict[str, Any] = {
                         "c": 'echo',
                         "t": message["f"],
-                        "i": message["i"],
-                        "r": f"[{self._manifesto['talker']['name']} {message["w"]}]\tRUN"
+                        "i": message["i"]
                     }
-                    self.talk(echo)
-                    function_response: str = function()
-                    if function_response and isinstance(function_response, str):
-                        echo["r"] = function_response
+                    if message["w"] in self._manifesto['run']:
+                        echo["r"] = "ROGER"
+                        self.talk(echo)
+                        ok: bool = self._manifesto['run'][message["w"]]['function'](message)
+                        if ok:
+                            echo["r"] = "OK"
+                        else:
+                            echo["r"] = "FAIL"
+                        self.talk(echo)
+                    else:
+                        echo["r"] = "UNKNOWN"
                         self.talk(echo)
             case "set":
-                if "w" in message and 'value' in message and 'set' in self._manifesto and message["w"] in self._manifesto['set']:
-                    function = self._manifesto['set'][message["w"]]['function']
+                if "v" in message and isinstance(message["v"], int) and "w" in message and 'set' in self._manifesto:
                     echo: Dict[str, Any] = {
                         "c": 'echo',
                         "t": message["f"],
-                        "i": message["i"],
-                        "r": f"[{self._manifesto['talker']['name']} {message["w"]}]\tSET"
+                        "i": message["i"]
                     }
-                    self.talk(echo)
-                    function_response: str = function(message['value'])
-                    if function_response and isinstance(function_response, str):
-                        echo["r"] = function_response
+                    if message["w"] in self._manifesto['set']:
+                        echo["r"] = "ROGER"
+                        self.talk(echo)
+                        ok: bool = self._manifesto['set'][message["w"]]['function'](message, message["v"])
+                        if ok:
+                            echo["r"] = "OK"
+                        else:
+                            echo["r"] = "FAIL"
+                        self.talk(echo)
+                    else:
+                        echo["r"] = "UNKNOWN"
                         self.talk(echo)
             case "get":
-                if "w" in message and 'get' in self._manifesto and message["w"] in self._manifesto['get']:
-                    function = self._manifesto['get'][message["w"]]['function']
-                    self.talk({
+                if "w" in message and 'get' in self._manifesto:
+                    echo: Dict[str, Any] = {
                         "c": 'echo',
                         "t": message["f"],
-                        "i": message["i"],
-                        "r": f"[{self._manifesto['talker']['name']} {message["w"]}]\t{function()}"
-                    })
+                        "i": message["i"]
+                    }
+                    if message["w"] in self._manifesto['get']:
+                        echo["r"] = "ROGER"
+                        self.talk(echo)
+                        echo["r"] = "OK"
+                        echo["v"] = self._manifesto['get'][message["w"]]['function'](message)
+                        self.talk(echo)
+                    else:
+                        echo["r"] = "UNKNOWN"
+                        self.talk(echo)
             case "echo":
                 if self._last_message and message["i"] == self._last_message["i"]:
                     if 'echo' in self._manifesto:
-                        echo = self._manifesto['echo']
-                        echo(message)
+                        self._manifesto['echo'](message)
             case _:
                 print("\tUnknown command type!")
         return False

@@ -99,13 +99,13 @@ class CommandLine:
                             print(f"\t'{words[0]}' has a wrong number of arguments!")
                     case "set":
                         if len(words) == 4:
-                            if isinstance(words[3], int):
+                            try:
                                 message["t"] = words[1]
                                 message["w"] = words[2]
-                                message["v"] = words[3]
+                                message["v"] = int(words[3])
                                 json_talkie.talk(message)
                                 time.sleep(0.5) # Wait some time
-                            else:
+                            except Exception as e:
                                 print(f"\t'{words[3]}' is not an integer!")
                         else:
                             print(f"'{words[0]}' has a wrong number of arguments!")
@@ -120,7 +120,10 @@ class CommandLine:
 
     def echo(self, message: Dict[str, Any]) -> bool:
         if "w" in message:
-            print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}")
+            if "v" in message:
+                print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}\t{message["v"]}")
+            else:
+                print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}")
         else:
             print(f"\t[{message["f"]}]\t{message["r"]}")
         return True
