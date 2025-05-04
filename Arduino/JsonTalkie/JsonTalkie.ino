@@ -83,20 +83,26 @@ void setup() {
     #endif
     
     if (!json_talkie.begin()) {
+        #if BROADCAST_SOCKET == SOCKET_SERIAL
+        Serial.begin(9600);
+        while (!Serial);
+        #endif
         Serial.println("Failed to initialize Talker!");
         while(1);
     }
 
+    delay(4000);    // Just to give some time to Serial
+    Serial.println("Talker ready");
+
+    #if BROADCAST_SOCKET != SOCKET_SERIAL
     pinMode(buzzer_pin, OUTPUT);
     digitalWrite(buzzer_pin, LOW);
+    #endif
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
     digitalWrite(LED_BUILTIN, LOW);
 
-    #if BROADCAST_SOCKET != SOCKET_SERIAL
-    Serial.println("Talker ready");
     Serial.println("Sending JSON...");
-    #endif
     StaticJsonDocument<JSON_TALKIE_SIZE> doc;
     doc["c"] = "talk";
     json_talkie.talk(doc.as<JsonObject>());
@@ -119,9 +125,11 @@ int _duration = 5;  // Example variable
 
 // Command implementations
 bool buzz(JsonObject json_message) {
+    #if BROADCAST_SOCKET != SOCKET_SERIAL
     digitalWrite(buzzer_pin, HIGH);
     delay(_duration); 
     digitalWrite(buzzer_pin, LOW);
+    #endif
     return true;
 }
 
