@@ -79,6 +79,8 @@ class Talker:
         if "w" in message:
             if "v" in message:
                 print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}\t{message["v"]}")
+            elif "l" in message:
+                print(f"\t[{message["l"]} {message["f"]} {message["w"]}]\t{message["r"]}")
             else:
                 print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}")
         else:

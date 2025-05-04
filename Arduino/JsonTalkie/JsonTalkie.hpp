@@ -31,6 +31,7 @@ https://github.com/ruiseixasm/JsonTalkie
 //     w: what
 //     s: checksum
 //     v: value
+//     l: list
 
 namespace JsonTalkie {
 
