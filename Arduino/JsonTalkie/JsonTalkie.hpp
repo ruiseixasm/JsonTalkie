@@ -18,6 +18,9 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <Arduino.h>
 #include <ArduinoJson.h>    // Install ArduinoJson Library
 
+// To occupy less Flash memory
+#define ARDUINO_JSON_VERSION 6
+
 // Readjust if absolutely necessary
 #define JSON_TALKIE_SIZE 128
 
@@ -256,7 +259,12 @@ namespace JsonTalkie {
 
             // In order to release memory when done
             {
+                #if ARDUINO_JSON_VERSION == 6
                 StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
+                #else
+                JsonDocument talk_doc;
+                #endif
+
                 JsonObject talk_json = talk_doc.to<JsonObject>();
 
                 // Directly nest the editable message under "m"
@@ -283,8 +291,12 @@ namespace JsonTalkie {
                 return;
         
             if (_socket->available()) {
-
-                StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;  // Lives until end of function
+                // Lives until end of function
+                #if ARDUINO_JSON_VERSION == 6
+                StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
+                #else
+                JsonDocument talk_doc;
+                #endif
                 size_t bytesRead = 0;
 
                 {
