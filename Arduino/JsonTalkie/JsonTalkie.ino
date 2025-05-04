@@ -18,7 +18,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define SOCKET_DUMMY 0
 
 // Choose Broadcast Socket here ---vvv
-#define BROADCAST_SOCKET SOCKET_DUMMY
+#define BROADCAST_SOCKET SOCKET_SERIAL
 
 #if BROADCAST_SOCKET == SOCKET_SERIAL
     #include "sockets/BroadcastSocket_Serial.hpp"
@@ -61,7 +61,7 @@ const JsonTalkie::Set JsonTalkie::Manifesto::setCommands[] = {
 };
 const size_t JsonTalkie::Manifesto::setSize = sizeof(JsonTalkie::Manifesto::setCommands) / sizeof(JsonTalkie::Set);
 
-size_t get_duration(JsonObject json_message);
+int get_duration(JsonObject json_message);
 const JsonTalkie::Get JsonTalkie::Manifesto::getCommands[] = {
     // {"duration", "Gets duration", get_duration}
 };
@@ -111,7 +111,7 @@ void loop() {
 }
 
 
-size_t _duration = 5;  // Example variable
+int _duration = 5;  // Example variable
 
 // Command implementations
 bool buzz(JsonObject json_message) {
@@ -132,12 +132,12 @@ bool led_off(JsonObject json_message) {
 }
 
 
-bool set_duration(JsonObject json_message, size_t duration) {
+bool set_duration(JsonObject json_message, int duration) {
     _duration = duration;
     return true;
 }
 
-size_t get_duration(JsonObject json_message) {
+int get_duration(JsonObject json_message) {
     return _duration;
 }
 

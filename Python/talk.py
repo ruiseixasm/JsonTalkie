@@ -101,7 +101,7 @@ class CommandLine:
                         if len(words) == 4:
                             message["t"] = words[1]
                             message["w"] = words[2]
-                            message['value'] = words[3]
+                            message["v"] = words[3]
                             json_talkie.talk(message)
                             time.sleep(0.5) # Wait some time
                         else:
