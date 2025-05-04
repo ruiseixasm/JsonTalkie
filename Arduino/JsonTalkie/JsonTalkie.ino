@@ -11,6 +11,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
+#include "../../../secrets/wifi_credentials.h"  // Path relative to your project
+
 
 #define SOCKET_SERIAL 1
 #define SOCKET_UDP 2
