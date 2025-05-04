@@ -82,7 +82,7 @@ class JsonTalkie:
                     "t": message["f"],
                     "i": message["i"]
                 }
-                echo["r"] = f"[{self._manifesto['talker']['name']}]\t{self._manifesto['talker']['description']}"
+                echo["r"] = f"[{self._manifesto['talker']['description']}"
                 self.talk(echo)
             case "list":
                 echo: Dict[str, Any] = {
@@ -143,7 +143,7 @@ class JsonTalkie:
                 if self._last_message and message["i"] == self._last_message["i"]:
                     if 'echo' in self._manifesto:
                         echo = self._manifesto['echo']
-                        echo(self._last_message, message["r"])
+                        echo(message)
             case _:
                 print("\tUnknown command type!")
         return False
