@@ -65,9 +65,8 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
     
         size_t read(uint8_t* buffer, size_t size) override {
             // 1. Initial Safeguards
-            if (!_isOpen || !buffer || size == 0) {
+            if (!_isOpen || !buffer || size == 0)
                 return 0;
-            }
         
             if (millis() - _lastTime > 1000) {
                 _lastTime = millis();
