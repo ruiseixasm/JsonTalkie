@@ -52,8 +52,8 @@ class BroadcastSocket_Dummy(BroadcastSocket):
         try:
             divide: float = 1/random.randint(0, 1000)
             print(f"DUMMY SENT: {data}")
-            talk: Dict[str, Any] = BroadcastSocket_Dummy.decode(data)
-            self._sent_message = talk["m"]
+            message: Dict[str, Any] = BroadcastSocket_Dummy.decode(data)
+            self._sent_message = message
             return True
         except Exception as e:
             print(f"DUMMY Send failed: {e}")
@@ -71,12 +71,8 @@ class BroadcastSocket_Dummy(BroadcastSocket):
                     divide: float = 1/random_number
                     message = self.messages[random_number % len(self.messages)]
                     message["i"] = BroadcastSocket_Dummy.message_id()
-                    checksum = BroadcastSocket_Dummy.checksum(message)
-                    talk: Dict[str, Any] = {
-                        "s": checksum,
-                        "m": message
-                    }
-                    data = BroadcastSocket_Dummy.encode(talk)
+                    message["s"] = BroadcastSocket_Dummy.checksum(message)
+                    data = BroadcastSocket_Dummy.encode(message)
                     print(f"DUMMY RECEIVED: {data}")
                     data_tuple = (data, ('192.168.31.22', 5005))
                     return data_tuple
@@ -115,8 +111,8 @@ class BroadcastSocket_Dummy(BroadcastSocket):
         return checksum & 0xFFFF
 
     @staticmethod
-    def encode(talk: Dict[str, Any]) -> bytes:
-        return json.dumps(talk, separators=(',', ':')).encode('utf-8')
+    def encode(message: Dict[str, Any]) -> bytes:
+        return json.dumps(message, separators=(',', ':')).encode('utf-8')
 
     @staticmethod
     def decode(data: bytes) -> Dict[str, Any]:
@@ -124,5 +120,6 @@ class BroadcastSocket_Dummy(BroadcastSocket):
 
     @staticmethod
     def checksum(message: Dict[str, Any]) -> int:
+        message["s"] = 0
         data = json.dumps(message, separators=(',', ':')).encode('utf-8')
         return BroadcastSocket_Dummy.checksum_16bit_bytes(data)
