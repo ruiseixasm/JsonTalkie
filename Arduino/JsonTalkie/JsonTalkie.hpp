@@ -306,7 +306,7 @@ namespace JsonTalkie {
                 #endif
 
                 // Verify memory
-                if (talk_doc.capacity() < 64) {  // Absolute minimum
+                if (talk_doc.capacity() < 128) {  // Absolute minimum
                     Serial.println("CRITICAL: Insufficient RAM");
                     return false;
                 }
