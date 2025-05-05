@@ -21,7 +21,6 @@ import platform
 from broadcast_socket import BroadcastSocket
 
 # Keys:
-#     m: message
 #     c: command
 #     t: to
 #     f: from
