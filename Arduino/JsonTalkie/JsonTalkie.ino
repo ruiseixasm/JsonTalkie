@@ -146,8 +146,8 @@ void setup() {
     // Lives until end of function
     #if ARDUINO_JSON_VERSION == 6
     StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
-    if (message_doc.capacity() == 0) {
-        Serial.println("Failed to allocate JSON message_doc");
+    if (message_doc.capacity() < JSON_TALKIE_SIZE) {  // Absolute minimum
+        Serial.println("CRITICAL: Insufficient RAM");
     } else {
         JsonObject message = message_doc.to<JsonObject>();
         message["m"] = "talk";
@@ -174,8 +174,8 @@ void loop() {
         // Lives until end of function
         #if ARDUINO_JSON_VERSION == 6
         StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
-        if (message_doc.capacity() == 0) {
-            Serial.println("Failed to allocate JSON message_doc");
+        if (message_doc.capacity() < JSON_TALKIE_SIZE) {  // Absolute minimum
+            Serial.println("CRITICAL: Insufficient RAM");
         } else {
             JsonObject message = message_doc.to<JsonObject>();
             message["m"] = "talk";
