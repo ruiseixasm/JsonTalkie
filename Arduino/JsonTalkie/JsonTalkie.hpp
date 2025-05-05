@@ -152,7 +152,7 @@ namespace JsonTalkie {
             return buffer;
         }
 
-        static bool checksum(JsonObject message) {
+        static bool valid_checksum(JsonObject message) {
             // Use a static buffer size, large enough for your JSON
             uint16_t message_checksum = 0;
             if (message.containsKey("s")) {
@@ -180,7 +180,7 @@ namespace JsonTalkie {
             if (!message.containsKey("s"))
                 return false;
             // NEEDS TO BE COMPLETED
-            return checksum(message);
+            return valid_checksum(message);
         }
         
         bool receive(JsonObject message) {
@@ -307,7 +307,7 @@ namespace JsonTalkie {
                     message["i"] = generateMessageId();
                 }
                 message["f"] = Manifesto::talk()->name;
-                checksum(message);
+                valid_checksum(message);
 
                 len = serializeJson(message, buffer, sizeof(buffer));
                 if (len == 0) {
@@ -348,6 +348,11 @@ namespace JsonTalkie {
                     return;
                 }
                 #endif
+
+                if (message_doc.capacity() < JSON_TALKIE_SIZE) {  // Absolute minimum
+                    Serial.println("CRITICAL: Insufficient RAM");
+                    return;
+                }
 
                 JsonObject message;
                 size_t bytesRead = 0;
