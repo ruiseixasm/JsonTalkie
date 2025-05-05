@@ -42,7 +42,9 @@ https://github.com/ruiseixasm/JsonTalkie
     uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
     const uint8_t CS_PIN = 8;
     // MAC and CS pin in constructor
-    BroadcastSocket_EtherCard broadcast_socket(5005, mymac, CS_PIN);
+    // SS is a macro variable normally equal to 10
+    // Change 'SS' to your Slave Select pin, if you arn't using the default pin
+    BroadcastSocket_EtherCard broadcast_socket(5005, mymac, SS);
 #else
     #include "sockets/BroadcastSocket_Dummy.hpp"
     BroadcastSocket_Dummy broadcast_socket;
@@ -96,6 +98,9 @@ void setup() {
     while (!Serial);
     
     delay(2000);    // Just to give some time to Serial
+
+    Serial.print("SS: ");
+    Serial.println(SS);
 
     Serial.println("Beginning Talker...");
     if (!json_talkie.begin()) {
