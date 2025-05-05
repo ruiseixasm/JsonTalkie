@@ -66,11 +66,9 @@ class JsonTalkie:
             message["i"] = JsonTalkie.message_id()
         if message["c"] != "echo":
             self._last_message = message
-        talk: Dict[str, Any] = {
-            "m": message,
-            "s": JsonTalkie.checksum(message)
-        }
-        return self._socket.send( JsonTalkie.encode(talk) )
+        message['s'] = 0
+        message['s'] = JsonTalkie.checksum(message)
+        return self._socket.send( JsonTalkie.encode(message) )
     
     def listen(self):
         """Processes raw bytes from socket."""
@@ -79,9 +77,9 @@ class JsonTalkie:
             if received:
                 data, _ = received  # Explicitly ignore (ip, port)
                 try:
-                    talk: Dict[str, Any] = JsonTalkie.decode(data)
-                    if self.validate_talk(talk):
-                        self.receive(talk["m"])
+                    message: Dict[str, Any] = JsonTalkie.decode(data)
+                    if self.validate_message(message):
+                        self.receive(message)
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
                     # print(f"\tInvalid message: {e}")
                     pass
@@ -191,14 +189,13 @@ class JsonTalkie:
                 print("\tUnknown command type!")
         return False
 
-    def validate_talk(self, talk: Dict[str, Any]) -> bool:
-        if isinstance(talk, dict) and "s" in talk and "m" in talk:
+    def validate_message(self, message: Dict[str, Any]) -> bool:
+        if isinstance(message, dict) and "s" in message:
             try:
-                message_checksum: int = int(talk.get("s", None))
+                message_checksum: int = int(message.get("s", None))
             except (ValueError, TypeError):
                 return False
-            if message_checksum == JsonTalkie.checksum(talk["m"]):
-                message: int = talk["m"]
+            if message_checksum == JsonTalkie.checksum(message):
                 if "c" in message and "f" in message and "i" in message:
                     if "t" in message:
                         return message["t"] == "*" or message["t"] == self._manifesto['talker']['name']
@@ -213,12 +210,12 @@ class JsonTalkie:
         return uuid.uuid4().hex[:8]
     
     @staticmethod
-    def encode(talk: Dict[str, Any]) -> bytes:
+    def encode(message: Dict[str, Any]) -> bytes:
         # If specified, separators should be an (item_separator, key_separator)
         #     tuple. The default is (', ', ': ') if indent is None and
         #     (',', ': ') otherwise. To get the most compact JSON representation,
         #     you should specify (',', ':') to eliminate whitespace.
-        return json.dumps(talk, separators=(',', ':')).encode('utf-8')
+        return json.dumps(message, separators=(',', ':')).encode('utf-8')
 
     @staticmethod
     def decode(data: bytes) -> Dict[str, Any]:
@@ -235,6 +232,7 @@ class JsonTalkie:
         #     tuple. The default is (', ', ': ') if indent is None and
         #     (',', ': ') otherwise. To get the most compact JSON representation,
         #     you should specify (',', ':') to eliminate whitespace.
+        message["s"] = 0
         data = json.dumps(message, separators=(',', ':')).encode('utf-8')
         # 16-bit word and XORing
         checksum = 0
