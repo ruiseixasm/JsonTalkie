@@ -81,6 +81,12 @@ public:
     }
 
     bool available() override {
+        // // Force process all waiting packets
+        // while (true) {
+        //     uint16_t len = ether.packetReceive();
+        //     if (len == 0) break;
+        //     ether.packetLoop(len);
+        // }
         return _recvLength > 0;
     }
 
