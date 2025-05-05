@@ -71,7 +71,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
                     divide: float = 1/random_number
                     message = self.messages[random_number % len(self.messages)]
                     message["i"] = BroadcastSocket_Dummy.message_id()
-                    message["s"] = BroadcastSocket_Dummy.checksum(message)
+                    BroadcastSocket_Dummy.checksum(message)
                     data = BroadcastSocket_Dummy.encode(message)
                     print(f"DUMMY RECEIVED: {data}")
                     data_tuple = (data, ('192.168.31.22', 5005))
@@ -99,18 +99,6 @@ class BroadcastSocket_Dummy(BroadcastSocket):
         return uuid.uuid4().hex[:8]
     
     @staticmethod
-    def checksum_16bit_bytes(data: bytes) -> int:
-        """16-bit XOR checksum for bytes"""
-        checksum = 0
-        for i in range(0, len(data), 2):
-            # Combine two bytes into 16-bit value
-            chunk = data[i] << 8
-            if i+1 < len(data):
-                chunk |= data[i+1]
-            checksum ^= chunk
-        return checksum & 0xFFFF
-
-    @staticmethod
     def encode(message: Dict[str, Any]) -> bytes:
         return json.dumps(message, separators=(',', ':')).encode('utf-8')
 
@@ -119,7 +107,30 @@ class BroadcastSocket_Dummy(BroadcastSocket):
         return json.loads(data.decode('utf-8'))
 
     @staticmethod
-    def checksum(message: Dict[str, Any]) -> int:
+    def checksum(message: Dict[str, Any]) -> bool:
+        # If specified, separators should be an (item_separator, key_separator)
+        #     tuple. The default is (', ', ': ') if indent is None and
+        #     (',', ': ') otherwise. To get the most compact JSON representation,
+        #     you should specify (',', ':') to eliminate whitespace.
+        equal_checksum: bool = False
+        message_checksum: int = 0
+        if "s" in message:
+            message_checksum = message["s"]
+        else:
+            equal_checksum = True
         message["s"] = 0
         data = json.dumps(message, separators=(',', ':')).encode('utf-8')
-        return BroadcastSocket_Dummy.checksum_16bit_bytes(data)
+        # 16-bit word and XORing
+        checksum = 0
+        for i in range(0, len(data), 2):
+            # Combine two bytes into 16-bit value
+            chunk = data[i] << 8
+            if i+1 < len(data):
+                chunk |= data[i+1]
+            checksum ^= chunk
+        checksum &= 0xFFFF
+        if equal_checksum:
+            message["s"] = checksum
+            return True
+        message["s"] = message_checksum
+        return message_checksum == checksum

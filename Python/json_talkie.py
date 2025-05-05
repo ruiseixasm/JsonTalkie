@@ -193,7 +193,7 @@ class JsonTalkie:
                 message_checksum: int = int(message.get("s", None))
             except (ValueError, TypeError):
                 return False
-            if message_checksum == JsonTalkie.checksum(message):
+            if JsonTalkie.checksum(message):
                 if "c" in message and "f" in message and "i" in message:
                     if "t" in message:
                         return message["t"] == "*" or message["t"] == self._manifesto['talker']['name']
@@ -225,11 +225,17 @@ class JsonTalkie:
             return None
 
     @staticmethod
-    def checksum(message: Dict[str, Any]) -> int:
+    def checksum(message: Dict[str, Any]) -> bool:
         # If specified, separators should be an (item_separator, key_separator)
         #     tuple. The default is (', ', ': ') if indent is None and
         #     (',', ': ') otherwise. To get the most compact JSON representation,
         #     you should specify (',', ':') to eliminate whitespace.
+        equal_checksum: bool = False
+        message_checksum: int = 0
+        if "s" in message:
+            message_checksum = message["s"]
+        else:
+            equal_checksum = True
         message["s"] = 0
         data = json.dumps(message, separators=(',', ':')).encode('utf-8')
         # 16-bit word and XORing
@@ -240,5 +246,10 @@ class JsonTalkie:
             if i+1 < len(data):
                 chunk |= data[i+1]
             checksum ^= chunk
-        return checksum & 0xFFFF
+        checksum &= 0xFFFF
+        if equal_checksum:
+            message["s"] = checksum
+            return True
+        message["s"] = message_checksum
+        return message_checksum == checksum
 
