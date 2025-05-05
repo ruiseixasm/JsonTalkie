@@ -339,13 +339,13 @@ namespace JsonTalkie {
                 StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
                 if (message_doc.capacity() == 0) {
                     Serial.println("Failed to allocate JSON message_doc");
-                    return 0;
+                    return;
                 }
                 #else
                 JsonDocument message_doc;
                 if (message_doc.overflowed()) {
                     Serial.println("Failed to allocate JSON message_doc");
-                    return 0;
+                    return;
                 }
                 #endif
 
