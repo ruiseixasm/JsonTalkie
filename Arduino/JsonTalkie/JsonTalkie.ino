@@ -148,19 +148,21 @@ void setup() {
     StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
     if (message_doc.capacity() == 0) {
         Serial.println("Failed to allocate JSON message_doc");
-        return 0;
+    } else {
+        JsonObject message = message_doc.to<JsonObject>();
+        message["m"] = "talk";
+        json_talkie.talk(message);
     }
     #else
     JsonDocument message_doc;
     if (message_doc.overflowed()) {
         Serial.println("Failed to allocate JSON message_doc");
-        return 0;
+    } else {
+        JsonObject message = message_doc.to<JsonObject>();
+        message["m"] = "talk";
+        json_talkie.talk(message);
     }
     #endif
-
-    JsonObject message = message_doc.to<JsonObject>();
-    message["m"] = "talk";
-    json_talkie.talk(message);
 }
 
 void loop() {
@@ -174,19 +176,22 @@ void loop() {
         StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
         if (message_doc.capacity() == 0) {
             Serial.println("Failed to allocate JSON message_doc");
-            return 0;
+        } else {
+            JsonObject message = message_doc.to<JsonObject>();
+            message["m"] = "talk";
+            json_talkie.talk(message);
         }
         #else
         JsonDocument message_doc;
         if (message_doc.overflowed()) {
             Serial.println("Failed to allocate JSON message_doc");
-            return 0;
+        } else {
+            JsonObject message = message_doc.to<JsonObject>();
+            message["m"] = "talk";
+            json_talkie.talk(message);
         }
         #endif
     
-        JsonObject message = message_doc.to<JsonObject>();
-        message["m"] = "talk";
-        json_talkie.talk(message);
         lastSend = millis();
     }
 }

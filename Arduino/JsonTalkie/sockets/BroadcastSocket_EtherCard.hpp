@@ -68,8 +68,7 @@ public:
     }
 
     bool write(const uint8_t* data, size_t length) override {
-        if (length > UDP_BUFFER_SIZE)
-            return false;
+        if (length > UDP_BUFFER_SIZE) return false;
         uint8_t broadcastIp[] = {255,255,255,255};
         ether.sendUdp((char*)data, length, _port, broadcastIp, _port);
         return true;
