@@ -92,7 +92,7 @@ class Talker:
 if __name__ == "__main__":
 
     talker = Talker()
-    broadcast_socket: BroadcastSocket = BroadcastSocket_UDP()
+    broadcast_socket: BroadcastSocket = BroadcastSocket_Serial()
     json_talkie: JsonTalkie = JsonTalkie(broadcast_socket, talker.manifesto)
 
     # Start listening (opens socket)
