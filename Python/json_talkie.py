@@ -65,8 +65,7 @@ class JsonTalkie:
             message["i"] = JsonTalkie.message_id()
         if message["c"] != "echo":
             self._last_message = message
-        message['s'] = 0
-        message['s'] = JsonTalkie.checksum(message)
+        JsonTalkie.checksum(message)
         return self._socket.send( JsonTalkie.encode(message) )
     
     def listen(self):

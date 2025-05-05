@@ -153,8 +153,15 @@ namespace JsonTalkie {
         }
 
 
-        static uint16_t calculateChecksum(JsonObject message) {
+        static bool checksum(JsonObject message) {
             // Use a static buffer size, large enough for your JSON
+            bool equal_checksum = false;
+            uint16_t message_checksum = 0;
+            if (!message.containsKey("m")) {
+                equal_checksum = true;
+            } else {
+                message_checksum = message["s"];
+            }
             message["s"] = 0;
             char buffer[JSON_TALKIE_SIZE];
             size_t len = serializeJson(message, buffer);
@@ -169,16 +176,19 @@ namespace JsonTalkie {
             }
             // Serial.print("Message checksum: ");
             // Serial.println(checksum);  // optional: just to add a newline after the JSON
-
-            return checksum;
+            if (equal_checksum) {
+                message["s"] = checksum;
+                return true;
+            }
+            message["s"] = message_checksum;
+            return message_checksum == checksum;
         }
 
         static bool validateTalk(JsonObject message) {
             if (!message.containsKey("s"))
                 return false;
             // NEEDS TO BE COMPLETED
-            uint16_t checksum = message["s"];
-            return checksum == calculateChecksum(message);
+            return checksum(message);
         }
         
         bool receive(JsonObject message) {
@@ -305,7 +315,7 @@ namespace JsonTalkie {
                     message["i"] = generateMessageId();
                 }
                 message["f"] = Manifesto::talk()->name;
-                message["s"] = calculateChecksum(message);
+                checksum(message);
 
                 len = serializeJson(message, buffer, sizeof(buffer));
                 if (len == 0) {
