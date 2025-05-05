@@ -22,13 +22,15 @@ https://github.com/ruiseixasm/JsonTalkie
 #define ARDUINO_JSON_VERSION 6
 
 // Readjust if absolutely necessary
-#define JSON_TALKIE_SIZE 128
+#define JSON_TALKIE_BUFFER_SIZE 128
 
 
 class BroadcastSocket_Dummy : public BroadcastSocket {
     private:
         bool _isOpen = false;
         unsigned long _lastTime = 0;
+
+        char _buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
 
         // Helper function to safely create char* from buffer
         static char* decode(const uint8_t* data, const size_t length, char* talk) {
@@ -88,7 +90,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                     // 5. JSON Handling with Memory Checks
                     {
                         #if ARDUINO_JSON_VERSION == 6
-                        StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
+                        StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;
                         if (message_doc.capacity() == 0) {
                             Serial.println("Failed to allocate JSON message_doc");
                             return 0;
@@ -109,7 +111,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                             return 0;
                         }
                         JsonObject message = message_doc.as<JsonObject>();
-                        valid_checksum(message);
+                        valid_checksum(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
         
                         size_t message_len = serializeJson(message, buffer, size);
                         if (message_len == 0 || message_len >= size) {
@@ -129,27 +131,15 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
             return 0;
         }
     
-        static String generateMessageId() {
-            // Combine random values with system metrics for better uniqueness
-            uint32_t r1 = random(0xFFFF);
-            uint32_t r2 = random(0xFFFF);
-            uint32_t r3 = millis() & 0xFFFF;
-            uint32_t combined = (r1 << 16) | r2 ^ r3;
-            // Equivalent to the Python: return uuid.uuid4().hex[:8]
-            char buffer[9]; // 8 chars + null terminator
-            snprintf(buffer, sizeof(buffer), "%08lx", combined);
-            return String(buffer);
-        }
-
-        static bool valid_checksum(JsonObject message) {
+        static bool valid_checksum(JsonObject message, char* buffer, size_t size) {
             // Use a static buffer size, large enough for your JSON
             uint16_t message_checksum = 0;
             if (message.containsKey("s")) {
                 message_checksum = message["s"];
             }
             message["s"] = 0;
-            char buffer[JSON_TALKIE_SIZE];
-            size_t len = serializeJson(message, buffer);
+            // char buffer[JSON_TALKIE_BUFFER_SIZE];
+            size_t len = serializeJson(message, buffer, size);   // JSON_TALKIE_BUFFER_SIZE sized
             // 16-bit word and XORing
             uint16_t checksum = 0;
             for (size_t i = 0; i < len; i += 2) {
