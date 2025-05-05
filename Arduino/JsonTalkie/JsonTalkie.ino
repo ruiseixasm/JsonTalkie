@@ -12,7 +12,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
 
-#define USE_WIFI
+// #define USE_WIFI
 
 #define SOCKET_SERIAL 1
 #define SOCKET_UDP 2
@@ -25,7 +25,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #endif
 
 // Choose Broadcast Socket here ---vvv
-#define BROADCAST_SOCKET SOCKET_SERIAL
+#define BROADCAST_SOCKET SOCKET_ETHERCARD
 
 #if BROADCAST_SOCKET == SOCKET_SERIAL
     #include "sockets/BroadcastSocket_Serial.hpp"
@@ -37,6 +37,7 @@ https://github.com/ruiseixasm/JsonTalkie
     BroadcastSocket_UDP broadcast_socket(5005);  // Port set in constructor
 #elif BROADCAST_SOCKET == SOCKET_ETHERCARD
     #include "sockets/BroadcastSocket_EtherCard.hpp"
+    BroadcastSocket_EtherCard* BroadcastSocket_EtherCard::_instance = nullptr;
     uint8_t Ethernet::buffer[ETHER_BUFFER_SIZE]; // Essential for EtherCard
     uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
     const uint8_t CS_PIN = 8;
