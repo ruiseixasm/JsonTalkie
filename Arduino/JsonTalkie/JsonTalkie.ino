@@ -38,7 +38,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #elif BROADCAST_SOCKET == SOCKET_ETHERCARD
     #include "sockets/BroadcastSocket_EtherCard.hpp"
     BroadcastSocket_EtherCard* BroadcastSocket_EtherCard::_instance = nullptr;
-    uint8_t Ethernet::buffer[ETHER_BUFFER_SIZE]; // Essential for EtherCard
+    uint8_t Ethernet::buffer[ETHER_BUFFER_SIZE] = {0};  // Now reported! (Essential for EtherCard)
     uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
     const uint8_t CS_PIN = 8;
     // MAC and CS pin in constructor
