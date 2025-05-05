@@ -55,3 +55,4 @@ build2/
 *.opendb
 x64/
 .vs/
+secrets/

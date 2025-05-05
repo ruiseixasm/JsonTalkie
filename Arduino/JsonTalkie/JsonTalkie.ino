@@ -11,13 +11,18 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#include "../../../secrets/wifi_credentials.h"  // Path relative to your project
 
+#define USE_WIFI
 
 #define SOCKET_SERIAL 1
 #define SOCKET_UDP 2
 #define SOCKET_ETHERCARD 3
 #define SOCKET_DUMMY 0
+
+#ifdef USE_WIFI
+#include <ESP8266WiFi.h>
+#include "wifi_credentials.h"  // Place in Arduino preferences "Additional Boards Manager URLs," the path relative of the hiader file
+#endif
 
 // Choose Broadcast Socket here ---vvv
 #define BROADCAST_SOCKET SOCKET_SERIAL
@@ -100,6 +105,30 @@ void setup() {
     }
 
     delay(3000);    // Just to give some time to Serial
+
+    #ifdef USE_WIFI
+
+    // Connect to WiFi
+    Serial.println();
+    Serial.print("Connecting to ");
+    Serial.println(WIFI_SSID);
+
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    // Connection successful
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
+
+    #endif
+
+
     Serial.println("Talker ready");
 
     #if BROADCAST_SOCKET != SOCKET_SERIAL
