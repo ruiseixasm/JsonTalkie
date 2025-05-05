@@ -22,7 +22,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define ARDUINO_JSON_VERSION 6
 
 // Readjust if absolutely necessary
-#define JSON_TALKIE_SIZE 128
+#define JSON_TALKIE_BUFFER_SIZE 128
 
 // Keys:
 //     m: message
@@ -36,16 +36,6 @@ https://github.com/ruiseixasm/JsonTalkie
 //     l: list
 
 namespace JsonTalkie {
-
-    // HELPER METHODS
-
-    // Place this ABOVE your Talker class definition
-    char* floatToStr(float val, uint8_t decimals = 2) {
-        static char buffer[16]; // Holds "-327.00" (large enough for most cases)
-        dtostrf(val, 0, decimals, buffer); // Works on ALL Arduino boards
-        return buffer;
-    }
-
 
     // MANIFESTO PROTOTYPING
 
@@ -122,45 +112,34 @@ namespace JsonTalkie {
     class Talker {
     private:
         BroadcastSocket* _socket;
-        char _sent_message_id[9]; // 8 chars + null terminator
+        char _buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
+        char _sent_message_id[9] = {'\0'};  // 8 chars + null terminator
         unsigned long _messageTime;
         bool _running;
 
     private:
-        static String generateMessageId() {
+        static char* generateMessageId(char* buffer, size_t size) {
             // Combine random values with system metrics for better uniqueness
             uint32_t r1 = random(0xFFFF);
             uint32_t r2 = random(0xFFFF);
             uint32_t r3 = millis() & 0xFFFF;
             uint32_t combined = (r1 << 16) | r2 ^ r3;
             // Equivalent to the Python: return uuid.uuid4().hex[:8]
-            char buffer[9]; // 8 chars + null terminator
-            snprintf(buffer, sizeof(buffer), "%08lx", combined);
-            return String(buffer);
-        }
-
-        static const char* getId_8bytes() {
-            // Combine random values with system metrics for better uniqueness
-            uint32_t r1 = random(0xFFFF);
-            uint32_t r2 = random(0xFFFF);
-            uint32_t r3 = millis() & 0xFFFF;
-            uint32_t combined = (r1 << 16) | r2 ^ r3;
-            // Equivalent to the Python: return uuid.uuid4().hex[:8]
-            static char buffer[9]; // 8 chars + null terminator
-            buffer[8] = '\0';
-            snprintf(buffer, sizeof(buffer), "%08lx", combined);
+            if (size < 9) return buffer;
+            buffer[8] = '\0';  // JSON_TALKIE_BUFFER_SIZE sized
+            snprintf(buffer, 9, "%08lx", combined);
             return buffer;
         }
 
-        static bool valid_checksum(JsonObject message) {
+        static bool valid_checksum(JsonObject message, char* buffer, size_t size) {
             // Use a static buffer size, large enough for your JSON
             uint16_t message_checksum = 0;
             if (message.containsKey("s")) {
                 message_checksum = message["s"];
             }
             message["s"] = 0;
-            char buffer[JSON_TALKIE_SIZE];
-            size_t len = serializeJson(message, buffer);
+            // char buffer[JSON_TALKIE_BUFFER_SIZE];
+            size_t len = serializeJson(message, buffer, size);   // JSON_TALKIE_BUFFER_SIZE sized
             // 16-bit word and XORing
             uint16_t checksum = 0;
             for (size_t i = 0; i < len; i += 2) {
@@ -176,11 +155,11 @@ namespace JsonTalkie {
             return message_checksum == checksum;
         }
 
-        static bool validateTalk(JsonObject message) {
+        static bool validateTalk(JsonObject message, char* buffer, size_t size) {
             if (!message.containsKey("s"))
                 return false;
             // NEEDS TO BE COMPLETED
-            return valid_checksum(message);
+            return valid_checksum(message, buffer, size);
         }
         
         bool receive(JsonObject message) {
@@ -291,7 +270,6 @@ namespace JsonTalkie {
             if (!_running)
                 return false;
 
-            char buffer[JSON_TALKIE_SIZE];
             size_t len = 0;
 
             // In order to release memory when done
@@ -304,28 +282,28 @@ namespace JsonTalkie {
 
                 // Set default 'id' field if missing
                 if (!message.containsKey("i")) {
-                    message["i"] = generateMessageId();
+                    message["i"] = generateMessageId(_buffer, JSON_TALKIE_BUFFER_SIZE);
                 }
                 message["f"] = Manifesto::talk()->name;
-                valid_checksum(message);
+                valid_checksum(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
 
-                len = serializeJson(message, buffer, sizeof(buffer));
+                len = serializeJson(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
                 if (len == 0) {
                     Serial.println("Error: Serialization failed");
-                    return false;
-                }
+                } else {
+                    if (message["m"] != "echo") {
+                        strncpy(_sent_message_id, message["i"], sizeof(_sent_message_id) - 1); // Explicit copy
+                        _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
+                    }
 
-                if (message["m"] != "echo") {
-                    strncpy(_sent_message_id, message["i"], sizeof(_sent_message_id) - 1); // Explicit copy
-                    _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
-                }
+                    // Serial.print("A: ");
+                    // serializeJson(message, Serial);
+                    // Serial.println();  // optional: just to add a newline after the JSON
 
-                // Serial.print("A: ");
-                // serializeJson(message, Serial);
-                // Serial.println();  // optional: just to add a newline after the JSON
+                    return _socket->write((uint8_t*)_buffer, len);
+                }
             }
-            
-            return _socket->write((uint8_t*)buffer, len);
+            return false;
         }
 
         void listen() {
@@ -334,47 +312,43 @@ namespace JsonTalkie {
         
             if (_socket->available()) { // Data in the socket buffer
 
-                // Lives until end of function
-                #if ARDUINO_JSON_VERSION == 6
-                StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
-                if (message_doc.capacity() < JSON_TALKIE_SIZE) {  // Absolute minimum
-                    Serial.println("CRITICAL: Insufficient RAM");
-                    return;
-                }
-                #else
-                JsonDocument message_doc;
-                if (message_doc.overflowed()) {
-                    Serial.println("Failed to allocate JSON message_doc");
-                    return;
-                }
-                #endif
+                size_t bytesRead = _socket->read(_buffer, JSON_TALKIE_BUFFER_SIZE - 1);
+                
+                if (bytesRead > 0) {
+                    _buffer[bytesRead] = '\0';
 
-                JsonObject message;
-                size_t bytesRead = 0;
-        
-                {
-                    uint8_t buffer[JSON_TALKIE_SIZE];
-                    bytesRead = _socket->read(buffer, sizeof(buffer) - 1);
-                    
-                    if (bytesRead > 0) {
-                        buffer[bytesRead] = '\0';
-                        DeserializationError error = deserializeJson(message_doc, (const char*)buffer);
-                        if (error) {
-                            Serial.println("Failed to deserialize buffer");
-                            return;
-                        }
-                        message = message_doc.as<JsonObject>();
+                    // Lives until end of function
+                    #if ARDUINO_JSON_VERSION == 6
+                    StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;
+                    if (message_doc.capacity() < JSON_TALKIE_BUFFER_SIZE) {  // Absolute minimum
+                        Serial.println("CRITICAL: Insufficient RAM");
+                        return;
                     }
-                }   // buffer is destroyed here (memory freed)
+                    #else
+                    JsonDocument message_doc;
+                    if (message_doc.overflowed()) {
+                        Serial.println("Failed to allocate JSON message_doc");
+                        return;
+                    }
+                    #endif
 
-                if (bytesRead > 0 && validateTalk(message)) {
+                    DeserializationError error = deserializeJson(message_doc, _buffer);
+                    if (error) {
+                        Serial.println("Failed to deserialize buffer");
+                        return;
+                    }
+                    JsonObject message = message_doc.as<JsonObject>();
 
-                    Serial.print("Remote: ");
-                    serializeJson(message, Serial);
-                    Serial.println();  // optional: just to add a newline after the JSON
+                    if (validateTalk(message, _buffer, JSON_TALKIE_BUFFER_SIZE)) {
 
-                    receive(message);
+                        Serial.print("Remote: ");
+                        serializeJson(message, Serial);
+                        Serial.println();  // optional: just to add a newline after the JSON
+    
+                        receive(message);
+                    }
                 }
+
             }
         }
     };
