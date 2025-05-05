@@ -168,7 +168,7 @@ void loop() {
     json_talkie.listen();
 
     static unsigned long lastSend = 0;
-    if (millis() - lastSend > 39000) {
+    if (millis() - lastSend > 19000) {
 
         // Lives until end of function
         #if ARDUINO_JSON_VERSION == 6
