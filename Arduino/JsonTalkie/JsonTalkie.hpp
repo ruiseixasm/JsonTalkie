@@ -25,7 +25,6 @@ https://github.com/ruiseixasm/JsonTalkie
 #define JSON_TALKIE_SIZE 128
 
 // Keys:
-//     m: message
 //     c: command
 //     t: to
 //     f: from
@@ -183,19 +182,16 @@ namespace JsonTalkie {
         }
         
         bool receive(JsonObject message) {
-
-            const char* command = message["c"];
-            
-            if (!command)
+            if (!message["c"])
                 return false;
 
             message["t"] = message["f"];
         
-            if (strcmp(command, "talk") == 0) {
+            if (message["c"] == "talk") {
                 message["c"] = "echo";
                 message["r"] = Manifesto::talk()->desc;
                 talk(message);
-            } else if (strcmp(command, "run") == 0) {
+            } else if (message["c"] == "run") {
                 message["c"] = "echo";
                 const Run* run = Manifesto::run(message["w"]);
                 if (run == nullptr) {
@@ -207,7 +203,7 @@ namespace JsonTalkie {
                 if (run != nullptr) {
                     run->function(message);
                 }
-            } else if (strcmp(command, "set") == 0) {
+            } else if (message["c"] == "set") {
                 if (message.containsKey("v") && message["v"].is<int>()) {
                     message["c"] = "echo";
                     const Set* set = Manifesto::set(message["w"]);
@@ -221,7 +217,7 @@ namespace JsonTalkie {
                         set->function(message, message["v"].as<int>());
                     }
                 }
-            } else if (strcmp(command, "get") == 0) {
+            } else if (message["c"] == "get") {
                 message["c"] = "echo";
                 const Get* get = Manifesto::get(message["w"]);
                 if (get == nullptr) {
@@ -231,7 +227,7 @@ namespace JsonTalkie {
                     message["v"] = get->function(message);
                 }
                 talk(message);
-            } else if (strcmp(command, "sys") == 0) {
+            } else if (message["c"] == "sys") {
                 message["c"] = "echo";
 
                 // AVR Boards (Uno, Nano, Mega) - Check RAM size
@@ -263,7 +259,7 @@ namespace JsonTalkie {
                 #endif
 
                 talk(message);
-            } else if (strcmp(command, "echo") == 0) {
+            } else if (message["c"] == "echo") {
                 message["c"] = "echo";
                 message["w"] = "echo";
                 if (Manifesto::echo != nullptr) {
