@@ -145,10 +145,10 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
             // Use a static buffer size, large enough for your JSON
             bool equal_checksum = false;
             uint16_t message_checksum = 0;
-            if (!message.containsKey("m")) {
-                equal_checksum = true;
-            } else {
+            if (message.containsKey("s")) {
                 message_checksum = message["s"];
+            } else {
+                equal_checksum = true;
             }
             message["s"] = 0;
             char buffer[JSON_TALKIE_SIZE];
