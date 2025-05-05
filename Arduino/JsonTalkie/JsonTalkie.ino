@@ -25,7 +25,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #endif
 
 // Choose Broadcast Socket here ---vvv
-#define BROADCAST_SOCKET SOCKET_ETHERCARD
+#define BROADCAST_SOCKET SOCKET_DUMMY
 
 #if BROADCAST_SOCKET == SOCKET_SERIAL
     #include "sockets/BroadcastSocket_Serial.hpp"
@@ -142,9 +142,10 @@ void setup() {
     digitalWrite(LED_BUILTIN, LOW);
 
     Serial.println("Sending JSON...");
-    StaticJsonDocument<JSON_TALKIE_SIZE> doc;
-    doc["c"] = "talk";
-    json_talkie.talk(doc.as<JsonObject>());
+    StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
+    JsonObject message = message_doc.to<JsonObject>();
+    message["c"] = "talk";
+    json_talkie.talk(message);
 }
 
 void loop() {
@@ -152,9 +153,10 @@ void loop() {
 
     static unsigned long lastSend = 0;
     if (millis() - lastSend > 15000) {
-        StaticJsonDocument<JSON_TALKIE_SIZE> doc;
-        doc["c"] = "talk";
-        json_talkie.talk(doc.as<JsonObject>());
+        StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
+        JsonObject message = message_doc.to<JsonObject>();
+        message["c"] = "talk";
+        json_talkie.talk(message);
         lastSend = millis();
     }
 }

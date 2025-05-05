@@ -83,8 +83,8 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                     const size_t num_messages = sizeof(messages)/sizeof(char*);
                     
                     // 3. Safer Random Selection
-                    const char* message = messages[random(num_messages)];
-                    size_t message_size = strlen(message);
+                    const char* message_char = messages[random(num_messages)];
+                    size_t message_size = strlen(message_char);
                     
                     // 5. JSON Handling with Memory Checks
                     {
@@ -103,35 +103,17 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                         #endif
                         
                         // Message needs to be '\0' terminated and thus buffer is used instead
-                        DeserializationError error = deserializeJson(message_doc, message, message_size);
+                        // it's possible to serialize from a JsonObject but it isn't to deserialize into a JsonObject!
+                        DeserializationError error = deserializeJson(message_doc, message_char, message_size);
                         if (error) {
                             Serial.println("Failed to deserialize message");
                             return 0;
                         }
+                        JsonObject message = message_doc.as<JsonObject>();
                         
-                        #if ARDUINO_JSON_VERSION == 6
-                        StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
-                        if (talk_doc.capacity() == 0) {
-                            Serial.println("Failed to allocate JSON talk_doc");
-                            return 0;
-                        }
-                        JsonObject talk_json = talk_doc.to<JsonObject>();
-                        talk_json.createNestedObject("m");
-                        #else
-                        JsonDocument talk_doc;
-                        if (talk_doc.overflowed()) {
-                            Serial.println("Failed to allocate JSON talk_doc");
-                            return 0;
-                        }
-                        JsonObject talk_json = talk_doc.to<JsonObject>();
-                        talk_json.add<JsonObject>("m");
-                        #endif        
-
-                        JsonObject message_json = message_doc.as<JsonObject>();
-                        talk_json["m"] = message_json;
-                        talk_json["s"] = calculateChecksum(message_json);
+                        message["s"] = calculateChecksum(message);
         
-                        size_t json_len = serializeJson(talk_doc, buffer, size);
+                        size_t json_len = serializeJson(message, buffer, size);
 
                         if (json_len == 0 || json_len >= size) {
                             Serial.println("Serialization failed/buffer overflow");

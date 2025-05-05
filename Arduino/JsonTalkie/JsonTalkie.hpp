@@ -154,8 +154,9 @@ namespace JsonTalkie {
         }
 
 
-        static uint16_t calculateChecksum(JsonObjectConst message) {
+        static uint16_t calculateChecksum(JsonObject message) {
             // Use a static buffer size, large enough for your JSON
+            message["s"] = 0;
             char buffer[JSON_TALKIE_SIZE];
             size_t len = serializeJson(message, buffer);
             // 16-bit word and XORing
@@ -173,13 +174,11 @@ namespace JsonTalkie {
             return checksum;
         }
 
-        static bool validateTalk(JsonObjectConst talk) {
-            if (!talk.containsKey("s") || !talk.containsKey("m")) {
+        static bool validateTalk(JsonObject message) {
+            if (!message.containsKey("s"))
                 return false;
-            }
             // NEEDS TO BE COMPLETED
-            uint16_t checksum = talk["s"];
-            JsonObjectConst message = talk["m"];
+            uint16_t checksum = message["s"];
             return checksum == calculateChecksum(message);
         }
         
@@ -299,54 +298,32 @@ namespace JsonTalkie {
 
             // In order to release memory when done
             {
-                #if ARDUINO_JSON_VERSION == 6
-                StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
-                #else
-                JsonDocument talk_doc;
-                #endif
-
-                // Verify memory
-                if (talk_doc.capacity() < 128) {  // Absolute minimum
-                    Serial.println("CRITICAL: Insufficient RAM");
-                    return false;
-                }
-
-                JsonObject talk_json = talk_doc.to<JsonObject>();
-
                 // Directly nest the editable message under "m"
                 if (message.isNull()) {
                     Serial.println("Error: Null message received");
                     return false;
                 }
 
-                talk_json["m"] = message;   // No copy needed (refers to original)
-
-                // Verify nesting worked
-                if (talk_json["m"].isNull()) {
-                    Serial.println("Error: Failed to nest message");
-                    return false;
-                }
-
                 // Set default 'id' field if missing
-                if (!talk_json["m"].containsKey("i")) {
-                    talk_json["m"]["i"] = generateMessageId();
+                if (!message.containsKey("i")) {
+                    message["i"] = generateMessageId();
                 }
-                talk_json["m"]["f"] = Manifesto::talk()->name;
-                talk_json["s"] = calculateChecksum(talk_json["m"]);
+                message["f"] = Manifesto::talk()->name;
+                message["s"] = calculateChecksum(message);
 
-                len = serializeJson(talk_json, buffer, sizeof(buffer));
+                len = serializeJson(message, buffer, sizeof(buffer));
                 if (len == 0) {
                     Serial.println("Error: Serialization failed");
                     return false;
                 }
 
                 if (message["c"] != "echo") {
-                    strncpy(_sent_message_id, talk_json["m"]["i"], sizeof(_sent_message_id) - 1); // Explicit copy
+                    strncpy(_sent_message_id, message["i"], sizeof(_sent_message_id) - 1); // Explicit copy
                     _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
                 }
 
                 Serial.print("A: ");
-                serializeJson(talk_json, Serial);
+                serializeJson(message, Serial);
                 Serial.println();  // optional: just to add a newline after the JSON
             }
             
@@ -361,10 +338,12 @@ namespace JsonTalkie {
 
                 // Lives until end of function
                 #if ARDUINO_JSON_VERSION == 6
-                StaticJsonDocument<JSON_TALKIE_SIZE> talk_doc;
+                StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
                 #else
-                JsonDocument talk_doc;
+                JsonDocument message_doc;
                 #endif
+
+                JsonObject message;
                 size_t bytesRead = 0;
 
                 {
@@ -373,21 +352,22 @@ namespace JsonTalkie {
                     
                     if (bytesRead > 0) {
                         buffer[bytesRead] = '\0';
-                        DeserializationError error = deserializeJson(talk_doc, (const char*)buffer);
+                        DeserializationError error = deserializeJson(message_doc, (const char*)buffer);
                         if (error) {
                             Serial.println("Failed to deserialize buffer");
                             return;
                         }
+                        message = message_doc.as<JsonObject>();
                     }
                 }   // buffer is destroyed here (memory freed)
 
-                if (bytesRead > 0 && validateTalk(talk_doc.as<JsonObject>())) {
+                if (bytesRead > 0 && validateTalk(message)) {
 
                     // Serial.print("Remote: ");
-                    // serializeJson(talk_doc, Serial);
+                    // serializeJson(message_doc, Serial);
                     // Serial.println();  // optional: just to add a newline after the JSON
 
-                    receive(talk_doc["m"]);
+                    receive(message);
                 }
             }
         }
