@@ -70,7 +70,13 @@ public:
     bool write(const uint8_t* data, size_t length) override {
         if (length > UDP_BUFFER_SIZE) return false;
         uint8_t broadcastIp[] = {255,255,255,255};
+
         ether.sendUdp((char*)data, length, _port, broadcastIp, _port);
+        
+        Serial.print("W: ");
+        Serial.write(data, length);  // Properly prints raw bytes as characters
+        Serial.println();            // Adds newline after the printed data
+
         return true;
     }
 
@@ -79,10 +85,16 @@ public:
     }
 
     size_t read(uint8_t* buffer, size_t size) override {
-        if (!buffer || size == 0) return 0;
+        Serial.println("Reading...");
+        if (size == 0) return 0;
         size_t toCopy = min(size, _recvLength);
         memcpy(buffer, _recvBuffer, toCopy);
         _recvLength = 0;
+
+        Serial.print("R: ");
+        Serial.write(buffer, toCopy);  // Properly prints raw bytes as characters
+        Serial.println();            // Adds newline after the printed data
+
         return toCopy;
     }
     
