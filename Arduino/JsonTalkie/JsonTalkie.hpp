@@ -305,24 +305,49 @@ namespace JsonTalkie {
                 JsonDocument talk_doc;
                 #endif
 
+                // Verify memory
+                if (talk_doc.capacity() < 64) {  // Absolute minimum
+                    Serial.println("CRITICAL: Insufficient RAM");
+                    return false;
+                }
+
                 JsonObject talk_json = talk_doc.to<JsonObject>();
 
                 // Directly nest the editable message under "m"
-                talk_json["m"] = message;  // No copy needed (refers to original)
+                if (!message.isNull()) {
+                    talk_json["m"] = message;   // No copy needed (refers to original)
+                } else {
+                    Serial.println("Error: Null message received");
+                    return false;
+                }
+
+                // Verify nesting worked
+                if (talk_json["m"].isNull()) {
+                    Serial.println("Error: Failed to nest message");
+                    return false;
+                }
 
                 // Set default 'id' field if missing
                 if (!talk_json["m"].containsKey("i")) {
                     talk_json["m"]["i"] = generateMessageId();
                 }
                 talk_json["m"]["f"] = Manifesto::talk()->name;
-                
                 talk_json["s"] = calculateChecksum(talk_json["m"]);
-                len = serializeJson(talk_json, buffer, sizeof(buffer));
 
-                if (strcmp(message["c"], "echo") != 0) {
+                len = serializeJson(talk_json, buffer, sizeof(buffer));
+                if (len == 0) {
+                    Serial.println("Error: Serialization failed");
+                    return false;
+                }
+
+                if (message["c"] != "echo") {
                     strncpy(_sent_message_id, talk_json["m"]["i"], sizeof(_sent_message_id) - 1); // Explicit copy
                     _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
                 }
+
+                Serial.print("A: ");
+                serializeJson(talk_json, Serial);
+                Serial.println();  // optional: just to add a newline after the JSON
             }
             
             return _socket->write((uint8_t*)buffer, len);
