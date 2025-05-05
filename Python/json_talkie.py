@@ -92,6 +92,7 @@ class JsonTalkie:
                     "i": message["i"]
                 }
                 echo["r"] = f"{self._manifesto['talker']['description']}"
+                print(echo)
                 self.talk(echo)
             case "list":
                 echo: Dict[str, Any] = {
