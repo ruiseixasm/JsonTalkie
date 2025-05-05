@@ -109,7 +109,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                             return 0;
                         }
                         JsonObject message = message_doc.as<JsonObject>();
-                        message["s"] = calculateChecksum(message);
+                        checksum(message);
         
                         size_t message_len = serializeJson(message, buffer, size);
                         if (message_len == 0 || message_len >= size) {
@@ -140,9 +140,16 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
             snprintf(buffer, sizeof(buffer), "%08lx", combined);
             return String(buffer);
         }
-        
-        static uint16_t calculateChecksum(JsonObject message) {
+
+        static bool checksum(JsonObject message) {
             // Use a static buffer size, large enough for your JSON
+            bool equal_checksum = false;
+            uint16_t message_checksum = 0;
+            if (!message.containsKey("m")) {
+                equal_checksum = true;
+            } else {
+                message_checksum = message["s"];
+            }
             message["s"] = 0;
             char buffer[JSON_TALKIE_SIZE];
             size_t len = serializeJson(message, buffer);
@@ -155,7 +162,14 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                 }
                 checksum ^= chunk;
             }
-            return checksum;
+            // Serial.print("Message checksum: ");
+            // Serial.println(checksum);  // optional: just to add a newline after the JSON
+            if (equal_checksum) {
+                message["s"] = checksum;
+                return true;
+            }
+            message["s"] = message_checksum;
+            return message_checksum == checksum;
         }
     };
 
