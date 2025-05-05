@@ -25,7 +25,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #endif
 
 // Choose Broadcast Socket here ---vvv
-#define BROADCAST_SOCKET SOCKET_SERIAL
+#define BROADCAST_SOCKET SOCKET_ETHERCARD
 
 #if BROADCAST_SOCKET == SOCKET_SERIAL
     #include "sockets/BroadcastSocket_Serial.hpp"
@@ -142,7 +142,22 @@ void setup() {
     digitalWrite(LED_BUILTIN, LOW);
 
     Serial.println("Sending JSON...");
+
+    // Lives until end of function
+    #if ARDUINO_JSON_VERSION == 6
     StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
+    if (message_doc.capacity() == 0) {
+        Serial.println("Failed to allocate JSON message_doc");
+        return 0;
+    }
+    #else
+    JsonDocument message_doc;
+    if (message_doc.overflowed()) {
+        Serial.println("Failed to allocate JSON message_doc");
+        return 0;
+    }
+    #endif
+
     JsonObject message = message_doc.to<JsonObject>();
     message["m"] = "talk";
     json_talkie.talk(message);
@@ -153,7 +168,22 @@ void loop() {
 
     static unsigned long lastSend = 0;
     if (millis() - lastSend > 39000) {
+
+        // Lives until end of function
+        #if ARDUINO_JSON_VERSION == 6
         StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
+        if (message_doc.capacity() == 0) {
+            Serial.println("Failed to allocate JSON message_doc");
+            return 0;
+        }
+        #else
+        JsonDocument message_doc;
+        if (message_doc.overflowed()) {
+            Serial.println("Failed to allocate JSON message_doc");
+            return 0;
+        }
+        #endif
+    
         JsonObject message = message_doc.to<JsonObject>();
         message["m"] = "talk";
         json_talkie.talk(message);
