@@ -144,7 +144,7 @@ void setup() {
     Serial.println("Sending JSON...");
     StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
     JsonObject message = message_doc.to<JsonObject>();
-    message["c"] = "talk";
+    message["m"] = "talk";
     json_talkie.talk(message);
 }
 
@@ -155,7 +155,7 @@ void loop() {
     if (millis() - lastSend > 39000) {
         StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
         JsonObject message = message_doc.to<JsonObject>();
-        message["c"] = "talk";
+        message["m"] = "talk";
         json_talkie.talk(message);
         lastSend = millis();
     }

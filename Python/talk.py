@@ -71,7 +71,7 @@ class CommandLine:
             words = cmd.split()
             if words:
                 message: Dict[str, Any] = {
-                    "c": words[0]
+                    "m": words[0]
                 }
                 match words[0]:
                     case "talk":
