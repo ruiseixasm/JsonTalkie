@@ -41,7 +41,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         ~BroadcastSocket_Dummy() override = default;
     
         bool begin() override {
-            _isOpen = random(1000) > 50; // 95% success rate
+            _isOpen = true;
             return _isOpen;
         }
     
@@ -109,22 +109,19 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                             return 0;
                         }
                         JsonObject message = message_doc.as<JsonObject>();
-                        
                         message["s"] = calculateChecksum(message);
         
-                        size_t json_len = serializeJson(message, buffer, size);
-
-                        if (json_len == 0 || json_len >= size) {
+                        size_t message_len = serializeJson(message, buffer, size);
+                        if (message_len == 0 || message_len >= size) {
                             Serial.println("Serialization failed/buffer overflow");
                             return 0;
                         }
 
-                        // char dummy_read[JSON_TALKIE_SIZE];
-                        // serializeJson(talk_doc, dummy_read);
                         // Serial.print("DUMMY READ: ");
-                        // Serial.println(dummy_read);
+                        // serializeJson(message, Serial);
+                        // Serial.println();  // optional: just to add a newline after the JSON
 
-                        return json_len;
+                        return message_len;
                     
                     } // JSON talk_doc freed here
                 }
@@ -144,8 +141,9 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
             return String(buffer);
         }
         
-        static uint16_t calculateChecksum(JsonObjectConst message) {
+        static uint16_t calculateChecksum(JsonObject message) {
             // Use a static buffer size, large enough for your JSON
+            message["s"] = 0;
             char buffer[JSON_TALKIE_SIZE];
             size_t len = serializeJson(message, buffer);
             // 16-bit word and XORing
