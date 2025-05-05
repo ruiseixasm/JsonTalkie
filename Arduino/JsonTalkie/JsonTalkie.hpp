@@ -320,9 +320,9 @@ namespace JsonTalkie {
                     _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
                 }
 
-                // Serial.print("A: ");
-                // serializeJson(message, Serial);
-                // Serial.println();  // optional: just to add a newline after the JSON
+                Serial.print("A: ");
+                serializeJson(message, Serial);
+                Serial.println();  // optional: just to add a newline after the JSON
             }
             
             return _socket->write((uint8_t*)buffer, len);
@@ -337,8 +337,8 @@ namespace JsonTalkie {
                 // Lives until end of function
                 #if ARDUINO_JSON_VERSION == 6
                 StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
-                if (message_doc.capacity() == 0) {
-                    Serial.println("Failed to allocate JSON message_doc");
+                if (message_doc.capacity() < JSON_TALKIE_SIZE) {  // Absolute minimum
+                    Serial.println("CRITICAL: Insufficient RAM");
                     return;
                 }
                 #else
@@ -348,11 +348,6 @@ namespace JsonTalkie {
                     return;
                 }
                 #endif
-
-                if (message_doc.capacity() < JSON_TALKIE_SIZE) {  // Absolute minimum
-                    Serial.println("CRITICAL: Insufficient RAM");
-                    return;
-                }
 
                 JsonObject message;
                 size_t bytesRead = 0;
