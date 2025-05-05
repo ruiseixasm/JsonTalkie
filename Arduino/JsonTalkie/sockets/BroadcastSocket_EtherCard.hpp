@@ -80,6 +80,14 @@ public:
         return true;
     }
 
+    // bool available() override {
+    //     // Minimal packet processing
+    //     if (ether.packetReceive() > 0) {
+    //         ether.packetLoop(ether.packetLength());
+    //     }
+    //     return _recvLength > 0;
+    // }
+
     bool available() override {
         // // Force process all waiting packets
         // while (true) {
