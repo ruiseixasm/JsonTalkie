@@ -25,7 +25,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #endif
 
 // Choose Broadcast Socket here ---vvv
-#define BROADCAST_SOCKET SOCKET_DUMMY
+#define BROADCAST_SOCKET SOCKET_ETHERCARD
 
 #if BROADCAST_SOCKET == SOCKET_SERIAL
     #include "sockets/BroadcastSocket_Serial.hpp"
@@ -127,7 +127,6 @@ void setup() {
     Serial.println(WiFi.localIP());
 
     #endif
-
 
     Serial.println("Talker ready");
 
