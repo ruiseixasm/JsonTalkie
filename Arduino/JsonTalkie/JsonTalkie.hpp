@@ -314,12 +314,12 @@ namespace JsonTalkie {
                 JsonObject talk_json = talk_doc.to<JsonObject>();
 
                 // Directly nest the editable message under "m"
-                if (!message.isNull()) {
-                    talk_json["m"] = message;   // No copy needed (refers to original)
-                } else {
+                if (message.isNull()) {
                     Serial.println("Error: Null message received");
                     return false;
                 }
+
+                talk_json["m"] = message;   // No copy needed (refers to original)
 
                 // Verify nesting worked
                 if (talk_json["m"].isNull()) {
