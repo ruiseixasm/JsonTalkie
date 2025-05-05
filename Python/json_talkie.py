@@ -21,7 +21,7 @@ import platform
 from broadcast_socket import BroadcastSocket
 
 # Keys:
-#     c: command
+#     m: message
 #     t: to
 #     f: from
 #     i: id
@@ -63,7 +63,7 @@ class JsonTalkie:
         message["f"] = self._manifesto['talker']['name']
         if "i" not in message:
             message["i"] = JsonTalkie.message_id()
-        if message["c"] != "echo":
+        if message["m"] != "echo":
             self._last_message = message
         JsonTalkie.checksum(message)
         return self._socket.send( JsonTalkie.encode(message) )
@@ -84,10 +84,10 @@ class JsonTalkie:
 
     def receive(self, message: Dict[str, Any]) -> bool:
         """Handles message content only."""
-        match message["c"]:
+        match message["m"]:
             case "talk":
                 echo: Dict[str, Any] = {
-                    "c": 'echo',
+                    "m": 'echo',
                     "t": message["f"],
                     "i": message["i"]
                 }
@@ -95,7 +95,7 @@ class JsonTalkie:
                 self.talk(echo)
             case "list":
                 echo: Dict[str, Any] = {
-                    "c": 'echo',
+                    "m": 'echo',
                     "t": message["f"],
                     "i": message["i"]
                 }
@@ -120,7 +120,7 @@ class JsonTalkie:
             case "run":
                 if "w" in message and 'run' in self._manifesto:
                     echo: Dict[str, Any] = {
-                        "c": 'echo',
+                        "m": 'echo',
                         "t": message["f"],
                         "i": message["i"]
                     }
@@ -139,7 +139,7 @@ class JsonTalkie:
             case "set":
                 if "v" in message and isinstance(message["v"], int) and "w" in message and 'set' in self._manifesto:
                     echo: Dict[str, Any] = {
-                        "c": 'echo',
+                        "m": 'echo',
                         "t": message["f"],
                         "i": message["i"]
                     }
@@ -158,7 +158,7 @@ class JsonTalkie:
             case "get":
                 if "w" in message and 'get' in self._manifesto:
                     echo: Dict[str, Any] = {
-                        "c": 'echo',
+                        "m": 'echo',
                         "t": message["f"],
                         "i": message["i"]
                     }
@@ -173,7 +173,7 @@ class JsonTalkie:
                         self.talk(echo)
             case "sys":
                 echo: Dict[str, Any] = {
-                    "c": 'echo',
+                    "m": 'echo',
                     "t": message["f"],
                     "i": message["i"]
                 }
@@ -194,11 +194,11 @@ class JsonTalkie:
             except (ValueError, TypeError):
                 return False
             if JsonTalkie.checksum(message):
-                if "c" in message and "f" in message and "i" in message:
+                if "m" in message and "f" in message and "i" in message:
                     if "t" in message:
                         return message["t"] == "*" or message["t"] == self._manifesto['talker']['name']
                     else:
-                        return message["c"] == "talk" or message["c"] == "sys"
+                        return message["m"] == "talk" or message["m"] == "sys"
         return False
 
 

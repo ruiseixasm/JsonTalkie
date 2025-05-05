@@ -104,9 +104,9 @@ if __name__ == "__main__":
     
     try:
         messages: tuple[Dict[str, Any]] = (
-            {"c": 'run', "w": 'buzz', "t": 'Buzzer'},
-            {"c": 'run', "w": 'on', "t": 'Buzzer'},
-            {"c": 'run', "w": 'off', "t": 'Buzzer'}
+            {"m": 'run', "w": 'buzz', "t": 'Buzzer'},
+            {"m": 'run', "w": 'on', "t": 'Buzzer'},
+            {"m": 'run', "w": 'off', "t": 'Buzzer'}
         )
 
         # Main loop

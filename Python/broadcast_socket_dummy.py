@@ -84,10 +84,10 @@ class BroadcastSocket_Dummy(BroadcastSocket):
             return None
 
     messages: tuple[Dict[str, Any]] = (
-        {"c": "run", "w": "buzz", "t": "Buzzer", "f": "Buzzer", "i": "bc40fd17"},
-        {"c": "echo", "t": "Buzzer", "i": "bc40fd17", "r": "[Buzzer buzz]\\tCalled", "f": "Buzzer"},
-        {"c": "talk", "f": "Dummy", "i": "dce4fac7"},
-        {"c": "echo", "t": "Talker-a6", "i": "dce4fac7", "r": "[Talker-a6]\\tA simple Talker!", "f": "Talker-a6"}
+        {"m": "run", "w": "buzz", "t": "Buzzer", "f": "Buzzer", "i": "bc40fd17"},
+        {"m": "echo", "t": "Buzzer", "i": "bc40fd17", "r": "[Buzzer buzz]\\tCalled", "f": "Buzzer"},
+        {"m": "talk", "f": "Dummy", "i": "dce4fac7"},
+        {"m": "echo", "t": "Talker-a6", "i": "dce4fac7", "r": "[Talker-a6]\\tA simple Talker!", "f": "Talker-a6"}
     )
 
     @staticmethod
