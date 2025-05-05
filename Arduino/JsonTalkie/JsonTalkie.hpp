@@ -322,9 +322,9 @@ namespace JsonTalkie {
                     _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
                 }
 
-                Serial.print("A: ");
-                serializeJson(message, Serial);
-                Serial.println();  // optional: just to add a newline after the JSON
+                // Serial.print("A: ");
+                // serializeJson(message, Serial);
+                // Serial.println();  // optional: just to add a newline after the JSON
             }
             
             return _socket->write((uint8_t*)buffer, len);
@@ -371,9 +371,9 @@ namespace JsonTalkie {
 
                 if (bytesRead > 0 && validateTalk(message)) {
 
-                    // Serial.print("Remote: ");
-                    // serializeJson(message_doc, Serial);
-                    // Serial.println();  // optional: just to add a newline after the JSON
+                    Serial.print("Remote: ");
+                    serializeJson(message, Serial);
+                    Serial.println();  // optional: just to add a newline after the JSON
 
                     receive(message);
                 }
