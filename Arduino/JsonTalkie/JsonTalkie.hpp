@@ -339,8 +339,16 @@ namespace JsonTalkie {
                 // Lives until end of function
                 #if ARDUINO_JSON_VERSION == 6
                 StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
+                if (message_doc.capacity() == 0) {
+                    Serial.println("Failed to allocate JSON message_doc");
+                    return 0;
+                }
                 #else
                 JsonDocument message_doc;
+                if (message_doc.overflowed()) {
+                    Serial.println("Failed to allocate JSON message_doc");
+                    return 0;
+                }
                 #endif
 
                 JsonObject message;

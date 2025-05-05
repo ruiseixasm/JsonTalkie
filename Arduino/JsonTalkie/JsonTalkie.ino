@@ -152,7 +152,7 @@ void loop() {
     json_talkie.listen();
 
     static unsigned long lastSend = 0;
-    if (millis() - lastSend > 15000) {
+    if (millis() - lastSend > 39000) {
         StaticJsonDocument<JSON_TALKIE_SIZE> message_doc;
         JsonObject message = message_doc.to<JsonObject>();
         message["c"] = "talk";
