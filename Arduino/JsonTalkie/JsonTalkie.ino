@@ -99,9 +99,7 @@ void setup() {
     
     delay(2000);    // Just to give some time to Serial
 
-    Serial.print("SS: ");
-    Serial.println(SS);
-
+    Serial.println();
     Serial.println("Beginning Talker...");
     if (!json_talkie.begin()) {
         Serial.println("Failed to initialize Talker!");
