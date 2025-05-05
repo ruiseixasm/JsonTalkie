@@ -21,7 +21,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #ifdef USE_WIFI
 #include <ESP8266WiFi.h>
-#include "wifi_credentials.h"  // Place in Arduino preferences "Additional Boards Manager URLs," the path relative of the hiader file
+#include "secrets/wifi_credentials.h"   // Make sure "secrets/" is in the gitignore before staging and pushing!!
 #endif
 
 // Choose Broadcast Socket here ---vvv
