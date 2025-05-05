@@ -356,7 +356,7 @@ namespace JsonTalkie {
 
                 JsonObject message;
                 size_t bytesRead = 0;
-
+        
                 {
                     uint8_t buffer[JSON_TALKIE_SIZE];
                     bytesRead = _socket->read(buffer, sizeof(buffer) - 1);
