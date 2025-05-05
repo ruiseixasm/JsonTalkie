@@ -71,7 +71,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
                     divide: float = 1/random_number
                     message = self.messages[random_number % len(self.messages)]
                     message["i"] = BroadcastSocket_Dummy.message_id()
-                    BroadcastSocket_Dummy.checksum(message)
+                    BroadcastSocket_Dummy.valid_checksum(message)
                     data = BroadcastSocket_Dummy.encode(message)
                     print(f"DUMMY RECEIVED: {data}")
                     data_tuple = (data, ('192.168.31.22', 5005))
@@ -107,7 +107,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
         return json.loads(data.decode('utf-8'))
 
     @staticmethod
-    def checksum(message: Dict[str, Any]) -> bool:
+    def valid_checksum(message: Dict[str, Any]) -> bool:
         # If specified, separators should be an (item_separator, key_separator)
         #     tuple. The default is (', ', ': ') if indent is None and
         #     (',', ': ') otherwise. To get the most compact JSON representation,

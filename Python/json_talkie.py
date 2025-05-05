@@ -65,7 +65,7 @@ class JsonTalkie:
             message["i"] = JsonTalkie.message_id()
         if message["m"] != "echo":
             self._last_message = message
-        JsonTalkie.checksum(message)
+        JsonTalkie.valid_checksum(message)
         return self._socket.send( JsonTalkie.encode(message) )
     
     def listen(self):
@@ -193,7 +193,7 @@ class JsonTalkie:
                 message_checksum: int = int(message.get("s", None))
             except (ValueError, TypeError):
                 return False
-            if JsonTalkie.checksum(message):
+            if JsonTalkie.valid_checksum(message):
                 if "m" in message and "f" in message and "i" in message:
                     if "t" in message:
                         return message["t"] == "*" or message["t"] == self._manifesto['talker']['name']
@@ -225,7 +225,7 @@ class JsonTalkie:
             return None
 
     @staticmethod
-    def checksum(message: Dict[str, Any]) -> bool:
+    def valid_checksum(message: Dict[str, Any]) -> bool:
         # If specified, separators should be an (item_separator, key_separator)
         #     tuple. The default is (', ', ': ') if indent is None and
         #     (',', ': ') otherwise. To get the most compact JSON representation,

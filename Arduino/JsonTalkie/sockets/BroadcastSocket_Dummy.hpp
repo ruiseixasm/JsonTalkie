@@ -109,7 +109,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
                             return 0;
                         }
                         JsonObject message = message_doc.as<JsonObject>();
-                        checksum(message);
+                        valid_checksum(message);
         
                         size_t message_len = serializeJson(message, buffer, size);
                         if (message_len == 0 || message_len >= size) {
@@ -141,7 +141,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
             return String(buffer);
         }
 
-        static bool checksum(JsonObject message) {
+        static bool valid_checksum(JsonObject message) {
             // Use a static buffer size, large enough for your JSON
             uint16_t message_checksum = 0;
             if (message.containsKey("s")) {
