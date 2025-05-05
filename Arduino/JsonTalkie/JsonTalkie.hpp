@@ -317,6 +317,10 @@ namespace JsonTalkie {
                 if (bytesRead > 0) {
                     _buffer[bytesRead] = '\0';
 
+                    Serial.print("L: ");
+                    Serial.write(_buffer, bytesRead);  // Properly prints raw bytes as characters
+                    Serial.println();            // Adds newline after the printed data
+
                     // Lives until end of function
                     #if ARDUINO_JSON_VERSION == 6
                     StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;

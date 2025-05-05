@@ -66,6 +66,7 @@ class JsonTalkie:
         if message["m"] != "echo":
             self._last_message = message
         JsonTalkie.valid_checksum(message)
+        print(message)
         return self._socket.send( JsonTalkie.encode(message) )
     
     def listen(self):
@@ -76,7 +77,9 @@ class JsonTalkie:
                 data, _ = received  # Explicitly ignore (ip, port)
                 try:
                     message: Dict[str, Any] = JsonTalkie.decode(data)
+                    print(message)
                     if self.validate_message(message):
+                        print(message)
                         self.receive(message)
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
                     # print(f"\tInvalid message: {e}")
@@ -92,7 +95,6 @@ class JsonTalkie:
                     "i": message["i"]
                 }
                 echo["r"] = f"{self._manifesto['talker']['description']}"
-                print(echo)
                 self.talk(echo)
             case "list":
                 echo: Dict[str, Any] = {
