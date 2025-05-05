@@ -95,12 +95,13 @@ void setup() {
     Serial.begin(9600);
     while (!Serial);
     
+    delay(2000);    // Just to give some time to Serial
+
+    Serial.println("Beginning Talker...");
     if (!json_talkie.begin()) {
         Serial.println("Failed to initialize Talker!");
         while(1);
     }
-
-    delay(3000);    // Just to give some time to Serial
 
     #ifdef USE_WIFI
 
@@ -129,6 +130,8 @@ void setup() {
 
     #if BROADCAST_SOCKET != SOCKET_SERIAL
     pinMode(buzzer_pin, OUTPUT);
+    digitalWrite(buzzer_pin, HIGH);
+    delay(10); 
     digitalWrite(buzzer_pin, LOW);
     #endif
     pinMode(LED_BUILTIN, OUTPUT);
