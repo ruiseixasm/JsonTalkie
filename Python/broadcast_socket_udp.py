@@ -47,7 +47,7 @@ class BroadcastSocket_UDP(BroadcastSocket):
         if not self._socket:
             return False
         try:
-            self._socket.sendto(data, ('255.255.255.255', self._port))
+            self._socket.sendto(data, ('192.168.31.255', self._port))
             return True
         except Exception as e:
             print(f"Send failed: {e}")
