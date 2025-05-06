@@ -76,8 +76,8 @@ class JsonTalkie:
             if received:
                 data, _ = received  # Explicitly ignore (ip, port)
                 try:
+                    print(data)
                     message: Dict[str, Any] = JsonTalkie.decode(data)
-                    print(message)
                     if self.validate_message(message):
                         print(message)
                         self.receive(message)
