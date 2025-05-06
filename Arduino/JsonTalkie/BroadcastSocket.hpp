@@ -14,20 +14,22 @@ https://github.com/ruiseixasm/JsonTalkie
 #ifndef BROADCAST_SOCKET_HPP
 #define BROADCAST_SOCKET_HPP
 
-// Arduino-compatible type definitions
-typedef unsigned char uint8_t;
-typedef unsigned int size_t;
+// No std::function, no templates, just a raw function pointer.
+typedef void (*SocketCallback)(uint16_t port, const uint8_t* data, size_t length);
 
 class BroadcastSocket {
 public:
-    virtual ~BroadcastSocket() {}
-    
-    virtual bool begin() = 0;
-    virtual void end() = 0;
-    virtual bool write(const uint8_t* data, size_t length) = 0;
-    virtual bool available() = 0;
-    virtual size_t read(uint8_t* buffer, size_t size) = 0;
-};
+    virtual ~BroadcastSocket() = default;
 
+    // Start/stop (like ether's listen/close)
+    virtual bool begin(uint16_t port) = 0;
+    virtual void end() = 0;
+
+    // Send data (broadcast by default)
+    virtual bool send(uint16_t port, const uint8_t* data, size_t len) = 0;
+
+    // Set callback (like ether's udpServerListenOnPort)
+    virtual void setCallback(SocketCallback callback) = 0;
+};
 
 #endif // BROADCAST_SOCKET_HPP
