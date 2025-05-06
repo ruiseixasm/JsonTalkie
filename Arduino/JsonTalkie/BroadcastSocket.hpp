@@ -21,15 +21,20 @@ class BroadcastSocket {
 public:
     virtual ~BroadcastSocket() = default;
 
-    // Start/stop (like ether's listen/close)
-    virtual bool begin(uint16_t port) = 0;
-    virtual void end() = 0;
+    // Open/close (like ether's listen/close)
+    virtual bool open(uint16_t port) = 0;
+    virtual void close() = 0;
 
     // Send data (broadcast by default)
     virtual bool send(uint16_t port, const uint8_t* data, size_t len) = 0;
+    virtual size_t receive(const uint8_t* data, size_t len) = 0;
 
     // Set callback (like ether's udpServerListenOnPort)
     virtual void setCallback(SocketCallback callback) = 0;
+
+    // Disable copying (socket resources are unique)
+    BroadcastSocket(const BroadcastSocket&) = delete;
+    BroadcastSocket& operator=(const BroadcastSocket&) = delete;
 };
 
 #endif // BROADCAST_SOCKET_HPP
