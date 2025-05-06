@@ -22,7 +22,7 @@ public:
     virtual ~BroadcastSocket() = default;
 
     // Open/close (like ether's listen/close)
-    virtual bool open(uint16_t port = 5005) = 0;
+    virtual bool open() = 0;
     virtual void close() = 0;
 
     // Send data (broadcast by default)
