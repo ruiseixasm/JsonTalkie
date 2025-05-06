@@ -80,23 +80,29 @@ public:
         return true;
     }
 
-    // bool available() override {
-    //     // Minimal packet processing
-    //     if (ether.packetReceive() > 0) {
-    //         ether.packetLoop(ether.packetLength());
-    //     }
-    //     return _recvLength > 0;
-    // }
-
     bool available() override {
-        // // Force process all waiting packets
-        // while (true) {
-        //     uint16_t len = ether.packetReceive();
-        //     if (len == 0) break;
-        //     ether.packetLoop(len);
+        // // Minimal packet processing
+        // if (ether.packetReceive() > 0) {
+        //     ether.packetLoop(ether.packetLength());
         // }
+        // wait for an incoming UDP packet, but ignore its contents
+        if (ether.packetLoop(ether.packetReceive())) {
+            return true;
+            // memcpy_P(ether.tcpOffset(), page, sizeof page);
+            // ether.httpServerReply(sizeof page - 1);
+        }
         return _recvLength > 0;
     }
+
+    // bool available() override {
+    //     // // Force process all waiting packets
+    //     // while (true) {
+    //     //     uint16_t len = ether.packetReceive();
+    //     //     if (len == 0) break;
+    //     //     ether.packetLoop(len);
+    //     // }
+    //     return _recvLength > 0;
+    // }
 
     size_t read(uint8_t* buffer, size_t size) override {
         Serial.println("Reading...");
