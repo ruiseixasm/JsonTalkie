@@ -27,7 +27,7 @@ public:
 
     // Send data (broadcast by default)
     virtual bool send(uint16_t port, const uint8_t* data, size_t len) = 0;
-    virtual size_t receive() = 0;   // Just a trigger
+    virtual void receive() = 0;   // Just a trigger
 
     // Set callback (like ether's udpServerListenOnPort)
     virtual void setCallback(SocketCallback callback) = 0;
