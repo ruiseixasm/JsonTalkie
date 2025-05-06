@@ -81,18 +81,41 @@ public:
     }
 
     bool available() override {
-        // // Minimal packet processing
-        // if (ether.packetReceive() > 0) {
-        //     ether.packetLoop(ether.packetLength());
-        // }
-        // wait for an incoming UDP packet, but ignore its contents
-        if (ether.packetLoop(ether.packetReceive())) {
-            return true;
-            // memcpy_P(ether.tcpOffset(), page, sizeof page);
-            // ether.httpServerReply(sizeof page - 1);
+        // Process incoming network traffic
+        _recvLength = ether.packetReceive();
+        
+        // If we received a packet, process it
+        if (_recvLength > 0) {
+            ether.packetLoop(_recvLength);  // Handle network maintenance
+            
+            // Check if UDP server is actively listening
+            if (ether.udpServerListening()) {
+                return true;  // Valid UDP packet available
+            }
         }
-        return _recvLength > 0;
+        
+        return false;  // No data available
     }
+
+    // bool available() override {
+    //     // Check if a new UDP packet is waiting
+    //     _recvLength = ether.packetReceive();  // Check for incoming packets
+    //     ether.packetLoop(_recvLength);        // Process network maintenance
+        
+    //     // Return true if we have data (UDP payload length > 0)
+    //     return (_recvLength > 0);
+    // }
+
+
+    // bool available() override {
+    //     // wait for an incoming UDP packet, but ignore its contents
+    //     if (ether.packetLoop(ether.packetReceive())) {
+    //         return true;
+    //         // memcpy_P(ether.tcpOffset(), page, sizeof page);
+    //         // ether.httpServerReply(sizeof page - 1);
+    //     }
+    //     return _recvLength > 0;
+    // }
 
     // bool available() override {
     //     // // Force process all waiting packets
@@ -104,9 +127,10 @@ public:
     //     return _recvLength > 0;
     // }
 
+
     size_t read(uint8_t* buffer, size_t size) override {
         Serial.println("Reading...");
-        if (size == 0) return 0;
+        if (size == 0 || _recvLength == 0) return 0;
         size_t toCopy = min(size, _recvLength);
         memcpy(buffer, _recvBuffer, toCopy);
         _recvLength = 0;

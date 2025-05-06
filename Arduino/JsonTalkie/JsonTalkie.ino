@@ -150,7 +150,7 @@ void setup() {
     } else {
         JsonObject message = message_doc.to<JsonObject>();
         message["m"] = "talk";
-        json_talkie.talk(message);
+        // json_talkie.talk(message);
     }
     #else
     JsonDocument message_doc;
