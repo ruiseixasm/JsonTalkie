@@ -112,11 +112,9 @@ namespace JsonTalkie {
 
     class Talker {
     private:
-        BroadcastSocket* _socket;
-        char _buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
-        char _sent_message_id[9] = {'\0'};  // 8 chars + null terminator
-        unsigned long _messageTime;
-        bool _running;
+        static char _buffer[JSON_TALKIE_BUFFER_SIZE];
+        static char _sent_message_id[9];  // 8 chars + null terminator
+        static bool _running;
 
     private:
         static char* generateMessageId(char* buffer, size_t size) {
@@ -163,7 +161,7 @@ namespace JsonTalkie {
             return valid_checksum(message, buffer, size);
         }
         
-        void listenCallback(const char* data, size_t length) {
+        static void listenCallback(const char* data, size_t length) {
             if (!_running)
                 return;
         
@@ -214,7 +212,7 @@ namespace JsonTalkie {
             }
         }
 
-        bool receive(JsonObject message) {
+        static bool receive(JsonObject message) {
             if (!message["m"])
                 return false;
 
@@ -303,10 +301,8 @@ namespace JsonTalkie {
         }
 
     public:
-        Talker(BroadcastSocket* socket) : _socket(socket) {}
-        
-        bool begin() {
-            if (!_socket->open()) {
+        static bool begin() {
+            if (!broadcast_socket.open()) {
                 BroadcastSocket::setCallback(listenCallback);
                 return false;
             }
@@ -314,12 +310,12 @@ namespace JsonTalkie {
             return true;
         }
 
-        void end() {
+        static void end() {
             _running = false;
-            _socket->close();
+            broadcast_socket.close();
         }
 
-        bool talk(JsonObject message) {
+        static bool talk(JsonObject message) {
             if (!_running)
                 return false;
 
@@ -355,12 +351,17 @@ namespace JsonTalkie {
                     Serial.println();  // optional: just to add a newline after the JSON
                     #endif
 
-                    return _socket->send(_buffer, size);
+                    return broadcast_socket.send(_buffer, size);
                 }
             }
             return false;
         }
     };
+
+    char Talker::_buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
+    char Talker::_sent_message_id[9] = {'\0'};  // 8 chars + null terminator
+    bool Talker::_running = false;
+
 }
 
 #endif

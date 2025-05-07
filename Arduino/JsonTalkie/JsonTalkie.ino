@@ -39,18 +39,14 @@ https://github.com/ruiseixasm/JsonTalkie
     #include "sockets/BroadcastSocket_EtherCard.hpp"
     uint8_t Ethernet::buffer[ETHER_BUFFER_SIZE] = {0};  // Now reported! (Essential for EtherCard)
     uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
-    const uint8_t CS_PIN = SS;  // Change the ISP 'SS' to your Slave Select pin, 10 for nano
-    // MAC and CS pin in constructor
-    // SS is a macro variable normally equal to 10
-    
-    BroadcastSocket_EtherCard broadcast_socket(mymac, CS_PIN);
 #else
     #include "sockets/BroadcastSocket_Dummy.hpp"
     BroadcastSocket_Dummy broadcast_socket;
 #endif
 
 #include "JsonTalkie.hpp"
-JsonTalkie::Talker json_talkie(&broadcast_socket);
+// WARNING: This declares as a function: JsonTalkie::Talker json_talkie();
+JsonTalkie::Talker json_talkie;
 
 
 // MANIFESTO DEFINITION
@@ -98,6 +94,13 @@ void setup() {
     
     delay(2000);    // Just to give some time to Serial
 
+    // MAC and CS pin in constructor
+    // SS is a macro variable normally equal to 10
+    if (!broadcast_socket.open(mymac, SS, 5005)) {
+        Serial.println("Failed to open the Socket!");
+        while(1);
+    }
+    
     Serial.println();
     Serial.println("Beginning Talker...");
     if (!json_talkie.begin()) {

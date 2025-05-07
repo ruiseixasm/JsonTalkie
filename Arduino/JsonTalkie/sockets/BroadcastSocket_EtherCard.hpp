@@ -25,15 +25,8 @@ https://github.com/ruiseixasm/JsonTalkie
 
 class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
-    uint8_t* _mac;
-    uint8_t* _myIp;
-    uint8_t* _gwIp;
-    uint8_t* _dnsIp;
-    uint8_t* _mask;
-    uint8_t* _broadcastIp;
-    uint8_t _csPin;
+    uint8_t _broadcastIp[4] = {255,255,255,255};
     static uint16_t _port;
-    bool _dhcp = false;
     bool _isOpen = false;
 
     // Corrected callback as a wrapper (must be static)
@@ -50,55 +43,67 @@ private:
     }
 
 public:
+
     // Arduino default SPI pins in https://docs.arduino.cc/language-reference/en/functions/communication/SPI/
-    BroadcastSocket_EtherCard(
-        uint8_t* mac,
-        const uint8_t* my_ip,
-        const uint8_t* gw_ip = 0,
-        const uint8_t* dns_ip = 0,
-        const uint8_t* mask = 0,
-        const uint8_t* broadcast_ip = 0,
-        uint8_t csPin = 10) // CS is the pin 10 in Arduino boards
-        : _mac(mac), _myIp(my_ip), _gwIp(gw_ip), _dnsIp(dns_ip), _mask(mask), _csPin(csPin) {}
-    
-    BroadcastSocket_EtherCard(
-        uint8_t* mac,
-        uint8_t csPin = 10) // CS is the pin 10 in Arduino boards
-        : _mac(mac), _myIp(0), _gwIp(0), _dnsIp(0), _mask(0), _csPin(csPin), _dhcp(true) {}
-
-
-    bool open(uint16_t port = 5005) override {
+    bool open(const uint8_t* mac, uint8_t csPin = 10, uint16_t port = 5005) {
         if (_isOpen) {
             Serial.println("Already open");
             return true;
         }
         // ether is a global instantiation
-        if (!ether.begin(ETHER_BUFFER_SIZE, _mac, _csPin)) {
+        if (!ether.begin(ETHER_BUFFER_SIZE, mac, csPin)) {
             Serial.println("Failed to access ENC28J60");
             return false;
         }
-        if (_dhcp) {
-            // DHCP mode (just wait for an IP, timeout after 10 seconds)
-            uint32_t start = millis();
-            while (!ether.dhcpSetup() && (millis() - start < 10000)) {
-                delay(100);  // Short delay between retries
-            }
-            if (!ether.dhcpSetup()) {
-                Serial.println("Failed to get a dynamic IP");
-                return false;
-            }
-        } else {
-            // Static IP mode
-            if (!ether.staticSetup(_myIp, _gwIp, _dnsIp, _mask)) {
-                Serial.println("Failed to set static IP");
-                return false;
-            }
+        // DHCP mode (just wait for an IP, timeout after 10 seconds)
+        uint32_t start = millis();
+        while (!ether.dhcpSetup() && (millis() - start < 10000)) {
+            delay(100);  // Short delay between retries
+        }
+        if (!ether.dhcpSetup()) {
+            Serial.println("Failed to get a dynamic IP");
+            return false;
         }
         ether.enableBroadcast();
         ether.udpServerListenOnPort(udpCallback, port);
         _port = port;
         _isOpen = true;
         return true;
+    }
+    
+    bool open(const uint8_t* mac,
+        const uint8_t* my_ip, const uint8_t* gw_ip = 0, const uint8_t* dns_ip = 0, const uint8_t* mask = 0, const uint8_t* broadcast_ip = 0,
+        uint8_t csPin = 10, uint16_t port = 5005) {
+
+        if (_isOpen) {
+            Serial.println("Already open");
+            return true;
+        }
+        // ether is a global instantiation
+        if (!ether.begin(ETHER_BUFFER_SIZE, mac, csPin)) {
+            Serial.println("Failed to access ENC28J60");
+            return false;
+        }
+        // Static IP mode
+        if (!ether.staticSetup(my_ip, gw_ip, dns_ip, mask)) {
+            Serial.println("Failed to set static IP");
+            return false;
+        }
+        ether.enableBroadcast();
+        ether.udpServerListenOnPort(udpCallback, port);
+        if (broadcast_ip != 0) {
+            for (size_t byte_i = 0; byte_i < 4; ++byte_i) {
+                _broadcastIp[byte_i] = broadcast_ip[byte_i];
+            }
+        }
+        _port = port;
+        _isOpen = true;
+        return true;
+    }
+
+    bool open(uint16_t port = 5005) override {
+        uint8_t mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+        return this->open(mac);
     }
 
     //--- REINITIALIZE WITH NEW SETTINGS ---//
@@ -108,12 +113,8 @@ public:
     }
 
     bool send(const char* data, size_t size) override {
-        if (_broadcastIp == 0) {
-            uint8_t broadcastIp[] = {255,255,255,255};
-            ether.sendUdp(data, size, _port, broadcastIp, _port);
-        } else {
-            ether.sendUdp(data, size, _port, _broadcastIp, _port);
-        }
+
+        ether.sendUdp(data, size, _port, _broadcastIp, _port);
 
         #ifdef BROADCAST_SOCKET_DEBUG
         Serial.print("S: ");
@@ -130,5 +131,8 @@ public:
 
 };  
 
+uint16_t BroadcastSocket_EtherCard::_port = false;
+
+BroadcastSocket_EtherCard broadcast_socket;
 
 #endif // BROADCAST_SOCKET_ETHERCARD_HPP

@@ -19,9 +19,10 @@ typedef void (*SocketCallback)(const char* data, size_t length);
 
 class BroadcastSocket {
 protected:
-    static SocketCallback _socketCallback = nullptr;
+    static SocketCallback _socketCallback;
 
 public:
+    virtual BroadcastSocket() = default;
     virtual ~BroadcastSocket() = default;
 
     // Open/close (like ether's listen/close)
@@ -41,5 +42,8 @@ public:
     // BroadcastSocket(const BroadcastSocket&) = delete;
     // BroadcastSocket& operator=(const BroadcastSocket&) = delete;
 };
+
+
+SocketCallback BroadcastSocket::_socketCallback = nullptr;
 
 #endif // BROADCAST_SOCKET_HPP
