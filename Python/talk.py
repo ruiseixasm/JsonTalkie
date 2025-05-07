@@ -157,12 +157,12 @@ class CommandLine:
                             what = "get"
                         case 5:
                             what = "sys"
-                if "v" in message and "n" in message:
-                    print(f" {what} {message["n"]}]\t{message["v"]}")
-                elif "n" in message and "d" in message:
-                    print(f" {what} {message["n"]}]\t{message["d"]}")
-                elif "r" in message:
-                    print(f" {what}]\t{message["r"]}")
+                    if "v" in message and "n" in message:
+                        print(f" {what} {message["n"]}]\t{message["v"]}")
+                    elif "n" in message and "d" in message:
+                        print(f" {what} {message["n"]}]\t{message["d"]}")
+                    elif "r" in message:
+                        print(f" {what}]\t{message["r"]}")
             else:
                 print(f"]\t{message["d"]}")
         return True
