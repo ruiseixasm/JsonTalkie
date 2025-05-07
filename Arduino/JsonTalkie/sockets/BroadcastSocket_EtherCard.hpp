@@ -35,7 +35,7 @@ private:
     uint16_t _port;
     bool _dhcp = false;
     bool _isOpen = false;
-    SocketCallback* _socketCallback = nullptr;
+    SocketCallback _socketCallback = nullptr;
 
     // Corrected callback as a wrapper
     void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t length) {
@@ -59,12 +59,12 @@ public:
         const uint8_t* dns_ip = 0,
         const uint8_t* mask = 0,
         const uint8_t* broadcast_ip = 0,
-        uint8_t csPin = CS) // CS is the pin 10 in Arduino boards
+        uint8_t csPin = 10) // CS is the pin 10 in Arduino boards
         : _mac(mac), _myIp(my_ip), _gwIp(gw_ip), _dnsIp(dns_ip), _mask(mask), _csPin(csPin) {}
     
     BroadcastSocket_EtherCard(
         uint8_t* mac,
-        uint8_t csPin = CS) // CS is the pin 10 in Arduino boards
+        uint8_t csPin = 10) // CS is the pin 10 in Arduino boards
         : _mac(mac), _myIp(0), _gwIp(0), _dnsIp(0), _mask(0), _csPin(csPin), _dhcp(true) {}
 
 

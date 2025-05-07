@@ -168,11 +168,12 @@ namespace JsonTalkie {
                 return;
         
             if (length < JSON_TALKIE_BUFFER_SIZE - 1) {
-                data[length] = '\0';
+                memcpy(_buffer, data, length);
+                _buffer[length] = '\0';
 
                 #ifdef JSONTALKIE_DEBUG
                 Serial.print("L: ");
-                Serial.write(data, length);  // Properly prints raw bytes as characters
+                Serial.write(_buffer, length);  // Properly prints raw bytes as characters
                 Serial.println();            // Adds newline after the printed data
                 #endif
 
@@ -186,7 +187,7 @@ namespace JsonTalkie {
                 #else
                 JsonDocument message_doc;
                 if (message_doc.overflowed()) {
-                    Serial.println("Failed to allocate JSON message_doc");
+                    Serial.println("CRITICAL: Insufficient RAM");
                     return;
                 }
                 #endif
@@ -322,7 +323,7 @@ namespace JsonTalkie {
             if (!_running)
                 return false;
 
-            size_t len = 0;
+            size_t size = 0;
 
             // In order to release memory when done
             {
