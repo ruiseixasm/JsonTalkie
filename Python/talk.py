@@ -77,12 +77,14 @@ class CommandLine:
                         }
                         json_talkie.talk(message)
                         time.sleep(0.5) # Wait some time
+                        return
                     elif words[0] == "sys":
                         message: Dict[str, Any] = {
                             "m": 5  # sys
                         }
                         json_talkie.talk(message)
                         time.sleep(0.5) # Wait some time
+                        return
                 else:
                     message: Dict[str, Any] = {
                         "t": words[0]   # to
@@ -95,6 +97,7 @@ class CommandLine:
                                 time.sleep(0.5) # Wait some time
                             else:
                                 print(f"\t'{words[1]}' has a wrong number of arguments!")
+                            return
                         case "list":
                             if len(words) == 2: # Targeted talk
                                 message["m"] = 1    # list
@@ -102,6 +105,7 @@ class CommandLine:
                                 time.sleep(0.5) # Wait some time
                             else:
                                 print(f"\t'{words[1]}' has a wrong number of arguments!")
+                            return
                         case "run" | "get":
                             if len(words) == 3:
                                 message["m"] = 2    # run
@@ -110,6 +114,7 @@ class CommandLine:
                                 time.sleep(0.5) # Wait some time
                             else:
                                 print(f"\t'{words[1]}' has a wrong number of arguments!")
+                            return
                         case "set":
                             if len(words) == 4:
                                 try:
@@ -122,6 +127,7 @@ class CommandLine:
                                     print(f"\t'{words[3]}' is not an integer!")
                             else:
                                 print(f"'{words[1]}' has a wrong number of arguments!")
+                            return
                         case "sys":
                             if len(words) == 2: # Targeted talk
                                 message["m"] = 5    # sys
@@ -129,15 +135,16 @@ class CommandLine:
                                 time.sleep(0.5) # Wait some time
                             else:
                                 print(f"\t'{words[1]}' has a wrong number of arguments!")
-                        case _:
-                            print(f"\t[talk]\tPrints all devices' 'name' and description.")
-                            print(f"\t['device' list]\tList the entire 'device' manifesto.")
-                            print(f"\t['device' run 'what']\tRuns the named function.")
-                            print(f"\t['device' set 'what']\tSets the named variable.")
-                            print(f"\t['device' get 'what']\tGets the named variable value.")
-                            print(f"\t[sys]\tPrints the platform of the Device.")
-                            print(f"\t[exit]\tExits the command line (Ctrl+D).")
-                            print(f"\t[help]\tShows the present help.")                        
+                            return
+                        
+        print(f"\t[talk]\tPrints all devices' 'name' and description.")
+        print(f"\t['device' list]\tList the entire 'device' manifesto.")
+        print(f"\t['device' run 'what']\tRuns the named function.")
+        print(f"\t['device' set 'what']\tSets the named variable.")
+        print(f"\t['device' get 'what']\tGets the named variable value.")
+        print(f"\t[sys]\tPrints the platform of the Device.")
+        print(f"\t[exit]\tExits the command line (Ctrl+D).")
+        print(f"\t[help]\tShows the present help.")                        
 
 
     def echo(self, message: Dict[str, Any]) -> bool:
@@ -163,6 +170,8 @@ class CommandLine:
                         print(f" {what} {message["n"]}]\t{message["v"]}")
                     elif "n" in message and "d" in message:
                         print(f" {what} {message["n"]}]\t{message["d"]}")
+                    elif "n" in message and "r" in message:
+                        print(f" {what} {message["n"]}]\t{message["r"]}")
                     elif "r" in message:
                         print(f" {what}]\t{message["r"]}")
             elif "d" in message:
