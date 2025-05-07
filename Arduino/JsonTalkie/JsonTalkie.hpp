@@ -23,7 +23,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // Readjust if absolutely necessary
 #define JSON_TALKIE_BUFFER_SIZE 128
-// #define JSONTALKIE_DEBUG
+#define JSONTALKIE_DEBUG
 
 // Keys:
 //     m: message
