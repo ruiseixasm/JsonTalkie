@@ -320,12 +320,12 @@ namespace JsonTalkie {
             // Compiler reports these static RAM allocation
             #if ARDUINO_JSON_VERSION == 6
             if (_message_doc.capacity() < JSON_TALKIE_BUFFER_SIZE) {  // Absolute minimum
-                Serial.println("CRITICAL: Insufficient RAM");
+                Serial.println(F("CRITICAL: Insufficient RAM"));
                 return false;
             }
             #else
             if (_message_doc.overflowed()) {
-                Serial.println("CRITICAL: Insufficient RAM");
+                Serial.println(F("CRITICAL: Insufficient RAM"));
                 return false;
             }
             #endif
@@ -349,7 +349,7 @@ namespace JsonTalkie {
             {
                 // Directly nest the editable message under "m"
                 if (message.isNull()) {
-                    Serial.println("Error: Null message received");
+                    Serial.println(F("Error: Null message received"));
                     return false;
                 }
 
@@ -362,7 +362,7 @@ namespace JsonTalkie {
 
                 size = serializeJson(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
                 if (size == 0) {
-                    Serial.println("Error: Serialization failed");
+                    Serial.println(F("Error: Serialization failed"));
                 } else {
                     if (message["m"] != "echo") {
                         strncpy(_sent_message_id, message["i"], sizeof(_sent_message_id) - 1); // Explicit copy
