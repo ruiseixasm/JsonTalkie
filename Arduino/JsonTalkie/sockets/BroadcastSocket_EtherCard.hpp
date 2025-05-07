@@ -69,12 +69,12 @@ public:
     // Arduino default SPI pins in https://docs.arduino.cc/language-reference/en/functions/communication/SPI/
     bool open(const uint8_t* mac, uint8_t csPin = 10, uint16_t port = 5005) {
         if (_isOpen) {
-            Serial.println("Already open");
+            Serial.println(F("Already open"));
             return true;
         }
         // ether is a global instantiation
         if (!ether.begin(ETHER_BUFFER_SIZE, mac, csPin)) {
-            Serial.println("Failed to access ENC28J60");
+            Serial.println(F("Failed to access ENC28J60"));
             return false;
         }
         // DHCP mode (just wait for an IP, timeout after 10 seconds)
@@ -83,7 +83,7 @@ public:
             delay(100);  // Short delay between retries
         }
         if (!ether.dhcpSetup()) {
-            Serial.println("Failed to get a dynamic IP");
+            Serial.println(F("Failed to get a dynamic IP"));
             return false;
         }
         ether.enableBroadcast();
@@ -98,17 +98,17 @@ public:
         uint8_t csPin = 10, uint16_t port = 5005) {
 
         if (_isOpen) {
-            Serial.println("Already open");
+            Serial.println(F("Already open"));
             return true;
         }
         // ether is a global instantiation
         if (!ether.begin(ETHER_BUFFER_SIZE, mac, csPin)) {
-            Serial.println("Failed to access ENC28J60");
+            Serial.println(F("Failed to access ENC28J60"));
             return false;
         }
         // Static IP mode
         if (!ether.staticSetup(my_ip, gw_ip, dns_ip, mask)) {
-            Serial.println("Failed to set static IP");
+            Serial.println(F("Failed to set static IP"));
             return false;
         }
         ether.enableBroadcast();

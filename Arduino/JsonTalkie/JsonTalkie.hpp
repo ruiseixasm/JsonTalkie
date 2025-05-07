@@ -40,26 +40,28 @@ namespace JsonTalkie {
 
     // MANIFESTO PROTOTYPING
 
+    // Using PROGMEM to save strings in Flash memory instead of the RAM
+
     struct Device {
-        const char* name;      // Name of the Device (Talker)
-        const char* desc;      // Description of the Device
+        const char* PROGMEM name;      // Name of the Device (Talker)
+        const char* PROGMEM desc;      // Description of the Device
     };
 
     struct Run {
-        const char* name;      // "buzz", "print", etc.
-        const char* desc;      // Description
+        const char* PROGMEM name;      // "buzz", "print", etc.
+        const char* PROGMEM desc;      // Description
         bool (*function)(JsonObject);  // Function pointer (no args)
     };
 
     struct Set {
-        const char* name;      // "buzz", "print", etc.
-        const char* desc;      // Description
+        const char* PROGMEM name;      // "buzz", "print", etc.
+        const char* PROGMEM desc;      // Description
         bool (*function)(JsonObject, int);  // Function pointer (const char*)
     };
 
     struct Get {
-        const char* name;      // "buzz", "print", etc.
-        const char* desc;      // Description
+        const char* PROGMEM name;      // "buzz", "print", etc.
+        const char* PROGMEM desc;      // Description
         int (*function)(JsonObject);  // Function pointer (no args)
     };
 
