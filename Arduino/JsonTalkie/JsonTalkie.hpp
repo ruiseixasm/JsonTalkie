@@ -235,13 +235,18 @@ namespace JsonTalkie {
 
         static bool receive(JsonObject message) {
             message["t"] = message["f"];
-        
-            if (message["m"] == 0) {            // talk
-                message["m"] = 6;
+            if (!message["m"].is<int>()) {
+                #ifdef JSONTALKIE_DEBUG
+                Serial.println("Error: 'm' is not an integer");
+                #endif
+                return false;
+            }
+            int message_code = message["m"].as<int>(); // Throws on type mismatch
+            message["m"] = 6;
+            if (message_code == 0) {            // talk
                 message["d"] = Manifesto::talk()->desc;
                 return talk(message);
-            } else if (message["m"] == 1) {     // list
-                message["m"] = 6;
+            } else if (message_code == 1) {     // list
                 message["w"] = 2;
                 for (size_t run_i = 0; run_i < Manifesto::runSize; ++run_i) {
                     message["n"] = Manifesto::runCommands[run_i].name;
@@ -261,8 +266,7 @@ namespace JsonTalkie {
                     talk(message);
                 }
                 return true;
-            } else if (message["m"] == 2) {     // run
-                message["m"] = 6;
+            } else if (message_code == 2) {     // run
                 if (message.containsKey("n")) {
                     const Run* run = Manifesto::run(message["n"]);
                     if (run == nullptr) {
@@ -276,9 +280,9 @@ namespace JsonTalkie {
                     }
                     return true;
                 }
-            } else if (message["m"] == 3) {     // set
+            } else if (message_code == 3) {     // set
                 if (message.containsKey("n") && message.containsKey("v") && message["v"].is<int>()) {
-                    message["m"] = 6;
+
                     const Set* set = Manifesto::set(message["n"]);
                     if (set == nullptr) {
                         message["r"] = "UNKNOWN";
@@ -291,8 +295,7 @@ namespace JsonTalkie {
                     }
                     return true;
                 }
-            } else if (message["m"] == 4) {     // get
-                message["m"] = 6;
+            } else if (message_code == 4) {     // get
                 if (message.containsKey("n")) {
                     const Get* get = Manifesto::get(message["n"]);
                     if (get == nullptr) {
@@ -303,8 +306,7 @@ namespace JsonTalkie {
                     }
                     return talk(message);
                 }
-            } else if (message["m"] == 5) {     // sys
-                message["m"] = 6;
+            } else if (message_code == 5) {     // sys
 
                 // AVR Boards (Uno, Nano, Mega) - Check RAM size
                 #ifdef __AVR__
@@ -335,7 +337,7 @@ namespace JsonTalkie {
                 #endif
 
                 return talk(message);
-            } else if (message["m"] == 6) {     // echo
+            } else if (message_code == 6) {     // echo
                 if (Manifesto::echo != nullptr) {
                     Manifesto::echo(message);
                     return true;
@@ -396,7 +398,7 @@ namespace JsonTalkie {
                 if (size == 0) {
                     Serial.println(F("Error: Serialization failed"));
                 } else {
-                    if (!message["m"] == 6) {    // echo (BUG: Doesn't work as "!=")
+                    if (message["m"].as<int>() != 6) {    // Self made, so, it's safe to assume "m" as integer
                         strncpy(_sent_message_id, message["i"], sizeof(_sent_message_id) - 1); // Explicit copy
                         _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
                     }
