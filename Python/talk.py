@@ -70,62 +70,72 @@ class CommandLine:
         else:
             words = cmd.split()
             if words:
-                message: Dict[str, Any] = {
-                    "m": words[0]
-                }
-                match words[0]:
-                    case "talk":
-                        if len(words) == 2: # Targeted talk
-                            message["t"] = words[1]
-                        if len(words) < 3:
-                            json_talkie.talk(message)
-                            time.sleep(0.5) # Wait some time
-                        else:
-                            print(f"\t'{words[0]}' has a wrong number of arguments!")
-                    case "list":
-                        if len(words) == 2: # Targeted talk
-                            message["t"] = words[1]
-                            json_talkie.talk(message)
-                            time.sleep(0.5) # Wait some time
-                        else:
-                            print(f"\t'{words[0]}' has a wrong number of arguments!")
-                    case "run" | "get":
-                        if len(words) == 3:
-                            message["t"] = words[1]
-                            message["w"] = words[2]
-                            json_talkie.talk(message)
-                            time.sleep(0.5) # Wait some time
-                        else:
-                            print(f"\t'{words[0]}' has a wrong number of arguments!")
-                    case "set":
-                        if len(words) == 4:
-                            try:
-                                message["t"] = words[1]
-                                message["w"] = words[2]
-                                message["v"] = int(words[3])
+                if len(words) == 1:
+                    if words[0] == "talk":
+                        message: Dict[str, Any] = {
+                            "m": 0  # talk
+                        }
+                    elif words[0] == "sys":
+                        message: Dict[str, Any] = {
+                            "m": 5  # sys
+                        }
+                    json_talkie.talk(message)
+                    time.sleep(0.5) # Wait some time
+                else:
+                    message: Dict[str, Any] = {
+                        "t": words[0]   # to
+                    }
+                    match words[1]:
+                        case "talk":
+                            if len(words) == 2: # Targeted talk
+                                message["m"] = 0    # talk
                                 json_talkie.talk(message)
                                 time.sleep(0.5) # Wait some time
-                            except Exception as e:
-                                print(f"\t'{words[3]}' is not an integer!")
-                        else:
-                            print(f"'{words[0]}' has a wrong number of arguments!")
-                    case "sys":
-                        if len(words) == 2: # Targeted talk
-                            message["t"] = words[1]
-                        if len(words) < 3:
-                            json_talkie.talk(message)
-                            time.sleep(0.5) # Wait some time
-                        else:
-                            print(f"\t'{words[0]}' has a wrong number of arguments!")
-                    case _:
-                        print(f"\t[talk]\tPrints all devices' 'name' and description.")
-                        print(f"\t[list 'device']\tList the entire 'device' manifesto.")
-                        print(f"\t[run 'device' 'what']\tRuns the named function.")
-                        print(f"\t[set 'device' 'what']\tSets the named variable.")
-                        print(f"\t[get 'device' 'what']\tGets the named variable value.")
-                        print(f"\t[sys]\tPrints the platform of the Device.")
-                        print(f"\t[exit]\tExits the command line (Ctrl+D).")
-                        print(f"\t[help]\tShows the present help.")                        
+                            else:
+                                print(f"\t'{words[1]}' has a wrong number of arguments!")
+                        case "list":
+                            if len(words) == 2: # Targeted talk
+                                message["m"] = 1    # list
+                                json_talkie.talk(message)
+                                time.sleep(0.5) # Wait some time
+                            else:
+                                print(f"\t'{words[0]}' has a wrong number of arguments!")
+                        case "run" | "get":
+                            if len(words) == 3:
+                                message["m"] = 2    # run
+                                message["w"] = words[2]
+                                json_talkie.talk(message)
+                                time.sleep(0.5) # Wait some time
+                            else:
+                                print(f"\t'{words[0]}' has a wrong number of arguments!")
+                        case "set":
+                            if len(words) == 4:
+                                try:
+                                    message["m"] = 3    # set
+                                    message["w"] = words[2]
+                                    message["v"] = int(words[3])
+                                    json_talkie.talk(message)
+                                    time.sleep(0.5) # Wait some time
+                                except Exception as e:
+                                    print(f"\t'{words[3]}' is not an integer!")
+                            else:
+                                print(f"'{words[0]}' has a wrong number of arguments!")
+                        case "sys":
+                            if len(words) == 2: # Targeted talk
+                                message["m"] = 5    # sys
+                                json_talkie.talk(message)
+                                time.sleep(0.5) # Wait some time
+                            else:
+                                print(f"\t'{words[0]}' has a wrong number of arguments!")
+                        case _:
+                            print(f"\t[talk]\tPrints all devices' 'name' and description.")
+                            print(f"\t['device' list]\tList the entire 'device' manifesto.")
+                            print(f"\t['device' run 'what']\tRuns the named function.")
+                            print(f"\t['device' set 'what']\tSets the named variable.")
+                            print(f"\t['device' get 'what']\tGets the named variable value.")
+                            print(f"\t[sys]\tPrints the platform of the Device.")
+                            print(f"\t[exit]\tExits the command line (Ctrl+D).")
+                            print(f"\t[help]\tShows the present help.")                        
 
     def echo(self, message: Dict[str, Any]) -> bool:
         if "w" in message:
