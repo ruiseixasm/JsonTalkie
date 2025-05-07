@@ -33,6 +33,8 @@ private:
     uint8_t* _mask;
     uint8_t _csPin;
     uint16_t _port;
+    bool _dhcp = false;
+    bool _isOpen = false;
 
 
     uint8_t _recvBuffer[UDP_BUFFER_SIZE];
@@ -56,13 +58,61 @@ public:
     BroadcastSocket_EtherCard(
         uint8_t* mac,
         const uint8_t* my_ip,
-        const uint8_t* gw_ip,
-        const uint8_t* dns_ip,
-        const uint8_t* mask,
-        uint8_t csPin = CS, // CS is the pin 10 in Arduino boards
-        uint16_t port = 5005) 
-        : _mac(mac), _myIp(my_ip), _gwIp(gw_ip), _dnsIp(dns_ip), _mask(mask), _csPin(csPin), _port(port) {}
+        const uint8_t* gw_ip = 0,
+        const uint8_t* dns_ip = 0,
+        const uint8_t* mask = 0,
+        uint8_t csPin = CS) // CS is the pin 10 in Arduino boards
+        : _mac(mac), _myIp(my_ip), _gwIp(gw_ip), _dnsIp(dns_ip), _mask(mask), _csPin(csPin) {}
     
+    BroadcastSocket_EtherCard(
+        uint8_t* mac,
+        uint8_t csPin = CS) // CS is the pin 10 in Arduino boards
+        : _mac(mac), _myIp(0), _gwIp(0), _dnsIp(0), _mask(0), _csPin(csPin), _dhcp(true) {}
+
+
+    bool open(uint16_t port = 5005) override {
+        if (_isOpen) {
+            Serial.println("Already open");
+            return true;
+        }
+        // ether is a global instantiation
+        if (!ether.begin(ETHER_BUFFER_SIZE, _mac, _csPin)) {
+            Serial.println("Failed to access ENC28J60");
+            return false;
+        }
+        if (_dhcp) {
+            // DHCP mode (just wait for an IP, timeout after 10 seconds)
+            uint32_t start = millis();
+            while (!ether.dhcpSetup() && (millis() - start < 10000)) {
+                delay(100);  // Short delay between retries
+            }
+            if (!ether.dhcpSetup()) {
+                Serial.println("Failed to get a dynamic IP");
+                return false;
+            }
+        } else {
+            // Static IP mode
+            if (!ether.staticSetup(_myIp, _gwIp, _dnsIp, _mask)) {
+                Serial.println("Failed to set static IP");
+                return false;
+            }
+        }
+        ether.enableBroadcast();
+        _port = port;
+        _isOpen = true;
+        return true;
+    }
+    
+    
+
+
+
+
+
+
+
+
+
     bool begin() override {
         if (ether.begin(ETHER_BUFFER_SIZE, _mac, _csPin)) {
             ether.udpServerListenOnPort(udpCallback, _port);
