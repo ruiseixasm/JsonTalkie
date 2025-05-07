@@ -117,34 +117,33 @@ namespace JsonTalkie {
         static bool _running;
 
     private:
-        static char* generateMessageId(char* buffer, size_t size) {
+        static char* generateMessageId() {
             // Combine random values with system metrics for better uniqueness
             uint32_t r1 = random(0xFFFF);
             uint32_t r2 = random(0xFFFF);
             uint32_t r3 = millis() & 0xFFFF;
             uint32_t combined = (r1 << 16) | r2 ^ r3;
             // Equivalent to the Python: return uuid.uuid4().hex[:8]
-            if (size < 9) return buffer;
-            buffer[8] = '\0';  // JSON_TALKIE_BUFFER_SIZE sized
-            snprintf(buffer, 9, "%08lx", combined);
-            return buffer;
+            if (JSON_TALKIE_BUFFER_SIZE < 9) return _buffer;
+            _buffer[8] = '\0';  // JSON_TALKIE_BUFFER_SIZE sized
+            snprintf(_buffer, 9, "%08lx", combined);
+            return _buffer;
         }
 
-        static bool valid_checksum(JsonObject message, char* buffer, size_t size) {
+        static bool valid_checksum(JsonObject message) {
             // Use a static buffer size, large enough for your JSON
             uint16_t message_checksum = 0;
             if (message.containsKey("s")) {
                 message_checksum = message["s"];
             }
             message["s"] = 0;
-            // char buffer[JSON_TALKIE_BUFFER_SIZE];
-            size_t len = serializeJson(message, buffer, size);   // JSON_TALKIE_BUFFER_SIZE sized
+            size_t len = serializeJson(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
             // 16-bit word and XORing
             uint16_t checksum = 0;
             for (size_t i = 0; i < len; i += 2) {
-                uint16_t chunk = buffer[i] << 8;
+                uint16_t chunk = _buffer[i] << 8;
                 if (i + 1 < len) {
-                    chunk |= buffer[i + 1];
+                    chunk |= _buffer[i + 1];
                 }
                 checksum ^= chunk;
             }
@@ -154,11 +153,11 @@ namespace JsonTalkie {
             return message_checksum == checksum;
         }
 
-        static bool validateTalk(JsonObject message, char* buffer, size_t size) {
+        static bool validateTalk(JsonObject message) {
             if (!message.containsKey("s"))
                 return false;
             // NEEDS TO BE COMPLETED
-            return valid_checksum(message, buffer, size);
+            return valid_checksum(message);
         }
         
         static void listenCallback(const char* data, size_t length) {
@@ -199,7 +198,7 @@ namespace JsonTalkie {
                 }
                 JsonObject message = message_doc.as<JsonObject>();
 
-                if (validateTalk(message, data, JSON_TALKIE_BUFFER_SIZE)) {
+                if (validateTalk(message)) {
 
                     #ifdef JSONTALKIE_DEBUG
                     Serial.print("Received: ");
@@ -331,10 +330,10 @@ namespace JsonTalkie {
 
                 // Set default 'id' field if missing
                 if (!message.containsKey("i")) {
-                    message["i"] = generateMessageId(_buffer, JSON_TALKIE_BUFFER_SIZE);
+                    message["i"] = generateMessageId();
                 }
                 message["f"] = Manifesto::talk()->name;
-                valid_checksum(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
+                valid_checksum(message);
 
                 size = serializeJson(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
                 if (size == 0) {
