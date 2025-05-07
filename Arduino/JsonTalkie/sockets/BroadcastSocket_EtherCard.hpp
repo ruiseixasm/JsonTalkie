@@ -28,9 +28,9 @@ uint8_t Ethernet::buffer[ETHER_BUFFER_SIZE] = {0};  // Now reported! (Essential 
 
 class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
-    uint8_t _broadcastIp[4] = {255,255,255,255};
+    static uint8_t _broadcastIp[];
     static uint16_t _port;
-    bool _isOpen = false;
+    static bool _isOpen;
 
     // Corrected callback as a wrapper (must be static)
     static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t length) {
@@ -134,7 +134,9 @@ public:
 
 };  
 
-uint16_t BroadcastSocket_EtherCard::_port = false;
+uint8_t BroadcastSocket_EtherCard::_broadcastIp[] = {255,255,255,255};
+uint16_t BroadcastSocket_EtherCard::_port = 5005;
+bool BroadcastSocket_EtherCard::_isOpen = false;
 BroadcastSocket_EtherCard broadcast_socket;
 
 #endif // BROADCAST_SOCKET_ETHERCARD_HPP
