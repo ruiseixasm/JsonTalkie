@@ -18,6 +18,9 @@ https://github.com/ruiseixasm/JsonTalkie
 typedef void (*SocketCallback)(const char* data, size_t length);
 
 class BroadcastSocket {
+protected:
+    static SocketCallback _socketCallback = nullptr;
+
 public:
     virtual ~BroadcastSocket() = default;
 
@@ -30,7 +33,9 @@ public:
     virtual void receive() = 0; // Just a trigger
 
     // Set callback (like ether's udpServerListenOnPort)
-    virtual void setCallback(SocketCallback callback) = 0;
+    static void setCallback(SocketCallback callback) { // Just a wrapper
+        _socketCallback = callback;
+    }
 
     // // Disable copying (socket resources are unique)
     // BroadcastSocket(const BroadcastSocket&) = delete;

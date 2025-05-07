@@ -32,13 +32,12 @@ private:
     uint8_t* _mask;
     uint8_t* _broadcastIp;
     uint8_t _csPin;
-    uint16_t _port;
+    static uint16_t _port;
     bool _dhcp = false;
     bool _isOpen = false;
-    SocketCallback _socketCallback = nullptr;
 
-    // Corrected callback as a wrapper
-    void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t length) {
+    // Corrected callback as a wrapper (must be static)
+    static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t length) {
         
         #ifdef BROADCAST_SOCKET_DEBUG    
         Serial.print("R: ");
@@ -108,7 +107,7 @@ public:
         _isOpen = false;
     }
 
-    bool send(const char* data, size_t size) {
+    bool send(const char* data, size_t size) override {
         if (_broadcastIp == 0) {
             uint8_t broadcastIp[] = {255,255,255,255};
             ether.sendUdp(data, size, _port, broadcastIp, _port);
@@ -125,14 +124,10 @@ public:
         return true;
     }
 
-    void receive() {    // Just a trigger
+    void receive() override {    // Just a trigger
         ether.packetLoop(ether.packetReceive());
     }
 
-    // Set callback (like ether's udpServerListenOnPort)
-    void setCallback(SocketCallback callback) { // Just a wrapper
-        _socketCallback = callback;
-    }
 };  
 
 
