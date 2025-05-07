@@ -100,20 +100,20 @@ void setup() {
     static byte myIp[]          = { 192,168,31,100 };
     static byte netmask[]       = { 255,255,255,0 };
     if (!broadcast_socket.open(mymac, myIp, 0, 0, netmask, 0, SS, 5005)) {
-        Serial.println("Failed to open the Socket!");
+        Serial.println(F("Failed to open the Socket!"));
         while(1);
     }
     #else
     if (!broadcast_socket.open(mymac, SS, 5005)) {
-        Serial.println("Failed to open the Socket!");
+        Serial.println(F("Failed to open the Socket!"));
         while(1);
     }
     #endif
     
     Serial.println();
-    Serial.println("Beginning Talker...");
+    Serial.println(F("Beginning Talker..."));
     if (!json_talkie.begin()) {
-        Serial.println("Failed to initialize Talker!");
+        Serial.println(F("Failed to initialize Talker!"));
         while(1);
     }
 
@@ -139,7 +139,7 @@ void setup() {
 
     #endif
 
-    Serial.println("Talker ready");
+    Serial.println(F("Talker ready"));
 
     #if BROADCAST_SOCKET != SOCKET_SERIAL
     pinMode(buzzer_pin, OUTPUT);
@@ -151,13 +151,13 @@ void setup() {
     digitalWrite(LED_BUILTIN, HIGH);
     digitalWrite(LED_BUILTIN, LOW);
 
-    Serial.println("Sending JSON...");
+    Serial.println(F("Sending JSON..."));
 
     // Lives until end of function
     #if ARDUINO_JSON_VERSION == 6
     StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;
     if (message_doc.capacity() < JSON_TALKIE_BUFFER_SIZE) {  // Absolute minimum
-        Serial.println("CRITICAL: Insufficient RAM");
+        Serial.println(F("CRITICAL: Insufficient RAM"));
     } else {
         JsonObject message = message_doc.to<JsonObject>();
         message["m"] = "talk";
@@ -185,7 +185,7 @@ void loop() {
         #if ARDUINO_JSON_VERSION == 6
         StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;
         if (message_doc.capacity() < JSON_TALKIE_BUFFER_SIZE) {  // Absolute minimum
-            Serial.println("CRITICAL: Insufficient RAM");
+            Serial.println(F("CRITICAL: Insufficient RAM"));
         } else {
             JsonObject message = message_doc.to<JsonObject>();
             message["m"] = "talk";
@@ -194,7 +194,7 @@ void loop() {
         #else
         JsonDocument message_doc;
         if (message_doc.overflowed()) {
-            Serial.println("Failed to allocate JSON message_doc");
+            Serial.println(F("CRITICAL: Insufficient RAM"));
         } else {
             JsonObject message = message_doc.to<JsonObject>();
             message["m"] = "talk";
