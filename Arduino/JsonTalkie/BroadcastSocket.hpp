@@ -32,9 +32,9 @@ public:
     // Set callback (like ether's udpServerListenOnPort)
     virtual void setCallback(SocketCallback callback) = 0;
 
-    // Disable copying (socket resources are unique)
-    BroadcastSocket(const BroadcastSocket&) = delete;
-    BroadcastSocket& operator=(const BroadcastSocket&) = delete;
+    // // Disable copying (socket resources are unique)
+    // BroadcastSocket(const BroadcastSocket&) = delete;
+    // BroadcastSocket& operator=(const BroadcastSocket&) = delete;
 };
 
 #endif // BROADCAST_SOCKET_HPP
