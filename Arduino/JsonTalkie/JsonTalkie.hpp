@@ -133,6 +133,7 @@ namespace JsonTalkie {
         #endif
         static char _buffer[JSON_TALKIE_BUFFER_SIZE];
         static char _sent_message_id[9];  // 8 chars + null terminator
+        static uint8_t _sent_message_code;
         static bool _running;
 
     private:
@@ -402,6 +403,7 @@ namespace JsonTalkie {
                     if (message["m"].is<int>() && message["m"].as<int>() != 6) {    // Self made, so, it's safe to assume "m" as integer
                         strncpy(_sent_message_id, message["i"], sizeof(_sent_message_id) - 1); // Explicit copy
                         _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
+                        _sent_message_code = message["m"].as<int>();
                     }
 
                     #ifdef JSONTALKIE_DEBUG
@@ -425,6 +427,7 @@ namespace JsonTalkie {
     #endif
     char Talker::_buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
     char Talker::_sent_message_id[9] = {'\0'};  // 8 chars + null terminator
+    uint8_t Talker::_sent_message_code = 0;
     bool Talker::_running = false;
 
 }
