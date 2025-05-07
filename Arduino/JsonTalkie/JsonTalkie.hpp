@@ -312,27 +312,27 @@ namespace JsonTalkie {
                 #ifdef __AVR__
                 uint16_t ramSize = RAMEND - RAMSTART + 1;
                 if (ramSize == 2048)
-                    message["r"] = "Arduino Uno/Nano (ATmega328P)";
+                    message["d"] = "Arduino Uno/Nano (ATmega328P)";
                 else if (ramSize == 8192)
-                    message["r"] = "Arduino Mega (ATmega2560)";
+                    message["d"] = "Arduino Mega (ATmega2560)";
                 else
-                    message["r"] = "Unknown AVR Board";
+                    message["d"] = "Unknown AVR Board";
               
                 // ESP8266
                 #elif defined(ESP8266)
-                message["r"] = "ESP8266 (Chip ID: " + String(ESP.getChipId()) + ")";
+                message["d"] = "ESP8266 (Chip ID: " + String(ESP.getChipId()) + ")";
                 
                 // ESP32
                 #elif defined(ESP32)
-                message["r"] = "ESP32 (Rev: " + String(ESP.getChipRevision()) + ")";
+                message["d"] = "ESP32 (Rev: " + String(ESP.getChipRevision()) + ")";
                 
                 // ARM (Due, Zero, etc.)
                 #elif defined(__arm__)
-                message["r"] = "ARM-based Board";
+                message["d"] = "ARM-based Board";
 
                 // Unknown Board
                 #else
-                message["r"] = "Unknown Board";
+                message["d"] = "Unknown Board";
 
                 #endif
 

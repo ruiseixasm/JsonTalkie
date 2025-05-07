@@ -160,7 +160,7 @@ void setup() {
         Serial.println(F("CRITICAL: Insufficient RAM"));
     } else {
         JsonObject message = message_doc.to<JsonObject>();
-        message["m"] = "talk";
+        message["m"] = 0;   // talk
         // json_talkie.talk(message);
     }
     #else
@@ -169,7 +169,7 @@ void setup() {
         Serial.println("Failed to allocate JSON message_doc");
     } else {
         JsonObject message = message_doc.to<JsonObject>();
-        message["m"] = "talk";
+        message["m"] = 0;   // talk
         json_talkie.talk(message);
     }
     #endif
@@ -188,7 +188,7 @@ void loop() {
             Serial.println(F("CRITICAL: Insufficient RAM"));
         } else {
             JsonObject message = message_doc.to<JsonObject>();
-            message["m"] = "talk";
+            message["m"] = 0;   // talk
             json_talkie.talk(message);
         }
         #else
@@ -197,7 +197,7 @@ void loop() {
             Serial.println(F("CRITICAL: Insufficient RAM"));
         } else {
             JsonObject message = message_doc.to<JsonObject>();
-            message["m"] = "talk";
+            message["m"] = 0;   // talk
             json_talkie.talk(message);
         }
         #endif
