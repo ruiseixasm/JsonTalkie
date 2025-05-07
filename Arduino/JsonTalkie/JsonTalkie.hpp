@@ -231,6 +231,21 @@ namespace JsonTalkie {
                 message["m"] = "echo";
                 message["r"] = Manifesto::talk()->desc;
                 return talk(message);
+            } else if (message["m"] == "list") {
+                message["m"] = "echo";
+                for (size_t run_i = 0; run_i < Manifesto::runSize; ++run_i) {
+                    message["r"] = Manifesto::runCommands[run_i].desc;
+                    return talk(message);
+                }
+                for (size_t set_i = 0; set_i < Manifesto::setSize; ++set_i) {
+                    message["r"] = Manifesto::setCommands[set_i].desc;
+                    return talk(message);
+                }
+                for (size_t get_i = 0; get_i < Manifesto::getSize; ++get_i) {
+                    message["r"] = Manifesto::getCommands[get_i].desc;
+                    return talk(message);
+                }
+                return true;
             } else if (message["m"] == "run") {
                 message["m"] = "echo";
                 const Run* run = Manifesto::run(message["w"]);

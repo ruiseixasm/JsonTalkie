@@ -130,14 +130,15 @@ class JsonTalkie:
                     echo: Dict[str, Any] = {
                         "m": 'echo',
                         "t": message["f"],
-                        "i": message["i"]
+                        "i": message["i"],
+                        "w": message["w"]
                     }
                     if message["w"] in self._manifesto['run']:
                         echo["r"] = "ROGER"
                         self.talk(echo)
-                        ok: bool = self._manifesto['run'][message["w"]]['function'](message)
-                        if ok:
-                            echo["r"] = "OK"
+                        roger: bool = self._manifesto['run'][message["w"]]['function'](message)
+                        if roger:
+                            echo["r"] = "ROGER"
                         else:
                             echo["r"] = "FAIL"
                         self.talk(echo)
@@ -149,14 +150,15 @@ class JsonTalkie:
                     echo: Dict[str, Any] = {
                         "m": 'echo',
                         "t": message["f"],
-                        "i": message["i"]
+                        "i": message["i"],
+                        "w": message["w"]
                     }
                     if message["w"] in self._manifesto['set']:
                         echo["r"] = "ROGER"
                         self.talk(echo)
-                        ok: bool = self._manifesto['set'][message["w"]]['function'](message, message["v"])
-                        if ok:
-                            echo["r"] = "OK"
+                        roger: bool = self._manifesto['set'][message["w"]]['function'](message, message["v"])
+                        if roger:
+                            echo["r"] = "ROGER"
                         else:
                             echo["r"] = "FAIL"
                         self.talk(echo)
@@ -168,12 +170,13 @@ class JsonTalkie:
                     echo: Dict[str, Any] = {
                         "m": 'echo',
                         "t": message["f"],
-                        "i": message["i"]
+                        "i": message["i"],
+                        "w": message["w"]
                     }
                     if message["w"] in self._manifesto['get']:
                         echo["r"] = "ROGER"
                         self.talk(echo)
-                        echo["r"] = "OK"
+                        echo["r"] = "ROGER"
                         echo["v"] = self._manifesto['get'][message["w"]]['function'](message)
                         self.talk(echo)
                     else:
