@@ -93,6 +93,7 @@ void setup() {
     
     delay(2000);    // Just to give some time to Serial
 
+    // Saving string in PROGMEM (flash) to save RAM memory
     Serial.println(F("Opening the Socket..."));
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
