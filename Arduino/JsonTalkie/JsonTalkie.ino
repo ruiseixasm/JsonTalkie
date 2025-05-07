@@ -45,8 +45,6 @@ https://github.com/ruiseixasm/JsonTalkie
 #endif
 
 #include "JsonTalkie.hpp"
-// WARNING: This declares as a function: JsonTalkie::Talker json_talkie();
-JsonTalkie::Talker json_talkie;
 
 
 // MANIFESTO DEFINITION
