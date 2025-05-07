@@ -265,21 +265,23 @@ namespace JsonTalkie {
                 return true;
             } else if (message["m"] == 2) {     // run
                 message["m"] = 6;
-                const Run* run = Manifesto::run(message["w"]);
-                if (run == nullptr) {
-                    message["r"] = "UNKNOWN";
-                } else {
-                    message["r"] = "ROGER";
+                if (message.containsKey("n")) {
+                    const Run* run = Manifesto::run(message["n"]);
+                    if (run == nullptr) {
+                        message["r"] = "UNKNOWN";
+                    } else {
+                        message["r"] = "ROGER";
+                    }
+                    talk(message);
+                    if (run != nullptr) {
+                        run->function(message);
+                    }
+                    return true;
                 }
-                talk(message);
-                if (run != nullptr) {
-                    run->function(message);
-                }
-                return true;
             } else if (message["m"] == 3) {     // set
-                if (message.containsKey("v") && message["v"].is<int>()) {
+                if (message.containsKey("n") && message.containsKey("v") && message["v"].is<int>()) {
                     message["m"] = 6;
-                    const Set* set = Manifesto::set(message["w"]);
+                    const Set* set = Manifesto::set(message["n"]);
                     if (set == nullptr) {
                         message["r"] = "UNKNOWN";
                     } else {
@@ -293,14 +295,16 @@ namespace JsonTalkie {
                 }
             } else if (message["m"] == 4) {     // get
                 message["m"] = 6;
-                const Get* get = Manifesto::get(message["w"]);
-                if (get == nullptr) {
-                    message["r"] = "UNKNOWN";
-                } else {
-                    message["r"] = "ROGER";
-                    message["v"] = get->function(message);
+                if (message.containsKey("n")) {
+                    const Get* get = Manifesto::get(message["n"]);
+                    if (get == nullptr) {
+                        message["r"] = "UNKNOWN";
+                    } else {
+                        message["r"] = "ROGER";
+                        message["v"] = get->function(message);
+                    }
+                    return talk(message);
                 }
-                return talk(message);
             } else if (message["m"] == 5) {     // sys
                 message["m"] = 6;
 
