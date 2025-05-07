@@ -26,11 +26,15 @@ class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
 
     static BroadcastSocket_EtherCard* _instance;
-    uint16_t _port;
     uint8_t* _mac;
+    uint8_t* _myIp;
+    uint8_t* _gwIp;
+    uint8_t* _dnsIp;
+    uint8_t* _mask;
     uint8_t _csPin;
-    uint16_t _remotePort;
-    uint8_t _remoteIp[4];
+    uint16_t _port;
+
+
     uint8_t _recvBuffer[UDP_BUFFER_SIZE];
     size_t _recvLength;
     
@@ -48,12 +52,16 @@ private:
     }
 }
 public:
-    BroadcastSocket_EtherCard(uint16_t port, uint8_t* mac, uint8_t csPin = 8) 
-        : _port(port), _mac(mac), _csPin(csPin), _remotePort(0), _recvLength(0) {
-            memset(_remoteIp, 0, sizeof(_remoteIp));
-            memset(_recvBuffer, 0, sizeof(_recvBuffer));
-            _instance = this;
-    }
+    // Arduino default SPI pins in https://docs.arduino.cc/language-reference/en/functions/communication/SPI/
+    BroadcastSocket_EtherCard(
+        uint8_t* mac,
+        const uint8_t* my_ip,
+        const uint8_t* gw_ip,
+        const uint8_t* dns_ip,
+        const uint8_t* mask,
+        uint8_t csPin = CS, // CS is the pin 10 in Arduino boards
+        uint16_t port = 5005) 
+        : _mac(mac), _myIp(my_ip), _gwIp(gw_ip), _dnsIp(dns_ip), _mask(mask), _csPin(csPin), _port(port) {}
     
     bool begin() override {
         if (ether.begin(ETHER_BUFFER_SIZE, _mac, _csPin)) {

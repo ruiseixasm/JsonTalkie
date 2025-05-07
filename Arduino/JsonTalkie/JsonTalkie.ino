@@ -40,11 +40,11 @@ https://github.com/ruiseixasm/JsonTalkie
     BroadcastSocket_EtherCard* BroadcastSocket_EtherCard::_instance = nullptr;
     uint8_t Ethernet::buffer[ETHER_BUFFER_SIZE] = {0};  // Now reported! (Essential for EtherCard)
     uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
-    const uint8_t CS_PIN = 8;
+    const uint8_t CS_PIN = SS;  // Change the ISP 'SS' to your Slave Select pin, 10 for nano
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
-    // Change 'SS' to your Slave Select pin, if you arn't using the default pin
-    BroadcastSocket_EtherCard broadcast_socket(5005, mymac, SS);
+    
+    BroadcastSocket_EtherCard broadcast_socket(5005, mymac, CS_PIN);
 #else
     #include "sockets/BroadcastSocket_Dummy.hpp"
     BroadcastSocket_Dummy broadcast_socket;
