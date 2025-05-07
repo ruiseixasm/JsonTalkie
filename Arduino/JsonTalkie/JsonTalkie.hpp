@@ -26,15 +26,26 @@ https://github.com/ruiseixasm/JsonTalkie
 #define JSONTALKIE_DEBUG
 
 // Keys:
-//     m: message
-//     t: to
+//     c: checksum
+//     d: description
 //     f: from
 //     i: id
+//     m: message
+//     n: name
 //     r: reply
-//     w: what
-//     c: checksum
+//     t: to
 //     v: value
-//     l: list
+//     w: what
+
+// Messages/Whats:
+//     0 talk
+//     1 list
+//     2 run
+//     3 set
+//     4 get
+//     5 sys
+//     6 echo
+
 
 namespace JsonTalkie {
 
