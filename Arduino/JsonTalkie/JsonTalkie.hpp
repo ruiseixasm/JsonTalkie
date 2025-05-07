@@ -176,16 +176,16 @@ namespace JsonTalkie {
             #ifdef JSONTALKIE_DEBUG
             Serial.println("Validating...");
             #endif
-            if (!message.containsKey("c")) {
+            if (!(message.containsKey("f") && message.containsKey("m") && message.containsKey("c"))) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println("NOT validated");
                 #endif
                 return false;
             }
+            // NEEDS TO BE COMPLETED
             #ifdef JSONTALKIE_DEBUG
             Serial.println("Validated");
             #endif
-            // NEEDS TO BE COMPLETED
             return valid_checksum(message);
         }
         
@@ -233,9 +233,6 @@ namespace JsonTalkie {
         }
 
         static bool receive(JsonObject message) {
-            if (!message["m"])
-                return false;
-
             message["t"] = message["f"];
         
             if (message["m"] == 0) {            // talk
