@@ -13,6 +13,7 @@ https://github.com/ruiseixasm/JsonTalkie
 */
 
 // #define USE_WIFI
+#define USE_STATIC_IP
 
 #define SOCKET_SERIAL 1
 #define SOCKET_UDP 2
@@ -97,10 +98,19 @@ void setup() {
     Serial.println(F("Opening the Socket..."));
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
+    #ifdef USE_STATIC_IP
+    static byte myIp[]          = { 192,168,31,100 };
+    static byte netmask[]       = { 255,255,255,0 };
+    if (!broadcast_socket.open(mymac, myIp, 0, 0, netmask, 0, SS, 5005)) {
+        Serial.println("Failed to open the Socket!");
+        while(1);
+    }
+    #else
     if (!broadcast_socket.open(mymac, SS, 5005)) {
         Serial.println("Failed to open the Socket!");
         while(1);
     }
+    #endif
     
     Serial.println();
     Serial.println("Beginning Talker...");
