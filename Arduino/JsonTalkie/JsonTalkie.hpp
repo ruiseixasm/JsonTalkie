@@ -23,7 +23,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // Readjust if absolutely necessary
 #define JSON_TALKIE_BUFFER_SIZE 128
-#define JSONTALKIE_DEBUG
+// #define JSONTALKIE_DEBUG
 
 // Keys:
 //     m: message
@@ -32,7 +32,7 @@ https://github.com/ruiseixasm/JsonTalkie
 //     i: id
 //     r: reply
 //     w: what
-//     s: checksum
+//     c: checksum
 //     v: value
 //     l: list
 
@@ -133,10 +133,10 @@ namespace JsonTalkie {
         static bool valid_checksum(JsonObject message) {
             // Use a static buffer size, large enough for your JSON
             uint16_t message_checksum = 0;
-            if (message.containsKey("s")) {
-                message_checksum = message["s"];
+            if (message.containsKey("c")) {
+                message_checksum = message["c"];
             }
-            message["s"] = 0;
+            message["c"] = 0;
             size_t len = serializeJson(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
             // 16-bit word and XORing
             uint16_t checksum = 0;
@@ -149,12 +149,12 @@ namespace JsonTalkie {
             }
             // Serial.print("Message checksum: ");
             // Serial.println(checksum);  // optional: just to add a newline after the JSON
-            message["s"] = checksum;
+            message["c"] = checksum;
             return message_checksum == checksum;
         }
 
         static bool validateTalk(JsonObject message) {
-            if (!message.containsKey("s"))
+            if (!message.containsKey("c"))
                 return false;
             // NEEDS TO BE COMPLETED
             return valid_checksum(message);

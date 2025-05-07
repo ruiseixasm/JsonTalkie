@@ -134,10 +134,10 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
         static bool valid_checksum(JsonObject message, char* buffer, size_t size) {
             // Use a static buffer size, large enough for your JSON
             uint16_t message_checksum = 0;
-            if (message.containsKey("s")) {
-                message_checksum = message["s"];
+            if (message.containsKey("c")) {
+                message_checksum = message["c"];
             }
-            message["s"] = 0;
+            message["c"] = 0;
             // char buffer[JSON_TALKIE_BUFFER_SIZE];
             size_t len = serializeJson(message, buffer, size);   // JSON_TALKIE_BUFFER_SIZE sized
             // 16-bit word and XORing
@@ -151,7 +151,7 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
             }
             // Serial.print("Message checksum: ");
             // Serial.println(checksum);  // optional: just to add a newline after the JSON
-            message["s"] = checksum;
+            message["c"] = checksum;
             return message_checksum == checksum;
         }
     };
