@@ -23,6 +23,9 @@ https://github.com/ruiseixasm/JsonTalkie
 #define ETHER_BUFFER_SIZE 256   // Typical size for ENC28J60 is 500, but for UDP only 256 is good enough
 #define BROADCAST_SOCKET_DEBUG
 
+uint8_t Ethernet::buffer[ETHER_BUFFER_SIZE] = {0};  // Now reported! (Essential for EtherCard)
+
+
 class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
     uint8_t _broadcastIp[4] = {255,255,255,255};
@@ -132,7 +135,6 @@ public:
 };  
 
 uint16_t BroadcastSocket_EtherCard::_port = false;
-
 BroadcastSocket_EtherCard broadcast_socket;
 
 #endif // BROADCAST_SOCKET_ETHERCARD_HPP
