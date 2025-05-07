@@ -100,6 +100,8 @@ class Talker:
                         print(f" {what} {message["n"]}]\t{message["v"]}")
                     elif "n" in message and "d" in message:
                         print(f" {what} {message["n"]}]\t{message["d"]}")
+                    elif "n" in message and "r" in message:
+                        print(f" {what} {message["n"]}]\t{message["r"]}")
                     elif "r" in message:
                         print(f" {what}]\t{message["r"]}")
             elif "d" in message:
