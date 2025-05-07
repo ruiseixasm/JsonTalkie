@@ -238,33 +238,33 @@ namespace JsonTalkie {
 
             message["t"] = message["f"];
         
-            if (message["m"] == "talk") {
-                message["m"] = "echo";
-                message["r"] = Manifesto::talk()->desc;
+            if (message["m"] == 0) {            // talk
+                message["m"] = 6;
+                message["d"] = Manifesto::talk()->desc;
                 return talk(message);
-            } else if (message["m"] == "list") {
-                message["m"] = "echo";
+            } else if (message["m"] == 1) {     // list
+                message["m"] = 6;
                 for (size_t run_i = 0; run_i < Manifesto::runSize; ++run_i) {
-                    message["l"] = "run";
-                    message["w"] = Manifesto::runCommands[run_i].name;
-                    message["r"] = Manifesto::runCommands[run_i].desc;
+                    message["w"] = 2;
+                    message["n"] = Manifesto::runCommands[run_i].name;
+                    message["d"] = Manifesto::runCommands[run_i].desc;
                     talk(message);
                 }
                 for (size_t set_i = 0; set_i < Manifesto::setSize; ++set_i) {
-                    message["l"] = "set";
-                    message["w"] = Manifesto::setCommands[set_i].name;
-                    message["r"] = Manifesto::setCommands[set_i].desc;
+                    message["w"] = 3;
+                    message["n"] = Manifesto::setCommands[set_i].name;
+                    message["d"] = Manifesto::setCommands[set_i].desc;
                     talk(message);
                 }
                 for (size_t get_i = 0; get_i < Manifesto::getSize; ++get_i) {
-                    message["l"] = "get";
-                    message["w"] = Manifesto::getCommands[get_i].name;
-                    message["r"] = Manifesto::getCommands[get_i].desc;
+                    message["w"] = 4;
+                    message["n"] = Manifesto::getCommands[get_i].name;
+                    message["d"] = Manifesto::getCommands[get_i].desc;
                     talk(message);
                 }
                 return true;
-            } else if (message["m"] == "run") {
-                message["m"] = "echo";
+            } else if (message["m"] == 2) {     // run
+                message["m"] = 6;
                 const Run* run = Manifesto::run(message["w"]);
                 if (run == nullptr) {
                     message["r"] = "UNKNOWN";
@@ -276,9 +276,9 @@ namespace JsonTalkie {
                     run->function(message);
                 }
                 return true;
-            } else if (message["m"] == "set") {
+            } else if (message["m"] == 3) {     // set
                 if (message.containsKey("v") && message["v"].is<int>()) {
-                    message["m"] = "echo";
+                    message["m"] = 6;
                     const Set* set = Manifesto::set(message["w"]);
                     if (set == nullptr) {
                         message["r"] = "UNKNOWN";
@@ -291,8 +291,8 @@ namespace JsonTalkie {
                     }
                     return true;
                 }
-            } else if (message["m"] == "get") {
-                message["m"] = "echo";
+            } else if (message["m"] == 4) {     // get
+                message["m"] = 6;
                 const Get* get = Manifesto::get(message["w"]);
                 if (get == nullptr) {
                     message["r"] = "UNKNOWN";
@@ -301,8 +301,8 @@ namespace JsonTalkie {
                     message["v"] = get->function(message);
                 }
                 return talk(message);
-            } else if (message["m"] == "sys") {
-                message["m"] = "echo";
+            } else if (message["m"] == 5) {     // sys
+                message["m"] = 6;
 
                 // AVR Boards (Uno, Nano, Mega) - Check RAM size
                 #ifdef __AVR__
@@ -333,13 +333,11 @@ namespace JsonTalkie {
                 #endif
 
                 return talk(message);
-            } else if (message["m"] == "echo") {
-                message["m"] = "echo";
-                message["w"] = "echo";
+            } else if (message["m"] == 6) {     // echo
                 if (Manifesto::echo != nullptr) {
                     Manifesto::echo(message);
+                    return true;
                 }
-                return true;
             }
             return false;
         }

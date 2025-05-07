@@ -93,7 +93,7 @@ class JsonTalkie:
     def receive(self, message: Dict[str, Any]) -> bool:
         """Handles message content only."""
         match message["m"]:
-            case "talk":
+            case 0:         # talk
                 echo: Dict[str, Any] = {
                     "m": 'echo',
                     "t": message["f"],
@@ -101,7 +101,7 @@ class JsonTalkie:
                 }
                 echo["r"] = f"{self._manifesto['talker']['description']}"
                 self.talk(echo)
-            case "list":
+            case 1:         # list
                 echo: Dict[str, Any] = {
                     "m": 'echo',
                     "t": message["f"],
@@ -125,7 +125,7 @@ class JsonTalkie:
                         echo["w"] = key
                         echo["r"] = value['description']
                         self.talk(echo)
-            case "run":
+            case 2:         # run
                 if "w" in message and 'run' in self._manifesto:
                     echo: Dict[str, Any] = {
                         "m": 'echo',
@@ -145,7 +145,7 @@ class JsonTalkie:
                     else:
                         echo["r"] = "UNKNOWN"
                         self.talk(echo)
-            case "set":
+            case 3:         # set
                 if "v" in message and isinstance(message["v"], int) and "w" in message and 'set' in self._manifesto:
                     echo: Dict[str, Any] = {
                         "m": 'echo',
@@ -165,7 +165,7 @@ class JsonTalkie:
                     else:
                         echo["r"] = "UNKNOWN"
                         self.talk(echo)
-            case "get":
+            case 4:         # get
                 if "w" in message and 'get' in self._manifesto:
                     echo: Dict[str, Any] = {
                         "m": 'echo',
@@ -182,7 +182,7 @@ class JsonTalkie:
                     else:
                         echo["r"] = "UNKNOWN"
                         self.talk(echo)
-            case "sys":
+            case 5:         # sys
                 echo: Dict[str, Any] = {
                     "m": 'echo',
                     "t": message["f"],
@@ -190,12 +190,12 @@ class JsonTalkie:
                 }
                 echo["r"] = f"{platform.platform()}"
                 self.talk(echo)
-            case "echo":
+            case 6:         # echo
                 if self._last_message and message["i"] == self._last_message["i"]:
                     if 'echo' in self._manifesto:
                         self._manifesto['echo'](message)
             case _:
-                print("\tUnknown command type!")
+                print("\tUnknown message!")
         return False
 
     def validate_message(self, message: Dict[str, Any]) -> bool:
@@ -209,7 +209,7 @@ class JsonTalkie:
                     if "t" in message:
                         return message["t"] == "*" or message["t"] == self._manifesto['talker']['name']
                     else:
-                        return message["m"] == "talk" or message["m"] == "sys"
+                        return message["m"] == 0 or message["m"] == 5   # talk or sys
         return False
 
 
