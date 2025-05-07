@@ -138,15 +138,33 @@ class CommandLine:
                             print(f"\t[help]\tShows the present help.")                        
 
     def echo(self, message: Dict[str, Any]) -> bool:
-        if "w" in message:
-            if "v" in message:
-                print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}\t{message["v"]}")
-            elif "l" in message:
-                print(f"\t[{message["l"]} {message["f"]} {message["w"]}]\t{message["r"]}")
+        
+        if "f" in message:
+            print(f"\t[message["f"]", end='')
+            if "w" in message:
+                what: str = "echo"
+                if isinstance(message["w"], int) and message["w"] >= 0 and message["w"] <= 6:
+                    match message["w"]:
+                        case 0:
+                            what = "talk"
+                        case 1:
+                            what = "list"
+                        case 2:
+                            what = "run"
+                        case 3:
+                            what = "set"
+                        case 4:
+                            what = "get"
+                        case 5:
+                            what = "sys"
+                if "v" in message and "n" in message:
+                    print(f" {what} {message["n"]}]\t{message["v"]}")
+                elif "n" in message and "d" in message:
+                    print(f" {what} {message["n"]}]\t{message["d"]}")
+                elif "r" in message:
+                    print(f" {what}]\t{message["r"]}")
             else:
-                print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}")
-        else:
-            print(f"\t[{message["f"]}]\t{message["r"]}")
+                print(f"]\t{message["d"]}")
         return True
 
 
