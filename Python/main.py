@@ -23,7 +23,7 @@ from json_talkie import *
 
 class Talker:
     def __init__(self):
-        # Defines 'talk', 'run', 'set', 'get' parameters
+        # Defines 'talk', 'list', 'run', 'set', 'get' parameters
         self.manifesto: Dict[str, Dict[str, Any]] = {
             'talker': {
                 'name': 'Main',
@@ -76,16 +76,34 @@ class Talker:
     def get_duration(self, message: Dict[str, Any]) -> int:
         return self._duration
     
+
     def echo(self, message: Dict[str, Any]) -> bool:
-        if "w" in message:
-            if "v" in message:
-                print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}\t{message["v"]}")
-            elif "l" in message:
-                print(f"\t[{message["l"]} {message["f"]} {message["w"]}]\t{message["r"]}")
-            else:
-                print(f"\t[{message["f"]} {message["w"]}]\t{message["r"]}")
-        else:
-            print(f"\t[{message["f"]}]\t{message["r"]}")
+        if "f" in message:
+            print(f"\t[{message["f"]}", end='')
+            if "w" in message:
+                what: str = "echo"
+                if isinstance(message["w"], int) and message["w"] >= 0 and message["w"] <= 6:
+                    match message["w"]:
+                        case 0:
+                            what = "talk"
+                        case 1:
+                            what = "list"
+                        case 2:
+                            what = "run"
+                        case 3:
+                            what = "set"
+                        case 4:
+                            what = "get"
+                        case 5:
+                            what = "sys"
+                    if "v" in message and "n" in message:
+                        print(f" {what} {message["n"]}]\t{message["v"]}")
+                    elif "n" in message and "d" in message:
+                        print(f" {what} {message["n"]}]\t{message["d"]}")
+                    elif "r" in message:
+                        print(f" {what}]\t{message["r"]}")
+            elif "d" in message:
+                print(f"]\t{message["d"]}")
         return True
 
 
@@ -104,9 +122,9 @@ if __name__ == "__main__":
     
     try:
         messages: tuple[Dict[str, Any]] = (
-            {"m": 'run', "w": 'buzz', "t": 'Buzzer'},
-            {"m": 'run', "w": 'on', "t": 'Buzzer'},
-            {"m": 'run', "w": 'off', "t": 'Buzzer'}
+            {"m": 2, "n": 'buzz', "t": 'Buzzer'},
+            {"m": 2, "n": 'on', "t": 'Buzzer'},
+            {"m": 2, "n": 'off', "t": 'Buzzer'}
         )
 
         # Main loop
