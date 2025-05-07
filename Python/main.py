@@ -26,8 +26,8 @@ class Talker:
         # Defines 'talk', 'run', 'set', 'get' parameters
         self.manifesto: Dict[str, Dict[str, Any]] = {
             'talker': {
-                'name': 'Buzzer',
-                'description': 'This device does a 500ms buzz!'
+                'name': 'Main',
+                'description': 'This device is similar to Buzzer!'
             },
             'run': {
                 'buzz': {
