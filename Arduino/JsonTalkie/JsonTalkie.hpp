@@ -392,4 +392,7 @@ namespace JsonTalkie {
 
 }
 
+// WARNING: This declares as a function: JsonTalkie::Talker json_talkie();
+JsonTalkie::Talker json_talkie;
+
 #endif
