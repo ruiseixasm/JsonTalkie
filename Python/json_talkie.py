@@ -108,7 +108,7 @@ class JsonTalkie:
             case 0:         # talk
                 message["m"] = 6
                 message["d"] = f"{self._manifesto['talker']['description']}"
-                self.talk(message)
+                return self.talk(message)
             case 1:         # list
                 message["m"] = 6
                 if 'run' in self._manifesto:
@@ -129,52 +129,53 @@ class JsonTalkie:
                         message["n"] = name
                         message["d"] = content['description']
                         self.talk(message)
+                return True
             case 2:         # run
                 message["m"] = 6
                 if "w" in message and 'run' in self._manifesto:
-                    if message["w"] in self._manifesto['run']:
+                    if message["n"] in self._manifesto['run']:
                         message["r"] = "ROGER"
                         self.talk(message)
-                        roger: bool = self._manifesto['run'][message["w"]]['function'](message)
+                        roger: bool = self._manifesto['run'][message["n"]]['function'](message)
                         if roger:
                             message["r"] = "ROGER"
                         else:
                             message["r"] = "FAIL"
-                        self.talk(message)
+                        return self.talk(message)
                     else:
                         message["r"] = "UNKNOWN"
                         self.talk(message)
             case 3:         # set
                 message["m"] = 6
                 if "v" in message and isinstance(message["v"], int) and "w" in message and 'set' in self._manifesto:
-                    if message["w"] in self._manifesto['set']:
+                    if message["n"] in self._manifesto['set']:
                         message["r"] = "ROGER"
                         self.talk(message)
-                        roger: bool = self._manifesto['set'][message["w"]]['function'](message, message["v"])
+                        roger: bool = self._manifesto['set'][message["n"]]['function'](message, message["v"])
                         if roger:
                             message["r"] = "ROGER"
                         else:
                             message["r"] = "FAIL"
-                        self.talk(message)
+                        return self.talk(message)
                     else:
                         message["r"] = "UNKNOWN"
                         self.talk(message)
             case 4:         # get
                 message["m"] = 6
                 if "w" in message and 'get' in self._manifesto:
-                    if message["w"] in self._manifesto['get']:
+                    if message["n"] in self._manifesto['get']:
                         message["r"] = "ROGER"
                         self.talk(message)
                         message["r"] = "ROGER"
-                        message["v"] = self._manifesto['get'][message["w"]]['function'](message)
-                        self.talk(message)
+                        message["v"] = self._manifesto['get'][message["n"]]['function'](message)
+                        return self.talk(message)
                     else:
                         message["r"] = "UNKNOWN"
                         self.talk(message)
             case 5:         # sys
                 message["m"] = 6
-                message["r"] = f"{platform.platform()}"
-                self.talk(message)
+                message["d"] = f"{platform.platform()}"
+                return self.talk(message)
             case 6:         # echo
                 if self._last_message and message["i"] == self._last_message["i"]:
                     if "echo" in self._manifesto:
