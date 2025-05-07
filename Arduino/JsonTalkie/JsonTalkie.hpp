@@ -268,6 +268,7 @@ namespace JsonTalkie {
                 return true;
             } else if (message_code == 2) {     // run
                 if (message.containsKey("n")) {
+                    message["w"] = message_code;
                     const Run* run = Manifesto::run(message["n"]);
                     if (run == nullptr) {
                         message["r"] = "UNKNOWN";
@@ -281,7 +282,7 @@ namespace JsonTalkie {
                 }
             } else if (message_code == 3) {     // set
                 if (message.containsKey("n") && message.containsKey("v") && message["v"].is<int>()) {
-
+                    message["w"] = message_code;
                     const Set* set = Manifesto::set(message["n"]);
                     if (set == nullptr) {
                         message["r"] = "UNKNOWN";
@@ -296,6 +297,7 @@ namespace JsonTalkie {
                 }
             } else if (message_code == 4) {     // get
                 if (message.containsKey("n")) {
+                    message["w"] = message_code;
                     const Get* get = Manifesto::get(message["n"]);
                     if (get == nullptr) {
                         message["r"] = "UNKNOWN";
