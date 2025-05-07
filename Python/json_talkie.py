@@ -31,6 +31,7 @@ from broadcast_socket import BroadcastSocket
 #     v: value
 #     l: list
 
+DEBUG = False  # Set to False to disable debug prints
 
 class JsonTalkie:
 
@@ -66,7 +67,8 @@ class JsonTalkie:
         if message["m"] != "echo":
             self._last_message = message
         JsonTalkie.valid_checksum(message)
-        print(message)
+        if DEBUG:
+            print(message)
         return self._socket.send( JsonTalkie.encode(message) )
     
     def listen(self):
@@ -76,13 +78,16 @@ class JsonTalkie:
             if received:
                 data, _ = received  # Explicitly ignore (ip, port)
                 try:
-                    print(data)
+                    if DEBUG:
+                        print(data)
                     message: Dict[str, Any] = JsonTalkie.decode(data)
                     if self.validate_message(message):
-                        print(message)
+                        if DEBUG:
+                            print(message)
                         self.receive(message)
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
-                    # print(f"\tInvalid message: {e}")
+                    if DEBUG:
+                        print(f"\tInvalid message: {e}")
                     pass
 
     def receive(self, message: Dict[str, Any]) -> bool:
