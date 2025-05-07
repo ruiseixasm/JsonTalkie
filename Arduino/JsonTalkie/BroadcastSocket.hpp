@@ -20,6 +20,7 @@ typedef void (*SocketCallback)(const char* data, size_t length);
 class BroadcastSocket {
 protected:
     static SocketCallback _socketCallback;
+    static bool _isOpen;
 
 public:
     virtual BroadcastSocket() = default;
@@ -45,5 +46,6 @@ public:
 
 
 SocketCallback BroadcastSocket::_socketCallback = nullptr;
+bool BroadcastSocket::_isOpen = false;
 
 #endif // BROADCAST_SOCKET_HPP

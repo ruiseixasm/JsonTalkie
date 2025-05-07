@@ -30,7 +30,6 @@ class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
     static uint8_t _broadcastIp[];
     static uint16_t _port;
-    static bool _isOpen;
 
     // Corrected callback as a wrapper (must be static)
     static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t length) {
@@ -136,7 +135,6 @@ public:
 
 uint8_t BroadcastSocket_EtherCard::_broadcastIp[] = {255,255,255,255};
 uint16_t BroadcastSocket_EtherCard::_port = 5005;
-bool BroadcastSocket_EtherCard::_isOpen = false;
 BroadcastSocket_EtherCard broadcast_socket;
 
 #endif // BROADCAST_SOCKET_ETHERCARD_HPP
