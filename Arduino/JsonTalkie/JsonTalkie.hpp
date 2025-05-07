@@ -155,16 +155,16 @@ namespace JsonTalkie {
 
         static bool validateTalk(JsonObject message) {
             #ifdef JSONTALKIE_DEBUG
-            Serial.print("Validating...");
+            Serial.println("Validating...");
             #endif
             if (!message.containsKey("c")) {
                 #ifdef JSONTALKIE_DEBUG
-                Serial.print("NOT validated");
+                Serial.println("NOT validated");
                 #endif
                 return false;
             }
             #ifdef JSONTALKIE_DEBUG
-            Serial.print("Validated");
+            Serial.println("Validated");
             #endif
             // NEEDS TO BE COMPLETED
             return valid_checksum(message);
@@ -172,13 +172,13 @@ namespace JsonTalkie {
         
         static void listenCallback(const char* data, size_t length) {
             #ifdef JSONTALKIE_DEBUG
-            Serial.print("Callback...");
+            Serial.println("Callback...");
             #endif
             if (!_running)
                 return;
         
             #ifdef JSONTALKIE_DEBUG
-            Serial.print("Running...");
+            Serial.println("Running...");
             #endif
 
             if (length < JSON_TALKIE_BUFFER_SIZE - 1) {
@@ -322,9 +322,9 @@ namespace JsonTalkie {
     public:
         static bool begin() {
             if (!broadcast_socket.open()) {
-                BroadcastSocket::setCallback(listenCallback);
                 return false;
             }
+            BroadcastSocket::setCallback(listenCallback);
             _running = true;
             return true;
         }
