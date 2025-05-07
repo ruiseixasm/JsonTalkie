@@ -21,38 +21,28 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #define UDP_BUFFER_SIZE 128
 #define ETHER_BUFFER_SIZE 256   // Typical size for ENC28J60 is 500, but for UDP only 256 is good enough
+#define BROADCAST_SOCKET_DEBUG
 
 class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
-
-    static BroadcastSocket_EtherCard* _instance;
     uint8_t* _mac;
     uint8_t* _myIp;
     uint8_t* _gwIp;
     uint8_t* _dnsIp;
     uint8_t* _mask;
+    uint8_t* _broadcastIp;
     uint8_t _csPin;
     uint16_t _port;
     bool _dhcp = false;
     bool _isOpen = false;
+    SocketCallback* _socketCallback = nullptr;
 
-
-    uint8_t _recvBuffer[UDP_BUFFER_SIZE];
-    size_t _recvLength;
-    
-    void handlePacket(uint16_t dest_port, uint8_t* src_ip, uint16_t src_port, const char* data, uint16_t len) {
-        if (len > UDP_BUFFER_SIZE) return;
-        memcpy(_recvBuffer, data, len);
-        _recvLength = len;
-        memcpy(_remoteIp, src_ip, 4);
-        _remotePort = src_port;
+    // Corrected callback as a wrapper
+    void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t len) {
+        if (_socketCallback != nullptr && dst_port == _port)
+            _socketCallback(data, len);
     }
 
-    static void udpCallback(uint16_t dest_port, uint8_t* src_ip, uint16_t src_port, const char* data, uint16_t len) {
-    if (_instance) {
-        _instance->handlePacket(dest_port, src_ip, src_port, data, len);
-    }
-}
 public:
     // Arduino default SPI pins in https://docs.arduino.cc/language-reference/en/functions/communication/SPI/
     BroadcastSocket_EtherCard(
@@ -61,6 +51,7 @@ public:
         const uint8_t* gw_ip = 0,
         const uint8_t* dns_ip = 0,
         const uint8_t* mask = 0,
+        const uint8_t* broadcast_ip = 0,
         uint8_t csPin = CS) // CS is the pin 10 in Arduino boards
         : _mac(mac), _myIp(my_ip), _gwIp(gw_ip), _dnsIp(dns_ip), _mask(mask), _csPin(csPin) {}
     
@@ -98,111 +89,43 @@ public:
             }
         }
         ether.enableBroadcast();
+        ether.udpServerListenOnPort(udpCallback, port);
         _port = port;
         _isOpen = true;
         return true;
     }
-    
-    
 
+    //--- REINITIALIZE WITH NEW SETTINGS ---//
+    // Just call begin() again! No disable() needed.
+    void close() override {
+        _isOpen = false;
+    }
 
-
-
-
-
-
-
-
-    bool begin() override {
-        if (ether.begin(ETHER_BUFFER_SIZE, _mac, _csPin)) {
-            ether.udpServerListenOnPort(udpCallback, _port);
-            return true;
+    bool send(const char* data, size_t size) {
+        if (_broadcastIp == 0) {
+            uint8_t broadcastIp[] = {255,255,255,255};
+            ether.sendUdp(data, size, _port, broadcastIp, _port);
+        } else {
+            ether.sendUdp(data, size, _port, _broadcastIp, _port);
         }
-        return false;
-    }
 
-    void end() override {
-        _instance = nullptr;
-    }
-
-    bool write(const uint8_t* data, size_t length) override {
-        if (length > UDP_BUFFER_SIZE) return false;
-        uint8_t broadcastIp[] = {255,255,255,255};
-
-        ether.sendUdp((char*)data, length, _port, broadcastIp, _port);
-        
-        Serial.print("W: ");
-        Serial.write(data, length);  // Properly prints raw bytes as characters
-        Serial.println();            // Adds newline after the printed data
+        #ifdef BROADCAST_SOCKET_DEBUG    
+        Serial.print("S: ");
+        Serial.write(data, size);   // Properly prints raw bytes as characters
+        Serial.println();           // Adds newline after the printed data
+        #endif
 
         return true;
     }
 
-    bool available() override {
-        // Process incoming network traffic
-        _recvLength = ether.packetReceive();
-        
-        // If we received a packet, process it
-        if (_recvLength > 0) {
-            ether.packetLoop(_recvLength);  // Handle network maintenance
-            
-            // Check if UDP server is actively listening
-            if (ether.udpServerListening()) {
-                return true;  // Valid UDP packet available
-            }
-        }
-        
-        return false;  // No data available
+    void receive() {    // Just a trigger
+        ether.packetLoop(ether.packetReceive());
     }
 
-    // bool available() override {
-    //     // Check if a new UDP packet is waiting
-    //     _recvLength = ether.packetReceive();  // Check for incoming packets
-    //     ether.packetLoop(_recvLength);        // Process network maintenance
-        
-    //     // Return true if we have data (UDP payload length > 0)
-    //     return (_recvLength > 0);
-    // }
-
-
-    // bool available() override {
-    //     // wait for an incoming UDP packet, but ignore its contents
-    //     if (ether.packetLoop(ether.packetReceive())) {
-    //         return true;
-    //         // memcpy_P(ether.tcpOffset(), page, sizeof page);
-    //         // ether.httpServerReply(sizeof page - 1);
-    //     }
-    //     return _recvLength > 0;
-    // }
-
-    // bool available() override {
-    //     // // Force process all waiting packets
-    //     // while (true) {
-    //     //     uint16_t len = ether.packetReceive();
-    //     //     if (len == 0) break;
-    //     //     ether.packetLoop(len);
-    //     // }
-    //     return _recvLength > 0;
-    // }
-
-
-    size_t read(uint8_t* buffer, size_t size) override {
-        Serial.println("Reading...");
-        if (size == 0 || _recvLength == 0) return 0;
-        size_t toCopy = min(size, _recvLength);
-        memcpy(buffer, _recvBuffer, toCopy);
-        _recvLength = 0;
-
-        Serial.print("R: ");
-        Serial.write(buffer, toCopy);  // Properly prints raw bytes as characters
-        Serial.println();            // Adds newline after the printed data
-
-        return toCopy;
+    // Set callback (like ether's udpServerListenOnPort)
+    void setCallback(SocketCallback callback) { // Just a wrapper
+        _socketCallback = callback;
     }
-    
-    const uint8_t* getSenderIP() const { return _remoteIp; }
-    uint16_t getSenderPort() const { return _remotePort; }
-
 };  
 
 
