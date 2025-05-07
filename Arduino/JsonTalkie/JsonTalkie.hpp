@@ -307,7 +307,7 @@ namespace JsonTalkie {
         
         bool begin() {
             if (!_socket->open()) {
-                _socket->setCallback(listenCallback);
+                BroadcastSocket::setCallback(listenCallback);
                 return false;
             }
             _running = true;
