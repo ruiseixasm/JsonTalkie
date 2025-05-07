@@ -113,20 +113,20 @@ class JsonTalkie:
             case 1:         # list
                 message["m"] = 6
                 if 'run' in self._manifesto:
+                    message["w"] = 2
                     for name, content in self._manifesto['run'].items():
-                        message["w"] = 2
                         message["n"] = name
                         message["d"] = content['description']
                         self.talk(message)
                 if 'set' in self._manifesto:
+                    message["w"] = 3
                     for name, content in self._manifesto['set'].items():
-                        message["w"] = 3
                         message["n"] = name
                         message["d"] = content['description']
                         self.talk(message)
                 if 'get' in self._manifesto:
+                    message["w"] = 4
                     for name, content in self._manifesto['get'].items():
-                        message["w"] = 4
                         message["n"] = name
                         message["d"] = content['description']
                         self.talk(message)

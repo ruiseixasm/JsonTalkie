@@ -242,20 +242,20 @@ namespace JsonTalkie {
                 return talk(message);
             } else if (message["m"] == 1) {     // list
                 message["m"] = 6;
+                message["w"] = 2;
                 for (size_t run_i = 0; run_i < Manifesto::runSize; ++run_i) {
-                    message["w"] = 2;
                     message["n"] = Manifesto::runCommands[run_i].name;
                     message["d"] = Manifesto::runCommands[run_i].desc;
                     talk(message);
                 }
+                message["w"] = 3;
                 for (size_t set_i = 0; set_i < Manifesto::setSize; ++set_i) {
-                    message["w"] = 3;
                     message["n"] = Manifesto::setCommands[set_i].name;
                     message["d"] = Manifesto::setCommands[set_i].desc;
                     talk(message);
                 }
+                message["w"] = 4;
                 for (size_t get_i = 0; get_i < Manifesto::getSize; ++get_i) {
-                    message["w"] = 4;
                     message["n"] = Manifesto::getCommands[get_i].name;
                     message["d"] = Manifesto::getCommands[get_i].desc;
                     talk(message);
