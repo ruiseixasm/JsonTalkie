@@ -21,15 +21,26 @@ import platform
 from broadcast_socket import BroadcastSocket
 
 # Keys:
-#     m: message
-#     t: to
+#     c: checksum
+#     d: description
 #     f: from
 #     i: id
+#     m: message
+#     n: name
 #     r: reply
-#     w: what
-#     c: checksum
+#     t: to
 #     v: value
-#     l: list
+#     w: what
+
+# Messages/Whats:
+#     0 talk
+#     1 list
+#     2 run
+#     3 set
+#     4 get
+#     5 sys
+#     6 echo
+
 
 DEBUG = False  # Set to False to disable debug prints
 
@@ -92,108 +103,82 @@ class JsonTalkie:
 
     def receive(self, message: Dict[str, Any]) -> bool:
         """Handles message content only."""
+        message["t"] = message["f"]
         match message["m"]:
             case 0:         # talk
-                echo: Dict[str, Any] = {
-                    "m": 'echo',
-                    "t": message["f"],
-                    "i": message["i"]
-                }
-                echo["r"] = f"{self._manifesto['talker']['description']}"
-                self.talk(echo)
+                message["m"] = 6
+                message["d"] = f"{self._manifesto['talker']['description']}"
+                self.talk(message)
             case 1:         # list
-                echo: Dict[str, Any] = {
-                    "m": 'echo',
-                    "t": message["f"],
-                    "i": message["i"]
-                }
+                message["m"] = 6
                 if 'run' in self._manifesto:
-                    for key, value in self._manifesto['run'].items():
-                        echo["l"] = "run"
-                        echo["w"] = key
-                        echo["r"] = value['description']
-                        self.talk(echo)
+                    for name, content in self._manifesto['run'].items():
+                        message["w"] = 2
+                        message["n"] = name
+                        message["d"] = content['description']
+                        self.talk(message)
                 if 'set' in self._manifesto:
-                    for key, value in self._manifesto['set'].items():
-                        echo["l"] = "set"
-                        echo["w"] = key
-                        echo["r"] = value['description']
-                        self.talk(echo)
+                    for name, content in self._manifesto['set'].items():
+                        message["w"] = 3
+                        message["n"] = name
+                        message["d"] = content['description']
+                        self.talk(message)
                 if 'get' in self._manifesto:
-                    for key, value in self._manifesto['get'].items():
-                        echo["l"] = "get"
-                        echo["w"] = key
-                        echo["r"] = value['description']
-                        self.talk(echo)
+                    for name, content in self._manifesto['get'].items():
+                        message["w"] = 4
+                        message["n"] = name
+                        message["d"] = content['description']
+                        self.talk(message)
             case 2:         # run
+                message["m"] = 6
                 if "w" in message and 'run' in self._manifesto:
-                    echo: Dict[str, Any] = {
-                        "m": 'echo',
-                        "t": message["f"],
-                        "i": message["i"],
-                        "w": message["w"]
-                    }
                     if message["w"] in self._manifesto['run']:
-                        echo["r"] = "ROGER"
-                        self.talk(echo)
+                        message["r"] = "ROGER"
+                        self.talk(message)
                         roger: bool = self._manifesto['run'][message["w"]]['function'](message)
                         if roger:
-                            echo["r"] = "ROGER"
+                            message["r"] = "ROGER"
                         else:
-                            echo["r"] = "FAIL"
-                        self.talk(echo)
+                            message["r"] = "FAIL"
+                        self.talk(message)
                     else:
-                        echo["r"] = "UNKNOWN"
-                        self.talk(echo)
+                        message["r"] = "UNKNOWN"
+                        self.talk(message)
             case 3:         # set
+                message["m"] = 6
                 if "v" in message and isinstance(message["v"], int) and "w" in message and 'set' in self._manifesto:
-                    echo: Dict[str, Any] = {
-                        "m": 'echo',
-                        "t": message["f"],
-                        "i": message["i"],
-                        "w": message["w"]
-                    }
                     if message["w"] in self._manifesto['set']:
-                        echo["r"] = "ROGER"
-                        self.talk(echo)
+                        message["r"] = "ROGER"
+                        self.talk(message)
                         roger: bool = self._manifesto['set'][message["w"]]['function'](message, message["v"])
                         if roger:
-                            echo["r"] = "ROGER"
+                            message["r"] = "ROGER"
                         else:
-                            echo["r"] = "FAIL"
-                        self.talk(echo)
+                            message["r"] = "FAIL"
+                        self.talk(message)
                     else:
-                        echo["r"] = "UNKNOWN"
-                        self.talk(echo)
+                        message["r"] = "UNKNOWN"
+                        self.talk(message)
             case 4:         # get
+                message["m"] = 6
                 if "w" in message and 'get' in self._manifesto:
-                    echo: Dict[str, Any] = {
-                        "m": 'echo',
-                        "t": message["f"],
-                        "i": message["i"],
-                        "w": message["w"]
-                    }
                     if message["w"] in self._manifesto['get']:
-                        echo["r"] = "ROGER"
-                        self.talk(echo)
-                        echo["r"] = "ROGER"
-                        echo["v"] = self._manifesto['get'][message["w"]]['function'](message)
-                        self.talk(echo)
+                        message["r"] = "ROGER"
+                        self.talk(message)
+                        message["r"] = "ROGER"
+                        message["v"] = self._manifesto['get'][message["w"]]['function'](message)
+                        self.talk(message)
                     else:
-                        echo["r"] = "UNKNOWN"
-                        self.talk(echo)
+                        message["r"] = "UNKNOWN"
+                        self.talk(message)
             case 5:         # sys
-                echo: Dict[str, Any] = {
-                    "m": 'echo',
-                    "t": message["f"],
-                    "i": message["i"]
-                }
-                echo["r"] = f"{platform.platform()}"
-                self.talk(echo)
+                message["m"] = 6
+                message["r"] = f"{platform.platform()}"
+                self.talk(message)
             case 6:         # echo
                 if self._last_message and message["i"] == self._last_message["i"]:
-                    if 'echo' in self._manifesto:
-                        self._manifesto['echo'](message)
+                    if "echo" in self._manifesto:
+                        self._manifesto["echo"](message)
             case _:
                 print("\tUnknown message!")
         return False
