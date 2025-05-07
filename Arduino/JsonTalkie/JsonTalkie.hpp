@@ -396,7 +396,7 @@ namespace JsonTalkie {
                 if (size == 0) {
                     Serial.println(F("Error: Serialization failed"));
                 } else {
-                    if (message["m"] != 6) {    // echo
+                    if (!message["m"] == 6) {    // echo (BUG: Doesn't work as "!=")
                         strncpy(_sent_message_id, message["i"], sizeof(_sent_message_id) - 1); // Explicit copy
                         _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
                     }
