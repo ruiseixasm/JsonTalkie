@@ -40,7 +40,7 @@ private:
         Serial.println();           // Adds newline after the printed data
         #endif
 
-        if (_socketCallback != nullptr && dst_port == _port)
+        if (_isOpen && _socketCallback != nullptr && dst_port == _port)
             _socketCallback(data, length);
     }
 
