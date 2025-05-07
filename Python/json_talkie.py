@@ -27,7 +27,7 @@ from broadcast_socket import BroadcastSocket
 #     i: id
 #     r: reply
 #     w: what
-#     s: checksum
+#     c: checksum
 #     v: value
 #     l: list
 
@@ -191,9 +191,9 @@ class JsonTalkie:
         return False
 
     def validate_message(self, message: Dict[str, Any]) -> bool:
-        if isinstance(message, dict) and "s" in message:
+        if isinstance(message, dict) and "c" in message:
             try:
-                message_checksum: int = int(message.get("s", None))
+                message_checksum: int = int(message.get("c", None))
             except (ValueError, TypeError):
                 return False
             if JsonTalkie.valid_checksum(message):
@@ -234,9 +234,9 @@ class JsonTalkie:
         #     (',', ': ') otherwise. To get the most compact JSON representation,
         #     you should specify (',', ':') to eliminate whitespace.
         message_checksum: int = 0
-        if "s" in message:
-            message_checksum = message["s"]
-        message["s"] = 0
+        if "c" in message:
+            message_checksum = message["c"]
+        message["c"] = 0
         data = json.dumps(message, separators=(',', ':')).encode('utf-8')
         # 16-bit word and XORing
         checksum = 0
@@ -247,6 +247,6 @@ class JsonTalkie:
                 chunk |= data[i+1]
             checksum ^= chunk
         checksum &= 0xFFFF
-        message["s"] = checksum
+        message["c"] = checksum
         return message_checksum == checksum
 

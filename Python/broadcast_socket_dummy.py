@@ -113,9 +113,9 @@ class BroadcastSocket_Dummy(BroadcastSocket):
         #     (',', ': ') otherwise. To get the most compact JSON representation,
         #     you should specify (',', ':') to eliminate whitespace.
         message_checksum: int = 0
-        if "s" in message:
-            message_checksum = message["s"]
-        message["s"] = 0
+        if "c" in message:
+            message_checksum = message["c"]
+        message["c"] = 0
         data = json.dumps(message, separators=(',', ':')).encode('utf-8')
         # 16-bit word and XORing
         checksum = 0
@@ -126,5 +126,5 @@ class BroadcastSocket_Dummy(BroadcastSocket):
                 chunk |= data[i+1]
             checksum ^= chunk
         checksum &= 0xFFFF
-        message["s"] = checksum
+        message["c"] = checksum
         return message_checksum == checksum
