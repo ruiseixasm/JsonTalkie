@@ -76,7 +76,7 @@ class JsonTalkie:
         message["f"] = self._manifesto['talker']['name']
         if "i" not in message:
             message["i"] = JsonTalkie.message_id()
-        if message["m"] != "echo":
+        if message["m"] != 6:   # echo
             self._last_message = message
         JsonTalkie.valid_checksum(message)
         if DEBUG:

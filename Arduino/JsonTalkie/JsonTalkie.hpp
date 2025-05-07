@@ -176,7 +176,8 @@ namespace JsonTalkie {
             #ifdef JSONTALKIE_DEBUG
             Serial.println("Validating...");
             #endif
-            if (!(message.containsKey("f") && message.containsKey("m") && message.containsKey("c"))) {
+            if (!(message.containsKey("c") && message.containsKey("m")
+                    && message.containsKey("i") && message.containsKey("f"))) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println("NOT validated");
                 #endif
@@ -395,7 +396,7 @@ namespace JsonTalkie {
                 if (size == 0) {
                     Serial.println(F("Error: Serialization failed"));
                 } else {
-                    if (message["m"] != "echo") {
+                    if (message["m"] != 6) {    // echo
                         strncpy(_sent_message_id, message["i"], sizeof(_sent_message_id) - 1); // Explicit copy
                         _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
                     }
