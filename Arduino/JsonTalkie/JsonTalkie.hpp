@@ -23,6 +23,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // Readjust if absolutely necessary
 #define JSON_TALKIE_BUFFER_SIZE 128
+#define JSONTALKIE_DEBUG
 
 // Keys:
 //     m: message
@@ -162,6 +163,56 @@ namespace JsonTalkie {
             return valid_checksum(message, buffer, size);
         }
         
+        void listenCallback(const char* data, size_t length) {
+            if (!_running)
+                return;
+        
+            if (length < JSON_TALKIE_BUFFER_SIZE - 1) {
+                data[length] = '\0';
+
+                #ifdef JSONTALKIE_DEBUG
+                Serial.print("L: ");
+                Serial.write(data, length);  // Properly prints raw bytes as characters
+                Serial.println();            // Adds newline after the printed data
+                #endif
+
+                // Lives until end of function
+                #if ARDUINO_JSON_VERSION == 6
+                StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;
+                if (message_doc.capacity() < JSON_TALKIE_BUFFER_SIZE) {  // Absolute minimum
+                    Serial.println("CRITICAL: Insufficient RAM");
+                    return;
+                }
+                #else
+                JsonDocument message_doc;
+                if (message_doc.overflowed()) {
+                    Serial.println("Failed to allocate JSON message_doc");
+                    return;
+                }
+                #endif
+
+                DeserializationError error = deserializeJson(message_doc, data);
+                if (error) {
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.println("Failed to deserialize buffer");
+                    #endif
+                    return;
+                }
+                JsonObject message = message_doc.as<JsonObject>();
+
+                if (validateTalk(message, data, JSON_TALKIE_BUFFER_SIZE)) {
+
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.print("Received: ");
+                    serializeJson(message, Serial);
+                    Serial.println();  // optional: just to add a newline after the JSON
+                    #endif
+
+                    receive(message);
+                }
+            }
+        }
+
         bool receive(JsonObject message) {
             if (!message["m"])
                 return false;
@@ -254,7 +305,8 @@ namespace JsonTalkie {
         Talker(BroadcastSocket* socket) : _socket(socket) {}
         
         bool begin() {
-            if (!_socket->begin()) {
+            if (!_socket->open()) {
+                _socket->setCallback(listenCallback);
                 return false;
             }
             _running = true;
@@ -263,7 +315,7 @@ namespace JsonTalkie {
 
         void end() {
             _running = false;
-            _socket->end();
+            _socket->close();
         }
 
         bool talk(JsonObject message) {
@@ -287,8 +339,8 @@ namespace JsonTalkie {
                 message["f"] = Manifesto::talk()->name;
                 valid_checksum(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
 
-                len = serializeJson(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
-                if (len == 0) {
+                size = serializeJson(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
+                if (size == 0) {
                     Serial.println("Error: Serialization failed");
                 } else {
                     if (message["m"] != "echo") {
@@ -296,64 +348,16 @@ namespace JsonTalkie {
                         _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
                     }
 
-                    // Serial.print("A: ");
-                    // serializeJson(message, Serial);
-                    // Serial.println();  // optional: just to add a newline after the JSON
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.print("T: ");
+                    serializeJson(message, Serial);
+                    Serial.println();  // optional: just to add a newline after the JSON
+                    #endif
 
-                    return _socket->write((uint8_t*)_buffer, len);
+                    return _socket->send(_buffer, size);
                 }
             }
             return false;
-        }
-
-        void listen() {
-            if (!_running)
-                return;
-        
-            if (_socket->available()) { // Data in the socket buffer
-
-                size_t bytesRead = _socket->read(_buffer, JSON_TALKIE_BUFFER_SIZE - 1);
-                
-                if (bytesRead > 0) {
-                    _buffer[bytesRead] = '\0';
-
-                    Serial.print("L: ");
-                    Serial.write(_buffer, bytesRead);  // Properly prints raw bytes as characters
-                    Serial.println();            // Adds newline after the printed data
-
-                    // Lives until end of function
-                    #if ARDUINO_JSON_VERSION == 6
-                    StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;
-                    if (message_doc.capacity() < JSON_TALKIE_BUFFER_SIZE) {  // Absolute minimum
-                        Serial.println("CRITICAL: Insufficient RAM");
-                        return;
-                    }
-                    #else
-                    JsonDocument message_doc;
-                    if (message_doc.overflowed()) {
-                        Serial.println("Failed to allocate JSON message_doc");
-                        return;
-                    }
-                    #endif
-
-                    DeserializationError error = deserializeJson(message_doc, _buffer);
-                    if (error) {
-                        Serial.println("Failed to deserialize buffer");
-                        return;
-                    }
-                    JsonObject message = message_doc.as<JsonObject>();
-
-                    if (validateTalk(message, _buffer, JSON_TALKIE_BUFFER_SIZE)) {
-
-                        Serial.print("Remote: ");
-                        serializeJson(message, Serial);
-                        Serial.println();  // optional: just to add a newline after the JSON
-    
-                        receive(message);
-                    }
-                }
-
-            }
         }
     };
 }
