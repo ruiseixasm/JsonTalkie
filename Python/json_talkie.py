@@ -20,6 +20,8 @@ import platform
 
 from broadcast_socket import BroadcastSocket
 
+DEBUG = True  # Set to False to disable debug prints
+
 # Keys:
 #     c: checksum
 #     d: description
@@ -42,7 +44,6 @@ from broadcast_socket import BroadcastSocket
 #     6 echo
 
 
-DEBUG = False  # Set to False to disable debug prints
 
 class JsonTalkie:
 
