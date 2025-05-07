@@ -112,6 +112,12 @@ namespace JsonTalkie {
 
     class Talker {
     private:
+        // Compiler reports these static RAM allocation
+        #if ARDUINO_JSON_VERSION == 6
+        static StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> _message_doc;
+        #else
+        static JsonDocument _message_doc;
+        #endif
         static char _buffer[JSON_TALKIE_BUFFER_SIZE];
         static char _sent_message_id[9];  // 8 chars + null terminator
         static bool _running;
@@ -191,29 +197,14 @@ namespace JsonTalkie {
                 Serial.println();            // Adds newline after the printed data
                 #endif
 
-                // Lives until end of function
-                #if ARDUINO_JSON_VERSION == 6
-                StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;
-                if (message_doc.capacity() < JSON_TALKIE_BUFFER_SIZE) {  // Absolute minimum
-                    Serial.println("CRITICAL: Insufficient RAM");
-                    return;
-                }
-                #else
-                JsonDocument message_doc;
-                if (message_doc.overflowed()) {
-                    Serial.println("CRITICAL: Insufficient RAM");
-                    return;
-                }
-                #endif
-
-                DeserializationError error = deserializeJson(message_doc, _buffer);
+                DeserializationError error = deserializeJson(_message_doc, _buffer);
                 if (error) {
                     #ifdef JSONTALKIE_DEBUG
                     Serial.println("Failed to deserialize buffer");
                     #endif
                     return;
                 }
-                JsonObject message = message_doc.as<JsonObject>();
+                JsonObject message = _message_doc.as<JsonObject>();
 
                 if (validateTalk(message)) {
 
@@ -324,6 +315,18 @@ namespace JsonTalkie {
             if (!broadcast_socket.open()) {
                 return false;
             }
+            // Compiler reports these static RAM allocation
+            #if ARDUINO_JSON_VERSION == 6
+            if (_message_doc.capacity() < JSON_TALKIE_BUFFER_SIZE) {  // Absolute minimum
+                Serial.println("CRITICAL: Insufficient RAM");
+                return false;
+            }
+            #else
+            if (_message_doc.overflowed()) {
+                Serial.println("CRITICAL: Insufficient RAM");
+                return false;
+            }
+            #endif
             BroadcastSocket::setCallback(listenCallback);
             _running = true;
             return true;
@@ -377,6 +380,12 @@ namespace JsonTalkie {
         }
     };
 
+    // Compiler reports these static RAM allocation
+    #if ARDUINO_JSON_VERSION == 6
+    static StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> Talker::_message_doc;
+    #else
+    static JsonDocument Talker::_message_doc;
+    #endif
     char Talker::_buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
     char Talker::_sent_message_id[9] = {'\0'};  // 8 chars + null terminator
     bool Talker::_running = false;
