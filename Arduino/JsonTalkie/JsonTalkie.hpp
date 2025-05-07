@@ -234,7 +234,6 @@ namespace JsonTalkie {
         }
 
         static bool receive(JsonObject message) {
-            message["t"] = message["f"];
             if (!message["m"].is<int>()) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println("Error: 'm' is not an integer");
@@ -242,6 +241,7 @@ namespace JsonTalkie {
                 return false;
             }
             int message_code = message["m"].as<int>(); // Throws on type mismatch
+            message["t"] = message["f"];
             message["m"] = 6;
             if (message_code == 0) {            // talk
                 message["d"] = Manifesto::talk()->desc;
@@ -271,13 +271,12 @@ namespace JsonTalkie {
                     const Run* run = Manifesto::run(message["n"]);
                     if (run == nullptr) {
                         message["r"] = "UNKNOWN";
-                    } else {
-                        message["r"] = "ROGER";
+                        talk(message);
+                        return false;
                     }
+                    message["r"] = "ROGER";
                     talk(message);
-                    if (run != nullptr) {
-                        run->function(message);
-                    }
+                    run->function(message);
                     return true;
                 }
             } else if (message_code == 3) {     // set
