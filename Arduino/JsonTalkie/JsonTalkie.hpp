@@ -23,7 +23,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // Readjust if absolutely necessary
 #define JSON_TALKIE_BUFFER_SIZE 128
-// #define JSONTALKIE_DEBUG
+#define JSONTALKIE_DEBUG
 
 // Keys:
 //     m: message
@@ -154,16 +154,33 @@ namespace JsonTalkie {
         }
 
         static bool validateTalk(JsonObject message) {
-            if (!message.containsKey("c"))
+            #ifdef JSONTALKIE_DEBUG
+            Serial.print("Validating...");
+            #endif
+            if (!message.containsKey("c")) {
+                #ifdef JSONTALKIE_DEBUG
+                Serial.print("NOT validated");
+                #endif
                 return false;
+            }
+            #ifdef JSONTALKIE_DEBUG
+            Serial.print("Validated");
+            #endif
             // NEEDS TO BE COMPLETED
             return valid_checksum(message);
         }
         
         static void listenCallback(const char* data, size_t length) {
+            #ifdef JSONTALKIE_DEBUG
+            Serial.print("Callback...");
+            #endif
             if (!_running)
                 return;
         
+            #ifdef JSONTALKIE_DEBUG
+            Serial.print("Running...");
+            #endif
+
             if (length < JSON_TALKIE_BUFFER_SIZE - 1) {
                 memcpy(_buffer, data, length);
                 _buffer[length] = '\0';
@@ -220,7 +237,7 @@ namespace JsonTalkie {
             if (message["m"] == "talk") {
                 message["m"] = "echo";
                 message["r"] = Manifesto::talk()->desc;
-                talk(message);
+                return talk(message);
             } else if (message["m"] == "run") {
                 message["m"] = "echo";
                 const Run* run = Manifesto::run(message["w"]);
@@ -233,6 +250,7 @@ namespace JsonTalkie {
                 if (run != nullptr) {
                     run->function(message);
                 }
+                return true;
             } else if (message["m"] == "set") {
                 if (message.containsKey("v") && message["v"].is<int>()) {
                     message["m"] = "echo";
@@ -246,6 +264,7 @@ namespace JsonTalkie {
                     if (set != nullptr) {
                         set->function(message, message["v"].as<int>());
                     }
+                    return true;
                 }
             } else if (message["m"] == "get") {
                 message["m"] = "echo";
@@ -256,7 +275,7 @@ namespace JsonTalkie {
                     message["r"] = "ROGER";
                     message["v"] = get->function(message);
                 }
-                talk(message);
+                return talk(message);
             } else if (message["m"] == "sys") {
                 message["m"] = "echo";
 
@@ -288,13 +307,14 @@ namespace JsonTalkie {
 
                 #endif
 
-                talk(message);
+                return talk(message);
             } else if (message["m"] == "echo") {
                 message["m"] = "echo";
                 message["w"] = "echo";
                 if (Manifesto::echo != nullptr) {
                     Manifesto::echo(message);
                 }
+                return true;
             }
             return false;
         }

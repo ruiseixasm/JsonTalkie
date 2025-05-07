@@ -38,10 +38,30 @@ private:
         Serial.print("R: ");
         Serial.write(data, length);    // Properly prints raw bytes as characters
         Serial.println();           // Adds newline after the printed data
+
+        if (_isOpen) {
+            Serial.println("Socket is open");
+        } else {
+            Serial.println("Socket is NOT open");
+        }
+        if (_socketCallback != nullptr) {
+            Serial.println("Socket callback function is set");
+        } else {
+            Serial.println("Socket callback function is NOT set");
+        }
+        if (dst_port == _port) {
+            Serial.println("Package port matches");
+        } else {
+            Serial.println("Package port does NOT match");
+        }
         #endif
 
-        if (_isOpen && _socketCallback != nullptr && dst_port == _port)
+        if (_isOpen && _socketCallback != nullptr && dst_port == _port) {
+            #ifdef BROADCAST_SOCKET_DEBUG
+            Serial.println("Calling Socket callback...");
+            #endif
             _socketCallback(data, length);
+        }
     }
 
 public:
