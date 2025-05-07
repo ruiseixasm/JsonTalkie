@@ -398,7 +398,7 @@ namespace JsonTalkie {
                 if (size == 0) {
                     Serial.println(F("Error: Serialization failed"));
                 } else {
-                    if (message["m"].as<int>() != 6) {    // Self made, so, it's safe to assume "m" as integer
+                    if (message["m"].is<int>() && message["m"].as<int>() != 6) {    // Self made, so, it's safe to assume "m" as integer
                         strncpy(_sent_message_id, message["i"], sizeof(_sent_message_id) - 1); // Explicit copy
                         _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
                     }
