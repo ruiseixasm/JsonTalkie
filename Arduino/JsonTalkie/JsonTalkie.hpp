@@ -23,7 +23,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // Readjust if absolutely necessary
 #define JSON_TALKIE_BUFFER_SIZE 128
-#define JSONTALKIE_DEBUG
+// #define JSONTALKIE_DEBUG
 
 // Keys:
 //     m: message
@@ -206,7 +206,7 @@ namespace JsonTalkie {
                 }
                 #endif
 
-                DeserializationError error = deserializeJson(message_doc, data);
+                DeserializationError error = deserializeJson(message_doc, _buffer);
                 if (error) {
                     #ifdef JSONTALKIE_DEBUG
                     Serial.println("Failed to deserialize buffer");
