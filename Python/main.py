@@ -124,6 +124,7 @@ if __name__ == "__main__":
     
     try:
         messages: tuple[Dict[str, Any]] = (
+            {"m": 1, "t": '*'},
             {"m": 2, "n": 'buzz', "t": 'Buzzer'},
             {"m": 2, "n": 'on', "t": 'Buzzer'},
             {"m": 2, "n": 'off', "t": 'Buzzer'}
@@ -132,7 +133,7 @@ if __name__ == "__main__":
         # Main loop
         message_time = time.time()
         while True:
-            if time.time() - message_time > 10:
+            if time.time() - message_time > 30:
                 json_talkie.talk(messages[random.randint(0, len(messages) - 1)])
                 message_time = time.time()
     except KeyboardInterrupt:
