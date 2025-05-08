@@ -137,17 +137,10 @@ namespace JsonTalkie {
         static bool _running;
 
     private:
-        static char* generateMessageId() {
-            // Combine random values with system metrics for better uniqueness
-            uint32_t r1 = random(0xFFFF);
-            uint32_t r2 = random(0xFFFF);
-            uint32_t r3 = millis() & 0xFFFF;
-            uint32_t combined = (r1 << 16) | r2 ^ r3;
-            // Equivalent to the Python: return uuid.uuid4().hex[:8]
-            if (JSON_TALKIE_BUFFER_SIZE < 9) return _buffer;
-            _buffer[8] = '\0';  // JSON_TALKIE_BUFFER_SIZE sized
-            snprintf(_buffer, 9, "%08lx", combined);
-            return _buffer;
+        static uint32_t generateMessageId() {
+            // Generates a 32-bit wrapped timestamp ID using overflow.
+            uint32_t time_ms = millis() & 0xFFFFFFFF;
+            return time_ms;
         }
 
         static bool valid_checksum(JsonObject message) {
