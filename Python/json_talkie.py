@@ -20,7 +20,7 @@ import platform
 
 from broadcast_socket import BroadcastSocket
 
-DEBUG = False  # Set to False to disable debug prints
+DEBUG = True  # Set to False to disable debug prints
 
 # Keys:
 #     c: checksum
@@ -201,9 +201,9 @@ class JsonTalkie:
 
 
     @staticmethod
-    def message_id() -> str:
-        """Creates a unique message ID"""
-        return uuid.uuid4().hex[:8]
+    def message_id() -> int:
+        """Generates a 32-bit wrapped timestamp ID using overflow."""
+        return int(time.time() * 1000) & 0xFFFFFFFF
     
     @staticmethod
     def encode(message: Dict[str, Any]) -> bytes:
