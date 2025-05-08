@@ -91,12 +91,9 @@ class BroadcastSocket_Dummy(BroadcastSocket):
     )
 
     @staticmethod
-    def message_id() -> str:
-        """Creates a unique message ID combining timestamp and UUID"""
-        # timestamp: str = hex(int(time.time() * 1000))[2:]  # Millisecond precision
-        # id: str = uuid.uuid4().hex[:8]  # First 8 chars of UUID
-        # return f"{timestamp}-{id}"
-        return uuid.uuid4().hex[:8]
+    def message_id() -> int:
+        """Generates a 32-bit wrapped timestamp ID using overflow."""
+        return int(time.time() * 1000) & 0xFFFFFFFF
     
     @staticmethod
     def encode(message: Dict[str, Any]) -> bytes:
