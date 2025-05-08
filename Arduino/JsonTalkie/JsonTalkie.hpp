@@ -132,8 +132,8 @@ namespace JsonTalkie {
         static JsonDocument _message_doc;
         #endif
         static char _buffer[JSON_TALKIE_BUFFER_SIZE];
-        static char _sent_message_id[9];  // 8 chars + null terminator
-        static uint8_t _sent_message_code;
+        static uint32_t _sent_message_id[2];  // Keeps two time stamp
+        static bool _check_time_window;
         static bool _running;
 
     private:
@@ -170,8 +170,9 @@ namespace JsonTalkie {
             #ifdef JSONTALKIE_DEBUG
             Serial.println("Validating...");
             #endif
-            if (!(message.containsKey("c") && message.containsKey("m")
-                    && message.containsKey("i") && message.containsKey("f"))) {
+            if (!(message.containsKey("c") && valid_checksum(message) && message.containsKey("m")
+                    && message.containsKey("i") && message.containsKey("f") && message["m"].is<int>()
+                    && (message["m"].as<int>() == 0 || message["m"].as<int>() == 5 || message["t"] == "*" || message["t"] == Manifesto::talk()->name))) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println("NOT validated");
                 #endif
@@ -181,7 +182,7 @@ namespace JsonTalkie {
             #ifdef JSONTALKIE_DEBUG
             Serial.println("Validated");
             #endif
-            return valid_checksum(message);
+            return true;
         }
         
         static void listenCallback(const char* data, size_t length) {
@@ -228,12 +229,6 @@ namespace JsonTalkie {
         }
 
         static bool receive(JsonObject message) {
-            if (!message["m"].is<int>()) {
-                #ifdef JSONTALKIE_DEBUG
-                Serial.println("Error: 'm' is not an integer");
-                #endif
-                return false;
-            }
             int message_code = message["m"].as<int>(); // Throws on type mismatch
             message["t"] = message["f"];
             message["m"] = 6;
@@ -393,10 +388,10 @@ namespace JsonTalkie {
                 if (size == 0) {
                     Serial.println(F("Error: Serialization failed"));
                 } else {
-                    if (message["m"].is<int>() && message["m"].as<int>() != 6) {    // Self made, so, it's safe to assume "m" as integer
-                        strncpy(_sent_message_id, message["i"], sizeof(_sent_message_id) - 1); // Explicit copy
-                        _sent_message_id[sizeof(_sent_message_id) - 1] = '\0'; // Ensure null-termination
-                        _sent_message_code = message["m"].as<int>();
+                    if (message["m"].is<int>() && message["m"].as<int>() != 6 && message["i"].is<int>()) {
+                        _sent_message_id[0] = message["i"].as<int>();
+                        _sent_message_id[0] = generateMessageId();
+                        _check_time_window = true;
                     }
 
                     #ifdef JSONTALKIE_DEBUG
@@ -419,8 +414,8 @@ namespace JsonTalkie {
     static JsonDocument Talker::_message_doc;
     #endif
     char Talker::_buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
-    char Talker::_sent_message_id[9] = {'\0'};  // 8 chars + null terminator
-    uint8_t Talker::_sent_message_code = 0;
+    uint32_t Talker::_sent_message_id[2] = {'\0'};  // 8 chars + null terminator
+    bool Talker::_check_time_window = false;
     bool Talker::_running = false;
 
 }
