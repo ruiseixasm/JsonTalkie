@@ -242,10 +242,12 @@ int get_duration(JsonObject json_message) {
 
 
 bool process_response(JsonObject json_message) {
-    if (!json_message.containsKey("r")) {
-        Serial.println(F("Echo key 'r' missing!"));
-    } else {
+    if (json_message.containsKey("r")) {
         Serial.println(json_message["r"].as<String>());
+    } else if (json_message.containsKey("d")) {
+        Serial.println(json_message["d"].as<String>());
+    } else {
+        Serial.println(F("Empty echo received!"));
     }
     return false;
 }
