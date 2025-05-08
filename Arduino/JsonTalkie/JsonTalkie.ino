@@ -242,6 +242,10 @@ int get_duration(JsonObject json_message) {
 
 
 bool process_response(JsonObject json_message) {
-    Serial.println(json_message["r"].as<String>()); // The magic fix
+    if (!json_message.containsKey("r")) {
+        Serial.println(F("Echo key 'r' missing!"));
+    } else {
+        Serial.println(json_message["r"].as<String>());
+    }
     return false;
 }
