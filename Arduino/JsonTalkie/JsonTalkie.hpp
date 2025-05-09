@@ -221,12 +221,14 @@ namespace JsonTalkie {
             }
             if (message["m"].as<int>() == 6 && message["i"].as<uint32_t>() != _sent_message_id) {
                 #ifdef JSONTALKIE_DEBUG
-                Serial.println(F("Message echo id mismatch"));
+                Serial.print(F("Message echo id mismatch - "));
+                Serial.println(_sent_message_id);
                 #endif
                 message["m"] = 7;   // error
                 message["t"] = message["f"];
                 message["f"] = Manifesto::talk()->name;
                 message["r"] = F("Message echo id mismatch");
+                message["v"] = _sent_message_id;
                 talk(message);
                 return false;
             }
