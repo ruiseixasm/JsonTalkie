@@ -46,7 +46,7 @@ public:
     void close() override {
         Serial.end();
     }
-    bool send(const char* data, size_t len) override {
+    bool send(const char* data, size_t len, const uint8_t* source_ip = 0) override {
         return Serial.write(data, len) == len;
     }
 

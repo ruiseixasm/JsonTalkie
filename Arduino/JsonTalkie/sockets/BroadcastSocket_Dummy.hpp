@@ -85,7 +85,7 @@ public:
         _isOpen = false;
     }
 
-    bool send(const char* data, size_t len) override {
+    bool send(const char* data, size_t len, const uint8_t* source_ip = 0) override {
         if (!_isOpen)
             return false;
             
