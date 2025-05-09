@@ -201,18 +201,33 @@ namespace JsonTalkie {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Wrong message code"));
                 #endif
+                message["m"] = 7;   // error
+                message["t"] = message["f"];
+                message["f"] = Manifesto::talk()->name;
+                message["r"] = F("Wrong message code");
+                talk(message);
                 return false;
             }
             if (!(message.containsKey("i") && message["i"].is<uint32_t>())) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Message NOT identified"));
                 #endif
+                message["m"] = 7;   // error
+                message["t"] = message["f"];
+                message["f"] = Manifesto::talk()->name;
+                message["r"] = F("Message NOT identified");
+                talk(message);
                 return false;
             }
             if (message["m"].as<int>() == 6 && message["i"].as<uint32_t>() != _sent_message_id) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Message echo id mismatch"));
                 #endif
+                message["m"] = 7;   // error
+                message["t"] = message["f"];
+                message["f"] = Manifesto::talk()->name;
+                message["r"] = F("Message echo id mismatch");
+                talk(message);
                 return false;
             }
             // Check if it's an on time message
@@ -221,6 +236,11 @@ namespace JsonTalkie {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Message arrived too late"));
                 #endif
+                message["m"] = 7;   // error
+                message["t"] = message["f"];
+                message["f"] = Manifesto::talk()->name;
+                message["r"] = F("Message arrived too late");
+                talk(message);
                 return false;
             }
             // NEEDS TO BE COMPLETED
