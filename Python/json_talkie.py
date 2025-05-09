@@ -184,6 +184,16 @@ class JsonTalkie:
                     if "echo" in self._manifesto:
                         self._manifesto["echo"](message)
             case 7:         # error
+
+                # Error types:
+                #     0 - Message NOT for me
+                #     1 - Unknown sender
+                #     2 - Message corrupted
+                #     3 - Wrong message code
+                #     4 - Message NOT identified
+                #     5 - Message echo id mismatch
+                #     6 - Set command arrived too late
+
                 if "e" in message and "v" in message:
                     print(f"\tError {message["e"]} - {message["v"]}")
                 elif "e" in message:
