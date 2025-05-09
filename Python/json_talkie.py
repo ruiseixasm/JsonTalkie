@@ -181,6 +181,8 @@ class JsonTalkie:
                 if self._last_message and message["i"] == self._last_message["i"]:
                     if "echo" in self._manifesto:
                         self._manifesto["echo"](message)
+            case 7:         # error
+                print(f"\t{message["r"]}")
             case _:
                 print("\tUnknown message!")
         return False
