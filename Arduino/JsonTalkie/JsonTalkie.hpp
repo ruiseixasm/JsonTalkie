@@ -133,7 +133,7 @@ namespace JsonTalkie {
         static JsonDocument _message_doc;
         #endif
         static char _buffer[JSON_TALKIE_BUFFER_SIZE];
-        static uint32_t _sent_message_id;  // Keeps two time stamp
+        static uint32_t _sent_message_id;   // Keeps track of the sent id
         static uint32_t _received_time[2];  // Keeps two time stamp
         static bool _check_received_time;
         static bool _running;
@@ -141,8 +141,7 @@ namespace JsonTalkie {
     private:
         static uint32_t generateMessageId() {
             // Generates a 32-bit wrapped timestamp ID using overflow.
-            uint32_t time_ms = millis() & 0xFFFFFFFF;
-            return time_ms;
+            return (uint32_t)millis();  // millis() is already an unit32_t (unsigned long int) data return
         }
 
         static bool valid_checksum(JsonObject message) {
@@ -234,7 +233,7 @@ namespace JsonTalkie {
             }
             // Check if it's an on time message
             // In theory, a UDP packet on a local area network (LAN) could survive for about 4.25 minutes (255 seconds).
-            if (_check_received_time && (_received_time[0] - message["i"].as<int>() & 0xFFFFFFFF) < 255) {
+            if (_check_received_time && _received_time[0] - message["i"].as<uint32_t>() < 255) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Message arrived too late"));
                 #endif
@@ -290,7 +289,7 @@ namespace JsonTalkie {
                     Serial.println();  // optional: just to add a newline after the JSON
                     #endif
 
-                    _received_time[0] = message["i"].as<int>();
+                    _received_time[0] = message["i"].as<uint32_t>();
                     _received_time[1] = generateMessageId();
                     _check_received_time = true;
                     receive(message);
@@ -458,8 +457,8 @@ namespace JsonTalkie {
                 if (size == 0) {
                     Serial.println(F("Error: Serialization failed"));
                 } else {
-                    if (message["m"].is<int>() && message["m"].as<int>() != 6 && message["i"].is<int>()) {
-                        _sent_message_id = message["i"].as<int>();
+                    if (message["m"].is<int>() && message["m"].as<int>() != 6 && message["i"].is<uint32_t>()) {
+                        _sent_message_id = message["i"].as<uint32_t>();
                     }
 
                     #ifdef JSONTALKIE_DEBUG
