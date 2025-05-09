@@ -88,6 +88,7 @@ namespace JsonTalkie {
         static const Get getCommands[];
         static const size_t getSize;        // Declaration only
         static bool (*echo)(JsonObject);
+        static bool (*error)(JsonObject);
 
         static const Device* talk() {
             return &Manifesto::device;
@@ -434,6 +435,11 @@ namespace JsonTalkie {
             } else if (message_code == 6) {     // echo
                 if (Manifesto::echo != nullptr) {
                     Manifesto::echo(message);
+                    return true;
+                }
+            } else if (message_code == 7) {     // error
+                if (Manifesto::error != nullptr) {
+                    Manifesto::error(message);
                     return true;
                 }
             }

@@ -74,6 +74,7 @@ const size_t JsonTalkie::Manifesto::getSize = sizeof(JsonTalkie::Manifesto::getC
 
 bool process_response(JsonObject json_message);
 bool (*JsonTalkie::Manifesto::echo)(JsonObject) = process_response;
+bool (*JsonTalkie::Manifesto::error)(JsonObject) = nullptr;
 
 // END OF MANIFESTO
 
