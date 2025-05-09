@@ -25,6 +25,7 @@ DEBUG = False  # Set to False to disable debug prints
 # Keys:
 #     c: checksum
 #     d: description
+#     e: error
 #     f: from
 #     i: id
 #     m: message
@@ -183,10 +184,10 @@ class JsonTalkie:
                     if "echo" in self._manifesto:
                         self._manifesto["echo"](message)
             case 7:         # error
-                if "r" in message and "v" in message:
-                    print(f"\t{message["r"]} - {message["v"]}")
-                elif "r" in message:
-                    print(f"\t{message["r"]}")
+                if "e" in message and "v" in message:
+                    print(f"\tError {message["e"]} - {message["v"]}")
+                elif "e" in message:
+                    print(f"\tError {message["e"]}")
             case _:
                 print("\tUnknown message!")
         return False
