@@ -134,8 +134,8 @@ namespace JsonTalkie {
         #endif
         static char _buffer[JSON_TALKIE_BUFFER_SIZE];
         static uint32_t _sent_message_id;   // Keeps track of the sent id
-        static uint32_t _received_time[2];  // Keeps two time stamp
-        static bool _check_received_time;
+        static uint32_t _sent_set_time[2];  // Keeps two time stamp
+        static bool _check_set_time;
         static bool _running;
 
     private:
@@ -231,16 +231,17 @@ namespace JsonTalkie {
                 talk(message);
                 return false;
             }
-            // Check if it's an on time message
+            // Only set messages are time checked
             // In theory, a UDP packet on a local area network (LAN) could survive for about 4.25 minutes (255 seconds).
-            if (_check_received_time && _received_time[0] - message["i"].as<uint32_t>() < 255) {
+            if ((message["m"].as<int>() == 3)   // 3 - set
+                    && _check_set_time && _sent_set_time[0] - message["i"].as<uint32_t>() < 255) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Message arrived too late"));
                 #endif
                 message["m"] = 7;   // error
                 message["t"] = message["f"];
                 message["f"] = Manifesto::talk()->name;
-                message["r"] = F("Message arrived too late");
+                message["r"] = F("Set message arrived too late");
                 talk(message);
                 return false;
             }
@@ -289,9 +290,13 @@ namespace JsonTalkie {
                     Serial.println();  // optional: just to add a newline after the JSON
                     #endif
 
-                    _received_time[0] = message["i"].as<uint32_t>();
-                    _received_time[1] = generateMessageId();
-                    _check_received_time = true;
+                    // Only set messages are time checked
+                    if (message["m"].as<int>() == 3) {  // 3 - set
+                        _sent_set_time[0] = message["i"].as<uint32_t>();
+                        _sent_set_time[1] = generateMessageId();
+                        _check_set_time = true;
+                    }
+
                     receive(message);
                 }
             }
@@ -491,11 +496,11 @@ namespace JsonTalkie {
 
         void listen() {
             broadcast_socket.receive();
-            if (_check_received_time) {
+            if (_check_set_time) {
                 // In theory, a UDP packet on a local area network (LAN) could survive
                 // for about 4.25 minutes (255 seconds).
-                if (millis() - _received_time[1] > 255 * 1000) {
-                    _check_received_time = false;
+                if (millis() - _sent_set_time[1] > 255 * 1000) {
+                    _check_set_time = false;
                 }
             }
         }
@@ -509,8 +514,8 @@ namespace JsonTalkie {
     #endif
     char Talker::_buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
     uint32_t Talker::_sent_message_id = 0;  // 8 chars + null terminator
-    uint32_t Talker::_received_time[2] = {0};  // 8 chars + null terminator
-    bool Talker::_check_received_time = false;
+    uint32_t Talker::_sent_set_time[2] = {0};  // 8 chars + null terminator
+    bool Talker::_check_set_time = false;
     bool Talker::_running = false;
 
 }
