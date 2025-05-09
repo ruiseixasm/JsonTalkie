@@ -25,8 +25,9 @@ DEBUG = False  # Set to False to disable debug prints
 # Keys:
 #     c: checksum
 #     d: description
-#     e: error
+#     e: error code
 #     f: from
+#     g: echo roger code
 #     i: id
 #     m: message
 #     n: name
@@ -44,6 +45,20 @@ DEBUG = False  # Set to False to disable debug prints
 #     5 sys
 #     6 echo
 #     7 error
+
+# Echo codes (g):
+#     0 - ROGER
+#     1 - UNKNOWN
+#     2 - NONE
+
+# Error types (e):
+#     0 - Message NOT for me
+#     1 - Unknown sender
+#     2 - Message corrupted
+#     3 - Wrong message code
+#     4 - Message NOT identified
+#     5 - Message echo id mismatch
+#     6 - Set command arrived too late
 
 
 
