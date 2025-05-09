@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define BROADCAST_SOCKET_HPP
 
 // No std::function, no templates, just a raw function pointer.
-typedef void (*SocketCallback)(const char* data, size_t length);
+typedef void (*SocketCallback)(const char* data, size_t length, const uint8_t* source_ip = 0);
 
 class BroadcastSocket {
 protected:
@@ -31,7 +31,7 @@ public:
     virtual void close() = 0;
 
     // Send data (broadcast by default)
-    virtual bool send(const char* data, size_t len) = 0;
+    virtual bool send(const char* data, size_t len, const uint8_t* source_ip = 0) = 0;
     virtual void receive() = 0; // Just a trigger
 
     // Set callback (like ether's udpServerListenOnPort)
