@@ -20,7 +20,7 @@ import platform
 
 from broadcast_socket import BroadcastSocket
 
-DEBUG = True  # Set to False to disable debug prints
+DEBUG = False  # Set to False to disable debug prints
 
 # Keys:
 #     c: checksum
@@ -42,6 +42,7 @@ DEBUG = True  # Set to False to disable debug prints
 #     4 get
 #     5 sys
 #     6 echo
+#     7 error
 
 
 
