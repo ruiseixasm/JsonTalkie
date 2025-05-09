@@ -233,17 +233,19 @@ namespace JsonTalkie {
             }
             // Only set messages are time checked
             // In theory, a UDP packet on a local area network (LAN) could survive for about 4.25 minutes (255 seconds).
-            if ((message["m"].as<int>() == 3)   // 3 - set
-                    && _check_set_time && _sent_set_time[0] - message["i"].as<uint32_t>() < 255) {
-                #ifdef JSONTALKIE_DEBUG
-                Serial.println(F("Message arrived too late"));
-                #endif
-                message["m"] = 7;   // error
-                message["t"] = message["f"];
-                message["f"] = Manifesto::talk()->name;
-                message["r"] = F("Set message arrived too late");
-                talk(message);
-                return false;
+            if (message["m"].as<int>() == 3 && _check_set_time) {   // 3 - set
+                uint32_t delta = _sent_set_time[0] - message["i"].as<uint32_t>();
+                if (delta < 255 && delta != 0) {
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.println(F("Message arrived too late"));
+                    #endif
+                    message["m"] = 7;   // error
+                    message["t"] = message["f"];
+                    message["f"] = Manifesto::talk()->name;
+                    message["r"] = F("Set message arrived too late");
+                    talk(message);
+                    return false;
+                }
             }
             // NEEDS TO BE COMPLETED
             #ifdef JSONTALKIE_DEBUG
