@@ -166,7 +166,7 @@ namespace JsonTalkie {
             // Use a static buffer size, large enough for your JSON
             uint16_t message_checksum = 0;
             if (message.containsKey("c")) {
-                message_checksum = message["c"];
+                message_checksum = message["c"].as<uint16_t>();
             }
             message["c"] = 0;
             size_t len = serializeJson(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
@@ -212,7 +212,7 @@ namespace JsonTalkie {
                 #endif
                 return false;
             }
-            if (!(message.containsKey("c") && message["c"].is<int>() && valid_checksum(message))) {
+            if (!(message.containsKey("c") && message["c"].is<uint16_t>() && valid_checksum(message))) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(2);
                 #endif
