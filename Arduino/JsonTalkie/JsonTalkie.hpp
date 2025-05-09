@@ -150,6 +150,7 @@ namespace JsonTalkie {
         static JsonDocument _message_doc;
         #endif
         static char _buffer[JSON_TALKIE_BUFFER_SIZE];
+        static uint8_t _received_ip[4];     // For echo and error destination
         static uint32_t _sent_message_id;   // Keeps track of the sent id
         static uint32_t _sent_set_time[2];  // Keeps two time stamp
         static String _set_name;            // Keeps the device name
@@ -282,7 +283,7 @@ namespace JsonTalkie {
             return true;
         }
         
-        static void listenCallback(const char* data, size_t length) {
+        static void listenCallback(const char* data, size_t length, const uint8_t* source_ip) {
             #ifdef JSONTALKIE_DEBUG
             Serial.println(F("Callback..."));
             #endif
@@ -570,6 +571,7 @@ namespace JsonTalkie {
     static JsonDocument Talker::_message_doc;
     #endif
     char Talker::_buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
+    uint8_t Talker::_received_ip[4];    // For echo and error destination
     uint32_t Talker::_sent_message_id = 0;
     uint32_t Talker::_sent_set_time[2] = {0};
     String Talker::_set_name = "";

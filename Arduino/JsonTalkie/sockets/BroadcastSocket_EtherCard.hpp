@@ -59,7 +59,7 @@ private:
             #ifdef BROADCAST_SOCKET_DEBUG
             Serial.println(F("Calling Socket callback..."));
             #endif
-            _socketCallback(data, length);
+            _socketCallback(data, length, src_ip);
         }
     }
 
@@ -92,7 +92,7 @@ public:
         return true;
     }
     
-    bool open(const uint8_t* mac,
+    bool open(uint8_t* mac,
         const uint8_t* my_ip, const uint8_t* gw_ip = 0, const uint8_t* dns_ip = 0, const uint8_t* mask = 0, const uint8_t* broadcast_ip = 0,
         uint8_t csPin = 10, uint16_t port = 5005) {
 
@@ -133,9 +133,13 @@ public:
         _isOpen = false;
     }
 
-    bool send(const char* data, size_t size) override {
+    bool send(const char* data, size_t size, const uint8_t* source_ip = 0) override {
 
-        ether.sendUdp(data, size, _port, _broadcastIp, _port);
+        if (source_ip == 0) {
+            ether.sendUdp(data, size, _port, _broadcastIp, _port);
+        } else {
+            ether.sendUdp(data, size, _port, source_ip, _port);
+        }
 
         #ifdef BROADCAST_SOCKET_DEBUG
         Serial.print(F("S: "));
