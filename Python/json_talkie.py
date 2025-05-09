@@ -100,7 +100,7 @@ class JsonTalkie:
         if DEBUG:
             print(message)
         # Avoids broadcasting flooding
-        if "t" in message and message["t"] in self._devices_address:
+        if "t" in message and message["t"] != "*" and message["t"] in self._devices_address:
             return self._socket.send( JsonTalkie.encode(message), self._devices_address[message["t"]] )
         return self._socket.send( JsonTalkie.encode(message) )
     
