@@ -17,32 +17,45 @@ https://github.com/ruiseixasm/JsonTalkie
 #include "../BroadcastSocket.hpp"
 #include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
 
+
+// Readjust if absolutely necessary
+#define JSON_TALKIE_BUFFER_SIZE 128
+#define BROADCAST_SOCKET_DEBUG
+
 class BroadcastSocket_Serial : public BroadcastSocket {
 private:
-    long _baudRate;
+    char _buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
 
 public:
-    BroadcastSocket_Serial(long baud = 9600) : _baudRate(baud) {}
     
-    bool begin() override {
-        Serial.begin(_baudRate);
+    // Arduino default SPI pins in https://docs.arduino.cc/language-reference/en/functions/communication/SPI/
+    bool open(const uint8_t* mac, uint8_t csPin = 10, uint16_t port = 5005) {
+        return open(port);
+    }
+
+    bool open(const uint8_t* mac,
+        const uint8_t* my_ip, const uint8_t* gw_ip = 0, const uint8_t* dns_ip = 0, const uint8_t* mask = 0, const uint8_t* broadcast_ip = 0,
+        uint8_t csPin = 10, uint16_t port = 5005) {
+
+        return open(port);
+    }
+
+    bool open(uint16_t port = 5005) override {
         return true;
     }
-    void end() override {
+    void close() override {
         Serial.end();
     }
-    bool write(const uint8_t* data, size_t length) override {
-        return Serial.write(data, length) == length;
+    bool send(const char* data, size_t len) override {
+        return Serial.write(data, len) == len;
     }
 
-    bool available() override {
-        return Serial.available() > 0;
+    void receive() override {
+        size_t message_len = Serial.readBytes(_buffer, JSON_TALKIE_BUFFER_SIZE);
+        _socketCallback(_buffer, message_len);
     }
-
-    size_t read(uint8_t* buffer, size_t size) override {
-        return Serial.readBytes((char*)buffer, size);
-    }
-
 };
+
+BroadcastSocket_Serial broadcast_socket;
 
 #endif // BROADCAST_SOCKET_SERIAL_HPP

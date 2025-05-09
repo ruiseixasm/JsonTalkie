@@ -18,6 +18,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
 #include <ArduinoJson.h>
 
+
 // To occupy less Flash memory
 #define ARDUINO_JSON_VERSION 6
 

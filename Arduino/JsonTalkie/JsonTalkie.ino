@@ -26,13 +26,12 @@ https://github.com/ruiseixasm/JsonTalkie
 #endif
 
 // Choose Broadcast Socket here ---vvv
-#define BROADCAST_SOCKET SOCKET_DUMMY
+#define BROADCAST_SOCKET SOCKET_SERIAL
 
 // Network configuration
 uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
 #if BROADCAST_SOCKET == SOCKET_SERIAL
     #include "sockets/BroadcastSocket_Serial.hpp"
-    BroadcastSocket_Serial broadcast_socket;
 #elif BROADCAST_SOCKET == SOCKET_UDP
     #include "sockets/BroadcastSocket_UDP.hpp"
 #elif BROADCAST_SOCKET == SOCKET_ETHERCARD
