@@ -28,7 +28,9 @@ https://github.com/ruiseixasm/JsonTalkie
 // Keys:
 //     c: checksum
 //     d: description
+//     e: error code
 //     f: from
+//     g: echo roger code
 //     i: id
 //     m: message
 //     n: name
@@ -46,6 +48,20 @@ https://github.com/ruiseixasm/JsonTalkie
 //     5 sys
 //     6 echo
 //     7 error
+
+// Echo codes (g):
+//     0 - ROGER
+//     1 - UNKNOWN
+//     2 - NONE
+
+// Error types (e):
+//     0 - Message NOT for me
+//     1 - Unknown sender
+//     2 - Message corrupted
+//     3 - Wrong message code
+//     4 - Message NOT identified
+//     5 - Message echo id mismatch
+//     6 - Set command arrived too late
 
 
 namespace JsonTalkie {
@@ -318,6 +334,12 @@ namespace JsonTalkie {
         }
 
         static bool receive(JsonObject message) {
+
+            // Echo codes:
+            //     0 - ROGER
+            //     1 - UNKNOWN
+            //     2 - NONE
+
             int message_code = message["m"].as<int>(); // Throws on type mismatch
             message["t"] = message["f"];
             message["m"] = 6;
@@ -326,22 +348,29 @@ namespace JsonTalkie {
                 return talk(message);
             } else if (message_code == 1) {     // list
                 message["w"] = 2;
+                bool none_list = true;
                 for (size_t run_i = 0; run_i < Manifesto::runSize; ++run_i) {
                     message["n"] = Manifesto::runCommands[run_i].name;
                     message["d"] = Manifesto::runCommands[run_i].desc;
+                    none_list = false;
                     talk(message);
                 }
                 message["w"] = 3;
                 for (size_t set_i = 0; set_i < Manifesto::setSize; ++set_i) {
                     message["n"] = Manifesto::setCommands[set_i].name;
                     message["d"] = Manifesto::setCommands[set_i].desc;
+                    none_list = false;
                     talk(message);
                 }
                 message["w"] = 4;
                 for (size_t get_i = 0; get_i < Manifesto::getSize; ++get_i) {
                     message["n"] = Manifesto::getCommands[get_i].name;
                     message["d"] = Manifesto::getCommands[get_i].desc;
+                    none_list = false;
                     talk(message);
+                }
+                if(none_list) {
+                    message["g"] = 2;       // NONE
                 }
                 return true;
             } else if (message_code == 2) {     // run
@@ -349,11 +378,11 @@ namespace JsonTalkie {
                     message["w"] = message_code;
                     const Run* run = Manifesto::run(message["n"]);
                     if (run == nullptr) {
-                        message["r"] = F("UNKNOWN");
+                        message["g"] = 1;   // UNKNOWN
                         talk(message);
                         return false;
                     }
-                    message["r"] = "ROGER";
+                    message["g"] = 0;       // ROGER
                     talk(message);
                     run->function(message);
                     return true;
@@ -363,9 +392,9 @@ namespace JsonTalkie {
                     message["w"] = message_code;
                     const Set* set = Manifesto::set(message["n"]);
                     if (set == nullptr) {
-                        message["r"] = F("UNKNOWN");
+                        message["g"] = 1;   // UNKNOWN
                     } else {
-                        message["r"] = "ROGER";
+                        message["g"] = 0;   // ROGER
                     }
                     talk(message);
                     if (set != nullptr) {
@@ -378,9 +407,9 @@ namespace JsonTalkie {
                     message["w"] = message_code;
                     const Get* get = Manifesto::get(message["n"]);
                     if (get == nullptr) {
-                        message["r"] = F("UNKNOWN");
+                        message["g"] = 1;   // UNKNOWN
                     } else {
-                        message["r"] = "ROGER";
+                        message["g"] = 0;   // ROGER
                         message["v"] = get->function(message);
                     }
                     return talk(message);
