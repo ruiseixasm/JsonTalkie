@@ -45,6 +45,7 @@ https://github.com/ruiseixasm/JsonTalkie
 //     4 get
 //     5 sys
 //     6 echo
+//     7 error
 
 
 namespace JsonTalkie {
@@ -133,8 +134,8 @@ namespace JsonTalkie {
         #endif
         static char _buffer[JSON_TALKIE_BUFFER_SIZE];
         static uint32_t _sent_message_id;  // Keeps two time stamp
-        static uint32_t _received_message_id[2];  // Keeps two time stamp
-        static bool _check_time_window;
+        static uint32_t _received_time[2];  // Keeps two time stamp
+        static bool _check_received_time;
         static bool _running;
 
     private:
@@ -171,17 +172,47 @@ namespace JsonTalkie {
             #ifdef JSONTALKIE_DEBUG
             Serial.println("Validating...");
             #endif
-            if (!(message.containsKey("c") && valid_checksum(message) && message.containsKey("m")
-                    && message.containsKey("i") && message["i"].is<int>() && message.containsKey("f") && message["m"].is<int>()
-                    && (message["m"].as<int>() == 0 || message["m"].as<int>() == 5 || message["t"] == "*" || message["t"] == Manifesto::talk()->name))) {
+            
+            if (!(message.containsKey("c") && valid_checksum(message))) {
                 #ifdef JSONTALKIE_DEBUG
-                Serial.println("NOT validated");
+                Serial.println("Message corrupted");
+                #endif
+                return false;
+            }
+            if (!(message.containsKey("m") && message["m"].is<int>())) {
+                #ifdef JSONTALKIE_DEBUG
+                Serial.println("Wrong message code");
+                #endif
+                return false;
+            }
+            if (!(message["m"].as<int>() == 0 || message["m"].as<int>() == 5 || message["m"].as<int>() == 7
+                    || message.containsKey("t") && (message["t"] == Manifesto::talk()->name || message["t"] == "*"))) {
+                #ifdef JSONTALKIE_DEBUG
+                Serial.println("Message NOT for me");
+                #endif
+                return false;
+            }
+            if (!message.containsKey("f")) {
+                #ifdef JSONTALKIE_DEBUG
+                Serial.println("Unknown sender");
+                #endif
+                return false;
+            }
+            if (!(message.containsKey("i") && message["i"].is<uint32_t>())) {
+                #ifdef JSONTALKIE_DEBUG
+                Serial.println("Message NOT identified");
+                #endif
+                return false;
+            }
+            if (message["m"].as<int>() == 6 && message["i"].as<uint32_t>() != _sent_message_id) {
+                #ifdef JSONTALKIE_DEBUG
+                Serial.println("Message echo id mismatch");
                 #endif
                 return false;
             }
             // Check if it's an on time message
             // In theory, a UDP packet on a local area network (LAN) could survive for about 4.25 minutes (255 seconds).
-            if (_check_time_window && (_received_message_id[0] - message["i"].as<int>() & 0xFFFFFFFF) < 255) {
+            if (_check_received_time && (_received_time[0] - message["i"].as<int>() & 0xFFFFFFFF) < 255) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println("Message arrived too late");
                 #endif
@@ -232,9 +263,9 @@ namespace JsonTalkie {
                     Serial.println();  // optional: just to add a newline after the JSON
                     #endif
 
-                    _received_message_id[0] = message["i"].as<int>();
-                    _received_message_id[1] = generateMessageId();
-                    _check_time_window = true;
+                    _received_time[0] = message["i"].as<int>();
+                    _received_time[1] = generateMessageId();
+                    _check_received_time = true;
                     receive(message);
                 }
             }
@@ -418,11 +449,11 @@ namespace JsonTalkie {
 
         void listen() {
             broadcast_socket.receive();
-            if (_check_time_window) {
+            if (_check_received_time) {
                 // In theory, a UDP packet on a local area network (LAN) could survive
                 // for about 4.25 minutes (255 seconds).
-                if (millis() - _received_message_id[1] > 255 * 1000) {
-                    _check_time_window = false;
+                if (millis() - _received_time[1] > 255 * 1000) {
+                    _check_received_time = false;
                 }
             }
         }
@@ -436,8 +467,8 @@ namespace JsonTalkie {
     #endif
     char Talker::_buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
     uint32_t Talker::_sent_message_id = 0;  // 8 chars + null terminator
-    uint32_t Talker::_received_message_id[2] = {0};  // 8 chars + null terminator
-    bool Talker::_check_time_window = false;
+    uint32_t Talker::_received_time[2] = {0};  // 8 chars + null terminator
+    bool Talker::_check_received_time = false;
     bool Talker::_running = false;
 
 }
