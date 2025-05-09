@@ -51,7 +51,8 @@ class Talker:
                     'function': self.get_duration
                 }
             },
-            'echo': self.echo
+            'echo': self.echo,
+            'error': self.error
         }
         # Talker self variables
         self._duration: float = 0.5
@@ -77,6 +78,11 @@ class Talker:
         return self._duration
     
 
+    # Echo codes (g):
+    #     0 - ROGER
+    #     1 - UNKNOWN
+    #     2 - NONE
+
     def echo(self, message: Dict[str, Any]) -> bool:
         if "f" in message:
             print(f"\t[{message["f"]}", end='')
@@ -96,7 +102,20 @@ class Talker:
                             what = "get"
                         case 5:
                             what = "sys"
-                    if "v" in message and "n" in message:
+                    if "g" in message:
+                        roger: str = "FAIL"
+                        match message["g"]:
+                            case 0:
+                                roger = "ROGER"
+                            case 1:
+                                roger = "UNKNOWN"
+                            case 2:
+                                roger = "NONE"
+                        if "n" in message:
+                            print(f" {what} {message["n"]}]\t{roger}")
+                        else:
+                            print(f" {what}]\t{roger}")
+                    elif "v" in message and "n" in message:
                         print(f" {what} {message["n"]}]\t{message["v"]}")
                     elif "n" in message and "d" in message:
                         print(f" {what} {message["n"]}]\t{message["d"]}")
@@ -106,6 +125,43 @@ class Talker:
                         print(f" {what}]\t{message["r"]}")
             elif "d" in message:
                 print(f"]\t{message["d"]}")
+        return True
+
+
+    # Error types (e):
+    #     0 - Message NOT for me
+    #     1 - Unknown sender
+    #     2 - Message corrupted
+    #     3 - Wrong message code
+    #     4 - Message NOT identified
+    #     5 - Message echo id mismatch
+    #     6 - Set command arrived too late
+
+    def error(self, message: Dict[str, Any]) -> bool:
+        if "f" in message:
+            print(f"\t[{message["f"]}", end='')
+            if "e" in message:
+                if isinstance(message["e"], int):
+                    print(f"]\tERROR", end='')
+                    match message["e"]:
+                        case 0:
+                            print(f"\tMessage NOT for me")
+                        case 1:
+                            print(f"\tUnknown sender")
+                        case 2:
+                            print(f"\tMessage corrupted")
+                        case 3:
+                            print(f"\tWrong message code")
+                        case 4:
+                            print(f"\tMessage NOT identified")
+                        case 5:
+                            print(f"\tMessage echo id mismatch")
+                        case 5:
+                            print(f"\tSet command arrived too late")
+                        case _:
+                            print("\tUnknown")
+            else:
+                print("]\tUnknown error")
         return True
 
 

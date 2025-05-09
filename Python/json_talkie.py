@@ -195,6 +195,12 @@ class JsonTalkie:
                 message["d"] = f"{platform.platform()}"
                 return self.talk(message)
             case 6:         # echo
+
+                # Echo codes (g):
+                #     0 - ROGER
+                #     1 - UNKNOWN
+                #     2 - NONE
+
                 if self._last_message and message["i"] == self._last_message["i"]:
                     if "echo" in self._manifesto:
                         self._manifesto["echo"](message)
@@ -209,10 +215,9 @@ class JsonTalkie:
                 #     5 - Message echo id mismatch
                 #     6 - Set command arrived too late
 
-                if "e" in message and "v" in message:
-                    print(f"\tError {message["e"]} - {message["v"]}")
-                elif "e" in message:
-                    print(f"\tError {message["e"]}")
+                if self._last_message and message["i"] == self._last_message["i"]:
+                    if "error" in self._manifesto:
+                        self._manifesto["error"](message)
             case _:
                 print("\tUnknown message!")
         return False
