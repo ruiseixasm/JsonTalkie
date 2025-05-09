@@ -11,7 +11,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 '''
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict
 
 class BroadcastSocket:
     def __init__(self, *parameters):
@@ -25,7 +25,7 @@ class BroadcastSocket:
         """Release socket resources."""
         return True
     
-    def send(self, data: bytes) -> bool:
+    def send(self, data: bytes, device_address: Tuple[str, int] = None) -> bool:
         """Broadcast data if socket is active."""
         return False
     

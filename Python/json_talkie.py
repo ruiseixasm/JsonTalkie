@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonTalkie
 import json
 import threading
 import uuid
-from typing import Dict, Any, TYPE_CHECKING, Callable
+from typing import Dict, Tuple, Any, TYPE_CHECKING, Callable
 import time
 import platform
 
@@ -70,6 +70,7 @@ class JsonTalkie:
         self._last_message: Dict[str, Any] = {}
         self._message_time: float = 0.0
         self._running: bool = False
+        self._devices_ip: Dict[str, Tuple[str, int]] = {}
 
     def on(self) -> bool:
         """Start message processing (no network knowledge)."""
@@ -105,7 +106,7 @@ class JsonTalkie:
         while self._running:
             received = self._socket.receive()
             if received:
-                data, _ = received  # Explicitly ignore (ip, port)
+                data, device_ip = received  # Explicitly ignore (ip, port)
                 try:
                     if DEBUG:
                         print(data)
@@ -113,6 +114,8 @@ class JsonTalkie:
                     if self.validate_message(message):
                         if DEBUG:
                             print(message)
+                        if "f" in message:
+                            self._devices_ip[message["f"]] = device_ip
                         self.receive(message)
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
                     if DEBUG:

@@ -45,7 +45,7 @@ class BroadcastSocket_Dummy(BroadcastSocket):
         if self._socket:
             self._socket = None
     
-    def send(self, data: bytes) -> bool:
+    def send(self, data: bytes, device_address: Tuple[str, int] = None) -> bool:
         """Broadcast data if socket is active."""
         if not self._socket:
             return False

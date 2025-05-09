@@ -12,7 +12,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 '''
 import socket
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict
 
 from broadcast_socket import BroadcastSocket
 
@@ -42,12 +42,15 @@ class BroadcastSocket_UDP(BroadcastSocket):
             self._socket.close()
             self._socket = None
     
-    def send(self, data: bytes) -> bool:
+    def send(self, data: bytes, device_address: Tuple[str, int] = None) -> bool:
         """Broadcast data if socket is active."""
         if not self._socket:
             return False
         try:
-            self._socket.sendto(data, ('192.168.31.255', self._port))
+            if device_address:
+                self._socket.sendto(data, device_address)
+            else:
+                self._socket.sendto(data, ('192.168.31.255', self._port))
             return True
         except Exception as e:
             print(f"Send failed: {e}")
