@@ -93,27 +93,27 @@ void setup() {
     delay(2000);    // Just to give some time to Serial
 
     // Saving string in PROGMEM (flash) to save RAM memory
-    Serial.println(F("Opening the Socket..."));
+    Serial.println("Opening the Socket...");
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
     #ifdef USE_STATIC_IP
     static byte myIp[]          = { 192,168,31,100 };
     static byte netmask[]       = { 255,255,255,0 };
     if (!broadcast_socket.open(mymac, myIp, 0, 0, netmask, 0, SS, 5005)) {
-        Serial.println(F("Failed to open the Socket!"));
+        Serial.println("Failed to open the Socket!");
         while(1);
     }
     #else
     if (!broadcast_socket.open(mymac, SS, 5005)) {
-        Serial.println(F("Failed to open the Socket!"));
+        Serial.println("Failed to open the Socket!");
         while(1);
     }
     #endif
     
     Serial.println();
-    Serial.println(F("Beginning Talker..."));
+    Serial.println("Beginning Talker...");
     if (!json_talkie.begin()) {
-        Serial.println(F("Failed to initialize Talker!"));
+        Serial.println("Failed to initialize Talker!");
         while(1);
     }
 
@@ -139,7 +139,7 @@ void setup() {
 
     #endif
 
-    Serial.println(F("Talker ready"));
+    Serial.println("Talker ready");
 
     #if BROADCAST_SOCKET != SOCKET_SERIAL
     pinMode(buzzer_pin, OUTPUT);
@@ -151,13 +151,13 @@ void setup() {
     digitalWrite(LED_BUILTIN, HIGH);
     digitalWrite(LED_BUILTIN, LOW);
 
-    Serial.println(F("Sending JSON..."));
+    Serial.println("Sending JSON...");
 
     // Lives until end of function
     #if ARDUINO_JSON_VERSION == 6
     StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;
     if (message_doc.capacity() < JSON_TALKIE_BUFFER_SIZE) {  // Absolute minimum
-        Serial.println(F("CRITICAL: Insufficient RAM"));
+        Serial.println("CRITICAL: Insufficient RAM");
     } else {
         JsonObject message = message_doc.to<JsonObject>();
         message["m"] = 0;   // talk
@@ -185,7 +185,7 @@ void loop() {
         #if ARDUINO_JSON_VERSION == 6
         StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;
         if (message_doc.capacity() < JSON_TALKIE_BUFFER_SIZE) {  // Absolute minimum
-            Serial.println(F("CRITICAL: Insufficient RAM"));
+            Serial.println("CRITICAL: Insufficient RAM");
         } else {
             JsonObject message = message_doc.to<JsonObject>();
             message["m"] = 0;   // talk
@@ -194,7 +194,7 @@ void loop() {
         #else
         JsonDocument message_doc;
         if (message_doc.overflowed()) {
-            Serial.println(F("CRITICAL: Insufficient RAM"));
+            Serial.println("CRITICAL: Insufficient RAM");
         } else {
             JsonObject message = message_doc.to<JsonObject>();
             message["m"] = 0;   // talk
@@ -247,7 +247,7 @@ bool process_response(JsonObject json_message) {
     } else if (json_message.containsKey("d")) {
         Serial.println(json_message["d"].as<String>());
     } else {
-        Serial.println(F("Empty echo received!"));
+        Serial.println("Empty echo received!");
     }
     return false;
 }

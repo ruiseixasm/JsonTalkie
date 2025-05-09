@@ -170,43 +170,48 @@ namespace JsonTalkie {
 
         static bool validateTalk(JsonObject message) {
             #ifdef JSONTALKIE_DEBUG
-            Serial.println("Validating...");
+            Serial.println(F("Validating..."));
             #endif
             
-            if (!(message.containsKey("c") && valid_checksum(message))) {
-                #ifdef JSONTALKIE_DEBUG
-                Serial.println("Message corrupted");
-                #endif
-                return false;
-            }
-            if (!(message.containsKey("m") && message["m"].is<int>())) {
-                #ifdef JSONTALKIE_DEBUG
-                Serial.println("Wrong message code");
-                #endif
-                return false;
-            }
             if (!(message["m"].as<int>() == 0 || message["m"].as<int>() == 5 || message["m"].as<int>() == 7
                     || message.containsKey("t") && (message["t"] == Manifesto::talk()->name || message["t"] == "*"))) {
                 #ifdef JSONTALKIE_DEBUG
-                Serial.println("Message NOT for me");
+                Serial.println(F("Message NOT for me"));
                 #endif
                 return false;
             }
             if (!message.containsKey("f")) {
                 #ifdef JSONTALKIE_DEBUG
-                Serial.println("Unknown sender");
+                Serial.println(F("Unknown sender"));
+                #endif
+                return false;
+            }
+            if (!(message.containsKey("c") && valid_checksum(message))) {
+                #ifdef JSONTALKIE_DEBUG
+                Serial.println(F("Message corrupted"));
+                #endif
+                message["m"] = 7;   // error
+                message["t"] = message["f"];
+                message["f"] = Manifesto::talk()->name;
+                message["r"] = F("Message corrupted");
+                talk(message);
+                return false;
+            }
+            if (!(message.containsKey("m") && message["m"].is<int>())) {
+                #ifdef JSONTALKIE_DEBUG
+                Serial.println(F("Wrong message code"));
                 #endif
                 return false;
             }
             if (!(message.containsKey("i") && message["i"].is<uint32_t>())) {
                 #ifdef JSONTALKIE_DEBUG
-                Serial.println("Message NOT identified");
+                Serial.println(F("Message NOT identified"));
                 #endif
                 return false;
             }
             if (message["m"].as<int>() == 6 && message["i"].as<uint32_t>() != _sent_message_id) {
                 #ifdef JSONTALKIE_DEBUG
-                Serial.println("Message echo id mismatch");
+                Serial.println(F("Message echo id mismatch"));
                 #endif
                 return false;
             }
@@ -214,26 +219,26 @@ namespace JsonTalkie {
             // In theory, a UDP packet on a local area network (LAN) could survive for about 4.25 minutes (255 seconds).
             if (_check_received_time && (_received_time[0] - message["i"].as<int>() & 0xFFFFFFFF) < 255) {
                 #ifdef JSONTALKIE_DEBUG
-                Serial.println("Message arrived too late");
+                Serial.println(F("Message arrived too late"));
                 #endif
                 return false;
             }
             // NEEDS TO BE COMPLETED
             #ifdef JSONTALKIE_DEBUG
-            Serial.println("Validated");
+            Serial.println(F("Validated"));
             #endif
             return true;
         }
         
         static void listenCallback(const char* data, size_t length) {
             #ifdef JSONTALKIE_DEBUG
-            Serial.println("Callback...");
+            Serial.println(F("Callback..."));
             #endif
             if (!_running)
                 return;
         
             #ifdef JSONTALKIE_DEBUG
-            Serial.println("Running...");
+            Serial.println(F("Running..."));
             #endif
 
             if (length < JSON_TALKIE_BUFFER_SIZE - 1) {
@@ -241,7 +246,7 @@ namespace JsonTalkie {
                 _buffer[length] = '\0';
 
                 #ifdef JSONTALKIE_DEBUG
-                Serial.print("L: ");
+                Serial.print(F("L: "));
                 Serial.write(_buffer, length);  // Properly prints raw bytes as characters
                 Serial.println();            // Adds newline after the printed data
                 #endif
@@ -249,7 +254,7 @@ namespace JsonTalkie {
                 DeserializationError error = deserializeJson(_message_doc, _buffer);
                 if (error) {
                     #ifdef JSONTALKIE_DEBUG
-                    Serial.println("Failed to deserialize buffer");
+                    Serial.println(F("Failed to deserialize buffer"));
                     #endif
                     return;
                 }
@@ -258,7 +263,7 @@ namespace JsonTalkie {
                 if (validateTalk(message)) {
 
                     #ifdef JSONTALKIE_DEBUG
-                    Serial.print("Received: ");
+                    Serial.print(F("Received: "));
                     serializeJson(message, Serial);
                     Serial.println();  // optional: just to add a newline after the JSON
                     #endif
@@ -436,7 +441,7 @@ namespace JsonTalkie {
                     }
 
                     #ifdef JSONTALKIE_DEBUG
-                    Serial.print("T: ");
+                    Serial.print(F("T: "));
                     serializeJson(message, Serial);
                     Serial.println();  // optional: just to add a newline after the JSON
                     #endif
