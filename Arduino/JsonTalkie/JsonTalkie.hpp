@@ -329,7 +329,7 @@ namespace JsonTalkie {
                     message["w"] = message_code;
                     const Run* run = Manifesto::run(message["n"]);
                     if (run == nullptr) {
-                        message["r"] = "UNKNOWN";
+                        message["r"] = F("UNKNOWN");
                         talk(message);
                         return false;
                     }
@@ -343,7 +343,7 @@ namespace JsonTalkie {
                     message["w"] = message_code;
                     const Set* set = Manifesto::set(message["n"]);
                     if (set == nullptr) {
-                        message["r"] = "UNKNOWN";
+                        message["r"] = F("UNKNOWN");
                     } else {
                         message["r"] = "ROGER";
                     }
@@ -358,7 +358,7 @@ namespace JsonTalkie {
                     message["w"] = message_code;
                     const Get* get = Manifesto::get(message["n"]);
                     if (get == nullptr) {
-                        message["r"] = "UNKNOWN";
+                        message["r"] = F("UNKNOWN");
                     } else {
                         message["r"] = "ROGER";
                         message["v"] = get->function(message);
@@ -371,11 +371,11 @@ namespace JsonTalkie {
                 #ifdef __AVR__
                 uint16_t ramSize = RAMEND - RAMSTART + 1;
                 if (ramSize == 2048)
-                    message["d"] = "Arduino Uno/Nano (ATmega328P)";
+                    message["d"] = F("Arduino Uno/Nano (ATmega328P)");
                 else if (ramSize == 8192)
-                    message["d"] = "Arduino Mega (ATmega2560)";
+                    message["d"] = F("Arduino Mega (ATmega2560)");
                 else
-                    message["d"] = "Unknown AVR Board";
+                    message["d"] = F("Unknown AVR Board");
               
                 // ESP8266
                 #elif defined(ESP8266)
@@ -387,11 +387,11 @@ namespace JsonTalkie {
                 
                 // ARM (Due, Zero, etc.)
                 #elif defined(__arm__)
-                message["d"] = "ARM-based Board";
+                message["d"] = F("ARM-based Board");
 
                 // Unknown Board
                 #else
-                message["d"] = "Unknown Board";
+                message["d"] = F("Unknown Board");
 
                 #endif
 
