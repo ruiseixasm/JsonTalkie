@@ -52,7 +52,9 @@ public:
 
     void receive() override {
         size_t message_len = Serial.readBytes(_buffer, JSON_TALKIE_BUFFER_SIZE);
-        _socketCallback(_buffer, message_len);
+        if (message_len > 0) {
+            _socketCallback(_buffer, message_len);
+        }
     }
 };
 
