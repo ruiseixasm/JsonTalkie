@@ -135,6 +135,7 @@ namespace JsonTalkie {
         static char _buffer[JSON_TALKIE_BUFFER_SIZE];
         static uint32_t _sent_message_id;   // Keeps track of the sent id
         static uint32_t _sent_set_time[2];  // Keeps two time stamp
+        static String _set_name;            // Keeps the device name
         static bool _check_set_time;
         static bool _running;
 
@@ -515,8 +516,9 @@ namespace JsonTalkie {
     static JsonDocument Talker::_message_doc;
     #endif
     char Talker::_buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
-    uint32_t Talker::_sent_message_id = 0;  // 8 chars + null terminator
-    uint32_t Talker::_sent_set_time[2] = {0};  // 8 chars + null terminator
+    uint32_t Talker::_sent_message_id = 0;
+    uint32_t Talker::_sent_set_time[2] = {0};
+    String Talker::_set_name = "";
     bool Talker::_check_set_time = false;
     bool Talker::_running = false;
 
