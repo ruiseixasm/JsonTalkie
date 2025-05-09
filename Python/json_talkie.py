@@ -70,7 +70,7 @@ class JsonTalkie:
         self._last_message: Dict[str, Any] = {}
         self._message_time: float = 0.0
         self._running: bool = False
-        self._devices_ip: Dict[str, Tuple[str, int]] = {}
+        self._devices_address: Dict[str, Tuple[str, int]] = {}
 
     def on(self) -> bool:
         """Start message processing (no network knowledge)."""
@@ -99,6 +99,9 @@ class JsonTalkie:
         JsonTalkie.valid_checksum(message)
         if DEBUG:
             print(message)
+        # Avoids broadcasting flooding
+        if "t" in message and message["t"] in self._devices_address:
+            return self._socket.send( JsonTalkie.encode(message), self._devices_address[message["t"]] )
         return self._socket.send( JsonTalkie.encode(message) )
     
     def listen(self):
@@ -115,7 +118,7 @@ class JsonTalkie:
                         if DEBUG:
                             print(message)
                         if "f" in message:
-                            self._devices_ip[message["f"]] = device_ip
+                            self._devices_address[message["f"]] = device_ip
                         self.receive(message)
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
                     if DEBUG:
