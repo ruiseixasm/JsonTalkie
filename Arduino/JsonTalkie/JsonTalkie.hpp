@@ -261,7 +261,7 @@ namespace JsonTalkie {
             }
             // Only set messages are time checked
             // In theory, a UDP packet on a local area network (LAN) could survive for about 4.25 minutes (255 seconds).
-            if (message["m"].as<int>() == 3 && _check_set_time && message["f"].as<String>() == _set_name) {   // 3 - set
+            if (_check_set_time && message["m"].as<int>() == 3 && message["f"].as<String>() == _set_name) {   // 3 - set
                 uint32_t delta = _sent_set_time[0] - message["i"].as<uint32_t>();
                 if (delta < 255 && delta != 0) {
                     #ifdef JSONTALKIE_DEBUG
