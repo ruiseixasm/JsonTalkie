@@ -27,110 +27,8 @@ https://github.com/ruiseixasm/JsonTalkie
 
 class BroadcastSocket_Dummy : public BroadcastSocket {
     private:
-        bool _isOpen = false;
         unsigned long _lastTime = 0;
 
-        char _buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
-
-        // Helper function to safely create char* from buffer
-        static char* decode(const uint8_t* data, const size_t length, char* talk) {
-            memcpy(talk, data, length);
-            talk[length] = '\0';
-            return talk;
-        }
-
-    public:
-        ~BroadcastSocket_Dummy() override = default;
-    
-        bool begin() override {
-            _isOpen = true;
-            return _isOpen;
-        }
-    
-        void end() override {
-            _isOpen = false;
-        }
-    
-        bool write(const uint8_t* data, size_t length) override {
-            if (!_isOpen)
-                return false;
-                
-            Serial.print("DUMMY SENT: ");
-            char talk[length + 1];
-            Serial.println(decode(data, length, talk));
-            return true;
-        }
-    
-        bool available() override {
-            return _isOpen;
-        }
-    
-        size_t read(uint8_t* buffer, size_t size) override {
-            // 1. Initial Safeguards
-            if (!_isOpen || !buffer || size == 0)
-                return 0;
-        
-            if (millis() - _lastTime > 1000) {
-                _lastTime = millis();
-                if (random(1000) < 100) { // 10% chance
-                    // 2. Message Selection
-                    // ALWAYS VALIDATE THE MESSAGES FOR BAD FORMATING !!
-                    const char* messages[] = {
-                        R"({"m":"talk","f":"Dummy","i":"4bc70d90"})",
-                        R"({"m":"run","f":"Dummy","t":"Buzzer","w":"buzz","i":"4bc70d91"})",
-                        R"({"m":"run","f":"Dummy","t":"Buzzer","w":"on","i":"4bc70d92"})",
-                        R"({"m":"run","f":"Dummy","t":"Buzzer","w":"off","i":"4bc70d93"})"
-                    };
-                    const size_t num_messages = sizeof(messages)/sizeof(char*);
-                    
-                    // 3. Safer Random Selection
-                    const char* message_char = messages[random(num_messages)];
-                    size_t message_size = strlen(message_char);
-                    
-                    // 5. JSON Handling with Memory Checks
-                    {
-                        #if ARDUINO_JSON_VERSION == 6
-                        StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;
-                        if (message_doc.capacity() == 0) {
-                            Serial.println("Failed to allocate JSON message_doc");
-                            return 0;
-                        }
-                        #else
-                        JsonDocument message_doc;
-                        if (message_doc.overflowed()) {
-                            Serial.println("Failed to allocate JSON message_doc");
-                            return 0;
-                        }
-                        #endif
-                        
-                        // Message needs to be '\0' terminated and thus buffer is used instead
-                        // it's possible to serialize from a JsonObject but it isn't to deserialize into a JsonObject!
-                        DeserializationError error = deserializeJson(message_doc, message_char, message_size);
-                        if (error) {
-                            Serial.println("Failed to deserialize message");
-                            return 0;
-                        }
-                        JsonObject message = message_doc.as<JsonObject>();
-                        valid_checksum(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
-        
-                        size_t message_len = serializeJson(message, buffer, size);
-                        if (message_len == 0 || message_len >= size) {
-                            Serial.println("Serialization failed/buffer overflow");
-                            return 0;
-                        }
-
-                        // Serial.print("DUMMY READ: ");
-                        // serializeJson(message, Serial);
-                        // Serial.println();  // optional: just to add a newline after the JSON
-
-                        return message_len;
-                    
-                    } // JSON talk_doc freed here
-                }
-            }
-            return 0;
-        }
-    
         static bool valid_checksum(JsonObject message, char* buffer, size_t size) {
             // Use a static buffer size, large enough for your JSON
             uint16_t message_checksum = 0;
@@ -154,6 +52,95 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
             message["c"] = checksum;
             return message_checksum == checksum;
         }
+    public:
+        ~BroadcastSocket_Dummy() override = default;
+    
+        bool open(uint16_t port = 5005) override {
+            _isOpen = true;
+            return _isOpen;
+        }
+    
+        void close() override {
+            _isOpen = false;
+        }
+    
+        bool send(const char* data, size_t len) override {
+            if (!_isOpen)
+                return false;
+                
+            Serial.print(F("DUMMY SENT: "));
+            char talk[length + 1];
+            Serial.println(decode(data, length, talk));
+            return true;
+        }
+    
+        void receive(uint8_t* buffer, size_t size) override {
+            // 1. Initial Safeguards
+            if (!_isOpen || !buffer || size == 0)
+                return;
+        
+            if (millis() - _lastTime > 1000) {
+                _lastTime = millis();
+                if (random(1000) < 100) { // 10% chance
+                    // 2. Message Selection
+                    // ALWAYS VALIDATE THE MESSAGES FOR BAD FORMATING !!
+                    const char* PROGMEM messages[] = {
+                        R"({"m":"talk","f":"Dummy","i":"4bc70d90"})",
+                        R"({"m":"run","f":"Dummy","t":"Buzzer","w":"buzz","i":"4bc70d91"})",
+                        R"({"m":"run","f":"Dummy","t":"Buzzer","w":"on","i":"4bc70d92"})",
+                        R"({"m":"run","f":"Dummy","t":"Buzzer","w":"off","i":"4bc70d93"})"
+                    };
+                    const size_t num_messages = sizeof(messages)/sizeof(char*);
+                    
+                    // 3. Safer Random Selection
+                    const char* message_char = messages[random(num_messages)];
+                    size_t message_size = strlen(message_char);
+                    
+                    // 5. JSON Handling with Memory Checks
+                    {
+                        #if ARDUINO_JSON_VERSION == 6
+                        StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;
+                        if (message_doc.capacity() == 0) {
+                            Serial.println(F("Failed to allocate JSON message_doc"));
+                            return;
+                        }
+                        #else
+                        JsonDocument message_doc;
+                        if (message_doc.overflowed()) {
+                            Serial.println(F("Failed to allocate JSON message_doc"));
+                            return;
+                        }
+                        #endif
+                        
+                        // Message needs to be '\0' terminated and thus buffer is used instead
+                        // it's possible to serialize from a JsonObject but it isn't to deserialize into a JsonObject!
+                        DeserializationError error = deserializeJson(message_doc, message_char, message_size);
+                        if (error) {
+                            Serial.println(F("Failed to deserialize message"));
+                            return;
+                        }
+                        JsonObject message = message_doc.as<JsonObject>();
+                        valid_checksum(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
+        
+                        size_t message_len = serializeJson(message, buffer, size);
+                        if (message_len == 0 || message_len >= size) {
+                            Serial.println(F("Serialization failed/buffer overflow"));
+                            return;
+                        }
+
+                        // Serial.print("DUMMY READ: ");
+                        // serializeJson(message, Serial);
+                        // Serial.println();  // optional: just to add a newline after the JSON
+
+                        _socketCallback(data, length);
+                    
+                    } // JSON talk_doc freed here
+                }
+            }
+        }
+    
     };
+
+BroadcastSocket_Dummy broadcast_socket;
 
 #endif // BROADCAST_SOCKET_DUMMY_HPP
