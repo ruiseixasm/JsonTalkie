@@ -26,7 +26,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #endif
 
 // Choose Broadcast Socket here ---vvv
-#define BROADCAST_SOCKET SOCKET_SERIAL
+#define BROADCAST_SOCKET SOCKET_ETHERCARD
 
 // Network configuration
 uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };

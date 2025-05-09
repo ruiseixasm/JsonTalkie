@@ -181,7 +181,7 @@ class CommandLine:
 
 if __name__ == "__main__":
 
-    SOCKET = "SERIAL"
+    SOCKET = "UDP"
 
     broadcast_socket: BroadcastSocket = None
     match SOCKET:
