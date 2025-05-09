@@ -35,7 +35,7 @@ private:
     static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t length) {
         
         #ifdef BROADCAST_SOCKET_DEBUG    
-        Serial.print("R: ");
+        Serial.print(F("R: "));
         Serial.write(data, length);    // Properly prints raw bytes as characters
         Serial.println();           // Adds newline after the printed data
 
@@ -58,7 +58,7 @@ private:
 
         if (_isOpen && _socketCallback != nullptr && dst_port == _port) {
             #ifdef BROADCAST_SOCKET_DEBUG
-            Serial.println("Calling Socket callback...");
+            Serial.println(F("Calling Socket callback..."));
             #endif
             _socketCallback(data, length);
         }
@@ -139,7 +139,7 @@ public:
         ether.sendUdp(data, size, _port, _broadcastIp, _port);
 
         #ifdef BROADCAST_SOCKET_DEBUG
-        Serial.print("S: ");
+        Serial.print(F("S: "));
         Serial.write(data, size);   // Properly prints raw bytes as characters
         Serial.println();           // Adds newline after the printed data
         #endif
