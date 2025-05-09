@@ -182,7 +182,10 @@ class JsonTalkie:
                     if "echo" in self._manifesto:
                         self._manifesto["echo"](message)
             case 7:         # error
-                print(f"\t{message["r"]}")
+                if "r" in message and "v" in message:
+                    print(f"\t{message["r"]} - {message["v"]}")
+                elif "r" in message:
+                    print(f"\t{message["r"]}")
             case _:
                 print("\tUnknown message!")
         return False
