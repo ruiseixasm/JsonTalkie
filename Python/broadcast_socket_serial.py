@@ -14,7 +14,7 @@ https://github.com/ruiseixasm/JsonTalkie
 import serial   # python -m pip install pyserial
 import serial.tools.list_ports
 import time
-from typing import Optional, Tuple, Any
+from typing import Optional, Tuple, Any, Dict
 
 from broadcast_socket import BroadcastSocket
 
@@ -44,7 +44,7 @@ class BroadcastSocket_Serial(BroadcastSocket):
             self._socket.close()
             self._socket = None
     
-    def send(self, data: bytes) -> bool:
+    def send(self, data: bytes, device_address: Tuple[str, int] = None) -> bool:
         """Broadcast data if socket is active."""
         if not self._socket:
             return False
