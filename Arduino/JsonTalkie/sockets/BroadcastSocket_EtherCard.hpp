@@ -135,7 +135,7 @@ public:
 
     bool send(const char* data, size_t size, const uint8_t* source_ip = 0) override {
 
-        if (source_ip == 0) {
+        if (source_ip == 0 || true) {
             ether.sendUdp(data, size, _port, _broadcastIp, _port);
         } else {
             ether.sendUdp(data, size, _port, source_ip, _port);
