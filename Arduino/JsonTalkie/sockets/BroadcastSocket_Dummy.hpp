@@ -23,14 +23,14 @@ https://github.com/ruiseixasm/JsonTalkie
 #define ARDUINO_JSON_VERSION 6
 
 // Readjust if absolutely necessary
-#define JSON_TALKIE_BUFFER_SIZE 128
+#define BROADCAST_SOCKET_BUFFER_SIZE 128
 #define BROADCAST_SOCKET_DEBUG
 
 
 class BroadcastSocket_Dummy : public BroadcastSocket {
 private:
     unsigned long _lastTime = 0;
-    char _buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
+    char _buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
 
     // Helper function to safely create char* from buffer
     static char* decode(const uint8_t* data, const size_t length, char* talk) {
@@ -46,7 +46,7 @@ private:
             message_checksum = message["c"];
         }
         message["c"] = 0;
-        size_t len = serializeJson(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
+        size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
         // 16-bit word and XORing
         uint16_t checksum = 0;
         for (size_t i = 0; i < len; i += 2) {
@@ -119,7 +119,7 @@ public:
                 // 5. JSON Handling with Memory Checks
                 {
                     #if ARDUINO_JSON_VERSION == 6
-                    StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> message_doc;
+                    StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> message_doc;
                     if (message_doc.capacity() == 0) {
                         Serial.println(F("Failed to allocate JSON message_doc"));
                         return;
@@ -143,7 +143,7 @@ public:
                     valid_checksum(message);
     
                     size_t message_len = serializeJson(message, _buffer);
-                    if (message_len == 0 || message_len >= JSON_TALKIE_BUFFER_SIZE) {
+                    if (message_len == 0 || message_len >= BROADCAST_SOCKET_BUFFER_SIZE) {
                         Serial.println(F("Serialization failed/buffer overflow"));
                         return;
                     }

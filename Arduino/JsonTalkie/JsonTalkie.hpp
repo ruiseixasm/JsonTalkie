@@ -21,8 +21,6 @@ https://github.com/ruiseixasm/JsonTalkie
 // To occupy less Flash memory
 #define ARDUINO_JSON_VERSION 6
 
-// Readjust if absolutely necessary
-#define JSON_TALKIE_BUFFER_SIZE 128
 // #define JSONTALKIE_DEBUG
 
 // Keys:
@@ -145,11 +143,11 @@ namespace JsonTalkie {
     private:
         // Compiler reports these static RAM allocation
         #if ARDUINO_JSON_VERSION == 6
-        static StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> _message_doc;
+        static StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> _message_doc;
         #else
         static JsonDocument _message_doc;
         #endif
-        static char _buffer[JSON_TALKIE_BUFFER_SIZE];
+        static char _buffer[BROADCAST_SOCKET_BUFFER_SIZE];
         static uint8_t _received_ip[4];     // For echo and error destination
         static uint32_t _sent_message_id;   // Keeps track of the sent id
         static uint32_t _sent_set_time[2];  // Keeps two time stamp
@@ -170,7 +168,7 @@ namespace JsonTalkie {
                 message_checksum = message["c"].as<uint16_t>();
             }
             message["c"] = 0;
-            size_t len = serializeJson(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
+            size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
             // 16-bit word and XORing
             uint16_t checksum = 0;
             for (size_t i = 0; i < len; i += 2) {
@@ -197,7 +195,7 @@ namespace JsonTalkie {
             Serial.println(F("Running..."));
             #endif
 
-            if (length < JSON_TALKIE_BUFFER_SIZE - 1) {
+            if (length < BROADCAST_SOCKET_BUFFER_SIZE - 1) {
                 memcpy(_buffer, data, length);
                 _buffer[length] = '\0';
 
@@ -487,7 +485,7 @@ namespace JsonTalkie {
             }
             // Compiler reports these static RAM allocation
             #if ARDUINO_JSON_VERSION == 6
-            if (_message_doc.capacity() < JSON_TALKIE_BUFFER_SIZE) {  // Absolute minimum
+            if (_message_doc.capacity() < BROADCAST_SOCKET_BUFFER_SIZE) {  // Absolute minimum
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("CRITICAL: Insufficient RAM"));
                 #endif
@@ -534,7 +532,7 @@ namespace JsonTalkie {
                 message["f"] = Manifesto::talk()->name;
                 valid_checksum(message);
 
-                size = serializeJson(message, _buffer, JSON_TALKIE_BUFFER_SIZE);
+                size = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
                 if (size == 0) {
                     #ifdef JSONTALKIE_DEBUG
                     Serial.println(F("Error: Serialization failed"));
@@ -570,11 +568,11 @@ namespace JsonTalkie {
 
     // Compiler reports these static RAM allocation
     #if ARDUINO_JSON_VERSION == 6
-    static StaticJsonDocument<JSON_TALKIE_BUFFER_SIZE> Talker::_message_doc;
+    static StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> Talker::_message_doc;
     #else
     static JsonDocument Talker::_message_doc;
     #endif
-    char Talker::_buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
+    char Talker::_buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
     uint8_t Talker::_received_ip[4];    // For echo and error destination
     uint32_t Talker::_sent_message_id = 0;
     uint32_t Talker::_sent_set_time[2] = {0};

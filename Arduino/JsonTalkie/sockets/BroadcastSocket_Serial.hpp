@@ -19,12 +19,12 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 // Readjust if absolutely necessary
-#define JSON_TALKIE_BUFFER_SIZE 128
+#define BROADCAST_SOCKET_BUFFER_SIZE 128
 #define BROADCAST_SOCKET_DEBUG
 
 class BroadcastSocket_Serial : public BroadcastSocket {
 private:
-    char _buffer[JSON_TALKIE_BUFFER_SIZE] = {'\0'};
+    char _buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
 
 public:
     
@@ -51,7 +51,7 @@ public:
     }
 
     void receive() override {
-        size_t message_len = Serial.readBytes(_buffer, JSON_TALKIE_BUFFER_SIZE);
+        size_t message_len = Serial.readBytes(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);
         if (message_len > 0) {
             _socketCallback(_buffer, message_len);
         }
