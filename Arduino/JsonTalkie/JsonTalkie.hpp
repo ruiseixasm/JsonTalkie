@@ -149,7 +149,6 @@ namespace JsonTalkie {
         #endif
         BroadcastSocket* _socket;
         char* _buffer;
-        uint8_t _received_ip[4] = {0};      // For echo and error destination
         uint32_t _sent_message_id = 0;      // Keeps track of the sent id
         uint32_t _sent_set_time[2] = {0};   // Keeps two time stamp
         String _set_name = "";              // Keeps the device name
@@ -212,10 +211,6 @@ namespace JsonTalkie {
                 Serial.println(1);
                 #endif
                 return false;
-            }
-            // Register the source ip
-            for (uint8_t byte_i = 0; byte_i < 4; ++byte_i) {
-                _received_ip[byte_i] = source_ip[byte_i];
             }
             if (!(message.containsKey("c") && message["c"].is<uint16_t>() && valid_checksum(message))) {
                 #ifdef JSONTALKIE_DEBUG

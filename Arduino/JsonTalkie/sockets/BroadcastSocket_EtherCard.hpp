@@ -63,16 +63,16 @@ public:
 
     bool send(const char* data, size_t size, bool as_reply = false) override {
 
-        
+        uint8_t broadcastIp[4] = {255, 255, 255, 255};
         #ifdef ENABLE_DIRECT_ADDRESSING
-        if (source_ip == 0) {
-            ether.sendUdp(data, size, _port, _broadcastIp, _port);
+        if (as_reply) {
+            ether.sendUdp(data, size, _port, _source_ip, _port);
         } else {
-            ether.sendUdp(data, size, _port, source_ip, _port);
+            ether.sendUdp(data, size, _port, broadcastIp, _port);
         }
         #else
         // EtherCard can't handle direct addressing correctly, so it must reply in broadcast!
-        ether.sendUdp(data, size, _port, _broadcastIp, _port);
+        ether.sendUdp(data, size, _port, broadcastIp, _port);
         #endif
 
         #ifdef BROADCAST_SOCKET_DEBUG
