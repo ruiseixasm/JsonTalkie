@@ -33,7 +33,7 @@ private:
     // Corrected callback as a wrapper (must be static)
     static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t length) {
         
-        #ifdef BROADCAST_SOCKET_DEBUG    
+        #ifdef BROADCAST_SOCKET_DEBUG
         Serial.print(F("R: "));
         Serial.write(data, length);    // Properly prints raw bytes as characters
         Serial.println();           // Adds newline after the printed data
@@ -68,16 +68,22 @@ public:
     // Arduino default SPI pins in https://docs.arduino.cc/language-reference/en/functions/communication/SPI/
     bool open(const uint8_t* mac, uint8_t csPin = 10, uint16_t port = 5005) {
         if (_isOpen) {
+            #ifdef BROADCAST_SOCKET_DEBUG
             Serial.println(F("Already open"));
+            #endif
             return true;
         }
         // ether is a global instantiation
         if (!ether.begin(ETHER_BUFFER_SIZE, mac, csPin)) {
+            #ifdef BROADCAST_SOCKET_DEBUG
             Serial.println(F("Failed to access ENC28J60"));
+            #endif
             return false;
         }
         if (!ether.dhcpSetup()) {
+            #ifdef BROADCAST_SOCKET_DEBUG
             Serial.println(F("Failed to get a dynamic IP"));
+            #endif
             return false;
         }
         ether.enableBroadcast();
@@ -92,17 +98,23 @@ public:
         uint8_t csPin = 10, uint16_t port = 5005) {
 
         if (_isOpen) {
+            #ifdef BROADCAST_SOCKET_DEBUG
             Serial.println(F("Already open"));
+            #endif
             return true;
         }
         // ether is a global instantiation
         if (!ether.begin(ETHER_BUFFER_SIZE, mac, csPin)) {
+            #ifdef BROADCAST_SOCKET_DEBUG
             Serial.println(F("Failed to access ENC28J60"));
+            #endif
             return false;
         }
         // Static IP mode
         if (!ether.staticSetup(my_ip, gw_ip, dns_ip, mask)) {
+            #ifdef BROADCAST_SOCKET_DEBUG
             Serial.println(F("Failed to set static IP"));
+            #endif
             return false;
         }
         ether.enableBroadcast();
