@@ -28,10 +28,10 @@ private:
     static bool _you_got_message;
 
 public:
-    virtual BroadcastSocket(uint16_t port) {
+    BroadcastSocket_EtherCard(uint16_t port) {
         _port = port;
         ether.udpServerListenOnPort(udpCallback, port);
-    };
+    }
 
 
     // Corrected callback as a wrapper (must be static)
@@ -51,7 +51,7 @@ public:
 
         if (dst_port == _port) {
             if (length < BROADCAST_SOCKET_BUFFER_SIZE - 1) {
-                for (byte_i = 0; byte_i < 4; ++byte_i) {
+                for (uint8_t byte_i = 0; byte_i < 4; ++byte_i) {
                     _source_ip[byte_i] = src_ip[byte_i];
                 }
                 memcpy(_buffer, data, length);

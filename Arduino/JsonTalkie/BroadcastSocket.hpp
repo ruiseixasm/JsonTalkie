@@ -25,9 +25,10 @@ protected:
     static char _buffer[BROADCAST_SOCKET_BUFFER_SIZE];
 
 public:
-    virtual BroadcastSocket(uint16_t port) {
+    BroadcastSocket(uint16_t port) {
         _port = port;
-    };
+    }
+
     virtual ~BroadcastSocket() = default;
 
     char* get_buffer() {
@@ -39,8 +40,8 @@ public:
     virtual bool receive() = 0;
 };
 
-uint8_t BroadcastSocket_EtherCard::_source_ip[4] = {0};
-uint16_t BroadcastSocket_EtherCard::_port = 5005;
-char BroadcastSocket_EtherCard::_buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
+uint8_t BroadcastSocket::_source_ip[4] = {0};
+uint16_t BroadcastSocket::_port = 5005;
+char BroadcastSocket::_buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
 
 #endif // BROADCAST_SOCKET_HPP
