@@ -74,8 +74,10 @@ const JsonTalkie::Set JsonTalkie::Manifesto::setCommands[] = {
 };
 const size_t JsonTalkie::Manifesto::setSize = sizeof(JsonTalkie::Manifesto::setCommands) / sizeof(JsonTalkie::Set);
 
+int get_total_runs(JsonObject json_message);
 int get_duration(JsonObject json_message);
 const JsonTalkie::Get JsonTalkie::Manifesto::getCommands[] = {
+    {"total_runs", "Gets the total number of runs", get_total_runs}
     // {"duration", "Gets duration", get_duration}
 };
 const size_t JsonTalkie::Manifesto::getSize = sizeof(JsonTalkie::Manifesto::getCommands) / sizeof(JsonTalkie::Get);
@@ -98,7 +100,7 @@ void setup() {
     delay(2000);    // Just to give some time to Serial
 
     // Saving string in PROGMEM (flash) to save RAM memory
-    Serial.println("Opening the Socket...");
+    Serial.println("\n\nOpening the Socket...");
     
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
@@ -148,27 +150,6 @@ void setup() {
     digitalWrite(LED_BUILTIN, LOW);
 
     Serial.println("Sending JSON...");
-
-    // Lives until end of function
-    #if ARDUINO_JSON_VERSION == 6
-    StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> message_doc;
-    if (message_doc.capacity() < BROADCAST_SOCKET_BUFFER_SIZE) {  // Absolute minimum
-        Serial.println("CRITICAL: Insufficient RAM");
-    } else {
-        JsonObject message = message_doc.to<JsonObject>();
-        message["m"] = 0;   // talk
-        // json_talkie.talk(message);
-    }
-    #else
-    JsonDocument message_doc;
-    if (message_doc.overflowed()) {
-        Serial.println("Failed to allocate JSON message_doc");
-    } else {
-        JsonObject message = message_doc.to<JsonObject>();
-        message["m"] = 0;   // talk
-        json_talkie.talk(message);
-    }
-    #endif
 }
 
 void loop() {
@@ -203,6 +184,7 @@ void loop() {
 }
 
 
+int total_runs = 0;
 int _duration = 5;  // Example variable
 
 // Command implementations
@@ -212,16 +194,19 @@ bool buzz(JsonObject json_message) {
     delay(_duration); 
     digitalWrite(buzzer_pin, LOW);
     #endif
+    total_runs++;
     return true;
 }
 
 bool led_on(JsonObject json_message) {
     digitalWrite(LED_BUILTIN, HIGH);
+    total_runs++;
     return true;
 }
 
 bool led_off(JsonObject json_message) {
     digitalWrite(LED_BUILTIN, LOW);
+    total_runs++;
     return true;
 }
 
@@ -235,6 +220,9 @@ int get_duration(JsonObject json_message) {
     return _duration;
 }
 
+int get_total_runs(JsonObject json_message) {
+    return total_runs;
+}
 
 
 bool process_response(JsonObject json_message) {
