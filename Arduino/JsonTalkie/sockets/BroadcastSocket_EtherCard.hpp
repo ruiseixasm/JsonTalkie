@@ -25,7 +25,6 @@ https://github.com/ruiseixasm/JsonTalkie
 
 class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
-    static uint16_t _port;
     static bool _you_got_message;
 
 public:
@@ -45,20 +44,18 @@ public:
         #endif
 
         if (dst_port == _port) {
-            
             if (length < BROADCAST_SOCKET_BUFFER_SIZE - 1) {
+                for (byte_i = 0; byte_i < 4; ++byte_i) {
+                    _source_ip[byte_i] = src_ip[byte_i];
+                }
                 memcpy(_buffer, data, length);
                 _buffer[length] = '\0';
-
-            _you_got_message = true;
+                _you_got_message = true;
+            }
         }
     }
 
-    void set_buffer(const char* buffer) override {
-        _buffer = buffer;
-    };
-
-    bool send(const char* data, size_t size, const uint8_t* source_ip = 0) override {
+    bool send(const char* data, size_t size, bool as_reply = false) override {
 
         
         #ifdef ENABLE_DIRECT_ADDRESSING
@@ -81,14 +78,14 @@ public:
         return true;
     }
 
-    void receive() override {    // Just a trigger
+    bool receive() override {
         ether.packetLoop(ether.packetReceive());
-
         if (_you_got_message) {
-            // process message
+            _you_got_message = false;
+            return true;
         }
+        return false;
     }
-
 };  
 
 bool BroadcastSocket_EtherCard::_you_got_message = false;

@@ -20,8 +20,9 @@ https://github.com/ruiseixasm/JsonTalkie
 
 class BroadcastSocket {
 protected:
-    static uint16_t BroadcastSocket_EtherCard::_port;
-    static char* _buffer[BROADCAST_SOCKET_BUFFER_SIZE];
+    static uint8_t _source_ip[4];
+    static uint16_t _port;
+    static char _buffer[BROADCAST_SOCKET_BUFFER_SIZE];
 
 public:
     virtual ~BroadcastSocket() = default;
@@ -31,11 +32,12 @@ public:
     }
 
     // Send data (broadcast by default)
-    virtual bool send(const char* data, size_t len, const uint8_t* source_ip = 0) = 0;
-    virtual void receive() = 0; // Just a trigger
+    virtual bool send(const char* data, size_t len, bool as_reply = false) = 0;
+    virtual bool receive() = 0;
 };
 
+uint8_t BroadcastSocket_EtherCard::_source_ip[4] = {0};
 uint16_t BroadcastSocket_EtherCard::_port = 5005;
-char* _buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
+char BroadcastSocket_EtherCard::_buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
 
 #endif // BROADCAST_SOCKET_HPP
