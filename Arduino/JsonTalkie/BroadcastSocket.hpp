@@ -15,30 +15,25 @@ https://github.com/ruiseixasm/JsonTalkie
 #define BROADCAST_SOCKET_HPP
 
 
-// Readjust if absolutely necessary
-#define BROADCAST_SOCKET_BUFFER_SIZE 128
-
 class BroadcastSocket {
 protected:
     static uint8_t _source_ip[4];
     static uint16_t _port;
-    static char _buffer[BROADCAST_SOCKET_BUFFER_SIZE];
+    static char* _buffer;
+    static uint16_t _size;
 
 public:
     BroadcastSocket() = default;
     ~BroadcastSocket() = default;
 
-    char* get_buffer() {
-        return _buffer;
-    }
-
     // Send data (broadcast by default)
-    virtual bool send(const char* data, size_t size, bool as_reply = false) = 0;
-    virtual bool receive() = 0;
+    virtual bool send(const char* data, uint16_t size, bool as_reply = false) = 0;
+    virtual bool receive(const char* data, uint16_t size) = 0;
 };
 
 uint8_t BroadcastSocket::_source_ip[4] = {0};
 uint16_t BroadcastSocket::_port = 5005;
-char BroadcastSocket::_buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
+char* BroadcastSocket::_buffer = nullptr;
+uint16_t BroadcastSocket::_size = 0;
 
 #endif // BROADCAST_SOCKET_HPP
