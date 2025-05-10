@@ -85,7 +85,7 @@ public:
     }
 
     bool receive(const char* data, uint16_t size) override {
-        if (_buffer == nullptr) {
+        if (_buffer == nullptr || size == 0) {
             _buffer = data;
             _size = size;
         } else {
