@@ -33,7 +33,7 @@ public:
     }
 
     // Send data (broadcast by default)
-    virtual bool send(const char* data, size_t len, bool as_reply = false) = 0;
+    virtual bool send(const char* data, size_t size, bool as_reply = false) = 0;
     virtual bool receive() = 0;
 };
 
