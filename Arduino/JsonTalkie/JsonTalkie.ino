@@ -35,7 +35,7 @@ byte my_ip[] = {192, 168, 31, 100};                     // Arduino IP
 byte gw_ip[] = {192, 168, 31, 77};                      // IP of the main router, gateway
 byte dns_ip[] = {192, 168, 31, 77};                     // DNS address is the same as the gateway router
 byte mask[] = {255, 255, 255, 0};                       // NEEDED FOR NETWORK BROADCAST
-const uint16_t PORT = 5005;                             // UDP port
+#define PORT 5005                                       // UDP port
 
 #if BROADCAST_SOCKET == SOCKET_SERIAL
     #include "sockets/BroadcastSocket_Serial.hpp"

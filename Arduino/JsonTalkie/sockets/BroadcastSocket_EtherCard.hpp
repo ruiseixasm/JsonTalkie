@@ -100,6 +100,6 @@ public:
 };  
 
 bool BroadcastSocket_EtherCard::_you_got_message = false;
-BroadcastSocket_EtherCard broadcast_socket(5005);
+BroadcastSocket_EtherCard broadcast_socket(PORT);
 
 #endif // BROADCAST_SOCKET_ETHERCARD_HPP
