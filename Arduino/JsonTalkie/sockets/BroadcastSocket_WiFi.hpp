@@ -18,88 +18,75 @@ https://github.com/ruiseixasm/JsonTalkie
 #include "../secrets/wifi_credentials.h"
 #include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
 #include <WiFi.h>
+#include <NetworkUdp.h>
 
-const char *ssid = WIFI_SSID;
-const char *password = WIFI_PASSWORD;
+// WiFi network name and password:
+const char *networkName = WIFI_SSID;
+const char *networkPswd = WIFI_PASSWORD;
 
-NetworkServer server(80);
+//IP address to send UDP data to:
+// either use the ip address of the server or
+// a network broadcast address
+const char *udpAddress = "192.168.0.255";
+const int udpPort = 3333;
+
+//Are we currently connected?
+boolean connected = false;
+
+//The udp library class
+NetworkUDP udp;
 
 void setup() {
+  // Initialize hardware serial:
   Serial.begin(115200);
-  pinMode(5, OUTPUT);  // set the LED pin mode
 
-  delay(10);
-
-  // We start by connecting to a WiFi network
-
-  Serial.println();
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.println("WiFi connected.");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-
-  server.begin();
+  //Connect to the WiFi network
+  connectToWiFi(networkName, networkPswd);
 }
 
 void loop() {
-  NetworkClient client = server.accept();  // listen for incoming clients
+  //only send data when connected
+  if (connected) {
+    //Send a packet
+    udp.beginPacket(udpAddress, udpPort);
+    udp.printf("Seconds since boot: %lu", millis() / 1000);
+    udp.endPacket();
+  }
+  //Wait for 1 second
+  delay(1000);
+}
 
-  if (client) {                     // if you get a client,
-    Serial.println("New Client.");  // print a message out the serial port
-    String currentLine = "";        // make a String to hold incoming data from the client
-    while (client.connected()) {    // loop while the client's connected
-      if (client.available()) {     // if there's bytes to read from the client,
-        char c = client.read();     // read a byte, then
-        Serial.write(c);            // print it out the serial monitor
-        if (c == '\n') {            // if the byte is a newline character
+void connectToWiFi(const char *ssid, const char *pwd) {
+  Serial.println("Connecting to WiFi network: " + String(ssid));
 
-          // if the current line is blank, you got two newline characters in a row.
-          // that's the end of the client HTTP request, so send a response:
-          if (currentLine.length() == 0) {
-            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
-            // and a content-type so the client knows what's coming, then a blank line:
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-type:text/html");
-            client.println();
+  // delete old config
+  WiFi.disconnect(true);
+  //register event handler
+  WiFi.onEvent(WiFiEvent);  // Will call WiFiEvent() from another thread.
 
-            // the content of the HTTP response follows the header:
-            client.print("Click <a href=\"/H\">here</a> to turn the LED on pin 5 on.<br>");
-            client.print("Click <a href=\"/L\">here</a> to turn the LED on pin 5 off.<br>");
+  //Initiate connection
+  WiFi.begin(ssid, pwd);
 
-            // The HTTP response ends with another blank line:
-            client.println();
-            // break out of the while loop:
-            break;
-          } else {  // if you got a newline, then clear currentLine:
-            currentLine = "";
-          }
-        } else if (c != '\r') {  // if you got anything else but a carriage return character,
-          currentLine += c;      // add it to the end of the currentLine
-        }
+  Serial.println("Waiting for WIFI connection...");
+}
 
-        // Check to see if the client request was "GET /H" or "GET /L":
-        if (currentLine.endsWith("GET /H")) {
-          digitalWrite(5, HIGH);  // GET /H turns the LED on
-        }
-        if (currentLine.endsWith("GET /L")) {
-          digitalWrite(5, LOW);  // GET /L turns the LED off
-        }
-      }
-    }
-    // close the connection:
-    client.stop();
-    Serial.println("Client Disconnected.");
+// WARNING: WiFiEvent is called from a separate FreeRTOS task (thread)!
+void WiFiEvent(WiFiEvent_t event) {
+  switch (event) {
+    case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+      //When connected set
+      Serial.print("WiFi connected! IP address: ");
+      Serial.println(WiFi.localIP());
+      //initializes the UDP state
+      //This initializes the transfer buffer
+      udp.begin(WiFi.localIP(), udpPort);
+      connected = true;
+      break;
+    case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
+      Serial.println("WiFi lost connection");
+      connected = false;
+      break;
+    default: break;
   }
 }
 
