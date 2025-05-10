@@ -18,9 +18,6 @@ https://github.com/ruiseixasm/JsonTalkie
 // Readjust if absolutely necessary
 #define BROADCAST_SOCKET_BUFFER_SIZE 128
 
-// No std::function, no templates, just a raw function pointer.
-typedef void (*SocketCallback)(const char* data, size_t length, const uint8_t* source_ip = 0);
-
 class BroadcastSocket {
 protected:
     static uint16_t BroadcastSocket_EtherCard::_port;
