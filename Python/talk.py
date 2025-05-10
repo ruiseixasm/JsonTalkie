@@ -107,7 +107,7 @@ class CommandLine:
                             else:
                                 print(f"\t'{words[1]}' has a wrong number of arguments!")
                             return
-                        case "run" | "get":
+                        case "run":
                             if len(words) == 3:
                                 message["m"] = 2    # run
                                 message["n"] = words[2]
@@ -128,6 +128,15 @@ class CommandLine:
                                     print(f"\t'{words[3]}' is not an integer!")
                             else:
                                 print(f"'{words[1]}' has a wrong number of arguments!")
+                            return
+                        case "get":
+                            if len(words) == 3:
+                                message["m"] = 4    # get
+                                message["n"] = words[2]
+                                json_talkie.talk(message)
+                                time.sleep(0.5) # Wait some time
+                            else:
+                                print(f"\t'{words[1]}' has a wrong number of arguments!")
                             return
                         case "sys":
                             if len(words) == 2: # Targeted talk
@@ -172,7 +181,15 @@ class CommandLine:
                             what = "get"
                         case 5:
                             what = "sys"
-                    if "g" in message:
+                    if "v" in message and "n" in message:
+                        print(f" {what} {message["n"]}]\t{message["v"]}")
+                    elif "n" in message and "d" in message:
+                        print(f" {what} {message["n"]}]\t{message["d"]}")
+                    elif "n" in message and "r" in message:
+                        print(f" {what} {message["n"]}]\t{message["r"]}")
+                    elif "r" in message:
+                        print(f" {what}]\t{message["r"]}")
+                    elif "g" in message:
                         roger: str = "FAIL"
                         match message["g"]:
                             case 0:
@@ -185,14 +202,6 @@ class CommandLine:
                             print(f" {what} {message["n"]}]\t{roger}")
                         else:
                             print(f" {what}]\t{roger}")
-                    elif "v" in message and "n" in message:
-                        print(f" {what} {message["n"]}]\t{message["v"]}")
-                    elif "n" in message and "d" in message:
-                        print(f" {what} {message["n"]}]\t{message["d"]}")
-                    elif "n" in message and "r" in message:
-                        print(f" {what} {message["n"]}]\t{message["r"]}")
-                    elif "r" in message:
-                        print(f" {what}]\t{message["r"]}")
             elif "d" in message:
                 print(f"]\t{message["d"]}")
         return True
