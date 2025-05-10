@@ -74,8 +74,8 @@ const JsonTalkie::Set JsonTalkie::Manifesto::setCommands[] = {
 };
 const size_t JsonTalkie::Manifesto::setSize = sizeof(JsonTalkie::Manifesto::setCommands) / sizeof(JsonTalkie::Set);
 
-int get_total_runs(JsonObject json_message);
-int get_duration(JsonObject json_message);
+long get_total_runs(JsonObject json_message);
+long get_duration(JsonObject json_message);
 const JsonTalkie::Get JsonTalkie::Manifesto::getCommands[] = {
     {"total_runs", "Gets the total number of runs", get_total_runs}
     // {"duration", "Gets duration", get_duration}
@@ -184,8 +184,8 @@ void loop() {
 }
 
 
-int total_runs = 0;
-int _duration = 5;  // Example variable
+long total_runs = 0;
+long _duration = 5;  // Example variable
 
 // Command implementations
 bool buzz(JsonObject json_message) {
@@ -211,16 +211,16 @@ bool led_off(JsonObject json_message) {
 }
 
 
-bool set_duration(JsonObject json_message, int duration) {
+bool set_duration(JsonObject json_message, long duration) {
     _duration = duration;
     return true;
 }
 
-int get_duration(JsonObject json_message) {
+long get_duration(JsonObject json_message) {
     return _duration;
 }
 
-int get_total_runs(JsonObject json_message) {
+long get_total_runs(JsonObject json_message) {
     return total_runs;
 }
 
