@@ -82,13 +82,13 @@ namespace JsonTalkie {
     struct Set {
         const char* PROGMEM name;      // "buzz", "print", etc.
         const char* PROGMEM desc;      // Description
-        bool (*function)(JsonObject, int);  // Function pointer (const char*)
+        bool (*function)(JsonObject, long);  // Function pointer (const char*)
     };
 
     struct Get {
         const char* PROGMEM name;      // "buzz", "print", etc.
         const char* PROGMEM desc;      // Description
-        int (*function)(JsonObject);  // Function pointer (no args)
+        long (*function)(JsonObject);  // Function pointer (no args)
     };
 
     // Structure Definition
@@ -337,7 +337,7 @@ namespace JsonTalkie {
                     return true;
                 }
             } else if (message_code == 3) {     // set
-                if (message.containsKey("n") && message.containsKey("v") && message["v"].is<int>()) {
+                if (message.containsKey("n") && message.containsKey("v") && message["v"].is<long>()) {
                     message["w"] = message_code;
                     const Set* set = Manifesto::set(message["n"]);
                     if (set == nullptr) {
@@ -347,7 +347,7 @@ namespace JsonTalkie {
                     }
                     talk(message, true);
                     if (set != nullptr) {
-                        set->function(message, message["v"].as<int>());
+                        set->function(message, message["v"].as<long>());
                     }
                     return true;
                 }
