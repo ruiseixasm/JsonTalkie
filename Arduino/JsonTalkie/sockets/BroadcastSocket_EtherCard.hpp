@@ -76,11 +76,6 @@ public:
             Serial.println(F("Failed to access ENC28J60"));
             return false;
         }
-        // DHCP mode (just wait for an IP, timeout after 10 seconds)
-        uint32_t start = millis();
-        while (!ether.dhcpSetup() && (millis() - start < 10000)) {
-            delay(100);  // Short delay between retries
-        }
         if (!ether.dhcpSetup()) {
             Serial.println(F("Failed to get a dynamic IP"));
             return false;
