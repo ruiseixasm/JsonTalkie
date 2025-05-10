@@ -28,6 +28,12 @@ private:
     static bool _you_got_message;
 
 public:
+    virtual BroadcastSocket(uint16_t port) {
+        _port = port;
+        ether.udpServerListenOnPort(udpCallback, port);
+    };
+
+
     // Corrected callback as a wrapper (must be static)
     static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t length) {
         
