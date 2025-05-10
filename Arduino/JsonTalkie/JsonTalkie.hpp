@@ -167,6 +167,7 @@ namespace JsonTalkie {
             return (uint32_t)millis();  // millis() is already an unit32_t (unsigned long int) data return
         }
 
+
         bool valid_checksum(JsonObject message) {
             // Use a static buffer size, large enough for your JSON
             uint16_t message_checksum = 0;
@@ -189,6 +190,7 @@ namespace JsonTalkie {
             message["c"] = checksum;
             return message_checksum == checksum;
         }
+
 
         static void listenCallback(const char* data, size_t length, const uint8_t* source_ip) {
             #ifdef JSONTALKIE_DEBUG
@@ -240,6 +242,7 @@ namespace JsonTalkie {
                 }
             }
         }
+
 
         bool validateTalk(JsonObject message, const uint8_t* source_ip) {
             #ifdef JSONTALKIE_DEBUG
@@ -342,6 +345,7 @@ namespace JsonTalkie {
             return true;
         }
         
+
         bool receive(JsonObject message) {
 
             // Echo codes:
@@ -485,7 +489,7 @@ namespace JsonTalkie {
         }
 
     public:
-        bool talk(JsonObject message, const uint8_t* target_ip = 0) {
+        bool talk(JsonObject message, bool as_reply = false) {
             if (!_running)
                 return false;
 
