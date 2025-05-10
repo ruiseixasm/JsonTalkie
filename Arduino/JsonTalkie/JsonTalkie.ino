@@ -12,6 +12,9 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
 
+#include <EtherCard.h>
+
+
 // #define USE_WIFI
 #define USE_STATIC_IP
 
@@ -107,7 +110,7 @@ void setup() {
     Serial.println("\n\nOpening the Socket...");
     
 
-    #if BROADCAST_SOCKET == SOCKET_ETHERCARD
+    #if defined(EtherCard_h)
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
     if (!ether.begin(BUFFER_SIZE, mac, SS)) {
@@ -119,7 +122,7 @@ void setup() {
         Serial.println("Failed to access ENC28J60");
         while (1);
     }
-    #elif BROADCAST_SOCKET == SOCKET_ESP32
+    #elif defined(WiFi_h)
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     while (WiFi.status() != WL_CONNECTED) delay(500);
     #endif
