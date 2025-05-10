@@ -56,9 +56,14 @@ private:
     }
 
 public:
-    BroadcastSocket_EtherCard(uint16_t port) {
+    BroadcastSocket_EtherCard() {
+        ether.udpServerListenOnPort(udpCallback, _port);
+    }
+
+    void set_port(uint16_t port) {
         _port = port;
-        ether.udpServerListenOnPort(udpCallback, port);
+        // Just call listen again - it automatically replaces previous binding
+        ether.udpServerListenOnPort(udpCallback, _port); 
     }
 
     bool send(const char* data, uint16_t size, bool as_reply = false) override {
@@ -100,6 +105,6 @@ public:
 };  
 
 bool BroadcastSocket_EtherCard::_you_got_message = false;
-BroadcastSocket_EtherCard broadcast_socket(PORT);
+BroadcastSocket_EtherCard broadcast_socket;
 
 #endif // BROADCAST_SOCKET_ETHERCARD_HPP
