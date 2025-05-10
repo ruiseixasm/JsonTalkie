@@ -23,16 +23,22 @@ typedef void (*SocketCallback)(const char* data, size_t length, const uint8_t* s
 
 class BroadcastSocket {
 protected:
+    static uint16_t BroadcastSocket_EtherCard::_port;
     static char* _buffer[BROADCAST_SOCKET_BUFFER_SIZE];
 
 public:
     virtual ~BroadcastSocket() = default;
 
-    virtual void set_buffer(const char* buffer) = 0;
+    char* get_buffer() {
+        return _buffer;
+    }
 
     // Send data (broadcast by default)
     virtual bool send(const char* data, size_t len, const uint8_t* source_ip = 0) = 0;
     virtual void receive() = 0; // Just a trigger
 };
+
+uint16_t BroadcastSocket_EtherCard::_port = 5005;
+char* _buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
 
 #endif // BROADCAST_SOCKET_HPP
