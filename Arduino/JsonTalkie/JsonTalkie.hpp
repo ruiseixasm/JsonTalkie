@@ -294,7 +294,7 @@ namespace JsonTalkie {
         }
         
 
-        bool receive(JsonObject message) {
+        bool process(JsonObject message) {
 
             // Echo codes:
             //     0 - ROGER
@@ -517,7 +517,7 @@ namespace JsonTalkie {
                         _check_set_time = true;
                     }
 
-                    receive(message);
+                    process(message);
                 }
             }
             if (_check_set_time) {
