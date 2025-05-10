@@ -192,58 +192,6 @@ namespace JsonTalkie {
         }
 
 
-        static void listenCallback(const char* data, size_t length, const uint8_t* source_ip) {
-            #ifdef JSONTALKIE_DEBUG
-            Serial.println(F("Callback..."));
-            #endif
-            if (!_running)
-                return;
-        
-            #ifdef JSONTALKIE_DEBUG
-            Serial.println(F("Running..."));
-            #endif
-
-            if (length < BROADCAST_SOCKET_BUFFER_SIZE - 1) {
-                memcpy(_buffer, data, length);
-                _buffer[length] = '\0';
-
-                #ifdef JSONTALKIE_DEBUG
-                Serial.print(F("L: "));
-                Serial.write(_buffer, length);  // Properly prints raw bytes as characters
-                Serial.println();            // Adds newline after the printed data
-                #endif
-
-                DeserializationError error = deserializeJson(_message_doc, _buffer);
-                if (error) {
-                    #ifdef JSONTALKIE_DEBUG
-                    Serial.println(F("Failed to deserialize buffer"));
-                    #endif
-                    return;
-                }
-                JsonObject message = _message_doc.as<JsonObject>();
-
-                if (validateTalk(message, source_ip)) {
-
-                    #ifdef JSONTALKIE_DEBUG
-                    Serial.print(F("Received: "));
-                    serializeJson(message, Serial);
-                    Serial.println();  // optional: just to add a newline after the JSON
-                    #endif
-
-                    // Only set messages are time checked
-                    if (message["m"].as<int>() == 3) {  // 3 - set
-                        _sent_set_time[0] = message["i"].as<uint32_t>();
-                        _sent_set_time[1] = generateMessageId();
-                        _set_name = message["f"].as<String>(); // Explicit conversion
-                        _check_set_time = true;
-                    }
-
-                    receive(message);
-                }
-            }
-        }
-
-
         bool validateTalk(JsonObject message, const uint8_t* source_ip) {
             #ifdef JSONTALKIE_DEBUG
             Serial.println(F("Validating..."));
@@ -528,14 +476,50 @@ namespace JsonTalkie {
                     Serial.println();  // optional: just to add a newline after the JSON
                     #endif
 
-                    return broadcast_socket.send(_buffer, size, target_ip);
+                    return broadcast_socket.send(_buffer, size, as_reply);
                 }
             }
             return false;
         }
 
+    
         void listen() {
-            broadcast_socket.receive();
+            if (broadcast_socket.receive()) {
+
+                #ifdef JSONTALKIE_DEBUG
+                Serial.print(F("L: "));
+                Serial.write(_buffer, length);  // Properly prints raw bytes as characters
+                Serial.println();            // Adds newline after the printed data
+                #endif
+
+                DeserializationError error = deserializeJson(_message_doc, _buffer);
+                if (error) {
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.println(F("Failed to deserialize buffer"));
+                    #endif
+                    return;
+                }
+                JsonObject message = _message_doc.as<JsonObject>();
+
+                if (validateTalk(message, source_ip)) {
+
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.print(F("Received: "));
+                    serializeJson(message, Serial);
+                    Serial.println();  // optional: just to add a newline after the JSON
+                    #endif
+
+                    // Only set messages are time checked
+                    if (message["m"].as<int>() == 3) {  // 3 - set
+                        _sent_set_time[0] = message["i"].as<uint32_t>();
+                        _sent_set_time[1] = generateMessageId();
+                        _set_name = message["f"].as<String>(); // Explicit conversion
+                        _check_set_time = true;
+                    }
+
+                    receive(message);
+                }
+            }
             if (_check_set_time) {
                 // In theory, a UDP packet on a local area network (LAN) could survive
                 // for about 4.25 minutes (255 seconds).
