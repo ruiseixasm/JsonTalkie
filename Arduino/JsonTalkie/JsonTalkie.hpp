@@ -231,7 +231,7 @@ namespace JsonTalkie {
                 message["t"] = message["f"];
                 message["f"] = Manifesto::talk()->name;
                 message["e"] = 2;
-                talk(message, _received_ip);
+                talk(message, true);
                 return false;
             }
             if (!(message.containsKey("m") && message["m"].is<int>())) {
@@ -242,7 +242,7 @@ namespace JsonTalkie {
                 message["t"] = message["f"];
                 message["f"] = Manifesto::talk()->name;
                 message["e"] = 3;
-                talk(message, _received_ip);
+                talk(message, true);
                 return false;
             }
             if (!(message.containsKey("i") && message["i"].is<uint32_t>())) {
@@ -253,7 +253,7 @@ namespace JsonTalkie {
                 message["t"] = message["f"];
                 message["f"] = Manifesto::talk()->name;
                 message["e"] = 4;
-                talk(message, _received_ip);
+                talk(message, true);
                 return false;
             }
             if (message["m"].as<int>() == 6 && message["i"].as<uint32_t>() != _sent_message_id) {
@@ -267,7 +267,7 @@ namespace JsonTalkie {
                 message["f"] = Manifesto::talk()->name;
                 message["e"] = 5;
                 message["v"] = _sent_message_id;
-                talk(message, _received_ip);
+                talk(message, true);
                 return false;
             }
             // Only set messages are time checked
@@ -282,7 +282,7 @@ namespace JsonTalkie {
                     message["t"] = message["f"];
                     message["f"] = Manifesto::talk()->name;
                     message["e"] = 6;
-                    talk(message, _received_ip);
+                    talk(message, true);
                     return false;
                 }
             }
@@ -306,7 +306,7 @@ namespace JsonTalkie {
             message["m"] = 6;
             if (message_code == 0) {            // talk
                 message["d"] = Manifesto::talk()->desc;
-                return talk(message, _received_ip);
+                return talk(message, true);
             } else if (message_code == 1) {     // list
                 message["w"] = 2;
                 bool none_list = true;
@@ -314,21 +314,21 @@ namespace JsonTalkie {
                     message["n"] = Manifesto::runCommands[run_i].name;
                     message["d"] = Manifesto::runCommands[run_i].desc;
                     none_list = false;
-                    talk(message, _received_ip);
+                    talk(message, true);
                 }
                 message["w"] = 3;
                 for (size_t set_i = 0; set_i < Manifesto::setSize; ++set_i) {
                     message["n"] = Manifesto::setCommands[set_i].name;
                     message["d"] = Manifesto::setCommands[set_i].desc;
                     none_list = false;
-                    talk(message, _received_ip);
+                    talk(message, true);
                 }
                 message["w"] = 4;
                 for (size_t get_i = 0; get_i < Manifesto::getSize; ++get_i) {
                     message["n"] = Manifesto::getCommands[get_i].name;
                     message["d"] = Manifesto::getCommands[get_i].desc;
                     none_list = false;
-                    talk(message, _received_ip);
+                    talk(message, true);
                 }
                 if(none_list) {
                     message["g"] = 2;       // NONE
@@ -340,11 +340,11 @@ namespace JsonTalkie {
                     const Run* run = Manifesto::run(message["n"]);
                     if (run == nullptr) {
                         message["g"] = 1;   // UNKNOWN
-                        talk(message, _received_ip);
+                        talk(message, true);
                         return false;
                     }
                     message["g"] = 0;       // ROGER
-                    talk(message, _received_ip);
+                    talk(message, true);
                     run->function(message);
                     return true;
                 }
@@ -357,7 +357,7 @@ namespace JsonTalkie {
                     } else {
                         message["g"] = 0;   // ROGER
                     }
-                    talk(message, _received_ip);
+                    talk(message, true);
                     if (set != nullptr) {
                         set->function(message, message["v"].as<int>());
                     }
@@ -373,7 +373,7 @@ namespace JsonTalkie {
                         message["g"] = 0;   // ROGER
                         message["v"] = get->function(message);
                     }
-                    return talk(message, _received_ip);
+                    return talk(message, true);
                 }
             } else if (message_code == 5) {     // sys
 
@@ -421,7 +421,7 @@ namespace JsonTalkie {
 
                 #endif
 
-                return talk(message, _received_ip);
+                return talk(message, true);
             } else if (message_code == 6) {     // echo
                 if (Manifesto::echo != nullptr) {
                     Manifesto::echo(message);
