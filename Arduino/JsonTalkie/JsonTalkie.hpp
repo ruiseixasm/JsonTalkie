@@ -147,8 +147,7 @@ namespace JsonTalkie {
         #else
         JsonDocument _message_doc;
         #endif
-        BroadcastSocket* _socket;
-        char* _buffer;
+        char* _buffer = broadcast_socket.get_buffer();
         uint32_t _sent_message_id = 0;      // Keeps track of the sent id
         uint32_t _sent_set_time[2] = {0};   // Keeps two time stamp
         String _set_name = "";              // Keeps the device name
@@ -426,12 +425,6 @@ namespace JsonTalkie {
         }
 
     public:
-        Talker(BroadcastSocket* socket) {
-            _socket = socket;
-            _buffer = socket->get_buffer();
-        }
-
-
         bool talk(JsonObject message, bool as_reply = false) {
             // In order to release memory when done
             {
@@ -521,6 +514,6 @@ namespace JsonTalkie {
     };
 }
 
-JsonTalkie::Talker json_talkie(&broadcast_socket);
+JsonTalkie::Talker json_talkie;
 
 #endif
