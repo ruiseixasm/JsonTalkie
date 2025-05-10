@@ -124,6 +124,9 @@ void setup() {
     while (WiFi.status() != WL_CONNECTED) delay(500);
     #endif
 
+    // // By default is already 5005
+    // broadcast_socket.set_port(5005);
+
     #ifdef USE_WIFI
 
     // Connect to WiFi
