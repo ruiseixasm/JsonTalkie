@@ -21,6 +21,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #define ETHER_BUFFER_SIZE 256   // Typical size for ENC28J60 is 500, but for UDP only 256 is good enough
 // #define BROADCAST_SOCKET_DEBUG
+// #define ENABLE_DIRECT_ADDRESSING
 
 uint8_t Ethernet::buffer[ETHER_BUFFER_SIZE] = {0};  // Now reported! (Essential for EtherCard)
 
@@ -142,11 +143,17 @@ public:
 
     bool send(const char* data, size_t size, const uint8_t* source_ip = 0) override {
 
+        
+        #ifdef ENABLE_DIRECT_ADDRESSING
         if (source_ip == 0) {
             ether.sendUdp(data, size, _port, _broadcastIp, _port);
         } else {
             ether.sendUdp(data, size, _port, source_ip, _port);
         }
+        #else
+        // EtherCard can't handle direct addressing correctly, so it must reply in broadcast!
+        ether.sendUdp(data, size, _port, _broadcastIp, _port);
+        #endif
 
         #ifdef BROADCAST_SOCKET_DEBUG
         Serial.print(F("S: "));
