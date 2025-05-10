@@ -26,13 +26,15 @@ public:
     BroadcastSocket() = default;
     ~BroadcastSocket() = default;
 
+    virtual void set_port(uint16_t port) = 0;
+
     // Send data (broadcast by default)
     virtual bool send(const char* data, uint16_t size, bool as_reply = false) = 0;
     virtual bool receive(const char* data, uint16_t size) = 0;
 };
 
 uint8_t BroadcastSocket::_source_ip[4] = {0};
-uint16_t BroadcastSocket::_port = 5005;
+uint16_t BroadcastSocket::_port = 5005; // The default port
 char* BroadcastSocket::_buffer = nullptr;
 uint16_t BroadcastSocket::_size = 0;
 
