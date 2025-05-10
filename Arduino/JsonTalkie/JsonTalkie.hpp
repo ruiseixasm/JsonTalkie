@@ -156,12 +156,6 @@ namespace JsonTalkie {
         bool _check_set_time = false;
 
     private:
-        Talker(BroadcastSocket* socket) {
-            _socket = socket;
-            _buffer = socket->get_buffer();
-        }
-
-
         static uint32_t generateMessageId() {
             // Generates a 32-bit wrapped timestamp ID using overflow.
             return (uint32_t)millis();  // millis() is already an unit32_t (unsigned long int) data return
@@ -192,7 +186,7 @@ namespace JsonTalkie {
         }
 
 
-        bool validateTalk(JsonObject message, const uint8_t* source_ip) {
+        bool validateTalk(JsonObject message) {
             #ifdef JSONTALKIE_DEBUG
             Serial.println(F("Validating..."));
             #endif
@@ -437,12 +431,13 @@ namespace JsonTalkie {
         }
 
     public:
+        Talker(BroadcastSocket* socket) {
+            _socket = socket;
+            _buffer = socket->get_buffer();
+        }
+
+
         bool talk(JsonObject message, bool as_reply = false) {
-            if (!_running)
-                return false;
-
-            size_t size = 0;
-
             // In order to release memory when done
             {
                 // Directly nest the editable message under "m"
@@ -460,7 +455,7 @@ namespace JsonTalkie {
                 message["f"] = Manifesto::talk()->name;
                 valid_checksum(message);
 
-                size = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+                size_t size = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
                 if (size == 0) {
                     #ifdef JSONTALKIE_DEBUG
                     Serial.println(F("Error: Serialization failed"));
@@ -501,7 +496,7 @@ namespace JsonTalkie {
                 }
                 JsonObject message = _message_doc.as<JsonObject>();
 
-                if (validateTalk(message, source_ip)) {
+                if (validateTalk(message)) {
 
                     #ifdef JSONTALKIE_DEBUG
                     Serial.print(F("Received: "));
@@ -531,6 +526,6 @@ namespace JsonTalkie {
     };
 }
 
-JsonTalkie::Talker json_talkie(broadcast_socket);
+JsonTalkie::Talker json_talkie(&broadcast_socket);
 
 #endif
