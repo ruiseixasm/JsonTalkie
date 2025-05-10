@@ -143,25 +143,31 @@ namespace JsonTalkie {
     private:
         // Compiler reports these static RAM allocation
         #if ARDUINO_JSON_VERSION == 6
-        static StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> _message_doc;
+        StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> _message_doc;
         #else
-        static JsonDocument _message_doc;
+        JsonDocument _message_doc;
         #endif
-        static char _buffer[BROADCAST_SOCKET_BUFFER_SIZE];
-        static uint8_t _received_ip[4];     // For echo and error destination
-        static uint32_t _sent_message_id;   // Keeps track of the sent id
-        static uint32_t _sent_set_time[2];  // Keeps two time stamp
-        static String _set_name;            // Keeps the device name
-        static bool _check_set_time;
-        static bool _running;
+        BroadcastSocket* _socket;
+        char* _buffer;
+        uint8_t _received_ip[4] = {0};      // For echo and error destination
+        uint32_t _sent_message_id = 0;      // Keeps track of the sent id
+        uint32_t _sent_set_time[2] = {0};   // Keeps two time stamp
+        String _set_name = "";              // Keeps the device name
+        bool _check_set_time = false;
 
     private:
+        Talker(BroadcastSocket* socket) {
+            _socket = socket;
+            _buffer = socket->get_buffer();
+        }
+
+
         static uint32_t generateMessageId() {
             // Generates a 32-bit wrapped timestamp ID using overflow.
             return (uint32_t)millis();  // millis() is already an unit32_t (unsigned long int) data return
         }
 
-        static bool valid_checksum(JsonObject message) {
+        bool valid_checksum(JsonObject message) {
             // Use a static buffer size, large enough for your JSON
             uint16_t message_checksum = 0;
             if (message.containsKey("c")) {
@@ -235,7 +241,7 @@ namespace JsonTalkie {
             }
         }
 
-        static bool validateTalk(JsonObject message, const uint8_t* source_ip) {
+        bool validateTalk(JsonObject message, const uint8_t* source_ip) {
             #ifdef JSONTALKIE_DEBUG
             Serial.println(F("Validating..."));
             #endif
@@ -336,7 +342,7 @@ namespace JsonTalkie {
             return true;
         }
         
-        static bool receive(JsonObject message) {
+        bool receive(JsonObject message) {
 
             // Echo codes:
             //     0 - ROGER
@@ -479,37 +485,7 @@ namespace JsonTalkie {
         }
 
     public:
-        static bool begin() {
-            if (!broadcast_socket.open()) {
-                return false;
-            }
-            // Compiler reports these static RAM allocation
-            #if ARDUINO_JSON_VERSION == 6
-            if (_message_doc.capacity() < BROADCAST_SOCKET_BUFFER_SIZE) {  // Absolute minimum
-                #ifdef JSONTALKIE_DEBUG
-                Serial.println(F("CRITICAL: Insufficient RAM"));
-                #endif
-                return false;
-            }
-            #else
-            if (_message_doc.overflowed()) {
-                #ifdef JSONTALKIE_DEBUG
-                Serial.println(F("CRITICAL: Insufficient RAM"));
-                #endif
-                return false;
-            }
-            #endif
-            BroadcastSocket::setCallback(listenCallback);
-            _running = true;
-            return true;
-        }
-
-        static void end() {
-            _running = false;
-            broadcast_socket.close();
-        }
-
-        static bool talk(JsonObject message, const uint8_t* target_ip = 0) {
+        bool talk(JsonObject message, const uint8_t* target_ip = 0) {
             if (!_running)
                 return false;
 
@@ -565,24 +541,8 @@ namespace JsonTalkie {
             }
         }
     };
-
-    // Compiler reports these static RAM allocation
-    #if ARDUINO_JSON_VERSION == 6
-    static StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> Talker::_message_doc;
-    #else
-    static JsonDocument Talker::_message_doc;
-    #endif
-    char Talker::_buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
-    uint8_t Talker::_received_ip[4];    // For echo and error destination
-    uint32_t Talker::_sent_message_id = 0;
-    uint32_t Talker::_sent_set_time[2] = {0};
-    String Talker::_set_name = "";
-    bool Talker::_check_set_time = false;
-    bool Talker::_running = false;
-
 }
 
-// WARNING: This declares as a function: JsonTalkie::Talker json_talkie();
-JsonTalkie::Talker json_talkie;
+JsonTalkie::Talker json_talkie(broadcast_socket);
 
 #endif

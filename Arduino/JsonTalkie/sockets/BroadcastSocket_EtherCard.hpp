@@ -25,7 +25,6 @@ https://github.com/ruiseixasm/JsonTalkie
 
 class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
-    static uint8_t _broadcastIp[];
     static uint16_t _port;
     static bool _you_got_message;
 
@@ -92,10 +91,7 @@ public:
 
 };  
 
-uint8_t BroadcastSocket_EtherCard::_broadcastIp[] = {255,255,255,255};
-uint16_t BroadcastSocket_EtherCard::_port = 5005;
 bool BroadcastSocket_EtherCard::_you_got_message = false;
-char* BroadcastSocket_EtherCard::_buffer = nullptr;
 BroadcastSocket_EtherCard broadcast_socket;
 
 #endif // BROADCAST_SOCKET_ETHERCARD_HPP
