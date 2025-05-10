@@ -27,13 +27,6 @@ class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
     static bool _you_got_message;
 
-public:
-    BroadcastSocket_EtherCard(uint16_t port) {
-        _port = port;
-        ether.udpServerListenOnPort(udpCallback, port);
-    }
-
-
     // Corrected callback as a wrapper (must be static)
     static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t length) {
         
@@ -59,6 +52,12 @@ public:
                 _you_got_message = true;
             }
         }
+    }
+
+public:
+    BroadcastSocket_EtherCard(uint16_t port) {
+        _port = port;
+        ether.udpServerListenOnPort(udpCallback, port);
     }
 
     bool send(const char* data, size_t size, bool as_reply = false) override {
