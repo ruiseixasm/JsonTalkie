@@ -28,14 +28,21 @@ https://github.com/ruiseixasm/JsonTalkie
 // Choose Broadcast Socket here ---vvv
 #define BROADCAST_SOCKET SOCKET_ETHERCARD
 
-// Network configuration
-uint8_t mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
+// Network settings
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};      // MAC address
+byte my_ip[] = {192, 168, 31, 100};                     // Arduino IP
+byte gw_ip[] = {192, 168, 31, 77};                      // IP of the main router, gateway
+byte dns_ip[] = {192, 168, 31, 77};                     // DNS address is the same as the gateway router
+byte mask[] = {255, 255, 255, 0};                       // NEEDED FOR NETWORK BROADCAST
+const uint16_t PORT = 5005;                             // UDP port
+
 #if BROADCAST_SOCKET == SOCKET_SERIAL
     #include "sockets/BroadcastSocket_Serial.hpp"
 #elif BROADCAST_SOCKET == SOCKET_UDP
     #include "sockets/BroadcastSocket_UDP.hpp"
 #elif BROADCAST_SOCKET == SOCKET_ETHERCARD
     #include "sockets/BroadcastSocket_EtherCard.hpp"
+    byte Ethernet::buffer[256];  // Ethernet buffer
 #else
     #include "sockets/BroadcastSocket_Dummy.hpp"
 #endif
@@ -93,26 +100,12 @@ void setup() {
     Serial.println("Opening the Socket...");
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
-    #ifdef USE_STATIC_IP
-    static byte myIp[]          = { 192,168,31,100 };
-    static byte netmask[]       = { 255,255,255,0 };
-    if (!broadcast_socket.open(mymac, myIp, 0, 0, netmask, 0, SS, 5005)) {
-        Serial.println("Failed to open the Socket!");
-        while(1);
+    // Set static IP (disable DHCP)
+    if (!ether.staticSetup(my_ip, gw_ip, dns_ip, mask)) {
+        Serial.println("Failed to access ENC28J60");
+        while (1);
     }
-    #else
-    if (!broadcast_socket.open(mymac, SS, 5005)) {
-        Serial.println("Failed to open the Socket!");
-        while(1);
-    }
-    #endif
     
-    Serial.println();
-    Serial.println("Beginning Talker...");
-    if (!json_talkie.begin()) {
-        Serial.println("Failed to initialize Talker!");
-        while(1);
-    }
 
     #ifdef USE_WIFI
 
