@@ -41,8 +41,9 @@ const uint16_t PORT = 5005;                             // UDP port
 #elif BROADCAST_SOCKET == SOCKET_UDP
     #include "sockets/BroadcastSocket_UDP.hpp"
 #elif BROADCAST_SOCKET == SOCKET_ETHERCARD
+    #define BUFFER_SIZE 256
     #include "sockets/BroadcastSocket_EtherCard.hpp"
-    byte Ethernet::buffer[256];  // Ethernet buffer
+    byte Ethernet::buffer[BUFFER_SIZE];  // Ethernet buffer
 #else
     #include "sockets/BroadcastSocket_Dummy.hpp"
 #endif
@@ -98,8 +99,13 @@ void setup() {
 
     // Saving string in PROGMEM (flash) to save RAM memory
     Serial.println("Opening the Socket...");
+    
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
+    if (!ether.begin(BUFFER_SIZE, mac, SS)) {
+        Serial.println("Failed to access ENC28J60");
+        while (1);
+    }
     // Set static IP (disable DHCP)
     if (!ether.staticSetup(my_ip, gw_ip, dns_ip, mask)) {
         Serial.println("Failed to access ENC28J60");
