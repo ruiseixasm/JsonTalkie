@@ -18,6 +18,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define SOCKET_SERIAL 1
 #define SOCKET_UDP 2
 #define SOCKET_ETHERCARD 3
+#define SOCKET_ESP32 4
 #define SOCKET_DUMMY 0
 
 #ifdef USE_WIFI
@@ -44,6 +45,9 @@ const uint16_t PORT = 5005;                             // UDP port
     #define BUFFER_SIZE 256
     #include "sockets/BroadcastSocket_EtherCard.hpp"
     byte Ethernet::buffer[BUFFER_SIZE];  // Ethernet buffer
+#elif BROADCAST_SOCKET == SOCKET_ESP32
+    #include "secrets/wifi_credentials.h"
+    #include "sockets/BroadcastSocket_ESP32.hpp"
 #else
     #include "sockets/BroadcastSocket_Dummy.hpp"
 #endif
@@ -102,6 +106,8 @@ void setup() {
     // Saving string in PROGMEM (flash) to save RAM memory
     Serial.println("\n\nOpening the Socket...");
     
+
+    #if BROADCAST_SOCKET == SOCKET_ETHERCARD
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
     if (!ether.begin(BUFFER_SIZE, mac, SS)) {
@@ -113,7 +119,10 @@ void setup() {
         Serial.println("Failed to access ENC28J60");
         while (1);
     }
-    
+    #elif BROADCAST_SOCKET == SOCKET_ESP32
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    while (WiFi.status() != WL_CONNECTED) delay(500);
+    #endif
 
     #ifdef USE_WIFI
 
