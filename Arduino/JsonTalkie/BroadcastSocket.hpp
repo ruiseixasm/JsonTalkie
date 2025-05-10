@@ -25,11 +25,8 @@ protected:
     static char _buffer[BROADCAST_SOCKET_BUFFER_SIZE];
 
 public:
-    BroadcastSocket(uint16_t port) {
-        _port = port;
-    }
-
-    virtual ~BroadcastSocket() = default;
+    BroadcastSocket() = default;
+    ~BroadcastSocket() = default;
 
     char* get_buffer() {
         return _buffer;

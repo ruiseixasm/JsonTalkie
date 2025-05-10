@@ -95,6 +95,6 @@ public:
 };  
 
 bool BroadcastSocket_EtherCard::_you_got_message = false;
-BroadcastSocket_EtherCard broadcast_socket;
+BroadcastSocket_EtherCard broadcast_socket(5005);
 
 #endif // BROADCAST_SOCKET_ETHERCARD_HPP
