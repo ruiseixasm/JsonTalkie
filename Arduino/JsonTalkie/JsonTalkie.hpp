@@ -18,6 +18,10 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <Arduino.h>
 #include <ArduinoJson.h>    // Install ArduinoJson Library
 
+
+// Readjust if absolutely necessary
+#define BROADCAST_SOCKET_BUFFER_SIZE 128
+
 // To occupy less Flash memory
 #define ARDUINO_JSON_VERSION 6
 
@@ -147,7 +151,7 @@ namespace JsonTalkie {
         #else
         JsonDocument _message_doc;
         #endif
-        char* _buffer = broadcast_socket.get_buffer();
+        char _buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
         uint32_t _sent_message_id = 0;      // Keeps track of the sent id
         uint32_t _sent_set_time[2] = {0};   // Keeps two time stamp
         String _set_name = "";              // Keeps the device name
@@ -443,7 +447,7 @@ namespace JsonTalkie {
                 message["f"] = Manifesto::talk()->name;
                 valid_checksum(message);
 
-                size_t size = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+                uint16_t size = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
                 if (size == 0) {
                     #ifdef JSONTALKIE_DEBUG
                     Serial.println(F("Error: Serialization failed"));
@@ -467,7 +471,7 @@ namespace JsonTalkie {
 
     
         void listen() {
-            if (broadcast_socket.receive()) {
+            if (broadcast_socket.receive(_buffer, BROADCAST_SOCKET_BUFFER_SIZE)) {
 
                 #ifdef JSONTALKIE_DEBUG
                 Serial.print(F("L: "));

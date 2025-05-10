@@ -19,6 +19,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <EtherCard.h>
 
 
+
 // #define BROADCAST_SOCKET_DEBUG
 // #define ENABLE_DIRECT_ADDRESSING
 
@@ -43,7 +44,7 @@ private:
         #endif
 
         if (dst_port == _port) {
-            if (length < BROADCAST_SOCKET_BUFFER_SIZE - 1) {
+            if (length < _size - 1) {
                 for (uint8_t byte_i = 0; byte_i < 4; ++byte_i) {
                     _source_ip[byte_i] = src_ip[byte_i];
                 }
@@ -60,7 +61,7 @@ public:
         ether.udpServerListenOnPort(udpCallback, port);
     }
 
-    bool send(const char* data, size_t size, bool as_reply = false) override {
+    bool send(const char* data, uint16_t size, bool as_reply = false) override {
 
         uint8_t broadcastIp[4] = {255, 255, 255, 255};
         #ifdef ENABLE_DIRECT_ADDRESSING
@@ -83,11 +84,16 @@ public:
         return true;
     }
 
-    bool receive() override {
-        ether.packetLoop(ether.packetReceive());
-        if (_you_got_message) {
-            _you_got_message = false;
-            return true;
+    bool receive(const char* data, uint16_t size) override {
+        if (_buffer == nullptr) {
+            _buffer = data;
+            _size = size;
+        } else {
+            ether.packetLoop(ether.packetReceive());
+            if (_you_got_message) {
+                _you_got_message = false;
+                return true;
+            }
         }
         return false;
     }
