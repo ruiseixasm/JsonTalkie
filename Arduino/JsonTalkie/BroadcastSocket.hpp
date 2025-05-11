@@ -42,9 +42,13 @@ uint16_t BroadcastSocket::_size = 0;
 #if defined(EtherCard_h)
 #include "sockets/BroadcastSocket_EtherCard.hpp"
 BroadcastSocket_EtherCard broadcast_socket;
+#elif defined(USE_SERIAL_SOCKET)
+#include "sockets/BroadcastSocket_Serial.hpp"
+BroadcastSocket_Serial broadcast_socket;
 #else
-
-
+#include "sockets/BroadcastSocket_Dummy.hpp"
+BroadcastSocket_Dummy broadcast_socket;
+#warning "No Ethernet library found or USE_SERIAL_SOCKET defined - falling back to Dummy implementation"
 #endif
 
 

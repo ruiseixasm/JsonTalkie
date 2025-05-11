@@ -13,25 +13,19 @@ https://github.com/ruiseixasm/JsonTalkie
 */
 
 #include <EtherCard.h>
+// #define USE_SERIAL_SOCKET
 #include "BroadcastSocket.hpp"
+#include "JsonTalkie.hpp"
 
 
 // #define USE_WIFI
 #define USE_STATIC_IP
-
-#define SOCKET_SERIAL 1
-#define SOCKET_UDP 2
-#define SOCKET_ETHERCARD 3
-#define SOCKET_ESP32 4
-#define SOCKET_DUMMY 0
 
 #ifdef USE_WIFI
 #include <ESP8266WiFi.h>
 #include "secrets/wifi_credentials.h"   // Make sure "secrets/" is in the gitignore before staging and pushing!!
 #endif
 
-// Choose Broadcast Socket here ---vvv
-#define BROADCAST_SOCKET SOCKET_ETHERCARD
 
 // Network settings
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};      // MAC address
@@ -41,21 +35,11 @@ byte dns_ip[] = {192, 168, 31, 77};                     // DNS address is the sa
 byte mask[] = {255, 255, 255, 0};                       // NEEDED FOR NETWORK BROADCAST
 #define PORT 5005                                       // UDP port
 
-#if BROADCAST_SOCKET == SOCKET_SERIAL
-    #include "sockets/BroadcastSocket_Serial.hpp"
-#elif BROADCAST_SOCKET == SOCKET_UDP
-    #include "sockets/BroadcastSocket_UDP.hpp"
-#elif BROADCAST_SOCKET == SOCKET_ETHERCARD
-    #define ETHERNET_BUFFER_SIZE 256
-    byte Ethernet::buffer[ETHERNET_BUFFER_SIZE];  // Ethernet buffer
-#elif BROADCAST_SOCKET == SOCKET_ESP32
-    #include "secrets/wifi_credentials.h"
-    #include "sockets/BroadcastSocket_ESP32.hpp"
-#else
-    #include "sockets/BroadcastSocket_Dummy.hpp"
+#if defined(EtherCard_h)
+#define ETHERNET_BUFFER_SIZE 256
+byte Ethernet::buffer[ETHERNET_BUFFER_SIZE];  // Ethernet buffer
 #endif
 
-#include "JsonTalkie.hpp"
 
 
 // MANIFESTO DEFINITION
@@ -154,7 +138,7 @@ void setup() {
 
     Serial.println("Talker ready");
 
-    #if BROADCAST_SOCKET != SOCKET_SERIAL
+    #ifndef USE_SERIAL_SOCKET
     pinMode(buzzer_pin, OUTPUT);
     digitalWrite(buzzer_pin, HIGH);
     delay(10); 
@@ -204,7 +188,7 @@ long _duration = 5;  // Example variable
 
 // Command implementations
 bool buzz(JsonObject json_message) {
-    #if BROADCAST_SOCKET != SOCKET_SERIAL
+    #ifndef USE_SERIAL_SOCKET
     digitalWrite(buzzer_pin, HIGH);
     delay(_duration); 
     digitalWrite(buzzer_pin, LOW);
