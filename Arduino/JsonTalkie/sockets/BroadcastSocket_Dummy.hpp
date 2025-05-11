@@ -156,8 +156,8 @@ public:
                     #endif
 
                 } // JSON talk_doc freed here
+                return true;
             }
-            return true;
         }
         return false;
     }
