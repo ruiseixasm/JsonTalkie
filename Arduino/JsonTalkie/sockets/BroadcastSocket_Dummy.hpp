@@ -86,19 +86,19 @@ private:
     }
 
 public:
-    bool send(const char* data, size_t size, bool as_reply = false) override {
+    bool send(const char* data, size_t len, bool as_reply = false) override {
         #ifdef BROADCAST_SOCKET_DEBUG
         Serial.print(F("DUMMY SENT: "));
-        char talk[size + 1];
-        Serial.println(decode(data, size, talk));
+        char talk[len + 1];
+        Serial.println(decode(data, len, talk));
         #endif
         return true;
     }
 
     
-    bool receive(char* data, size_t size) override {
+    size_t receive(char* buffer, size_t size) override {
         if (_buffer == nullptr || _size == 0) {
-            _buffer = data;
+            _buffer = buffer;
             _size = size;
         } else if (millis() - _lastTime > 1000) {
             _lastTime = millis();
@@ -143,7 +143,7 @@ public:
                     JsonObject message = message_doc.as<JsonObject>();
                     valid_checksum(message);
     
-                    size_t message_len = serializeJson(message, data, size);
+                    size_t message_len = serializeJson(message, buffer, size);
                     if (message_len == 0 || message_len >= size) {
                         Serial.println(F("Serialization failed/buffer overflow"));
                         return;
