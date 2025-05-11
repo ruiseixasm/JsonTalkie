@@ -61,7 +61,7 @@ auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
 BroadcastSocket_Serial broadcast_socket;
 #else
 #include "sockets/BroadcastSocket_Dummy.hpp"
-BroadcastSocket_Dummy broadcast_socket;
+auto& broadcast_socket = BroadcastSocket_Dummy::instance();
 #warning "No Ethernet library found or USE_SERIAL_SOCKET defined - falling back to Dummy implementation"
 #endif
 

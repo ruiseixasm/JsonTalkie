@@ -12,7 +12,7 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
 
-#include <EtherCard.h>
+// #include <EtherCard.h>
 // #define USE_SERIAL_SOCKET
 #include "BroadcastSocket.hpp"
 #include "JsonTalkie.hpp"
