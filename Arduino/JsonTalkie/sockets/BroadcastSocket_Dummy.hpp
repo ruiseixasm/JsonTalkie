@@ -51,7 +51,7 @@ private:
 
         if (len == 0) {
             #ifdef BROADCAST_SOCKET_DEBUG
-            Serial.println("ERROR: Serialization failed!");
+            Serial.println("ERROR: Checksum serialization failed!");
             #endif
             return false;
         }
