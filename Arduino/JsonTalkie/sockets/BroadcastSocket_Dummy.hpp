@@ -107,9 +107,9 @@ public:
                 // ALWAYS VALIDATE THE MESSAGES FOR BAD FORMATING !!
                 const char* PROGMEM messages[] = {
                     R"({"m":0,"f":"Dummy","i":3003412860})",
-                    R"({"m":2,"f":"Dummy","t":"Buzzer","w":"buzz","i":3003412861})",
-                    R"({"m":2,"f":"Dummy","t":"Buzzer","w":"on","i":3003412862})",
-                    R"({"m":2,"f":"Dummy","t":"Buzzer","w":"off","i":3003412863})"
+                    R"({"m":2,"f":"Dummy","t":"Buzzer","n":"buzz","i":3003412861})",
+                    R"({"m":2,"f":"Dummy","t":"Buzzer","n":"on","i":3003412862})",
+                    R"({"m":2,"f":"Dummy","t":"Buzzer","n":"off","i":3003412863})"
                 };
                 const size_t num_messages = sizeof(messages)/sizeof(char*);
                 

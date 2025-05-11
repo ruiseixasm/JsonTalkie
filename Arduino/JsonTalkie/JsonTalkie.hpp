@@ -293,6 +293,12 @@ namespace JsonTalkie {
             //     1 - UNKNOWN
             //     2 - NONE
 
+            #ifdef JSONTALKIE_DEBUG
+            Serial.print(F("Process: "));
+            serializeJson(message, Serial);
+            Serial.println();  // optional: just to add a newline after the JSON
+            #endif
+
             int message_code = message["m"].as<int>(); // Throws on type mismatch
             message["t"] = message["f"];
             message["m"] = 6;
