@@ -28,19 +28,6 @@ class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
     static size_t _data_length;
     
-    // Private constructor for singleton
-    BroadcastSocket_EtherCard() {
-        ether.udpServerListenOnPort(udpCallback, _port);
-    }
-
-public:
-    // Singleton accessor
-    static BroadcastSocket_EtherCard& instance() {
-        static BroadcastSocket_EtherCard instance;
-        return instance;
-    }
-
-    
     // Static callback remains unchanged
     static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, 
                           const char* data, uint16_t length) {
@@ -59,6 +46,19 @@ public:
         }
     }
 
+    // Private constructor for singleton
+    BroadcastSocket_EtherCard() {
+        ether.udpServerListenOnPort(udpCallback, _port);
+    }
+
+public:
+    // Singleton accessor
+    static BroadcastSocket_EtherCard& instance() {
+        static BroadcastSocket_EtherCard instance;
+        return instance;
+    }
+
+    
 
     bool send(const char* data, size_t size, bool as_reply = false) override {
         uint8_t broadcastIp[4] = {255, 255, 255, 255};
