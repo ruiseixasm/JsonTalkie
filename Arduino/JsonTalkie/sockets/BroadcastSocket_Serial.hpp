@@ -18,46 +18,25 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
 
 
-// Readjust if absolutely necessary
-#define BROADCAST_SOCKET_BUFFER_SIZE 128
 #define BROADCAST_SERIAL_DEBUG
 
 class BroadcastSocket_Serial : public BroadcastSocket {
-private:
-    char _buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
-
 public:
+    // Singleton accessor
+    static BroadcastSocket_Serial& instance() {
+        static BroadcastSocket_Serial instance;
+        return instance;
+    }
+
     
-    // Arduino default SPI pins in https://docs.arduino.cc/language-reference/en/functions/communication/SPI/
-    bool open(const uint8_t* mac, uint8_t csPin = 10, uint16_t port = 5005) {
-        return open(port);
-    }
-
-    bool open(const uint8_t* mac,
-        const uint8_t* my_ip, const uint8_t* gw_ip = 0, const uint8_t* dns_ip = 0, const uint8_t* mask = 0, const uint8_t* broadcast_ip = 0,
-        uint8_t csPin = 10, uint16_t port = 5005) {
-
-        return open(port);
-    }
-
-    bool open(uint16_t port = 5005) override {
-        return true;
-    }
-    void close() override {
-        Serial.end();
-    }
-    bool send(const char* data, size_t len, const uint8_t* source_ip = 0) override {
+    bool send(const char* data, size_t len, bool as_reply = false) override {
         return Serial.write(data, len) == len;
     }
 
-    void receive() override {
-        size_t message_len = Serial.readBytes(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);
-        if (message_len > 0) {
-            _socketCallback(_buffer, message_len);
-        }
+
+    size_t receive(char* buffer, size_t size) override {
+        return static_cast<size_t>(Serial.readBytes(buffer, size));
     }
 };
-
-BroadcastSocket_Serial broadcast_socket;
 
 #endif // BROADCAST_SOCKET_SERIAL_HPP

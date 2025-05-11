@@ -58,7 +58,7 @@ size_t BroadcastSocket::_size = 0;
 auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
 #elif defined(USE_SERIAL_SOCKET)
 #include "sockets/BroadcastSocket_Serial.hpp"
-BroadcastSocket_Serial broadcast_socket;
+auto& broadcast_socket = BroadcastSocket_Serial::instance();
 #else
 #include "sockets/BroadcastSocket_Dummy.hpp"
 auto& broadcast_socket = BroadcastSocket_Dummy::instance();
