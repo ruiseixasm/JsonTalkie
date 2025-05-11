@@ -471,11 +471,13 @@ namespace JsonTalkie {
 
     
         void listen() {
-            if (broadcast_socket.receive(_buffer, BROADCAST_SOCKET_BUFFER_SIZE)) {
+
+            size_t len = broadcast_socket.receive(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+            if (len > 0) {
 
                 #ifdef JSONTALKIE_DEBUG
                 Serial.print(F("L: "));
-                Serial.write(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);  // Properly prints raw bytes as characters
+                Serial.write(_buffer, len);  // Properly prints raw bytes as characters
                 Serial.println();            // Adds newline after the printed data
                 #endif
 
@@ -491,7 +493,7 @@ namespace JsonTalkie {
                 if (validateTalk(message)) {
 
                     #ifdef JSONTALKIE_DEBUG
-                    Serial.print(F("Received: "));
+                    Serial.print(F("Listened: "));
                     serializeJson(message, Serial);
                     Serial.println();  // optional: just to add a newline after the JSON
                     #endif
