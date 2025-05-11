@@ -25,7 +25,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // To occupy less Flash memory
 #define ARDUINO_JSON_VERSION 6
 
-// #define JSONTALKIE_DEBUG
+#define JSONTALKIE_DEBUG
 
 // Keys:
 //     c: checksum
@@ -447,8 +447,8 @@ namespace JsonTalkie {
                 message["f"] = Manifesto::talk()->name;
                 valid_checksum(message);
 
-                uint16_t size = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
-                if (size == 0) {
+                uint16_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+                if (len == 0) {
                     #ifdef JSONTALKIE_DEBUG
                     Serial.println(F("Error: Serialization failed"));
                     #endif
@@ -463,7 +463,7 @@ namespace JsonTalkie {
                     Serial.println();  // optional: just to add a newline after the JSON
                     #endif
 
-                    return broadcast_socket.send(_buffer, size, as_reply);
+                    return broadcast_socket.send(_buffer, len, as_reply);
                 }
             }
             return false;
@@ -475,7 +475,7 @@ namespace JsonTalkie {
 
                 #ifdef JSONTALKIE_DEBUG
                 Serial.print(F("L: "));
-                Serial.write(_buffer, length);  // Properly prints raw bytes as characters
+                Serial.write(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);  // Properly prints raw bytes as characters
                 Serial.println();            // Adds newline after the printed data
                 #endif
 
