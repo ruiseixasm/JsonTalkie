@@ -48,6 +48,17 @@ private:
         }
         message["c"] = 0;
         size_t len = serializeJson(message, _buffer, _size);
+
+        #ifdef BROADCAST_SOCKET_DEBUG
+        // DEBUG: Print buffer contents
+        Serial.println("Buffer contents:");
+        for (size_t i = 0; i < len; i++) {
+            Serial.print(_buffer[i], HEX);
+            Serial.print(" ");
+        }
+        Serial.println();
+        #endif
+
         // 16-bit word and XORing
         uint16_t checksum = 0;
         for (size_t i = 0; i < len; i += 2) {
@@ -57,15 +68,19 @@ private:
             }
             checksum ^= chunk;
         }
-        // Serial.print("Message checksum: ");
-        // Serial.println(checksum);  // optional: just to add a newline after the JSON
+
+        #ifdef BROADCAST_SOCKET_DEBUG
+        Serial.print("Message checksum: ");
+        Serial.println(checksum);  // optional: just to add a newline after the JSON
+        #endif
+
         message["c"] = checksum;
         return message_checksum == checksum;
     }
 
 public:
     bool send(const char* data, uint16_t size, bool as_reply = false) override {
-        #ifdef BROADCAST_SOCKET_DEBUG   
+        #ifdef BROADCAST_SOCKET_DEBUG
         Serial.print(F("DUMMY SENT: "));
         char talk[size + 1];
         Serial.println(decode(data, size, talk));
@@ -124,7 +139,7 @@ public:
                         return;
                     }
 
-                    #ifdef BROADCAST_SOCKET_DEBUG    
+                    #ifdef BROADCAST_SOCKET_DEBUG
                     Serial.print("DUMMY READ: ");
                     serializeJson(message, Serial);
                     Serial.println();  // optional: just to add a newline after the JSON
