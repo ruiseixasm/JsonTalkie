@@ -38,4 +38,14 @@ uint16_t BroadcastSocket::_port = 5005; // The default port
 char* BroadcastSocket::_buffer = nullptr;
 uint16_t BroadcastSocket::_size = 0;
 
+
+#if defined(EtherCard_h)
+#include "sockets/BroadcastSocket_EtherCard.hpp"
+BroadcastSocket_EtherCard broadcast_socket;
+#else
+
+
+#endif
+
+
 #endif // BROADCAST_SOCKET_HPP

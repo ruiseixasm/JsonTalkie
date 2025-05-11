@@ -13,6 +13,7 @@ https://github.com/ruiseixasm/JsonTalkie
 */
 
 #include <EtherCard.h>
+#include "BroadcastSocket.hpp"
 
 
 // #define USE_WIFI
@@ -45,9 +46,8 @@ byte mask[] = {255, 255, 255, 0};                       // NEEDED FOR NETWORK BR
 #elif BROADCAST_SOCKET == SOCKET_UDP
     #include "sockets/BroadcastSocket_UDP.hpp"
 #elif BROADCAST_SOCKET == SOCKET_ETHERCARD
-    #define BUFFER_SIZE 256
-    #include "sockets/BroadcastSocket_EtherCard.hpp"
-    byte Ethernet::buffer[BUFFER_SIZE];  // Ethernet buffer
+    #define ETHERNET_BUFFER_SIZE 256
+    byte Ethernet::buffer[ETHERNET_BUFFER_SIZE];  // Ethernet buffer
 #elif BROADCAST_SOCKET == SOCKET_ESP32
     #include "secrets/wifi_credentials.h"
     #include "sockets/BroadcastSocket_ESP32.hpp"
@@ -113,7 +113,7 @@ void setup() {
     #if defined(EtherCard_h)
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
-    if (!ether.begin(BUFFER_SIZE, mac, SS)) {
+    if (!ether.begin(ETHERNET_BUFFER_SIZE, mac, SS)) {
         Serial.println("Failed to access ENC28J60");
         while (1);
     }
