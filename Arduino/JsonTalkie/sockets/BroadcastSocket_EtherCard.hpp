@@ -66,7 +66,7 @@ public:
         ether.udpServerListenOnPort(udpCallback, _port); 
     }
 
-    bool send(const char* data, uint16_t size, bool as_reply = false) override {
+    bool send(const char* data, size_t size, bool as_reply = false) override {
 
         uint8_t broadcastIp[4] = {255, 255, 255, 255};
         #ifdef ENABLE_DIRECT_ADDRESSING
@@ -89,7 +89,7 @@ public:
         return true;
     }
 
-    bool receive(char* data, uint16_t size) override {
+    bool receive(char* data, size_t size) override {
         if (_buffer == nullptr || _size == 0) {
             _buffer = data;
             _size = size;

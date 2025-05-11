@@ -447,7 +447,7 @@ namespace JsonTalkie {
                 message["f"] = Manifesto::talk()->name;
                 valid_checksum(message);
 
-                uint16_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+                size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
                 if (len == 0) {
                     #ifdef JSONTALKIE_DEBUG
                     Serial.println(F("Error: Serialization failed"));
