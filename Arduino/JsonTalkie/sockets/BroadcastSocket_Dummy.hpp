@@ -24,13 +24,14 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // Readjust if absolutely necessary
 #define BROADCAST_SOCKET_BUFFER_SIZE 128
+
+// Readjust if absolutely necessary
 #define BROADCAST_SOCKET_DEBUG
 
 
 class BroadcastSocket_Dummy : public BroadcastSocket {
 private:
     unsigned long _lastTime = 0;
-    char _buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
 
     // Helper function to safely create char* from buffer
     static char* decode(const uint8_t* data, const size_t length, char* talk) {
@@ -46,7 +47,7 @@ private:
             message_checksum = message["c"];
         }
         message["c"] = 0;
-        size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+        size_t len = serializeJson(message, _buffer, _size);
         // 16-bit word and XORing
         uint16_t checksum = 0;
         for (size_t i = 0; i < len; i += 2) {
@@ -61,44 +62,19 @@ private:
         message["c"] = checksum;
         return message_checksum == checksum;
     }
+
 public:
-    ~BroadcastSocket_Dummy() override = default;
-
-    // Arduino default SPI pins in https://docs.arduino.cc/language-reference/en/functions/communication/SPI/
-    bool open(const uint8_t* mac, uint8_t csPin = 10, uint16_t port = 5005) {
-        return open(port);
-    }
-
-    bool open(const uint8_t* mac,
-        const uint8_t* my_ip, const uint8_t* gw_ip = 0, const uint8_t* dns_ip = 0, const uint8_t* mask = 0, const uint8_t* broadcast_ip = 0,
-        uint8_t csPin = 10, uint16_t port = 5005) {
-
-        return open(port);
-    }
-
-    bool open(uint16_t port = 5005) override {
-        _isOpen = true;
-        return _isOpen;
-    }
-
-    void close() override {
-        _isOpen = false;
-    }
-
-    bool send(const char* data, size_t len, const uint8_t* source_ip = 0) override {
-        if (!_isOpen)
-            return false;
-            
+    bool send(const char* data, uint16_t size, bool as_reply = false) override {
         #ifdef BROADCAST_SOCKET_DEBUG   
         Serial.print(F("DUMMY SENT: "));
-        char talk[len + 1];
-        Serial.println(decode(data, len, talk));
+        char talk[size + 1];
+        Serial.println(decode(data, size, talk));
         #endif
-
         return true;
     }
 
-    void receive() override {
+    
+    bool receive(char* data, uint16_t size) override {
         if (millis() - _lastTime > 1000) {
             _lastTime = millis();
             if (random(1000) < 100) { // 10% chance
@@ -142,8 +118,8 @@ public:
                     JsonObject message = message_doc.as<JsonObject>();
                     valid_checksum(message);
     
-                    size_t message_len = serializeJson(message, _buffer);
-                    if (message_len == 0 || message_len >= BROADCAST_SOCKET_BUFFER_SIZE) {
+                    size_t message_len = serializeJson(message, data, size);
+                    if (message_len == 0 || message_len >= size) {
                         Serial.println(F("Serialization failed/buffer overflow"));
                         return;
                     }
@@ -154,15 +130,12 @@ public:
                     Serial.println();  // optional: just to add a newline after the JSON
                     #endif
 
-                    _socketCallback(_buffer, message_len);
-                
                 } // JSON talk_doc freed here
             }
+            return true;
         }
+        return false;
     }
-
 };
-
-BroadcastSocket_Dummy broadcast_socket;
 
 #endif // BROADCAST_SOCKET_DUMMY_HPP
