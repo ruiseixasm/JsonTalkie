@@ -22,19 +22,31 @@ protected:
     static char* _buffer;
     static size_t _size;
 
-public:
+    // Private constructor
     BroadcastSocket() = default;
-    ~BroadcastSocket() = default;
+    virtual ~BroadcastSocket() = default;
 
-    virtual void set_port(uint16_t port) {
-        _port = port;
-    };
+public:
+    // Delete copy/move operations
+    BroadcastSocket(const BroadcastSocket&) = delete;
+    BroadcastSocket& operator=(const BroadcastSocket&) = delete;
+    BroadcastSocket(BroadcastSocket&&) = delete;
+    BroadcastSocket& operator=(BroadcastSocket&&) = delete;
 
-    // Send data (broadcast by default)
+    // Pure virtual methods remain unchanged
     virtual bool send(const char* data, size_t len, bool as_reply = false) = 0;
     virtual size_t receive(char* buffer, size_t size) = 0;
+    
+    virtual void set_port(uint16_t port) { _port = port; }
+
+    // Optional: Initialize buffer (now controlled by singleton)
+    static void initialize_buffer(char* buffer, size_t size) {
+        _buffer = buffer;
+        _size = size;
+    }
 };
 
+// Static member initialization
 uint8_t BroadcastSocket::_source_ip[4] = {0};
 uint16_t BroadcastSocket::_port = 5005; // The default port
 char* BroadcastSocket::_buffer = nullptr;
@@ -43,7 +55,7 @@ size_t BroadcastSocket::_size = 0;
 
 #if defined(EtherCard_h)
 #include "sockets/BroadcastSocket_EtherCard.hpp"
-BroadcastSocket_EtherCard broadcast_socket;
+auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
 #elif defined(USE_SERIAL_SOCKET)
 #include "sockets/BroadcastSocket_Serial.hpp"
 BroadcastSocket_Serial broadcast_socket;

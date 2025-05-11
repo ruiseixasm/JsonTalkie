@@ -27,78 +27,70 @@ https://github.com/ruiseixasm/JsonTalkie
 class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
     static size_t _data_length;
-
-    // Corrected callback as a wrapper (must be static)
-    static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t length) {
-        
-        #ifdef BROADCAST_ETHERCARD_DEBUG
-        Serial.print(F("R: "));
-        Serial.write(data, length);    // Properly prints raw bytes as characters
-        Serial.println();           // Adds newline after the printed data
-
-        if (dst_port == _port) {
-            Serial.println("Package port matches");
-        } else {
-            Serial.println("Package port does NOT match");
-        }
-        #endif
-
-        _data_length = 0;
-        if (dst_port == _port) {
-            if (length < _size - 1) {
-                for (uint8_t byte_i = 0; byte_i < 4; ++byte_i) {
-                    _source_ip[byte_i] = src_ip[byte_i];
-                }
-                memcpy(_buffer, data, length);
-                _buffer[length] = '\0';
-                _data_length = length;
-            }
-        }
-    }
-
-public:
+    
+    // Private constructor for singleton
     BroadcastSocket_EtherCard() {
         ether.udpServerListenOnPort(udpCallback, _port);
     }
 
-    void set_port(uint16_t port) {
-        _port = port;
-        // Just call listen again - it automatically replaces previous binding
-        ether.udpServerListenOnPort(udpCallback, _port); 
+public:
+    // Singleton accessor
+    static BroadcastSocket_EtherCard& instance() {
+        static BroadcastSocket_EtherCard instance;
+        return instance;
     }
 
-    bool send(const char* data, size_t size, bool as_reply = false) override {
+    
+    // Static callback remains unchanged
+    static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, 
+                          const char* data, uint16_t length) {
+        #ifdef BROADCAST_ETHERCARD_DEBUG
+        Serial.print(F("R: "));
+        Serial.write(data, length);
+        Serial.println();
+        #endif
 
-        uint8_t broadcastIp[4] = {255, 255, 255, 255};
-        #ifdef ENABLE_DIRECT_ADDRESSING
-        if (as_reply) {
-            ether.sendUdp(data, size, _port, _source_ip, _port);
-        } else {
-            ether.sendUdp(data, size, _port, broadcastIp, _port);
+        _data_length = 0;
+        if (dst_port == _port && length < _size - 1) {
+            memcpy(_source_ip, src_ip, 4);
+            memcpy(_buffer, data, length);
+            _buffer[length] = '\0';
+            _data_length = length;
         }
+    }
+
+
+    bool send(const char* data, size_t size, bool as_reply = false) override {
+        uint8_t broadcastIp[4] = {255, 255, 255, 255};
+        
+        #ifdef ENABLE_DIRECT_ADDRESSING
+        ether.sendUdp(data, size, _port, 
+                     as_reply ? _source_ip : broadcastIp, _port);
         #else
-        // EtherCard can't handle direct addressing correctly, so it must reply in broadcast!
         ether.sendUdp(data, size, _port, broadcastIp, _port);
         #endif
 
         #ifdef BROADCAST_ETHERCARD_DEBUG
         Serial.print(F("S: "));
-        Serial.write(data, size);   // Properly prints raw bytes as characters
-        Serial.println();           // Adds newline after the printed data
+        Serial.write(data, size);
+        Serial.println();
         #endif
 
         return true;
     }
 
+
     size_t receive(char* buffer, size_t size) override {
-        if (_buffer == nullptr || _size == 0) {
-            _buffer = buffer;
-            _size = size;
-        } else {
-            ether.packetLoop(ether.packetReceive());
-            return _data_length;
-        }
-        return 0;
+        initialize_buffer(buffer, size);
+        ether.packetLoop(ether.packetReceive());
+        return _data_length;
+    }
+
+
+    // Modified methods to work with singleton
+    void set_port(uint16_t port) override {
+        _port = port;
+        ether.udpServerListenOnPort(udpCallback, _port);
     }
 };
 
