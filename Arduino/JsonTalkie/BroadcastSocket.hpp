@@ -20,7 +20,7 @@ protected:
     static uint8_t _source_ip[4];
     static uint16_t _port;
     static char* _buffer;
-    static uint16_t _size;
+    static size_t _size;
 
 public:
     BroadcastSocket() = default;
@@ -31,14 +31,14 @@ public:
     };
 
     // Send data (broadcast by default)
-    virtual bool send(const char* data, uint16_t size, bool as_reply = false) = 0;
-    virtual bool receive(char* data, uint16_t size) = 0;
+    virtual bool send(const char* data, size_t size, bool as_reply = false) = 0;
+    virtual bool receive(char* data, size_t size) = 0;
 };
 
 uint8_t BroadcastSocket::_source_ip[4] = {0};
 uint16_t BroadcastSocket::_port = 5005; // The default port
 char* BroadcastSocket::_buffer = nullptr;
-uint16_t BroadcastSocket::_size = 0;
+size_t BroadcastSocket::_size = 0;
 
 
 #if defined(EtherCard_h)

@@ -86,7 +86,7 @@ private:
     }
 
 public:
-    bool send(const char* data, uint16_t size, bool as_reply = false) override {
+    bool send(const char* data, size_t size, bool as_reply = false) override {
         #ifdef BROADCAST_SOCKET_DEBUG
         Serial.print(F("DUMMY SENT: "));
         char talk[size + 1];
@@ -96,7 +96,7 @@ public:
     }
 
     
-    bool receive(char* data, uint16_t size) override {
+    bool receive(char* data, size_t size) override {
         if (_buffer == nullptr || _size == 0) {
             _buffer = data;
             _size = size;
