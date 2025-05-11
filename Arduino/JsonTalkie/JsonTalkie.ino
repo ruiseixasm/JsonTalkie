@@ -106,6 +106,8 @@ void setup() {
         Serial.println("Failed to access ENC28J60");
         while (1);
     }
+    // Makes sure it allows broadcast
+    ether.enableBroadcast();
     #elif defined(WiFi_h)
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     while (WiFi.status() != WL_CONNECTED) delay(500);
