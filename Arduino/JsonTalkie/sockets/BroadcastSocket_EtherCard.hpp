@@ -92,7 +92,7 @@ public:
 
     size_t receive(char* buffer, size_t size) override {
         if (_buffer == nullptr || _size == 0) {
-            _buffer = data;
+            _buffer = buffer;
             _size = size;
         } else {
             ether.packetLoop(ether.packetReceive());
