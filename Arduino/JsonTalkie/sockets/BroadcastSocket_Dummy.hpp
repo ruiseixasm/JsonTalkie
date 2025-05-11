@@ -28,7 +28,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 class BroadcastSocket_Dummy : public BroadcastSocket {
 private:
-    unsigned long _lastTime = 0;
+    static unsigned long _lastTime;
 
     // Helper function to safely create char* from buffer
     static char* decode(const uint8_t* data, const size_t length, char* talk) {
@@ -83,6 +83,13 @@ private:
     }
 
 public:
+    // Singleton accessor
+    static BroadcastSocket_Dummy& instance() {
+        static BroadcastSocket_Dummy instance;
+        return instance;
+    }
+
+
     bool send(const char* data, size_t len, bool as_reply = false) override {
         #ifdef BROADCAST_DUMMY_DEBUG
         Serial.print(F("DUMMY SENT: "));
@@ -94,10 +101,8 @@ public:
 
     
     size_t receive(char* buffer, size_t size) override {
-        if (_buffer == nullptr || _size == 0) {
-            _buffer = buffer;
-            _size = size;
-        } else if (millis() - _lastTime > 1000) {
+        initialize_buffer(buffer, size);
+        if (millis() - _lastTime > 1000) {
             _lastTime = millis();
             if (random(1000) < 100) { // 10% chance
                 // 2. Message Selection
@@ -157,5 +162,7 @@ public:
         return 0;
     }
 };
+
+static unsigned long BroadcastSocket_Dummy::_lastTime = 0;
 
 #endif // BROADCAST_SOCKET_DUMMY_HPP

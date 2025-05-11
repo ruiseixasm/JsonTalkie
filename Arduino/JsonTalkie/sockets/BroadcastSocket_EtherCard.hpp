@@ -59,7 +59,6 @@ public:
     }
 
     
-
     bool send(const char* data, size_t size, bool as_reply = false) override {
         uint8_t broadcastIp[4] = {255, 255, 255, 255};
         
