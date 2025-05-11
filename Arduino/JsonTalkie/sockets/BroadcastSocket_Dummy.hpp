@@ -49,6 +49,13 @@ private:
         message["c"] = 0;
         size_t len = serializeJson(message, _buffer, _size);
 
+        if (len == 0) {
+            #ifdef BROADCAST_SOCKET_DEBUG
+            Serial.println("ERROR: Serialization failed!");
+            #endif
+            return false;
+        }
+
         #ifdef BROADCAST_SOCKET_DEBUG
         // DEBUG: Print buffer contents
         Serial.println("Buffer contents:");
