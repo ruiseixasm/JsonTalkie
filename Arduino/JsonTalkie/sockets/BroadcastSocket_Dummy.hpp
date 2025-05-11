@@ -30,6 +30,12 @@ class BroadcastSocket_Dummy : public BroadcastSocket {
 private:
     static unsigned long _lastTime;
 
+    // BroadcastSocket_Dummy() {
+    //     Serial.println(F("[WARNING] Using Dummy Socket Implementation"));
+    //     Serial.println(F("[WARNING] No Ethernet library or custom socket defined"));
+    //     Serial.println(F("[WARNING] All network operations will be no-ops"));
+    // }
+
     // Helper function to safely create char* from buffer
     static char* decode(const uint8_t* data, const size_t length, char* talk) {
         memcpy(talk, data, length);
