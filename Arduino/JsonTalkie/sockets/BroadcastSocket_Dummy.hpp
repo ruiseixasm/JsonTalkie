@@ -97,7 +97,10 @@ public:
 
     
     bool receive(char* data, uint16_t size) override {
-        if (millis() - _lastTime > 1000) {
+        if (_buffer == nullptr || _size == 0) {
+            _buffer = data;
+            _size = size;
+        } else if (millis() - _lastTime > 1000) {
             _lastTime = millis();
             if (random(1000) < 100) { // 10% chance
                 // 2. Message Selection
