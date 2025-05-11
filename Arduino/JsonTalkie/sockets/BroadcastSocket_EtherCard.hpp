@@ -20,7 +20,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 
-// #define BROADCAST_SOCKET_DEBUG
+// #define BROADCAST_ETHERCARD_DEBUG
 // #define ENABLE_DIRECT_ADDRESSING
 
 
@@ -31,7 +31,7 @@ private:
     // Corrected callback as a wrapper (must be static)
     static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t length) {
         
-        #ifdef BROADCAST_SOCKET_DEBUG
+        #ifdef BROADCAST_ETHERCARD_DEBUG
         Serial.print(F("R: "));
         Serial.write(data, length);    // Properly prints raw bytes as characters
         Serial.println();           // Adds newline after the printed data
@@ -81,7 +81,7 @@ public:
         ether.sendUdp(data, size, _port, broadcastIp, _port);
         #endif
 
-        #ifdef BROADCAST_SOCKET_DEBUG
+        #ifdef BROADCAST_ETHERCARD_DEBUG
         Serial.print(F("S: "));
         Serial.write(data, size);   // Properly prints raw bytes as characters
         Serial.println();           // Adds newline after the printed data

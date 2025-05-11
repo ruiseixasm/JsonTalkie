@@ -23,7 +23,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define ARDUINO_JSON_VERSION 6
 
 // Readjust if absolutely necessary
-#define BROADCAST_SOCKET_DEBUG
+#define BROADCAST_DUMMY_DEBUG
 
 
 class BroadcastSocket_Dummy : public BroadcastSocket {
@@ -47,13 +47,13 @@ private:
         size_t len = serializeJson(message, _buffer, _size);
 
         if (len == 0) {
-            #ifdef BROADCAST_SOCKET_DEBUG
+            #ifdef BROADCAST_DUMMY_DEBUG
             Serial.println("ERROR: Checksum serialization failed!");
             #endif
             return false;
         }
 
-        #ifdef BROADCAST_SOCKET_DEBUG
+        #ifdef BROADCAST_DUMMY_DEBUG
         // DEBUG: Print buffer contents
         Serial.println("Buffer contents:");
         for (size_t i = 0; i < len; i++) {
@@ -73,7 +73,7 @@ private:
             checksum ^= chunk;
         }
 
-        #ifdef BROADCAST_SOCKET_DEBUG
+        #ifdef BROADCAST_DUMMY_DEBUG
         Serial.print("Message checksum: ");
         Serial.println(checksum);  // optional: just to add a newline after the JSON
         #endif
@@ -84,7 +84,7 @@ private:
 
 public:
     bool send(const char* data, size_t len, bool as_reply = false) override {
-        #ifdef BROADCAST_SOCKET_DEBUG
+        #ifdef BROADCAST_DUMMY_DEBUG
         Serial.print(F("DUMMY SENT: "));
         char talk[len + 1];
         Serial.println(decode(data, len, talk));
@@ -145,7 +145,7 @@ public:
                     return;
                 }
 
-                #ifdef BROADCAST_SOCKET_DEBUG
+                #ifdef BROADCAST_DUMMY_DEBUG
                 Serial.print("DUMMY RECEIVED: ");
                 serializeJson(message, Serial);
                 Serial.println();  // optional: just to add a newline after the JSON
