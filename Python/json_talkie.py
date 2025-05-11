@@ -117,7 +117,7 @@ class JsonTalkie:
                     if self.validate_message(message):
                         if DEBUG:
                             print(message)
-                        if "f" in message:
+                        if "f" in message and message["f"] != "*":
                             self._devices_address[message["f"]] = device_ip
                         self.receive(message)
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:

@@ -77,14 +77,14 @@ class CommandLine:
                             "m": 0  # talk
                         }
                         json_talkie.talk(message)
-                        time.sleep(0.5) # Wait some time
+                        # time.sleep(0.5) # Wait some time
                         return
                     elif words[0] == "sys":
                         message: Dict[str, Any] = {
                             "m": 5  # sys
                         }
                         json_talkie.talk(message)
-                        time.sleep(0.5) # Wait some time
+                        # time.sleep(0.5) # Wait some time
                         return
                 else:
                     message: Dict[str, Any] = {
@@ -95,7 +95,7 @@ class CommandLine:
                             if len(words) == 2: # Targeted talk
                                 message["m"] = 0    # talk
                                 json_talkie.talk(message)
-                                time.sleep(0.5) # Wait some time
+                                # time.sleep(0.5) # Wait some time
                             else:
                                 print(f"\t'{words[1]}' has a wrong number of arguments!")
                             return
@@ -103,7 +103,7 @@ class CommandLine:
                             if len(words) == 2: # Targeted talk
                                 message["m"] = 1    # list
                                 json_talkie.talk(message)
-                                time.sleep(0.5) # Wait some time
+                                # time.sleep(0.5) # Wait some time
                             else:
                                 print(f"\t'{words[1]}' has a wrong number of arguments!")
                             return
@@ -112,7 +112,7 @@ class CommandLine:
                                 message["m"] = 2    # run
                                 message["n"] = words[2]
                                 json_talkie.talk(message)
-                                time.sleep(0.5) # Wait some time
+                                # time.sleep(0.5) # Wait some time
                             else:
                                 print(f"\t'{words[1]}' has a wrong number of arguments!")
                             return
@@ -123,7 +123,7 @@ class CommandLine:
                                     message["n"] = words[2]
                                     message["v"] = int(words[3])
                                     json_talkie.talk(message)
-                                    time.sleep(0.5) # Wait some time
+                                    # time.sleep(0.5) # Wait some time
                                 except Exception as e:
                                     print(f"\t'{words[3]}' is not an integer!")
                             else:
@@ -134,7 +134,7 @@ class CommandLine:
                                 message["m"] = 4    # get
                                 message["n"] = words[2]
                                 json_talkie.talk(message)
-                                time.sleep(0.5) # Wait some time
+                                # time.sleep(0.5) # Wait some time
                             else:
                                 print(f"\t'{words[1]}' has a wrong number of arguments!")
                             return
@@ -142,7 +142,7 @@ class CommandLine:
                             if len(words) == 2: # Targeted talk
                                 message["m"] = 5    # sys
                                 json_talkie.talk(message)
-                                time.sleep(0.5) # Wait some time
+                                # time.sleep(0.5) # Wait some time
                             else:
                                 print(f"\t'{words[1]}' has a wrong number of arguments!")
                             return
