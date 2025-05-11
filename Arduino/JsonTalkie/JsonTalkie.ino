@@ -13,7 +13,7 @@ https://github.com/ruiseixasm/JsonTalkie
 */
 
 #include <EtherCard.h>
-// #define USE_SERIAL_SOCKET
+// #define BROADCASTSOCKET_SERIAL
 #include "BroadcastSocket.hpp"
 #include "JsonTalkie.hpp"
 
@@ -140,7 +140,7 @@ void setup() {
 
     Serial.println("Talker ready");
 
-    #ifndef USE_SERIAL_SOCKET
+    #ifndef BROADCASTSOCKET_SERIAL
     pinMode(buzzer_pin, OUTPUT);
     digitalWrite(buzzer_pin, HIGH);
     delay(10); 
@@ -190,7 +190,7 @@ long _duration = 5;  // Example variable
 
 // Command implementations
 bool buzz(JsonObject json_message) {
-    #ifndef USE_SERIAL_SOCKET
+    #ifndef BROADCASTSOCKET_SERIAL
     digitalWrite(buzzer_pin, HIGH);
     delay(_duration); 
     digitalWrite(buzzer_pin, LOW);
