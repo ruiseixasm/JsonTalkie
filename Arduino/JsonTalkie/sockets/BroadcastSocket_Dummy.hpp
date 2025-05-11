@@ -47,7 +47,7 @@ private:
             message_checksum = message["c"].as<uint16_t>();
         }
         message["c"] = 0;
-        size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+        size_t len = serializeJson(message, _buffer, _size);
         // 16-bit word and XORing
         uint16_t checksum = 0;
         for (size_t i = 0; i < len; i += 2) {
