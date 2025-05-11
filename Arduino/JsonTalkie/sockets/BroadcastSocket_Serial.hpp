@@ -20,7 +20,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // Readjust if absolutely necessary
 #define BROADCAST_SOCKET_BUFFER_SIZE 128
-#define BROADCAST_SOCKET_DEBUG
+#define BROADCAST_SERIAL_DEBUG
 
 class BroadcastSocket_Serial : public BroadcastSocket {
 private:
