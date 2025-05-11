@@ -25,7 +25,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // To occupy less Flash memory
 #define ARDUINO_JSON_VERSION 6
 
-#define JSONTALKIE_DEBUG
+// #define JSONTALKIE_DEBUG
 
 // Keys:
 //     c: checksum

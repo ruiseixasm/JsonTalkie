@@ -23,9 +23,6 @@ https://github.com/ruiseixasm/JsonTalkie
 #define ARDUINO_JSON_VERSION 6
 
 // Readjust if absolutely necessary
-#define BROADCAST_SOCKET_BUFFER_SIZE 128
-
-// Readjust if absolutely necessary
 #define BROADCAST_SOCKET_DEBUG
 
 
@@ -119,7 +116,7 @@ public:
                 
                 // 5. JSON Handling with Memory Checks
                 #if ARDUINO_JSON_VERSION == 6
-                StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> message_doc;
+                DynamicJsonDocument message_doc(size);
                 if (message_doc.capacity() == 0) {
                     Serial.println(F("Failed to allocate JSON message_doc"));
                     return;
