@@ -89,7 +89,7 @@ public:
         return true;
     }
 
-    bool receive(char* data, size_t size) override {
+    size_t receive(char* buffer, size_t size) override {
         if (_buffer == nullptr || _size == 0) {
             _buffer = data;
             _size = size;

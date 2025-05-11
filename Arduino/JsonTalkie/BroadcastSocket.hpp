@@ -31,8 +31,8 @@ public:
     };
 
     // Send data (broadcast by default)
-    virtual bool send(const char* data, size_t size, bool as_reply = false) = 0;
-    virtual bool receive(char* data, size_t size) = 0;
+    virtual bool send(const char* data, size_t len, bool as_reply = false) = 0;
+    virtual size_t receive(char* buffer, size_t size) = 0;
 };
 
 uint8_t BroadcastSocket::_source_ip[4] = {0};

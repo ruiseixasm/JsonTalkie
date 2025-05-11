@@ -87,7 +87,7 @@ public:
         return true;
     }
 
-    bool receive() override {
+    size_t receive() override {
         handlePacket();
         if (_you_got_message) {
             _you_got_message = false;
