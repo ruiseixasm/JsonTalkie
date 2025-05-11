@@ -26,7 +26,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
-    static bool _you_got_message;
+    static size_t _data_length;
 
     // Corrected callback as a wrapper (must be static)
     static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, const char* data, uint16_t length) {
@@ -43,6 +43,7 @@ private:
         }
         #endif
 
+        _data_length = 0;
         if (dst_port == _port) {
             if (length < _size - 1) {
                 for (uint8_t byte_i = 0; byte_i < 4; ++byte_i) {
@@ -50,7 +51,7 @@ private:
                 }
                 memcpy(_buffer, data, length);
                 _buffer[length] = '\0';
-                _you_got_message = true;
+                _data_length = length;
             }
         }
     }
@@ -95,15 +96,12 @@ public:
             _size = size;
         } else {
             ether.packetLoop(ether.packetReceive());
-            if (_you_got_message) {
-                _you_got_message = false;
-                return true;
-            }
+            return _data_length;
         }
-        return false;
+        return 0;
     }
-};  
+};
 
-bool BroadcastSocket_EtherCard::_you_got_message = false;
+size_t BroadcastSocket_EtherCard::_data_length = 0;
 
 #endif // BROADCAST_SOCKET_ETHERCARD_HPP

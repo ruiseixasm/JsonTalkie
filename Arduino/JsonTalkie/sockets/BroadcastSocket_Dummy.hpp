@@ -118,48 +118,46 @@ public:
                 size_t message_size = strlen(message_char);
                 
                 // 5. JSON Handling with Memory Checks
-                {
-                    #if ARDUINO_JSON_VERSION == 6
-                    StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> message_doc;
-                    if (message_doc.capacity() == 0) {
-                        Serial.println(F("Failed to allocate JSON message_doc"));
-                        return;
-                    }
-                    #else
-                    JsonDocument message_doc;
-                    if (message_doc.overflowed()) {
-                        Serial.println(F("Failed to allocate JSON message_doc"));
-                        return;
-                    }
-                    #endif
-                    
-                    // Message needs to be '\0' terminated and thus buffer is used instead
-                    // it's possible to serialize from a JsonObject but it isn't to deserialize into a JsonObject!
-                    DeserializationError error = deserializeJson(message_doc, message_char, message_size);
-                    if (error) {
-                        Serial.println(F("Failed to deserialize message"));
-                        return;
-                    }
-                    JsonObject message = message_doc.as<JsonObject>();
-                    valid_checksum(message);
-    
-                    size_t message_len = serializeJson(message, buffer, size);
-                    if (message_len == 0 || message_len >= size) {
-                        Serial.println(F("Serialization failed/buffer overflow"));
-                        return;
-                    }
+                #if ARDUINO_JSON_VERSION == 6
+                StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> message_doc;
+                if (message_doc.capacity() == 0) {
+                    Serial.println(F("Failed to allocate JSON message_doc"));
+                    return;
+                }
+                #else
+                JsonDocument message_doc;
+                if (message_doc.overflowed()) {
+                    Serial.println(F("Failed to allocate JSON message_doc"));
+                    return;
+                }
+                #endif
+                
+                // Message needs to be '\0' terminated and thus buffer is used instead
+                // it's possible to serialize from a JsonObject but it isn't to deserialize into a JsonObject!
+                DeserializationError error = deserializeJson(message_doc, message_char, message_size);
+                if (error) {
+                    Serial.println(F("Failed to deserialize message"));
+                    return;
+                }
+                JsonObject message = message_doc.as<JsonObject>();
+                valid_checksum(message);
 
-                    #ifdef BROADCAST_SOCKET_DEBUG
-                    Serial.print("DUMMY READ: ");
-                    serializeJson(message, Serial);
-                    Serial.println();  // optional: just to add a newline after the JSON
-                    #endif
+                size_t message_len = serializeJson(message, buffer, size);
+                if (message_len == 0 || message_len >= size) {
+                    Serial.println(F("Serialization failed/buffer overflow"));
+                    return;
+                }
 
-                } // JSON talk_doc freed here
-                return true;
+                #ifdef BROADCAST_SOCKET_DEBUG
+                Serial.print("DUMMY RECEIVED: ");
+                serializeJson(message, Serial);
+                Serial.println();  // optional: just to add a newline after the JSON
+                #endif
+
+                return message_len;
             }
         }
-        return false;
+        return 0;
     }
 };
 
