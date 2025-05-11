@@ -44,10 +44,10 @@ private:
         // Use a static buffer size, large enough for your JSON
         uint16_t message_checksum = 0;
         if (message.containsKey("c")) {
-            message_checksum = message["c"];
+            message_checksum = message["c"].as<uint16_t>();
         }
         message["c"] = 0;
-        size_t len = serializeJson(message, _buffer, _size);
+        size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
         // 16-bit word and XORing
         uint16_t checksum = 0;
         for (size_t i = 0; i < len; i += 2) {
