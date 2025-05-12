@@ -59,7 +59,7 @@ extern BroadcastSocket& broadcast_socket;
 #elif defined(BROADCASTSOCKET_SERIAL)
 #include "sockets/BroadcastSocket_Serial.hpp"
 auto& broadcast_socket = BroadcastSocket_Serial::instance();
-#elif defined(EtherCard_h)
+#elif defined(EtherCard_h) || defined(BROADCASTSOCKET_ETHERCARD)
 #include "sockets/BroadcastSocket_EtherCard.hpp"
 auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
 #else
