@@ -57,13 +57,12 @@ https://github.com/ruiseixasm/JsonTalkie
 //     2 - NONE
 
 // Error types (e):
-//     0 - Message NOT for me
-//     1 - Unknown sender
+//     0 - Unknown sender
+//     1 - Message missing the checksum
 //     2 - Message corrupted
 //     3 - Wrong message code
 //     4 - Message NOT identified
-//     5 - Message echo id mismatch
-//     6 - Set command arrived too late
+//     5 - Set command arrived too late
 
 
 namespace JsonTalkie {
@@ -194,8 +193,8 @@ namespace JsonTalkie {
             #endif
             
             // Error types:
-            //     0 - Message NOT for me
-            //     1 - Unknown sender
+            //     0 - Unknown sender
+            //     1 - Message missing the checksum
             //     2 - Message corrupted
             //     3 - Wrong message code
             //     4 - Message NOT identified
@@ -212,9 +211,25 @@ namespace JsonTalkie {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(1);
                 #endif
+                message["m"] = 7;   // error
+                message["t"] = "*";
+                message["f"] = Manifesto::talk()->name;
+                message["e"] = 0;
+                talk(message);
                 return false;
             }
-            if (!(message.containsKey("c") && message["c"].is<uint16_t>() && valid_checksum(message))) {
+            if (!(message.containsKey("c") && message["c"].is<uint16_t>())) {
+                #ifdef JSONTALKIE_DEBUG
+                Serial.println(2);
+                #endif
+                message["m"] = 7;   // error
+                message["t"] = message["f"];
+                message["f"] = Manifesto::talk()->name;
+                message["e"] = 1;
+                talk(message, true);
+                return false;
+            }
+            if (!valid_checksum(message)) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(2);
                 #endif
@@ -285,14 +300,16 @@ namespace JsonTalkie {
             #endif
 
             int message_code = message["m"].as<int>(); // Throws on type mismatch
+            message["w"] = message_code;
             message["t"] = message["f"];
             message["m"] = 6;
             if (message_code == 0) {            // talk
+                message["w"] = 0;
                 message["d"] = Manifesto::talk()->desc;
                 return talk(message, true);
             } else if (message_code == 1) {     // list
-                message["w"] = 2;
                 bool none_list = true;
+                message["w"] = 2;
                 for (size_t run_i = 0; run_i < Manifesto::runSize; ++run_i) {
                     message["n"] = Manifesto::runCommands[run_i].name;
                     message["d"] = Manifesto::runCommands[run_i].desc;
@@ -319,7 +336,6 @@ namespace JsonTalkie {
                 return true;
             } else if (message_code == 2) {     // run
                 if (message.containsKey("n")) {
-                    message["w"] = message_code;
                     const Run* run = Manifesto::run(message["n"]);
                     if (run == nullptr) {
                         message["g"] = 1;   // UNKNOWN
@@ -333,7 +349,6 @@ namespace JsonTalkie {
                 }
             } else if (message_code == 3) {     // set
                 if (message.containsKey("n") && message.containsKey("v") && message["v"].is<long>()) {
-                    message["w"] = message_code;
                     const Set* set = Manifesto::set(message["n"]);
                     if (set == nullptr) {
                         message["g"] = 1;   // UNKNOWN
