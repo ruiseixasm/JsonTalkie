@@ -18,16 +18,22 @@ import os
 import time
 import uuid
 
+import sys
+import asyncio
+from prompt_toolkit import PromptSession, print_formatted_text
+from prompt_toolkit.formatted_text import FormattedText
+from prompt_toolkit.patch_stdout import patch_stdout
+
+
 from broadcast_socket_udp import *
 from broadcast_socket_dummy import *
 from broadcast_socket_serial import *
 from json_talkie import *
 
+
 class CommandLine:
     def __init__(self):
-        # Ensure history file exists
-        if not os.path.exists(".cmd_history"):
-            open(".cmd_history", 'w').close()
+
         # Defines 'talk', 'run', 'set', 'get' parameters
         self.manifesto: Dict[str, Dict[str, Any]] = {
             'talker': {
@@ -38,7 +44,22 @@ class CommandLine:
             'error': self.error
         }
 
-        self.session = PromptSession(history=FileHistory('.cmd_history'))
+        # Ensure history file exists
+        if not os.path.exists(".cmd_history"):
+            open(".cmd_history", 'w').close()
+
+        try:
+            self.session = PromptSession(history=FileHistory('.cmd_history'))
+            self.colors_enabled = True
+        except Exception:
+            self.session = None
+            self.colors_enabled = False
+
+        self.simulating_events = False
+        self.event_tasks = []
+        self.max_prefix_length = 22  # Track maximum prefix length for alignment
+
+
 
     def run(self):
         while True:
