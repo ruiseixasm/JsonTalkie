@@ -67,7 +67,6 @@ class JsonTalkie:
     def __init__(self, socket: BroadcastSocket, manifesto: Dict[str, Dict[str, Any]]):
         self._socket: BroadcastSocket = socket  # Composition over inheritance
         self._manifesto: Dict[str, Dict[str, Any]] = manifesto
-        self._last_message: Dict[str, Any] = {}
         self._message_time: float = 0.0
         self._running: bool = False
         self._devices_address: Dict[str, Tuple[str, int]] = {}
@@ -94,8 +93,6 @@ class JsonTalkie:
         message["f"] = self._manifesto['talker']['name']
         if "i" not in message:
             message["i"] = JsonTalkie.message_id()
-        if message["m"] != 6:   # echo
-            self._last_message = message
         JsonTalkie.valid_checksum(message)
         if DEBUG:
             print(message)
@@ -220,9 +217,8 @@ class JsonTalkie:
                 #     5 - Message echo id mismatch
                 #     6 - Set command arrived too late
 
-                if self._last_message and message["i"] == self._last_message["i"]:
-                    if "error" in self._manifesto:
-                        self._manifesto["error"](message)
+                if "error" in self._manifesto:
+                    self._manifesto["error"](message)
             case _:
                 print("\tUnknown message!")
         return False
