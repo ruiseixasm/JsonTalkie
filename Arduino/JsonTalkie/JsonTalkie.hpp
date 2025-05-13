@@ -203,7 +203,7 @@ namespace JsonTalkie {
             if (!(message["m"].as<int>() == 0 || message["m"].as<int>() == 5 || message["m"].as<int>() == 7
                     || message.containsKey("t") && (message["t"] == Manifesto::talk()->name || message["t"] == "*"))) {
                 #ifdef JSONTALKIE_DEBUG
-                Serial.println(0);
+                Serial.println(F("Message NOT for me!"));
                 #endif
                 return false;
             }
