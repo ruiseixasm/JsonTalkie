@@ -199,27 +199,32 @@ bool buzz(JsonObject json_message) {
     return true;
 }
 
+
+bool is_led_on = false;  // keep track of state yourself, by default it's off
+
 bool led_on(JsonObject json_message) {
-    int led_state = digitalRead(LED_BUILTIN);
-    if (led_state == 0) {
+    if (!is_led_on) {
         digitalWrite(LED_BUILTIN, HIGH);
+        is_led_on = true;
+        total_runs++;
     } else {
         json_message["r"] = "Already On!";
         json_talkie.talk(json_message);
+        return false;
     }
-    total_runs++;
     return true;
 }
 
 bool led_off(JsonObject json_message) {
-    int led_state = digitalRead(LED_BUILTIN);
-    if (led_state == 1) {
+    if (is_led_on) {
         digitalWrite(LED_BUILTIN, LOW);
+        is_led_on = false;
+        total_runs++;
     } else {
         json_message["r"] = "Already Off!";
         json_talkie.talk(json_message);
+        return false;
     }
-    total_runs++;
     return true;
 }
 
