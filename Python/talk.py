@@ -11,30 +11,16 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 '''
-from typing import Dict, Any, List
-from prompt_toolkit import PromptSession    # python3.13 -m pip install prompt_toolkit
-from prompt_toolkit.history import FileHistory
 import os
-import time
 import uuid
-
-import sys
 import asyncio
-from prompt_toolkit import PromptSession, print_formatted_text
-from prompt_toolkit.formatted_text import FormattedText
+from typing import Dict, Any
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
 from prompt_toolkit.patch_stdout import patch_stdout
-
-
-from broadcast_socket_udp import *
-from broadcast_socket_dummy import *
-from broadcast_socket_serial import *
-from json_talkie import *
-
 
 class CommandLine:
     def __init__(self):
-
-        # Defines 'talk', 'run', 'set', 'get' parameters
         self.manifesto: Dict[str, Dict[str, Any]] = {
             'talker': {
                 'name': f"Talker-{str(uuid.uuid4())[:2]}",
@@ -50,25 +36,21 @@ class CommandLine:
 
         try:
             self.session = PromptSession(history=FileHistory('.cmd_history'))
-            self.colors_enabled = True
         except Exception:
             self.session = None
-            self.colors_enabled = False
 
-        self.simulating_events = False
-        self.event_tasks = []
-        self.max_prefix_length = 22  # Track maximum prefix length for alignment
+        self.max_prefix_length = 22  # Fixed alignment width
 
-
-
-    def run(self):
+    async def run(self):
+        """Async version of the main loop"""
         while True:
             try:
-                cmd = self.session.prompt(">>> ").strip()
+                with patch_stdout():
+                    cmd = await self.session.prompt_async(">>> ")
                 if not cmd:
                     continue
                 
-                self._execute(cmd)
+                await self._execute(cmd)
                 
             except EOFError:  # Ctrl+D
                 print("\tExiting...")
@@ -79,13 +61,12 @@ class CommandLine:
             except Exception as e:
                 print(f"\tError: {e}")
 
-    def _execute(self, cmd: str):
-        """Handle command execution"""
+    async def _execute(self, cmd: str):
+        """Async command execution handler"""
         cmd = cmd.strip()
         if cmd in ("exit", "quit"):
             raise EOFError
         elif cmd == "history":
-            # Print history from file
             with open('.cmd_history', 'r') as f:
                 for i, line in enumerate(f, 1):
                     print(f"{i}: {line.strip()}")
@@ -94,203 +75,148 @@ class CommandLine:
             if words:
                 if len(words) == 1:
                     if words[0] == "talk":
-                        message: Dict[str, Any] = {
-                            "m": 0  # talk
-                        }
+                        message = {"m": 0}
                         json_talkie.talk(message)
-                        # time.sleep(0.5) # Wait some time
                         return
                     elif words[0] == "sys":
-                        message: Dict[str, Any] = {
-                            "m": 5  # sys
-                        }
+                        message = {"m": 5}
                         json_talkie.talk(message)
-                        # time.sleep(0.5) # Wait some time
                         return
                 else:
-                    message: Dict[str, Any] = {
-                        "t": words[0]   # to
+                    message = {"t": words[0]}
+                    command_map = {
+                        "talk": (0, 2),
+                        "list": (1, 2),
+                        "run": (2, 3),
+                        "set": (3, 4),
+                        "get": (4, 3),
+                        "sys": (5, 2)
                     }
-                    match words[1]:
-                        case "talk":
-                            if len(words) == 2: # Targeted talk
-                                message["m"] = 0    # talk
-                                json_talkie.talk(message)
-                                # time.sleep(0.5) # Wait some time
-                            else:
-                                print(f"\t'{words[1]}' has a wrong number of arguments!")
-                            return
-                        case "list":
-                            if len(words) == 2: # Targeted talk
-                                message["m"] = 1    # list
-                                json_talkie.talk(message)
-                                # time.sleep(0.5) # Wait some time
-                            else:
-                                print(f"\t'{words[1]}' has a wrong number of arguments!")
-                            return
-                        case "run":
-                            if len(words) == 3:
-                                message["m"] = 2    # run
+                    
+                    if words[1] in command_map:
+                        code, expected_args = command_map[words[1]]
+                        if len(words) == expected_args:
+                            message["m"] = code
+                            if expected_args > 2:
                                 message["n"] = words[2]
-                                json_talkie.talk(message)
-                                # time.sleep(0.5) # Wait some time
-                            else:
-                                print(f"\t'{words[1]}' has a wrong number of arguments!")
-                            return
-                        case "set":
-                            if len(words) == 4:
+                            if words[1] == "set":
                                 try:
-                                    message["m"] = 3    # set
-                                    message["n"] = words[2]
                                     message["v"] = int(words[3])
-                                    json_talkie.talk(message)
-                                    # time.sleep(0.5) # Wait some time
-                                except Exception as e:
+                                except ValueError:
                                     print(f"\t'{words[3]}' is not an integer!")
-                            else:
-                                print(f"'{words[1]}' has a wrong number of arguments!")
+                                    return
+                            json_talkie.talk(message)
                             return
-                        case "get":
-                            if len(words) == 3:
-                                message["m"] = 4    # get
-                                message["n"] = words[2]
-                                json_talkie.talk(message)
-                                # time.sleep(0.5) # Wait some time
-                            else:
-                                print(f"\t'{words[1]}' has a wrong number of arguments!")
-                            return
-                        case "sys":
-                            if len(words) == 2: # Targeted talk
-                                message["m"] = 5    # sys
-                                json_talkie.talk(message)
-                                # time.sleep(0.5) # Wait some time
-                            else:
-                                print(f"\t'{words[1]}' has a wrong number of arguments!")
+                        else:
+                            print(f"\t'{words[1]}' requires {expected_args-1} arguments!")
                             return
                         
-        print(f"\t[talk]\tPrints all devices' 'name' and description.")
-        print(f"\t['device' list]\tList the entire 'device' manifesto.")
-        print(f"\t['device' run 'what']\tRuns the named function.")
-        print(f"\t['device' set 'what']\tSets the named variable.")
-        print(f"\t['device' get 'what']\tGets the named variable value.")
-        print(f"\t[sys]\tPrints the platform of the Device.")
-        print(f"\t[exit]\tExits the command line (Ctrl+D).")
-        print(f"\t[help]\tShows the present help.")                        
+        self._print_help()
+
+    def _print_help(self):
+        """Print command help"""
+        print("\t[talk]\tPrints all devices' 'name' and description.")
+        print("\t['device' list]\tList the entire 'device' manifesto.")
+        print("\t['device' run 'what']\tRuns the named function.")
+        print("\t['device' set 'what']\tSets the named variable.")
+        print("\t['device' get 'what']\tGets the named variable value.")
+        print("\t[sys]\tPrints the platform of the Device.")
+        print("\t[exit]\tExits the command line (Ctrl+D).")
+        print("\t[help]\tShows the present help.")
 
 
-    # Echo codes (g):
-    #     0 - ROGER
-    #     1 - UNKNOWN
-    #     2 - NONE
+    def generate_prefix(self, message: Dict[str, Any]) -> str:
+        """Generate aligned prefix for messages"""
+        parts = []
+        if "f" in message:
+            parts.append(f"\t[{message['f']}")
+            
+            if "w" in message:
+                what = {
+                    0: "talk", 1: "list", 2: "run",
+                    3: "set", 4: "get", 5: "sys"
+                }.get(message.get("w"), "echo")
+                parts.append(f" {what}")
+                
+                if "n" in message:
+                    parts.append(f" {message['n']}")
+            
+            parts.append("]")
+        
+        return "".join(parts)
 
     def echo(self, message: Dict[str, Any]) -> bool:
-        if "f" in message:
-            print(f"\t[{message["f"]}", end='')
-            if "w" in message:
-                what: str = "echo"
-                if isinstance(message["w"], int) and message["w"] >= 0 and message["w"] <= 6:
-                    match message["w"]:
-                        case 0:
-                            what = "talk"
-                        case 1:
-                            what = "list"
-                        case 2:
-                            what = "run"
-                        case 3:
-                            what = "set"
-                        case 4:
-                            what = "get"
-                        case 5:
-                            what = "sys"
-                    if "v" in message and "n" in message:
-                        print(f" {what} {message["n"]}]\t{message["v"]}")
-                    elif "n" in message and "d" in message:
-                        print(f" {what} {message["n"]}]\t{message["d"]}")
-                    elif "n" in message and "r" in message:
-                        print(f" {what} {message["n"]}]\t{message["r"]}")
-                    elif "r" in message:
-                        print(f" {what}]\t{message["r"]}")
-                    elif "g" in message:
-                        roger: str = "FAIL"
-                        match message["g"]:
-                            case 0:
-                                roger = "ROGER"
-                            case 1:
-                                roger = "UNKNOWN"
-                            case 2:
-                                roger = "NONE"
-                        if "n" in message:
-                            print(f" {what} {message["n"]}]\t{roger}")
-                        else:
-                            print(f" {what}]\t{roger}")
+        """Handle echo messages with proper alignment"""
+        try:
+            prefix = self.generate_prefix(message)
+            padded_prefix = prefix.ljust(self.max_prefix_length)
+            
+            value = ""
+            if "v" in message:
+                value = str(message["v"])
             elif "d" in message:
-                print(f"]\t{message["d"]}")
-        return True
-
-
-    # Error types (e):
-    #     0 - Message NOT for me
-    #     1 - Unknown sender
-    #     2 - Message corrupted
-    #     3 - Wrong message code
-    #     4 - Message NOT identified
-    #     5 - Message echo id mismatch
-    #     6 - Set command arrived too late
+                value = str(message["d"])
+            elif "r" in message:
+                value = str(message["r"])
+            elif "g" in message:
+                value = {
+                    0: "ROGER", 1: "UNKNOWN", 2: "NONE"
+                }.get(message["g"], "FAIL")
+            
+            print(f"{padded_prefix}\t{value}")
+            return True
+        except Exception as e:
+            print(f"\nFormat error: {e}")
+            return False
 
     def error(self, message: Dict[str, Any]) -> bool:
+        """Handle error messages"""
         if "f" in message:
-            print(f"\t[{message["f"]}", end='')
-            if "e" in message:
-                if isinstance(message["e"], int):
-                    print(f"]\tERROR", end='')
-                    match message["e"]:
-                        case 0:
-                            print(f"\tMessage NOT for me")
-                        case 1:
-                            print(f"\tUnknown sender")
-                        case 2:
-                            print(f"\tMessage corrupted")
-                        case 3:
-                            print(f"\tWrong message code")
-                        case 4:
-                            print(f"\tMessage NOT identified")
-                        case 5:
-                            print(f"\tMessage echo id mismatch")
-                        case 5:
-                            print(f"\tSet command arrived too late")
-                        case _:
-                            print("\tUnknown")
+            print(f"\t[{message['f']}", end='')
+            if "e" in message and isinstance(message["e"], int):
+                error_messages = {
+                    0: "Message NOT for me",
+                    1: "Unknown sender",
+                    2: "Message corrupted",
+                    3: "Wrong message code",
+                    4: "Message NOT identified",
+                    5: "Message echo id mismatch",
+                    6: "Set command arrived too late"
+                }
+                print(f"]\tERROR\t{error_messages.get(message['e'], 'Unknown')}")
             else:
                 print("]\tUnknown error")
         return True
 
-
 if __name__ == "__main__":
+    # Socket configuration
+    SOCKET = "UDP"  # Change to "SERIAL" or "DUMMY" as needed
+    
+    if SOCKET == "SERIAL":
+        from broadcast_socket_serial import BroadcastSocket_Serial
+        broadcast_socket = BroadcastSocket_Serial("COM4")
+    elif SOCKET == "DUMMY":
+        from broadcast_socket_dummy import BroadcastSocket_Dummy
+        broadcast_socket = BroadcastSocket_Dummy()
+    else:
+        from broadcast_socket_udp import BroadcastSocket_UDP
+        broadcast_socket = BroadcastSocket_UDP()
 
-    SOCKET = "UDP"
-
-    broadcast_socket: BroadcastSocket = None
-    match SOCKET:
-        case "SERIAL":
-            broadcast_socket = BroadcastSocket_Serial("COM4")
-        case "DUMMY":
-            broadcast_socket = BroadcastSocket_Dummy()
-        case _:
-            broadcast_socket = BroadcastSocket_UDP()
-
+    from json_talkie import JsonTalkie
+    
     cli = CommandLine()
-    json_talkie: JsonTalkie = JsonTalkie(broadcast_socket, cli.manifesto)
+    json_talkie = JsonTalkie(broadcast_socket, cli.manifesto)
 
-    # Start listening (opens socket)
     if not json_talkie.on():
         print("\tFailed to turn jsonTalkie On!")
         exit(1)
     
     print(f"\t[{cli.manifesto['talker']['name']}] running. Type 'exit' to exit or 'talk' to make them talk.")
-    cli.run()
-
-    json_talkie.off()  # Turns jsonTalkie Off
-
+    
+    try:
+        asyncio.run(cli.run())
+    finally:
+        json_talkie.off()
 
 
 
