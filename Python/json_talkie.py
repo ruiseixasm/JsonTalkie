@@ -52,13 +52,12 @@ DEBUG = False  # Set to False to disable debug prints
 #     2 - NONE
 
 # Error types (e):
-#     0 - Message NOT for me
-#     1 - Unknown sender
+#     0 - Unknown sender
+#     1 - Message missing the checksum
 #     2 - Message corrupted
 #     3 - Wrong message code
 #     4 - Message NOT identified
-#     5 - Message echo id mismatch
-#     6 - Set command arrived too late
+#     5 - Set command arrived too late
 
 
 
@@ -209,13 +208,12 @@ class JsonTalkie:
             case 7:         # error
 
                 # Error types:
-                #     0 - Message NOT for me
-                #     1 - Unknown sender
+                #     0 - Unknown sender
+                #     1 - Message missing the checksum
                 #     2 - Message corrupted
                 #     3 - Wrong message code
                 #     4 - Message NOT identified
-                #     5 - Message echo id mismatch
-                #     6 - Set command arrived too late
+                #     5 - Set command arrived too late
 
                 if "error" in self._manifesto:
                     self._manifesto["error"](message)

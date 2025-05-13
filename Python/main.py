@@ -129,13 +129,12 @@ class Talker:
 
 
     # Error types (e):
-    #     0 - Message NOT for me
-    #     1 - Unknown sender
+    #     0 - Unknown sender
+    #     1 - Message missing the checksum
     #     2 - Message corrupted
     #     3 - Wrong message code
     #     4 - Message NOT identified
-    #     5 - Message echo id mismatch
-    #     6 - Set command arrived too late
+    #     5 - Set command arrived too late
 
     def error(self, message: Dict[str, Any]) -> bool:
         if "f" in message:
@@ -145,9 +144,9 @@ class Talker:
                     print(f"]\tERROR", end='')
                     match message["e"]:
                         case 0:
-                            print(f"\tMessage NOT for me")
-                        case 1:
                             print(f"\tUnknown sender")
+                        case 1:
+                            print(f"\tMessage missing the checksum")
                         case 2:
                             print(f"\tMessage corrupted")
                         case 3:
