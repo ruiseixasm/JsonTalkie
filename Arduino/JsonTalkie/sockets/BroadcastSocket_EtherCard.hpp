@@ -20,7 +20,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 
-// #define BROADCAST_ETHERCARD_DEBUG
+#define BROADCAST_ETHERCARD_DEBUG
 // #define ENABLE_DIRECT_ADDRESSING
 
 
