@@ -20,7 +20,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 
-#define BROADCAST_ETHERCARD_DEBUG
+// #define BROADCAST_ETHERCARD_DEBUG
 // #define ENABLE_DIRECT_ADDRESSING
 
 
@@ -37,7 +37,6 @@ private:
         Serial.println();
         #endif
 
-        _data_length = 0;
         if (dst_port == _port && length < _size - 1) {
             memcpy(_source_ip, src_ip, 4);
             memcpy(_buffer, data, length);
@@ -81,6 +80,7 @@ public:
 
     size_t receive(char* buffer, size_t size) override {
         initialize_buffer(buffer, size);
+        _data_length = 0;   // Makes sure it's the Ethernet reading that sets it!
         ether.packetLoop(ether.packetReceive());
         return _data_length;
     }

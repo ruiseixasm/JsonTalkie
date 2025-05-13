@@ -27,6 +27,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // #define JSONTALKIE_DEBUG
 
+
 // Keys:
 //     c: checksum
 //     d: description
@@ -151,7 +152,6 @@ namespace JsonTalkie {
         JsonDocument _message_doc;
         #endif
         char _buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
-        uint32_t _sent_message_id = 0;      // Keeps track of the sent id
         uint32_t _sent_set_time[2] = {0};   // Keeps two time stamp
         String _set_name = "";              // Keeps the device name
         bool _check_set_time = false;
@@ -209,7 +209,7 @@ namespace JsonTalkie {
             }
             if (!(message.containsKey("f") && message["f"].is<String>())) {
                 #ifdef JSONTALKIE_DEBUG
-                Serial.println(1);
+                Serial.println(0);
                 #endif
                 message["m"] = 7;   // error
                 message["t"] = "*";
@@ -220,7 +220,7 @@ namespace JsonTalkie {
             }
             if (!(message.containsKey("c") && message["c"].is<uint16_t>())) {
                 #ifdef JSONTALKIE_DEBUG
-                Serial.println(2);
+                Serial.println(1);
                 #endif
                 message["m"] = 7;   // error
                 message["t"] = message["f"];
@@ -459,10 +459,7 @@ namespace JsonTalkie {
                     Serial.println(F("Error: Serialization failed"));
                     #endif
                 } else {
-                    if (message["m"].is<int>() && message["m"].as<int>() != 6 && message["i"].is<uint32_t>()) {
-                        _sent_message_id = message["i"].as<uint32_t>();
-                    }
-
+                    
                     #ifdef JSONTALKIE_DEBUG
                     Serial.print(F("T: "));
                     serializeJson(message, Serial);
@@ -514,13 +511,10 @@ namespace JsonTalkie {
 
                     process(message);
                 }
-            }
-            if (_check_set_time) {
-                // In theory, a UDP packet on a local area network (LAN) could survive
-                // for about 4.25 minutes (255 seconds).
-                if (millis() - _sent_set_time[1] > 255 * 1000) {
-                    _check_set_time = false;
-                }
+            // In theory, a UDP packet on a local area network (LAN) could survive
+            // for about 4.25 minutes (255 seconds).
+            } else if (_check_set_time && millis() - _sent_set_time[1] > 255 * 1000) {
+                _check_set_time = false;
             }
         }
     };
