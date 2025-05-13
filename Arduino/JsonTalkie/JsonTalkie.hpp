@@ -300,7 +300,6 @@ namespace JsonTalkie {
             #endif
 
             int message_code = message["m"].as<int>(); // Throws on type mismatch
-            message["w"] = message_code;
             message["t"] = message["f"];
             message["m"] = 6;
             if (message_code == 0) {            // talk
@@ -335,6 +334,7 @@ namespace JsonTalkie {
                 }
                 return true;
             } else if (message_code == 2) {     // run
+                message["w"] = 2;
                 if (message.containsKey("n")) {
                     const Run* run = Manifesto::run(message["n"]);
                     if (run == nullptr) {
@@ -348,6 +348,7 @@ namespace JsonTalkie {
                     return true;
                 }
             } else if (message_code == 3) {     // set
+                message["w"] = 3;
                 if (message.containsKey("n") && message.containsKey("v") && message["v"].is<long>()) {
                     const Set* set = Manifesto::set(message["n"]);
                     if (set == nullptr) {
@@ -362,6 +363,7 @@ namespace JsonTalkie {
                     return true;
                 }
             } else if (message_code == 4) {     // get
+                message["w"] = 4;
                 if (message.containsKey("n")) {
                     message["w"] = message_code;
                     const Get* get = Manifesto::get(message["n"]);
@@ -374,7 +376,8 @@ namespace JsonTalkie {
                     return talk(message, true);
                 }
             } else if (message_code == 5) {     // sys
-
+                message["w"] = 5;
+                
                 // AVR Boards (Uno, Nano, Mega) - Check RAM size
                 #ifdef __AVR__
                 uint16_t ramSize = RAMEND - RAMSTART + 1;

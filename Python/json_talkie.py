@@ -126,6 +126,7 @@ class JsonTalkie:
         message["t"] = message["f"]
         match message["m"]:
             case 0:         # talk
+                message["w"] = 0
                 message["m"] = 6
                 message["d"] = f"{self._manifesto['talker']['description']}"
                 return self.talk(message)
@@ -151,8 +152,9 @@ class JsonTalkie:
                         self.talk(message)
                 return True
             case 2:         # run
+                message["w"] = 2
                 message["m"] = 6
-                if "w" in message and 'run' in self._manifesto:
+                if "n" in message and 'run' in self._manifesto:
                     if message["n"] in self._manifesto['run']:
                         message["r"] = "ROGER"
                         self.talk(message)
@@ -166,8 +168,9 @@ class JsonTalkie:
                         message["r"] = "UNKNOWN"
                         self.talk(message)
             case 3:         # set
+                message["w"] = 3
                 message["m"] = 6
-                if "v" in message and isinstance(message["v"], int) and "w" in message and 'set' in self._manifesto:
+                if "v" in message and isinstance(message["v"], int) and "n" in message and 'set' in self._manifesto:
                     if message["n"] in self._manifesto['set']:
                         message["r"] = "ROGER"
                         self.talk(message)
@@ -181,8 +184,9 @@ class JsonTalkie:
                         message["r"] = "UNKNOWN"
                         self.talk(message)
             case 4:         # get
+                message["w"] = 4
                 message["m"] = 6
-                if "w" in message and 'get' in self._manifesto:
+                if "n" in message and 'get' in self._manifesto:
                     if message["n"] in self._manifesto['get']:
                         message["r"] = "ROGER"
                         self.talk(message)
@@ -193,6 +197,7 @@ class JsonTalkie:
                         message["r"] = "UNKNOWN"
                         self.talk(message)
             case 5:         # sys
+                message["w"] = 5
                 message["m"] = 6
                 message["d"] = f"{platform.platform()}"
                 return self.talk(message)
