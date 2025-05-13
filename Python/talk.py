@@ -180,8 +180,7 @@ class CommandLine:
                     2: "Message corrupted",
                     3: "Wrong message code",
                     4: "Message NOT identified",
-                    5: "Message echo id mismatch",
-                    6: "Set command arrived too late"
+                    5: "Set command arrived too late"
                 }
                 print(f"]\tERROR\t{error_messages.get(message['e'], 'Unknown')}")
             else:

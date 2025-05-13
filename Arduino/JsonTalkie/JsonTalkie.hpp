@@ -199,8 +199,7 @@ namespace JsonTalkie {
             //     2 - Message corrupted
             //     3 - Wrong message code
             //     4 - Message NOT identified
-            //     5 - Message echo id mismatch
-            //     6 - Set command arrived too late
+            //     5 - Set command arrived too late
 
             if (!(message["m"].as<int>() == 0 || message["m"].as<int>() == 5 || message["m"].as<int>() == 7
                     || message.containsKey("t") && (message["t"] == Manifesto::talk()->name || message["t"] == "*"))) {
@@ -248,32 +247,18 @@ namespace JsonTalkie {
                 talk(message, true);
                 return false;
             }
-            if (message["m"].as<int>() == 6 && message["i"].as<uint32_t>() != _sent_message_id) {
-                #ifdef JSONTALKIE_DEBUG
-                Serial.print(5);
-                Serial.print(F(" - "));
-                Serial.println(_sent_message_id);
-                #endif
-                message["m"] = 7;   // error
-                message["t"] = message["f"];
-                message["f"] = Manifesto::talk()->name;
-                message["e"] = 5;
-                message["v"] = _sent_message_id;
-                talk(message, true);
-                return false;
-            }
             // Only set messages are time checked
             // In theory, a UDP packet on a local area network (LAN) could survive for about 4.25 minutes (255 seconds).
             if (_check_set_time && message["m"].as<int>() == 3 && message["f"].as<String>() == _set_name) {   // 3 - set
                 uint32_t delta = _sent_set_time[0] - message["i"].as<uint32_t>();
                 if (delta < 255 && delta != 0) {
                     #ifdef JSONTALKIE_DEBUG
-                    Serial.println(6);
+                    Serial.println(5);
                     #endif
                     message["m"] = 7;   // error
                     message["t"] = message["f"];
                     message["f"] = Manifesto::talk()->name;
-                    message["e"] = 6;
+                    message["e"] = 5;
                     talk(message, true);
                     return false;
                 }
