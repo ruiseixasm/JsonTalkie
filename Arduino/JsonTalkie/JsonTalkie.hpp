@@ -200,7 +200,7 @@ namespace JsonTalkie {
             //     4 - Message NOT identified
             //     5 - Set command arrived too late
 
-            if (!(message["m"].as<int>() == 0 || message["m"].as<int>() == 5 || message["m"].as<int>() == 7
+            if (!(message["m"].as<int>() == 0 || message["m"].as<int>() == 5
                     || message.containsKey("t") && (message["t"] == Manifesto::talk()->name || message["t"] == "*"))) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Message NOT for me!"));
