@@ -147,6 +147,9 @@ namespace JsonTalkie {
     private:
         // Configuration parameters
         BroadcastSocket* _socket = nullptr;
+        Device _device = {"Device", "Unknown device"};
+        Run** _runCommands;
+        size_t _runSize;
 
         // Compiler reports these static RAM allocation
         #if ARDUINO_JSON_VERSION == 6
@@ -158,6 +161,110 @@ namespace JsonTalkie {
         uint32_t _sent_set_time[2] = {0};   // Keeps two time stamp
         String _set_name = "";              // Keeps the device name
         bool _check_set_time = false;
+
+    public:
+        void plug_socket(BroadcastSocket* socket) {
+            _socket = socket;
+        }
+
+        void unplug_socket() {
+            _socket = nullptr;
+        }
+
+        void set_device(Device name_description) {
+            _device = name_description;
+        }
+
+        void set_runs(Run** run_commands, size_t run_size) {
+            _runCommands = run_commands;
+            _runSize = run_size;
+        }
+
+
+
+        bool talk(JsonObject message, bool as_reply = false) {
+            // In order to release memory when done
+            {
+                // Directly nest the editable message under "m"
+                if (message.isNull()) {
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.println(F("Error: Null message received"));
+                    #endif
+                    return false;
+                }
+
+                // Set default 'id' field if missing
+                if (!message.containsKey("i")) {
+                    message["i"] = generateMessageId();
+                }
+                message["f"] = Manifesto::talk()->name;
+                valid_checksum(message);
+
+                size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+                if (len == 0) {
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.println(F("Error: Serialization failed"));
+                    #endif
+                } else {
+                    
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.print(F("T: "));
+                    serializeJson(message, Serial);
+                    Serial.println();  // optional: just to add a newline after the JSON
+                    #endif
+
+                    return broadcast_socket.send(_buffer, len, as_reply);
+                }
+            }
+            return false;
+        }
+
+    
+        void listen() {
+
+            size_t len = broadcast_socket.receive(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+            if (len > 0) {
+
+                #ifdef JSONTALKIE_DEBUG
+                Serial.print(F("L: "));
+                Serial.write(_buffer, len);  // Properly prints raw bytes as characters
+                Serial.println();            // Adds newline after the printed data
+                #endif
+
+                DeserializationError error = deserializeJson(_message_doc, _buffer);
+                if (error) {
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.println(F("Failed to deserialize buffer"));
+                    #endif
+                    return;
+                }
+                JsonObject message = _message_doc.as<JsonObject>();
+
+                if (validateTalk(message)) {
+
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.print(F("Listened: "));
+                    serializeJson(message, Serial);
+                    Serial.println();  // optional: just to add a newline after the JSON
+                    #endif
+
+                    // Only set messages are time checked
+                    if (message["m"].as<int>() == 3) {  // 3 - set
+                        _sent_set_time[0] = message["i"].as<uint32_t>();
+                        _sent_set_time[1] = generateMessageId();
+                        _set_name = message["f"].as<String>(); // Explicit conversion
+                        _check_set_time = true;
+                    }
+
+                    process(message);
+                }
+            // In theory, a UDP packet on a local area network (LAN) could survive
+            // for about 4.25 minutes (255 seconds).
+            } else if (_check_set_time && millis() - _sent_set_time[1] > 255 * 1000) {
+                _check_set_time = false;
+            }
+        }
+
 
     private:
         static uint32_t generateMessageId() {
@@ -438,104 +545,6 @@ namespace JsonTalkie {
                 }
             }
             return false;
-        }
-
-    public:
-        void plug_socket(BroadcastSocket* socket) {
-            _socket = socket;
-        }
-
-        void unplug_socket() {
-            _socket = nullptr;
-        }
-
-        void set_device(Device name_description) {
-
-        }
-
-
-
-        bool talk(JsonObject message, bool as_reply = false) {
-            // In order to release memory when done
-            {
-                // Directly nest the editable message under "m"
-                if (message.isNull()) {
-                    #ifdef JSONTALKIE_DEBUG
-                    Serial.println(F("Error: Null message received"));
-                    #endif
-                    return false;
-                }
-
-                // Set default 'id' field if missing
-                if (!message.containsKey("i")) {
-                    message["i"] = generateMessageId();
-                }
-                message["f"] = Manifesto::talk()->name;
-                valid_checksum(message);
-
-                size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
-                if (len == 0) {
-                    #ifdef JSONTALKIE_DEBUG
-                    Serial.println(F("Error: Serialization failed"));
-                    #endif
-                } else {
-                    
-                    #ifdef JSONTALKIE_DEBUG
-                    Serial.print(F("T: "));
-                    serializeJson(message, Serial);
-                    Serial.println();  // optional: just to add a newline after the JSON
-                    #endif
-
-                    return broadcast_socket.send(_buffer, len, as_reply);
-                }
-            }
-            return false;
-        }
-
-    
-        void listen() {
-
-            size_t len = broadcast_socket.receive(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);
-            if (len > 0) {
-
-                #ifdef JSONTALKIE_DEBUG
-                Serial.print(F("L: "));
-                Serial.write(_buffer, len);  // Properly prints raw bytes as characters
-                Serial.println();            // Adds newline after the printed data
-                #endif
-
-                DeserializationError error = deserializeJson(_message_doc, _buffer);
-                if (error) {
-                    #ifdef JSONTALKIE_DEBUG
-                    Serial.println(F("Failed to deserialize buffer"));
-                    #endif
-                    return;
-                }
-                JsonObject message = _message_doc.as<JsonObject>();
-
-                if (validateTalk(message)) {
-
-                    #ifdef JSONTALKIE_DEBUG
-                    Serial.print(F("Listened: "));
-                    serializeJson(message, Serial);
-                    Serial.println();  // optional: just to add a newline after the JSON
-                    #endif
-
-                    // Only set messages are time checked
-                    if (message["m"].as<int>() == 3) {  // 3 - set
-                        _sent_set_time[0] = message["i"].as<uint32_t>();
-                        _sent_set_time[1] = generateMessageId();
-                        _set_name = message["f"].as<String>(); // Explicit conversion
-                        _check_set_time = true;
-                    }
-
-                    process(message);
-                }
-            // In theory, a UDP packet on a local area network (LAN) could survive
-            // for about 4.25 minutes (255 seconds).
-            } else if (_check_set_time && millis() - _sent_set_time[1] > 255 * 1000) {
-                _check_set_time = false;
-            }
         }
     };
 }
