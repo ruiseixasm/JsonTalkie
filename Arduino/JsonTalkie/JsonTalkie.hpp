@@ -145,6 +145,9 @@ namespace JsonTalkie {
 
     class Talker {
     private:
+        // Configuration parameters
+        BroadcastSocket* _socket = nullptr;
+
         // Compiler reports these static RAM allocation
         #if ARDUINO_JSON_VERSION == 6
         StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> _message_doc;
@@ -438,6 +441,20 @@ namespace JsonTalkie {
         }
 
     public:
+        void plug_socket(BroadcastSocket* socket) {
+            _socket = socket;
+        }
+
+        void unplug_socket() {
+            _socket = nullptr;
+        }
+
+        void set_device(Device name_description) {
+
+        }
+
+
+
         bool talk(JsonObject message, bool as_reply = false) {
             // In order to release memory when done
             {
