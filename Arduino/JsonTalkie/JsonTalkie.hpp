@@ -147,7 +147,7 @@ namespace JsonTalkie {
     private:
         // Configuration parameters
         BroadcastSocket* _socket = nullptr;
-        Device _device = {"Device", "Unknown device"};
+        Device* _device = nullptr;
         Run** _runCommands;
         size_t _runSize;
 
@@ -171,7 +171,7 @@ namespace JsonTalkie {
             _socket = nullptr;
         }
 
-        void set_device(Device name_description) {
+        void set_device(Device* name_description) {
             _device = name_description;
         }
 
