@@ -152,8 +152,8 @@ public:
                 #endif
 
                 if (random(2) % 2 == 0)
-                    return _socket->send(message_char, message_size, true);
-                return _socket->send(message_char, message_size, false);
+                    return _socket->send(message_char, message_size - 1, true);
+                return _socket->send(message_char, message_size - 1, false);
             }
         }
         return true;
