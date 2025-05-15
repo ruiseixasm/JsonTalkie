@@ -14,23 +14,9 @@ https://github.com/ruiseixasm/JsonTalkie
 #include "sockets/BroadcastSocket_EtherCard.hpp"
 #include "JsonTalkie.hpp"
 
+auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
+JsonTalkie json_talkie;
 
-// #define USE_WIFI
-#define USE_STATIC_IP
-
-#ifdef USE_WIFI
-#include <ESP8266WiFi.h>
-#include "secrets/wifi_credentials.h"   // Make sure "secrets/" is in the gitignore before staging and pushing!!
-#endif
-
-
-// Network settings
-byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};      // MAC address
-byte my_ip[] = {192, 168, 31, 100};                     // Arduino IP
-byte gw_ip[] = {192, 168, 31, 77};                      // IP of the main router, gateway
-byte dns_ip[] = {192, 168, 31, 77};                     // DNS address is the same as the gateway router
-byte mask[] = {255, 255, 255, 0};                       // NEEDED FOR NETWORK BROADCAST
-#define PORT 5005                                       // UDP port
 
 
 // MANIFESTO DEFINITION
@@ -77,8 +63,14 @@ JsonTalkie::Manifesto manifesto(
 // END OF MANIFESTO
 
 
-auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
-JsonTalkie json_talkie;
+// Network settings
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};      // MAC address
+byte my_ip[] = {192, 168, 31, 100};                     // Arduino IP
+byte gw_ip[] = {192, 168, 31, 77};                      // IP of the main router, gateway
+byte dns_ip[] = {192, 168, 31, 77};                     // DNS address is the same as the gateway router
+byte mask[] = {255, 255, 255, 0};                       // NEEDED FOR NETWORK BROADCAST
+#define PORT 5005                                       // UDP port
+
 
 
 // Buzzer pin
@@ -94,8 +86,6 @@ void setup() {
     // Saving string in PROGMEM (flash) to save RAM memory
     Serial.println("\n\nOpening the Socket...");
     
-
-    #if defined(EtherCard_h)
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
     if (!ether.begin(ETHERNET_BUFFER_SIZE, mac, SS)) {
@@ -109,35 +99,9 @@ void setup() {
     }
     // Makes sure it allows broadcast
     ether.enableBroadcast();
-    #elif defined(WiFi_h)
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    while (WiFi.status() != WL_CONNECTED) delay(500);
-    #endif
 
-    // // By default is already 5005
-    // broadcast_socket.set_port(5005);
-
-    #ifdef USE_WIFI
-
-    // Connect to WiFi
-    Serial.println();
-    Serial.print("Connecting to ");
-    Serial.println(WIFI_SSID);
-
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-
-    // Connection successful
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
-
-    #endif
+    // By default is already 5005
+    broadcast_socket.set_port(5005);
 
 
     json_talkie.set_manifesto(&manifesto);
@@ -146,7 +110,7 @@ void setup() {
 
     Serial.println("Talker ready");
 
-    #ifndef BROADCASTSOCKET_SERIAL
+    #ifndef BROADCAST_SOCKET_SERIAL_HPP
     pinMode(buzzer_pin, OUTPUT);
     digitalWrite(buzzer_pin, HIGH);
     delay(10); 
