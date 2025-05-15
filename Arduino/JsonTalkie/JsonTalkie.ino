@@ -11,13 +11,13 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-// #include "sockets/BroadcastSocket_EtherCard.hpp"
-#include "dummies/BroadcastSocket_Dummy.hpp"
+#include "sockets/BroadcastSocket_EtherCard.hpp"
+// #include "dummies/BroadcastSocket_Dummy.hpp"
 // #include "JsonTalkie.hpp"
 #include "dummies/JsonTalkie_Dummy.hpp"
 
-// auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
-auto& broadcast_socket = BroadcastSocket_Dummy::instance();
+auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
+// auto& broadcast_socket = BroadcastSocket_Dummy::instance();
 
 
 
