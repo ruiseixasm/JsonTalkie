@@ -140,7 +140,8 @@ public:
         //    so it's not considered an aggregate, and therefore cannot be initialized using a brace-enclosed list like this.
         Manifesto(Device* d, Run* r, size_t rsz, Set* s, size_t ssz, 
                 Get* g, size_t gsz, bool (*e)(JsonObject), bool (*err)(JsonObject))
-            : device(d), runCommands(r), runSize(rsz),
+            : device(d),
+            runCommands(r), runSize(rsz),
             setCommands(s), setSize(ssz),
             getCommands(g), getSize(gsz),
             echo(e), error(err) {}
