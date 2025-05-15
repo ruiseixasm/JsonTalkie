@@ -118,7 +118,9 @@ public:
                     R"({"m":2,"f":"Dummy","t":"Buzzer","n":"buzz","i":3003412861})",
                     R"({"m":2,"f":"Dummy","t":"Buzzer","n":"on","i":3003412862})",
                     R"({"m":2,"f":"Dummy","t":"Buzzer","n":"off","i":3003412863})",
-                    R"({"m":6,"f":"Dummy","t":"*","r":"Dummy echo","i":3003412864})"
+                    R"({"m":6,"f":"Dummy","t":"*","r":"Dummy echo","i":3003412864})",
+                    R"({"m":6,"f":"Dummy","t":"*","r":"Broadcasted echo","i":3003412865})",
+                    R"({"m":6,"f":"Dummy","t":"*","r":"Targeted echo","i":3003412866})"
                 };
                 const size_t num_messages = sizeof(messages)/sizeof(char*);
                 
