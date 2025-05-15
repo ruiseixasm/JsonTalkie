@@ -11,10 +11,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-
-#include <EtherCard.h>
-// #define BROADCASTSOCKET_SERIAL
-#include "BroadcastSocket.hpp"
+#include "sockets/BroadcastSocket_EtherCard.hpp"
 #include "JsonTalkie.hpp"
 
 
@@ -34,12 +31,6 @@ byte gw_ip[] = {192, 168, 31, 77};                      // IP of the main router
 byte dns_ip[] = {192, 168, 31, 77};                     // DNS address is the same as the gateway router
 byte mask[] = {255, 255, 255, 0};                       // NEEDED FOR NETWORK BROADCAST
 #define PORT 5005                                       // UDP port
-
-#if defined(EtherCard_h)
-#define ETHERNET_BUFFER_SIZE 256
-byte Ethernet::buffer[ETHERNET_BUFFER_SIZE];  // Ethernet buffer
-#endif
-
 
 
 // MANIFESTO DEFINITION
@@ -85,6 +76,8 @@ JsonTalkie::Manifesto manifesto(
 
 // END OF MANIFESTO
 
+
+auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
 JsonTalkie json_talkie;
 
 

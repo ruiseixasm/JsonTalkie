@@ -53,21 +53,4 @@ char* BroadcastSocket::_buffer = nullptr;
 size_t BroadcastSocket::_size = 0;
 
 
-#if defined(BROADCASTSOCKET_CUSTOM)
-// Single global instance - users can directly reassign
-extern BroadcastSocket& broadcast_socket;
-#elif defined(BROADCASTSOCKET_SERIAL)
-#include "sockets/BroadcastSocket_Serial.hpp"
-auto& broadcast_socket = BroadcastSocket_Serial::instance();
-#elif defined(EtherCard_h) || defined(BROADCASTSOCKET_ETHERCARD)
-#include "sockets/BroadcastSocket_EtherCard.hpp"
-auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
-#else
-#include "sockets/BroadcastSocket_Dummy.hpp"
-auto& broadcast_socket = BroadcastSocket_Dummy::instance();
-#warning "No Ethernet library found or BROADCASTSOCKET_CUSTOM or BROADCASTSOCKET_SERIAL defined"
-#warning "Falling back to Dummy implementation"
-#endif
-
-
 #endif // BROADCAST_SOCKET_HPP

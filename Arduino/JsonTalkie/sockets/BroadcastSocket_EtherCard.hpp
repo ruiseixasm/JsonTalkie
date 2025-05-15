@@ -19,6 +19,8 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <EtherCard.h>
 
 
+#define ETHERNET_BUFFER_SIZE 256
+byte Ethernet::buffer[ETHERNET_BUFFER_SIZE];  // Ethernet buffer
 
 // #define BROADCAST_ETHERCARD_DEBUG
 // #define ENABLE_DIRECT_ADDRESSING
