@@ -143,17 +143,26 @@ public:
             _lastTime = millis();
             if (random(1000) < 100) { // 10% chance
                 
-                const char message_char[] = R"({"m":6,"f":"Dummy","t":"*","r":"Dummy echo","i":3003412864,"c":25673})";
-                size_t message_size = sizeof(message_char);
+                if (random(2) % 2 == 0) {
+
+                    const char direct_message_char[] = R"({"m":6,"f":"Dummy","t":"*","r":"Direct echo","i":3003412866,"c":10848})";
+                    
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.print("DUMMY TALKED: ");
+                    Serial.println(direct_message_char);
+                    #endif
+
+                    return _socket->send(direct_message_char, sizeof(direct_message_char) - 1, true);
+                }
+
+                const char broadcasted_message_char[] = R"({"m":6,"f":"Dummy","t":"*","r":"Broadcasted echo","i":3003412865,"c":3126})";
                 
                 #ifdef JSONTALKIE_DEBUG
                 Serial.print("DUMMY TALKED: ");
-                Serial.println(message_char);
+                Serial.println(broadcasted_message_char);
                 #endif
 
-                if (random(2) % 2 == 0)
-                    return _socket->send(message_char, message_size - 1, true);
-                return _socket->send(message_char, message_size - 1, false);
+                return _socket->send(broadcasted_message_char, sizeof(broadcasted_message_char) - 1, false);
             }
         }
         return true;

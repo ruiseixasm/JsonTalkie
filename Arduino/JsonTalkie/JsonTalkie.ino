@@ -11,13 +11,13 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#include "sockets/BroadcastSocket_EtherCard.hpp"
-// #include "dummies/BroadcastSocket_Dummy.hpp"
+// #include "sockets/BroadcastSocket_EtherCard.hpp"
+#include "dummies/BroadcastSocket_Dummy.hpp"
 // #include "JsonTalkie.hpp"
 #include "dummies/JsonTalkie_Dummy.hpp"
 
-auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
-// auto& broadcast_socket = BroadcastSocket_Dummy::instance();
+// auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
+auto& broadcast_socket = BroadcastSocket_Dummy::instance();
 
 
 
@@ -48,6 +48,7 @@ void setup() {
     // Saving string in PROGMEM (flash) to save RAM memory
     Serial.println("\n\nOpening the Socket...");
     
+    #if defined(BROADCAST_SOCKET_ETHERCARD_HPP)
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
     if (!ether.begin(ETHERNET_BUFFER_SIZE, mac, SS)) {
@@ -61,6 +62,7 @@ void setup() {
     }
     // Makes sure it allows broadcast
     ether.enableBroadcast();
+    #endif
 
     // By default is already 5005
     broadcast_socket.set_port(5005);
@@ -148,6 +150,7 @@ void setup() {
     // Saving string in PROGMEM (flash) to save RAM memory
     Serial.println("\n\nOpening the Socket...");
     
+    #if defined(BROADCAST_SOCKET_ETHERCARD_HPP)
     // MAC and CS pin in constructor
     // SS is a macro variable normally equal to 10
     if (!ether.begin(ETHERNET_BUFFER_SIZE, mac, SS)) {
@@ -161,6 +164,7 @@ void setup() {
     }
     // Makes sure it allows broadcast
     ether.enableBroadcast();
+    #endif
 
     // By default is already 5005
     broadcast_socket.set_port(5005);
