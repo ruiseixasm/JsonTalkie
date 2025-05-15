@@ -13,12 +13,81 @@ https://github.com/ruiseixasm/JsonTalkie
 */
 #include "sockets/BroadcastSocket_EtherCard.hpp"
 // #include "dummies/BroadcastSocket_Dummy.hpp"
-#include "JsonTalkie.hpp"
+// #include "JsonTalkie.hpp"
+#include "dummies/JsonTalkie_Dummy.hpp"
 
 auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
 // auto& broadcast_socket = BroadcastSocket_Dummy::instance();
-JsonTalkie json_talkie;
 
+
+
+// Network settings
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};      // MAC address
+byte my_ip[] = {192, 168, 31, 100};                     // Arduino IP
+byte gw_ip[] = {192, 168, 31, 77};                      // IP of the main router, gateway
+byte dns_ip[] = {192, 168, 31, 77};                     // DNS address is the same as the gateway router
+byte mask[] = {255, 255, 255, 0};                       // NEEDED FOR NETWORK BROADCAST
+#define PORT 5005                                       // UDP port
+
+
+
+#ifdef JSON_TALKIE_DUMMY_HPP
+
+
+JsonTalkie_Dummy json_talkie;
+
+
+
+void setup() {
+    // Serial is a singleton class (can be began multiple times)
+    Serial.begin(9600);
+    while (!Serial);
+    
+    delay(2000);    // Just to give some time to Serial
+
+    // Saving string in PROGMEM (flash) to save RAM memory
+    Serial.println("\n\nOpening the Socket...");
+    
+    // MAC and CS pin in constructor
+    // SS is a macro variable normally equal to 10
+    if (!ether.begin(ETHERNET_BUFFER_SIZE, mac, SS)) {
+        Serial.println("Failed to access ENC28J60");
+        while (1);
+    }
+    // Set static IP (disable DHCP)
+    if (!ether.staticSetup(my_ip, gw_ip, dns_ip, mask)) {
+        Serial.println("Failed to access ENC28J60");
+        while (1);
+    }
+    // Makes sure it allows broadcast
+    ether.enableBroadcast();
+
+    // By default is already 5005
+    broadcast_socket.set_port(5005);
+
+
+    json_talkie.plug_socket(&broadcast_socket);
+
+
+    Serial.println("Talker ready");
+
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED_BUILTIN, LOW);
+
+    Serial.println("Sending JSON...");
+}
+
+
+void loop() {
+    json_talkie.listen();
+    json_talkie.talk(nullptr);
+}
+
+
+#else
+
+JsonTalkie json_talkie;
 
 
 // MANIFESTO DEFINITION
@@ -63,15 +132,6 @@ JsonTalkie::Manifesto manifesto(
 );
 
 // END OF MANIFESTO
-
-
-// Network settings
-byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};      // MAC address
-byte my_ip[] = {192, 168, 31, 100};                     // Arduino IP
-byte gw_ip[] = {192, 168, 31, 77};                      // IP of the main router, gateway
-byte dns_ip[] = {192, 168, 31, 77};                     // DNS address is the same as the gateway router
-byte mask[] = {255, 255, 255, 0};                       // NEEDED FOR NETWORK BROADCAST
-#define PORT 5005                                       // UDP port
 
 
 
@@ -227,3 +287,6 @@ bool process_response(JsonObject json_message) {
     }
     return false;
 }
+
+
+#endif

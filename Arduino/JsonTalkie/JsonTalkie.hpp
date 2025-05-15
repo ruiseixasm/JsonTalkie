@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #include "BroadcastSocket.hpp"
 #include <Arduino.h>
-#include <ArduinoJson.h>    // Install ArduinoJson Library
+#include <ArduinoJson.h>    // Include ArduinoJson Library
 
 
 // Readjust if absolutely necessary
