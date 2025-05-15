@@ -18,9 +18,6 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <Arduino.h>
 
 
-// Define JsonObject as void* given that ArduinoJson isn't included!
-typedef void* JsonObject;
-
 
 // Readjust if absolutely necessary
 #define BROADCAST_SOCKET_BUFFER_SIZE 128
@@ -32,6 +29,9 @@ class JsonTalkie_Dummy {
 public:
 
     // JSONTALKIE DEFINITIONS
+
+    // Define JsonObject as void* given that ArduinoJson isn't included!
+    typedef void* JsonObject;
 
     // Using PROGMEM to save strings in Flash memory instead of the RAM
 
