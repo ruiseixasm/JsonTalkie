@@ -210,7 +210,7 @@ namespace JsonTalkie {
 
 
         bool talk(JsonObject message, bool as_reply = false) {
-            if (_socket == nullptr) return false;
+            if (_socket == nullptr || _device == nullptr) return false;
             // In order to release memory when done
             {
                 // Directly nest the editable message under "m"
@@ -225,7 +225,7 @@ namespace JsonTalkie {
                 if (!message.containsKey("i")) {
                     message["i"] = generateMessageId();
                 }
-                message["f"] = Manifesto::talk()->name;
+                message["f"] = _device->name;
                 valid_checksum(message);
 
                 size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
@@ -326,6 +326,7 @@ namespace JsonTalkie {
 
 
         bool validateTalk(JsonObject message) {
+            if (_device == nullptr) return false;
             #ifdef JSONTALKIE_DEBUG
             Serial.println(F("Validating..."));
             #endif
@@ -339,7 +340,7 @@ namespace JsonTalkie {
             //     5 - Set command arrived too late
 
             if (!(message["m"].as<int>() == 0 || message["m"].as<int>() == 5
-                    || message.containsKey("t") && (message["t"] == Manifesto::talk()->name || message["t"] == "*"))) {
+                    || message.containsKey("t") && (message["t"] == _device->name || message["t"] == "*"))) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Message NOT for me!"));
                 #endif
@@ -351,7 +352,7 @@ namespace JsonTalkie {
                 #endif
                 message["m"] = 7;   // error
                 message["t"] = "*";
-                message["f"] = Manifesto::talk()->name;
+                message["f"] = _device->name;
                 message["e"] = 0;
                 talk(message);
                 return false;
@@ -362,7 +363,7 @@ namespace JsonTalkie {
                 #endif
                 message["m"] = 7;   // error
                 message["t"] = message["f"];
-                message["f"] = Manifesto::talk()->name;
+                message["f"] = _device->name;
                 message["e"] = 1;
                 talk(message, true);
                 return false;
@@ -373,7 +374,7 @@ namespace JsonTalkie {
                 #endif
                 message["m"] = 7;   // error
                 message["t"] = message["f"];
-                message["f"] = Manifesto::talk()->name;
+                message["f"] = _device->name;
                 message["e"] = 2;
                 talk(message, true);
                 return false;
@@ -384,7 +385,7 @@ namespace JsonTalkie {
                 #endif
                 message["m"] = 7;   // error
                 message["t"] = message["f"];
-                message["f"] = Manifesto::talk()->name;
+                message["f"] = _device->name;
                 message["e"] = 3;
                 talk(message, true);
                 return false;
@@ -395,7 +396,7 @@ namespace JsonTalkie {
                 #endif
                 message["m"] = 7;   // error
                 message["t"] = message["f"];
-                message["f"] = Manifesto::talk()->name;
+                message["f"] = _device->name;
                 message["e"] = 4;
                 talk(message, true);
                 return false;
@@ -410,7 +411,7 @@ namespace JsonTalkie {
                     #endif
                     message["m"] = 7;   // error
                     message["t"] = message["f"];
-                    message["f"] = Manifesto::talk()->name;
+                    message["f"] = _device->name;
                     message["e"] = 5;
                     talk(message, true);
                     return false;
@@ -425,7 +426,7 @@ namespace JsonTalkie {
         
 
         bool process(JsonObject message) {
-
+            if (_device == nullptr) return false;
             // Echo codes:
             //     0 - ROGER
             //     1 - UNKNOWN
@@ -442,7 +443,7 @@ namespace JsonTalkie {
             message["m"] = 6;
             if (message_code == 0) {            // talk
                 message["w"] = 0;
-                message["d"] = Manifesto::talk()->desc;
+                message["d"] = _device->desc;
                 return talk(message, true);
             } else if (message_code == 1) {     // list
                 bool none_list = true;
