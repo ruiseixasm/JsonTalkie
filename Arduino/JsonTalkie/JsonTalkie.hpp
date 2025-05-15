@@ -563,13 +563,13 @@ namespace JsonTalkie {
 
                 return talk(message, true);
             } else if (message_code == 6) {     // echo
-                if (Manifesto::echo != nullptr) {
-                    Manifesto::echo(message);
+                if (_echo != nullptr) {
+                    _echo(message);
                     return true;
                 }
             } else if (message_code == 7) {     // error
-                if (Manifesto::error != nullptr) {
-                    Manifesto::error(message);
+                if (_error != nullptr) {
+                    _error(message);
                     return true;
                 }
             }
