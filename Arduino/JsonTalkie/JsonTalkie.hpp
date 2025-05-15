@@ -210,6 +210,7 @@ namespace JsonTalkie {
 
 
         bool talk(JsonObject message, bool as_reply = false) {
+            if (_socket == nullptr) return false;
             // In order to release memory when done
             {
                 // Directly nest the editable message under "m"
@@ -240,7 +241,7 @@ namespace JsonTalkie {
                     Serial.println();  // optional: just to add a newline after the JSON
                     #endif
 
-                    return broadcast_socket.send(_buffer, len, as_reply);
+                    return _socket->send(_buffer, len, as_reply);
                 }
             }
             return false;
@@ -248,8 +249,8 @@ namespace JsonTalkie {
 
     
         void listen() {
-
-            size_t len = broadcast_socket.receive(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+            if (_socket == nullptr) return;
+            size_t len = _socket->receive(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);
             if (len > 0) {
 
                 #ifdef JSONTALKIE_DEBUG
