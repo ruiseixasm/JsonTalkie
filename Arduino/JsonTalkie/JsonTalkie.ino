@@ -45,7 +45,7 @@ byte Ethernet::buffer[ETHERNET_BUFFER_SIZE];  // Ethernet buffer
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-JsonTalkie::Device JsonTalkie::Manifesto::device = {
+JsonTalkie::Device device = {
     "Buzzer", "I do a 500ms buzz!"
 };
 
@@ -139,7 +139,7 @@ void setup() {
     #endif
 
 
-    json_talkie.set_device(&JsonTalkie::Manifesto::device);
+    json_talkie.set_device(&device);
     json_talkie.set_runs(JsonTalkie::Manifesto::runCommands, JsonTalkie::Manifesto::runSize);
     json_talkie.set_sets(JsonTalkie::Manifesto::setCommands, JsonTalkie::Manifesto::setSize);
     json_talkie.set_gets(JsonTalkie::Manifesto::getCommands, JsonTalkie::Manifesto::getSize);
