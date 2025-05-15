@@ -148,14 +148,14 @@ namespace JsonTalkie {
         // Configuration parameters
         BroadcastSocket* _socket = nullptr;
         Device* _device = nullptr;
-        Run* _runCommands;
-        size_t _runSize;
-        Set* _setCommands;
-        size_t _setSize;
-        Get* _getCommands;
-        size_t _getSize;
-        bool (*_echo)(JsonObject);
-        bool (*_error)(JsonObject);
+        Run* _runCommands = nullptr;
+        size_t _runSize = 0;
+        Set* _setCommands = nullptr;
+        size_t _setSize = 0;
+        Get* _getCommands = nullptr;
+        size_t _getSize = 0;
+        bool (*_echo)(JsonObject) = nullptr;
+        bool (*_error)(JsonObject) = nullptr;
 
 
         // Compiler reports these static RAM allocation
