@@ -34,6 +34,7 @@
         "forward_list": "cpp",
         "initializer_list": "cpp",
         "list": "cpp",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "array": "cpp"
     }
 }
