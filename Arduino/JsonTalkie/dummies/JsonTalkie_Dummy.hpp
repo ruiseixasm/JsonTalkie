@@ -24,7 +24,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define JSONTALKIE_DEBUG
 
 
-class JsonTalkie {
+class JsonTalkie_Dummy {
 public:
 
     // JSONTALKIE DEFINITIONS
