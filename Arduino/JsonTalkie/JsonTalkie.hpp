@@ -73,46 +73,46 @@ namespace JsonTalkie {
     // Using PROGMEM to save strings in Flash memory instead of the RAM
 
     struct Device {
-        const char* PROGMEM name;      // Name of the Device (Talker)
-        const char* PROGMEM desc;      // Description of the Device
+        char* PROGMEM name;      // Name of the Device (Talker)
+        char* PROGMEM desc;      // Description of the Device
     };
 
     struct Run {
-        const char* PROGMEM name;      // "buzz", "print", etc.
-        const char* PROGMEM desc;      // Description
+        char* PROGMEM name;      // "buzz", "print", etc.
+        char* PROGMEM desc;      // Description
         bool (*function)(JsonObject);  // Function pointer (no args)
     };
 
     struct Set {
-        const char* PROGMEM name;      // "buzz", "print", etc.
-        const char* PROGMEM desc;      // Description
-        bool (*function)(JsonObject, long);  // Function pointer (const char*)
+        char* PROGMEM name;      // "buzz", "print", etc.
+        char* PROGMEM desc;      // Description
+        bool (*function)(JsonObject, long);  // Function pointer (char*)
     };
 
     struct Get {
-        const char* PROGMEM name;      // "buzz", "print", etc.
-        const char* PROGMEM desc;      // Description
+        char* PROGMEM name;      // "buzz", "print", etc.
+        char* PROGMEM desc;      // Description
         long (*function)(JsonObject);  // Function pointer (no args)
     };
 
     // Structure Definition
     struct Manifesto {
 
-        static const Device device;         // Declaration only
-        static const Run runCommands[];     // Declaration only
-        static const size_t runSize;        // Declaration only
-        static const Set setCommands[];
-        static const size_t setSize;        // Declaration only
-        static const Get getCommands[];
-        static const size_t getSize;        // Declaration only
+        static Device device;         // Declaration only
+        static Run runCommands[];     // Declaration only
+        static size_t runSize;        // Declaration only
+        static Set setCommands[];
+        static size_t setSize;        // Declaration only
+        static Get getCommands[];
+        static size_t getSize;        // Declaration only
         static bool (*echo)(JsonObject);
         static bool (*error)(JsonObject);
 
-        static const Device* talk() {
+        static Device* talk() {
             return &Manifesto::device;
         }
     
-        static const Run* run(const char* cmd) {
+        static Run* run(const char* cmd) {
             for (int index = 0; index < Manifesto::runSize; ++index) {
                 if (strcmp(cmd, Manifesto::runCommands[index].name) == 0) {
                     return &Manifesto::runCommands[index];  // Returns the function
@@ -121,7 +121,7 @@ namespace JsonTalkie {
             return nullptr;
         }
     
-        static const Set* set(const char* cmd) {
+        static Set* set(const char* cmd) {
             for (int index = 0; index < Manifesto::runSize; ++index) {
                 if (strcmp(cmd, Manifesto::setCommands[index].name) == 0) {
                     return &Manifesto::setCommands[index];  // Returns the function
@@ -130,7 +130,7 @@ namespace JsonTalkie {
             return nullptr;
         }
     
-        static const Get* get(const char* cmd) {
+        static Get* get(const char* cmd) {
             for (int index = 0; index < Manifesto::runSize; ++index) {
                 if (strcmp(cmd, Manifesto::getCommands[index].name) == 0) {
                     return &Manifesto::getCommands[index];  // Returns the function
@@ -148,11 +148,11 @@ namespace JsonTalkie {
         // Configuration parameters
         BroadcastSocket* _socket = nullptr;
         Device* _device = nullptr;
-        Run** _runCommands;
+        Run* _runCommands;
         size_t _runSize;
-        Set** _setCommands;
+        Set* _setCommands;
         size_t _setSize;
-        Get** _getCommands;
+        Get* _getCommands;
         size_t _getSize;
         bool (*_echo)(JsonObject);
         bool (*_error)(JsonObject);
@@ -170,29 +170,21 @@ namespace JsonTalkie {
         bool _check_set_time = false;
 
     public:
-        void plug_socket(BroadcastSocket* socket) {
-            _socket = socket;
-        }
-
-        void unplug_socket() {
-            _socket = nullptr;
-        }
-
         void set_device(Device* name_description) {
             _device = name_description;
         }
 
-        void set_runs(Run** run_commands, size_t run_size) {
+        void set_runs(Run* run_commands, size_t run_size) {
             _runCommands = run_commands;
             _runSize = run_size;
         }
 
-        void set_sets(Set** set_commands, size_t set_size) {
+        void set_sets(Set* set_commands, size_t set_size) {
             _setCommands = set_commands;
             _setSize = set_size;
         }
 
-        void set_gets(Get** get_commands, size_t get_size) {
+        void set_gets(Get* get_commands, size_t get_size) {
             _getCommands = get_commands;
             _getSize = get_size;
         }
@@ -204,6 +196,15 @@ namespace JsonTalkie {
         void set_error(bool (*error_function)(JsonObject)) {
             _error = error_function;
         }
+
+        void plug_socket(BroadcastSocket* socket) {
+            _socket = socket;
+        }
+
+        void unplug_socket() {
+            _socket = nullptr;
+        }
+
 
 
 

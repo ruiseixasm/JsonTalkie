@@ -45,33 +45,33 @@ byte Ethernet::buffer[ETHERNET_BUFFER_SIZE];  // Ethernet buffer
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-const JsonTalkie::Device JsonTalkie::Manifesto::device = {
+JsonTalkie::Device JsonTalkie::Manifesto::device = {
     "Buzzer", "I do a 500ms buzz!"
 };
 
 bool buzz(JsonObject json_message);
 bool led_on(JsonObject json_message);
 bool led_off(JsonObject json_message);
-const JsonTalkie::Run JsonTalkie::Manifesto::runCommands[] = {
+JsonTalkie::Run JsonTalkie::Manifesto::runCommands[] = {
     {"buzz", "Triggers buzzing", buzz},
     {"on", "Turns led On", led_on},
     {"off", "Turns led Off", led_off}
 };
-const size_t JsonTalkie::Manifesto::runSize = sizeof(JsonTalkie::Manifesto::runCommands) / sizeof(JsonTalkie::Run);
+size_t JsonTalkie::Manifesto::runSize = sizeof(JsonTalkie::Manifesto::runCommands) / sizeof(JsonTalkie::Run);
 
-bool set_duration(JsonObject json_message, const char* duration);
-const JsonTalkie::Set JsonTalkie::Manifesto::setCommands[] = {
+bool set_duration(JsonObject json_message, long duration);
+JsonTalkie::Set JsonTalkie::Manifesto::setCommands[] = {
     // {"duration", "Sets duration", set_duration}
 };
-const size_t JsonTalkie::Manifesto::setSize = sizeof(JsonTalkie::Manifesto::setCommands) / sizeof(JsonTalkie::Set);
+size_t JsonTalkie::Manifesto::setSize = sizeof(JsonTalkie::Manifesto::setCommands) / sizeof(JsonTalkie::Set);
 
 long get_total_runs(JsonObject json_message);
 long get_duration(JsonObject json_message);
-const JsonTalkie::Get JsonTalkie::Manifesto::getCommands[] = {
+JsonTalkie::Get JsonTalkie::Manifesto::getCommands[] = {
     {"total_runs", "Gets the total number of runs", get_total_runs}
     // {"duration", "Gets duration", get_duration}
 };
-const size_t JsonTalkie::Manifesto::getSize = sizeof(JsonTalkie::Manifesto::getCommands) / sizeof(JsonTalkie::Get);
+size_t JsonTalkie::Manifesto::getSize = sizeof(JsonTalkie::Manifesto::getCommands) / sizeof(JsonTalkie::Get);
 
 bool process_response(JsonObject json_message);
 bool (*JsonTalkie::Manifesto::echo)(JsonObject) = process_response;
@@ -137,6 +137,14 @@ void setup() {
     Serial.println(WiFi.localIP());
 
     #endif
+
+
+    json_talkie.set_device(&JsonTalkie::Manifesto::device);
+    json_talkie.set_runs(JsonTalkie::Manifesto::runCommands, JsonTalkie::Manifesto::runSize);
+    json_talkie.set_sets(JsonTalkie::Manifesto::setCommands, JsonTalkie::Manifesto::setSize);
+    json_talkie.set_gets(JsonTalkie::Manifesto::getCommands, JsonTalkie::Manifesto::getSize);
+    json_talkie.set_echo(process_response);
+
 
     Serial.println("Talker ready");
 
