@@ -150,6 +150,13 @@ namespace JsonTalkie {
         Device* _device = nullptr;
         Run** _runCommands;
         size_t _runSize;
+        Set** _setCommands;
+        size_t _setSize;
+        Get** _getCommands;
+        size_t _getSize;
+        bool (*_echo)(JsonObject);
+        bool (*_error)(JsonObject);
+
 
         // Compiler reports these static RAM allocation
         #if ARDUINO_JSON_VERSION == 6
@@ -179,6 +186,25 @@ namespace JsonTalkie {
             _runCommands = run_commands;
             _runSize = run_size;
         }
+
+        void set_sets(Set** set_commands, size_t set_size) {
+            _setCommands = set_commands;
+            _setSize = set_size;
+        }
+
+        void set_gets(Get** get_commands, size_t get_size) {
+            _getCommands = get_commands;
+            _getSize = get_size;
+        }
+
+        void set_echo(bool (*echo_function)(JsonObject)) {
+            _echo = echo_function;
+        }
+
+        void set_error(bool (*error_function)(JsonObject)) {
+            _error = error_function;
+        }
+
 
 
 
