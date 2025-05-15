@@ -14,8 +14,12 @@ https://github.com/ruiseixasm/JsonTalkie
 #ifndef JSON_TALKIE_DUMMY_HPP
 #define JSON_TALKIE_DUMMY_HPP
 
-#include "BroadcastSocket.hpp"
+#include "../BroadcastSocket.hpp"
 #include <Arduino.h>
+
+
+// Define JsonObject as void* given that ArduinoJson isn't included!
+typedef void* JsonObject;
 
 
 // Readjust if absolutely necessary
@@ -28,7 +32,6 @@ class JsonTalkie_Dummy {
 public:
 
     // JSONTALKIE DEFINITIONS
-
 
     // Using PROGMEM to save strings in Flash memory instead of the RAM
 
