@@ -52,32 +52,40 @@ JsonTalkie::Device device = {
 bool buzz(JsonObject json_message);
 bool led_on(JsonObject json_message);
 bool led_off(JsonObject json_message);
-JsonTalkie::Run JsonTalkie::Manifesto::runCommands[] = {
+JsonTalkie::Run runCommands[] = {
     {"buzz", "Triggers buzzing", buzz},
     {"on", "Turns led On", led_on},
     {"off", "Turns led Off", led_off}
 };
-size_t JsonTalkie::Manifesto::runSize = sizeof(JsonTalkie::Manifesto::runCommands) / sizeof(JsonTalkie::Run);
 
 bool set_duration(JsonObject json_message, long duration);
-JsonTalkie::Set JsonTalkie::Manifesto::setCommands[] = {
+JsonTalkie::Set setCommands[] = {
     // {"duration", "Sets duration", set_duration}
 };
-size_t JsonTalkie::Manifesto::setSize = sizeof(JsonTalkie::Manifesto::setCommands) / sizeof(JsonTalkie::Set);
 
 long get_total_runs(JsonObject json_message);
 long get_duration(JsonObject json_message);
-JsonTalkie::Get JsonTalkie::Manifesto::getCommands[] = {
+JsonTalkie::Get getCommands[] = {
     {"total_runs", "Gets the total number of runs", get_total_runs}
     // {"duration", "Gets duration", get_duration}
 };
-size_t JsonTalkie::Manifesto::getSize = sizeof(JsonTalkie::Manifesto::getCommands) / sizeof(JsonTalkie::Get);
 
 bool process_response(JsonObject json_message);
-bool (*JsonTalkie::Manifesto::echo)(JsonObject) = process_response;
-bool (*JsonTalkie::Manifesto::error)(JsonObject) = nullptr;
+
+
+// MANIFESTO DECLARATION
+
+JsonTalkie::Manifesto manifesto(
+    &device,
+    runCommands, sizeof(runCommands)/sizeof(JsonTalkie::Run),
+    setCommands, sizeof(setCommands)/sizeof(JsonTalkie::Set),
+    getCommands, sizeof(getCommands)/sizeof(JsonTalkie::Get),
+    process_response, nullptr
+);
 
 // END OF MANIFESTO
+
+JsonTalkie json_talkie;
 
 
 // Buzzer pin
@@ -139,11 +147,7 @@ void setup() {
     #endif
 
 
-    json_talkie.set_device(&device);
-    json_talkie.set_runs(JsonTalkie::Manifesto::runCommands, JsonTalkie::Manifesto::runSize);
-    json_talkie.set_sets(JsonTalkie::Manifesto::setCommands, JsonTalkie::Manifesto::setSize);
-    json_talkie.set_gets(JsonTalkie::Manifesto::getCommands, JsonTalkie::Manifesto::getSize);
-    json_talkie.set_echo(process_response);
+    json_talkie.set_manifesto(&manifesto);
     json_talkie.plug_socket(&broadcast_socket);
 
 
