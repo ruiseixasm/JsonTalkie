@@ -98,7 +98,6 @@ namespace JsonTalkie {
     // Structure Definition
     struct Manifesto {
 
-        static Device device;         // Declaration only
         static Run runCommands[];     // Declaration only
         static size_t runSize;        // Declaration only
         static Set setCommands[];
@@ -108,10 +107,6 @@ namespace JsonTalkie {
         static bool (*echo)(JsonObject);
         static bool (*error)(JsonObject);
 
-        static Device* talk() {
-            return &Manifesto::device;
-        }
-    
         static Run* run(const char* cmd) {
             for (int index = 0; index < Manifesto::runSize; ++index) {
                 if (strcmp(cmd, Manifesto::runCommands[index].name) == 0) {
@@ -295,6 +290,34 @@ namespace JsonTalkie {
 
 
     private:
+        Run* get_run(const char* cmd) {
+            for (int index = 0; index < _runSize; ++index) {
+                if (strcmp(cmd, _runCommands[index].name) == 0) {
+                    return &_runCommands[index];  // Returns the function
+                }
+            }
+            return nullptr;
+        }
+    
+        Set* get_set(const char* cmd) {
+            for (int index = 0; index < _runSize; ++index) {
+                if (strcmp(cmd, _setCommands[index].name) == 0) {
+                    return &_setCommands[index];  // Returns the function
+                }
+            }
+            return nullptr;
+        }
+    
+        Get* get_get(const char* cmd) {
+            for (int index = 0; index < _runSize; ++index) {
+                if (strcmp(cmd, _getCommands[index].name) == 0) {
+                    return &_getCommands[index];  // Returns the function
+                }
+            }
+            return nullptr;
+        }
+
+
         static uint32_t generateMessageId() {
             // Generates a 32-bit wrapped timestamp ID using overflow.
             return (uint32_t)millis();  // millis() is already an unit32_t (unsigned long int) data return
@@ -448,23 +471,23 @@ namespace JsonTalkie {
             } else if (message_code == 1) {     // list
                 bool none_list = true;
                 message["w"] = 2;
-                for (size_t run_i = 0; run_i < Manifesto::runSize; ++run_i) {
-                    message["n"] = Manifesto::runCommands[run_i].name;
-                    message["d"] = Manifesto::runCommands[run_i].desc;
+                for (size_t run_i = 0; run_i < _runSize; ++run_i) {
+                    message["n"] = _runCommands[run_i].name;
+                    message["d"] = _runCommands[run_i].desc;
                     none_list = false;
                     talk(message, true);
                 }
                 message["w"] = 3;
-                for (size_t set_i = 0; set_i < Manifesto::setSize; ++set_i) {
-                    message["n"] = Manifesto::setCommands[set_i].name;
-                    message["d"] = Manifesto::setCommands[set_i].desc;
+                for (size_t set_i = 0; set_i < _setSize; ++set_i) {
+                    message["n"] = _setCommands[set_i].name;
+                    message["d"] = _setCommands[set_i].desc;
                     none_list = false;
                     talk(message, true);
                 }
                 message["w"] = 4;
-                for (size_t get_i = 0; get_i < Manifesto::getSize; ++get_i) {
-                    message["n"] = Manifesto::getCommands[get_i].name;
-                    message["d"] = Manifesto::getCommands[get_i].desc;
+                for (size_t get_i = 0; get_i < _getSize; ++get_i) {
+                    message["n"] = _getCommands[get_i].name;
+                    message["d"] = _getCommands[get_i].desc;
                     none_list = false;
                     talk(message, true);
                 }
@@ -475,7 +498,7 @@ namespace JsonTalkie {
             } else if (message_code == 2) {     // run
                 message["w"] = 2;
                 if (message.containsKey("n")) {
-                    const Run* run = Manifesto::run(message["n"]);
+                    const Run* run = get_run(message["n"]);
                     if (run == nullptr) {
                         message["g"] = 1;   // UNKNOWN
                         talk(message, true);
@@ -489,7 +512,7 @@ namespace JsonTalkie {
             } else if (message_code == 3) {     // set
                 message["w"] = 3;
                 if (message.containsKey("n") && message.containsKey("v") && message["v"].is<long>()) {
-                    const Set* set = Manifesto::set(message["n"]);
+                    const Set* set = get_set(message["n"]);
                     if (set == nullptr) {
                         message["g"] = 1;   // UNKNOWN
                     } else {
@@ -505,7 +528,7 @@ namespace JsonTalkie {
                 message["w"] = 4;
                 if (message.containsKey("n")) {
                     message["w"] = message_code;
-                    const Get* get = Manifesto::get(message["n"]);
+                    const Get* get = get_get(message["n"]);
                     if (get == nullptr) {
                         message["g"] = 1;   // UNKNOWN
                     } else {
