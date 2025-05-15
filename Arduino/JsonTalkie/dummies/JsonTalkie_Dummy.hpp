@@ -21,7 +21,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // Readjust if absolutely necessary
 #define BROADCAST_SOCKET_BUFFER_SIZE 128
 
-// #define JSONTALKIE_DEBUG
+#define JSONTALKIE_DEBUG
 
 
 class JsonTalkie_Dummy {
@@ -107,7 +107,6 @@ public:
     };
 
 
-
 private:
     // Configuration parameters
     BroadcastSocket* _socket = nullptr;
@@ -134,36 +133,26 @@ public:
     }
 
 
-
     bool talk(JsonObject message, bool as_reply = false) {
         if (_socket == nullptr) return false;
         
         if (millis() - _lastTime > 1000) {
             _lastTime = millis();
             if (random(1000) < 100) { // 10% chance
-                // 2. Message Selection
-                // ALWAYS VALIDATE THE MESSAGES FOR BAD FORMATING !!
-                const char* PROGMEM messages[] = {
-                    R"({"m":0,"f":"Dummy","i":3003412860})",
-                    R"({"m":2,"f":"Dummy","t":"Buzzer","n":"buzz","i":3003412861})",
-                    R"({"m":2,"f":"Dummy","t":"Buzzer","n":"on","i":3003412862})",
-                    R"({"m":2,"f":"Dummy","t":"Buzzer","n":"off","i":3003412863})"
-                };
-                const size_t num_messages = sizeof(messages)/sizeof(char*);
                 
-                // 3. Safer Random Selection
-                const char* message_char = messages[random(num_messages)];
-                size_t message_size = strlen(message_char);
+                const char message_char[] = R"({"m":6,"f":"Dummy","t":"*","r":"Dummy echo","i":3003412864,"c":25673})";
+                size_t message_size = sizeof(message_char);
                 
-                #ifdef BROADCAST_DUMMY_DEBUG
-                Serial.print("DUMMY RECEIVED: ");
-                serializeJson(message, Serial);
-                Serial.println();  // optional: just to add a newline after the JSON
+                #ifdef JSONTALKIE_DEBUG
+                Serial.print("DUMMY TALKED: ");
+                Serial.println(message_char);
                 #endif
 
+                if (random(2) % 2 == 0)
+                    return _socket->send(message_char, message_size, true);
+                return _socket->send(message_char, message_size, false);
             }
         }
-
         return true;
     }
 
@@ -172,11 +161,11 @@ public:
         if (_socket == nullptr) return;
         size_t len = _socket->receive(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);
         if (len > 0) {
-            
+            Serial.print("DUMMY LISTENED: ");
+            Serial.write(_buffer, len);
+            Serial.println();
         }
     }
-
-
 };
 
 #endif

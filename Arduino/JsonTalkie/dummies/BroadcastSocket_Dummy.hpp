@@ -117,7 +117,8 @@ public:
                     R"({"m":0,"f":"Dummy","i":3003412860})",
                     R"({"m":2,"f":"Dummy","t":"Buzzer","n":"buzz","i":3003412861})",
                     R"({"m":2,"f":"Dummy","t":"Buzzer","n":"on","i":3003412862})",
-                    R"({"m":2,"f":"Dummy","t":"Buzzer","n":"off","i":3003412863})"
+                    R"({"m":2,"f":"Dummy","t":"Buzzer","n":"off","i":3003412863})",
+                    R"({"m":6,"f":"Dummy","t":"*","r":"Dummy echo","i":3003412864})"
                 };
                 const size_t num_messages = sizeof(messages)/sizeof(char*);
                 
