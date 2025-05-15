@@ -144,6 +144,7 @@ void setup() {
     json_talkie.set_sets(JsonTalkie::Manifesto::setCommands, JsonTalkie::Manifesto::setSize);
     json_talkie.set_gets(JsonTalkie::Manifesto::getCommands, JsonTalkie::Manifesto::getSize);
     json_talkie.set_echo(process_response);
+    json_talkie.plug_socket(&broadcast_socket);
 
 
     Serial.println("Talker ready");
