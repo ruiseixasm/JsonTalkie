@@ -61,7 +61,10 @@ class BroadcastSocket_UDP(BroadcastSocket):
         if not self._socket:
             return None
         try:
-            return self._socket.recvfrom(4096)
+            data_ip_port: Optional[Tuple[bytes, Tuple[str, int]]] = self._socket.recvfrom(4096)
+            if data_ip_port is not None and data_ip_port[1][1] == self._port:
+                return data_ip_port
+            return None
         except BlockingIOError:
             return None
         except Exception as e:

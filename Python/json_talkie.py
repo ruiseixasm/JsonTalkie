@@ -105,7 +105,7 @@ class JsonTalkie:
         while self._running:
             received = self._socket.receive()
             if received:
-                data, device_ip = received  # Explicitly ignore (ip, port)
+                data, ip_port = received  # Explicitly ignore (ip, port)
                 try:
                     if DEBUG:
                         print(data)
@@ -114,7 +114,7 @@ class JsonTalkie:
                         if DEBUG:
                             print(message)
                         if "f" in message and message["f"] != "*":
-                            self._devices_address[message["f"]] = device_ip
+                            self._devices_address[message["f"]] = ip_port
                         self.receive(message)
                 except (UnicodeDecodeError, json.JSONDecodeError) as e:
                     if DEBUG:
