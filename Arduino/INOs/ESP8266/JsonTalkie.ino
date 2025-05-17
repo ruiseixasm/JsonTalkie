@@ -105,7 +105,7 @@ JsonTalkie json_talkie;
 
 // Define the commands (stored in RAM)
 JsonTalkie::Device device = {
-    "Buzzer", "I do a 500ms buzz!"
+    "ESP66", "I do a 500ms buzz!"
 };
 
 bool buzz(JsonObject json_message);
