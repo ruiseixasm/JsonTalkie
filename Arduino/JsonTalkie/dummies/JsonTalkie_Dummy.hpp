@@ -33,7 +33,7 @@ public:
     // Define JsonObject as void* given that ArduinoJson isn't included!
     typedef void* JsonObject;
 
-    #if defined(ESP8266)
+    #if defined(ESP8266) || defined(NO_PROGMEM)
     struct Device {
         const char* name;      // Name of the Device (Talker)
         const char* desc;      // Description of the Device
