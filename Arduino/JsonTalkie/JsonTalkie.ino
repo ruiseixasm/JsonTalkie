@@ -12,8 +12,8 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
 #include "sockets/BroadcastSocket_ESP32.hpp"
-// #include "JsonTalkie.hpp"
-#include "dummies/JsonTalkie_Dummy.hpp"
+#include "JsonTalkie.hpp"
+// #include "dummies/JsonTalkie_Dummy.hpp"
 #include "secrets/wifi_credentials.h"
 
 
@@ -33,13 +33,12 @@ const char* password = WIFI_PASSWORD;
 // Network settings
 #define PORT 5005   // UDP port
 
+const int LED_BUILTIN = 2;  // Most ESP32 boards have onboard LED at GPIO2
+
 
 #ifdef JSON_TALKIE_DUMMY_HPP
 
-
 JsonTalkie_Dummy json_talkie;
-
-const int LED_BUILTIN = 2;  // Most ESP32 boards have onboard LED at GPIO2
 
 void setup() {
     // Serial is a singleton class (can be began multiple times)
@@ -160,9 +159,35 @@ void setup() {
     // Saving string in PROGMEM (flash) to save RAM memory
     Serial.println("\n\nOpening the Socket...");
     
+    WiFi.begin(ssid, password);
+    
+    // Configure IP (static only when USE_DHCP is undefined)
+    #ifndef USE_DHCP
+    IPAddress staticIP(192, 168, 31, 100);
+    IPAddress gateway(192, 168, 31, 77);
+    IPAddress subnet(255, 255, 255, 0);
+    WiFi.config(staticIP, gateway, subnet);
+    #endif
+
+    Serial.print("\n\nConnecting");
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.print("\nIP: ");
+    Serial.println(WiFi.localIP());
+    Serial.print("Broadcast: ");
+    Serial.println(WiFi.localIP() | ~WiFi.subnetMask());
+
+    udp.begin(PORT);
+
+    // Saving string in PROGMEM (flash) to save RAM memory
+    Serial.println("\n\nOpening the Socket...");
+    
     // By default is already 5005
     broadcast_socket.set_port(5005);
-
+    broadcast_socket.set_udp(&udp);
 
     json_talkie.set_manifesto(&manifesto);
     json_talkie.plug_socket(&broadcast_socket);
