@@ -11,27 +11,24 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#include "sockets/BroadcastSocket_ESP32.hpp"
+#include "sockets/BroadcastSocket_EtherCard.hpp"
+// #include "dummies/BroadcastSocket_Dummy.hpp"
 // #include "JsonTalkie.hpp"
 #include "dummies/JsonTalkie_Dummy.hpp"
-#include "secrets/wifi_credentials.h"
 
+auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
+// auto& broadcast_socket = BroadcastSocket_Dummy::instance();
 
-// To upload a sketch to an ESP32 when the "......." appears, press the button BOOT for a while
-
-
-auto& broadcast_socket = BroadcastSocket_ESP32::instance();
-WiFiUDP udp;
-
-const char* ssid = WIFI_SSID;
-const char* password = WIFI_PASSWORD;
-
-// Configuration
-// #define USE_DHCP  // Comment out to use static IP
 
 
 // Network settings
-#define PORT 5005   // UDP port
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};      // MAC address
+byte my_ip[] = {192, 168, 31, 100};                     // Arduino IP
+byte gw_ip[] = {192, 168, 31, 77};                      // IP of the main router, gateway
+byte dns_ip[] = {192, 168, 31, 77};                     // DNS address is the same as the gateway router
+byte mask[] = {255, 255, 255, 0};                       // NEEDED FOR NETWORK BROADCAST
+#define PORT 5005                                       // UDP port
+
 
 
 #ifdef JSON_TALKIE_DUMMY_HPP
@@ -39,43 +36,36 @@ const char* password = WIFI_PASSWORD;
 
 JsonTalkie_Dummy json_talkie;
 
-const int LED_BUILTIN = 2;  // Most ESP32 boards have onboard LED at GPIO2
+
 
 void setup() {
     // Serial is a singleton class (can be began multiple times)
     Serial.begin(9600);
     while (!Serial);
-    delay(2000);    // Just to give some time to Serial
-
-    WiFi.begin(ssid, password);
     
-    // Configure IP (static only when USE_DHCP is undefined)
-    #ifndef USE_DHCP
-    IPAddress staticIP(192, 168, 31, 100);
-    IPAddress gateway(192, 168, 31, 77);
-    IPAddress subnet(255, 255, 255, 0);
-    WiFi.config(staticIP, gateway, subnet);
-    #endif
-
-    Serial.print("\n\nConnecting");
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-
-    Serial.print("\nIP: ");
-    Serial.println(WiFi.localIP());
-    Serial.print("Broadcast: ");
-    Serial.println(WiFi.localIP() | ~WiFi.subnetMask());
-
-    udp.begin(PORT);
+    delay(2000);    // Just to give some time to Serial
 
     // Saving string in PROGMEM (flash) to save RAM memory
     Serial.println("\n\nOpening the Socket...");
     
+    #if defined(BROADCAST_SOCKET_ETHERCARD_HPP)
+    // MAC and CS pin in constructor
+    // SS is a macro variable normally equal to 10
+    if (!ether.begin(ETHERNET_BUFFER_SIZE, mac, SS)) {
+        Serial.println("Failed to access ENC28J60");
+        while (1);
+    }
+    // Set static IP (disable DHCP)
+    if (!ether.staticSetup(my_ip, gw_ip, dns_ip, mask)) {
+        Serial.println("Failed to access ENC28J60");
+        while (1);
+    }
+    // Makes sure it allows broadcast
+    ether.enableBroadcast();
+    #endif
+
     // By default is already 5005
     broadcast_socket.set_port(5005);
-    broadcast_socket.set_udp(&udp);
 
 
     json_talkie.plug_socket(&broadcast_socket);
@@ -160,6 +150,22 @@ void setup() {
     // Saving string in PROGMEM (flash) to save RAM memory
     Serial.println("\n\nOpening the Socket...");
     
+    #if defined(BROADCAST_SOCKET_ETHERCARD_HPP)
+    // MAC and CS pin in constructor
+    // SS is a macro variable normally equal to 10
+    if (!ether.begin(ETHERNET_BUFFER_SIZE, mac, SS)) {
+        Serial.println("Failed to access ENC28J60");
+        while (1);
+    }
+    // Set static IP (disable DHCP)
+    if (!ether.staticSetup(my_ip, gw_ip, dns_ip, mask)) {
+        Serial.println("Failed to access ENC28J60");
+        while (1);
+    }
+    // Makes sure it allows broadcast
+    ether.enableBroadcast();
+    #endif
+
     // By default is already 5005
     broadcast_socket.set_port(5005);
 

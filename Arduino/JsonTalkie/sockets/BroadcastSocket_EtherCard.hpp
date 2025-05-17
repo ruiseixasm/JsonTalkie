@@ -28,6 +28,7 @@ byte Ethernet::buffer[ETHERNET_BUFFER_SIZE];  // Ethernet buffer
 
 class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
+    static uint8_t _source_ip[4];
     static size_t _data_length;
     
     // Static callback remains unchanged
@@ -64,8 +65,7 @@ public:
         uint8_t broadcastIp[4] = {255, 255, 255, 255};
         
         #ifdef ENABLE_DIRECT_ADDRESSING
-        ether.sendUdp(data, size, _port, 
-                     as_reply ? _source_ip : broadcastIp, _port);
+        ether.sendUdp(data, size, _port, as_reply ? _source_ip : broadcastIp, _port);
         #else
         ether.sendUdp(data, size, _port, broadcastIp, _port);
         #endif
@@ -95,6 +95,7 @@ public:
     }
 };
 
+uint8_t BroadcastSocket_EtherCard::_source_ip[4] = {0};
 size_t BroadcastSocket_EtherCard::_data_length = 0;
 
 #endif // BROADCAST_SOCKET_ETHERCARD_HPP

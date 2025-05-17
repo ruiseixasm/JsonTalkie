@@ -17,7 +17,6 @@ https://github.com/ruiseixasm/JsonTalkie
 
 class BroadcastSocket {
 protected:
-    static uint8_t _source_ip[4];
     static uint16_t _port;
     static char* _buffer;
     static size_t _size;
@@ -47,7 +46,6 @@ public:
 };
 
 // Static member initialization
-uint8_t BroadcastSocket::_source_ip[4] = {0};
 uint16_t BroadcastSocket::_port = 5005; // The default port
 char* BroadcastSocket::_buffer = nullptr;
 size_t BroadcastSocket::_size = 0;

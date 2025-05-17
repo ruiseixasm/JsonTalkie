@@ -18,67 +18,56 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
-// #define BROADCAST_SOCKET_DEBUG
-// #define ENABLE_DIRECT_ADDRESSING
+
+
+#define BROADCAST_ESP32_DEBUG
+#define ENABLE_DIRECT_ADDRESSING
+
 
 class BroadcastSocket_ESP32 : public BroadcastSocket {
 private:
-    static bool _you_got_message;
-    WiFiUDP _udp;
-    static WiFiUDP* _udp_instance; // Needed for callback access
-
-    // Handler for received packets
-    static void handlePacket() {
-        int packetSize = _udp_instance->parsePacket();
-        if (packetSize) {
-            #ifdef BROADCAST_SOCKET_DEBUG
-            Serial.print(F("R: "));
-            #endif
-
-            if (packetSize < BROADCAST_SOCKET_BUFFER_SIZE - 1) {
-                // Get sender's IP
-                IPAddress remoteIp = _udp_instance->remoteIP();
-                for (uint8_t byte_i = 0; byte_i < 4; ++byte_i) {
-                    _source_ip[byte_i] = remoteIp[byte_i];
-                }
-
-                // Read data
-                int len = _udp_instance->read(_buffer, BROADCAST_SOCKET_BUFFER_SIZE - 1);
-                _buffer[len] = '\0';
-                _you_got_message = true;
-
-                #ifdef BROADCAST_SOCKET_DEBUG
-                Serial.write(_buffer, len);
-                Serial.println();
-                #endif
-            }
-        }
-    }
+    static IPAddress _source_ip;
+    static WiFiUDP* _udp;
 
 public:
-    BroadcastSocket_ESP32(uint16_t port) {
-        _port = port;
-        _udp_instance = &_udp;
-        _udp.begin(port);
+    // Singleton accessor
+    static BroadcastSocket_ESP32& instance() {
+        static BroadcastSocket_ESP32 instance;
+        return instance;
     }
 
+    
     bool send(const char* data, size_t size, bool as_reply = false) override {
-        IPAddress broadcastIp(255, 255, 255, 255);
+        if (_udp == nullptr) return false;
 
+        IPAddress broadcastIP(255, 255, 255, 255);
+        
         #ifdef ENABLE_DIRECT_ADDRESSING
-        if (as_reply) {
-            _udp.beginPacket(IPAddress(_source_ip[0], _source_ip[1], _source_ip[2], _source_ip[3]), _port);
-        } else {
-            _udp.beginPacket(broadcastIp, _port);
+        if (!_udp->beginPacket(as_reply ? _source_ip : broadcastIP, _port)) {
+            #ifdef BROADCAST_ESP32_DEBUG
+            Serial.println(F("Failed to begin packet"));
+            #endif
+            return false;
         }
         #else
-        _udp.beginPacket(broadcastIp, _port);
+        if (!_udp->beginPacket(broadcastIP, _port)) {
+            #ifdef BROADCAST_ESP32_DEBUG
+            Serial.println(F("Failed to begin packet"));
+            #endif
+            return false;
+        }
         #endif
 
-        _udp.write((const uint8_t*)data, size);
-        _udp.endPacket();
+        size_t bytesSent = _udp->write(reinterpret_cast<const uint8_t*>(data), size);
 
-        #ifdef BROADCAST_SOCKET_DEBUG
+        if (!_udp->endPacket()) {
+            #ifdef BROADCAST_ESP32_DEBUG
+            Serial.println(F("Failed to end packet"));
+            #endif
+            return false;
+        }
+
+        #ifdef BROADCAST_ESP32_DEBUG
         Serial.print(F("S: "));
         Serial.write(data, size);
         Serial.println();
@@ -87,18 +76,33 @@ public:
         return true;
     }
 
-    size_t receive() override {
-        handlePacket();
-        if (_you_got_message) {
-            _you_got_message = false;
-            return true;
+
+    size_t receive(char* buffer, size_t size) override {
+        if (_udp == nullptr) return 0;
+        // Receive packets
+        int packetSize = _udp->parsePacket();
+        if (packetSize > 0) {
+            int len = _udp->read(buffer, size - 1);
+            buffer[len] = '\0';
+            _source_ip = _udp->remoteIP();
+            
+            #ifdef BROADCAST_ESP32_DEBUG
+            Serial.print(packetSize);
+            Serial.print(F("B from "));
+            Serial.print(_udp->remoteIP());
+            Serial.print(F(":"));
+            Serial.print(_udp->remotePort());
+            Serial.print(F(" -> "));
+            Serial.println(buffer);
+            #endif
         }
-        return false;
+        return packetSize;
     }
+
+    void set_udp(WiFiUDP* udp) { _udp = udp; }
 };
 
-bool BroadcastSocket_ESP32::_you_got_message = false;
-WiFiUDP* BroadcastSocket_ESP32::_udp_instance = nullptr;
-BroadcastSocket_ESP32 broadcast_socket(5005);
+IPAddress BroadcastSocket_ESP32::_source_ip(0, 0, 0, 0);
+WiFiUDP* BroadcastSocket_ESP32::_udp = nullptr;
 
 #endif // BROADCAST_SOCKET_ESP32_HPP
