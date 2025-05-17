@@ -33,8 +33,6 @@ const char* password = WIFI_PASSWORD;
 // Network settings
 #define PORT 5005   // UDP port
 
-const int LED_BUILTIN = 2;  // Most ESP32 boards have onboard LED at GPIO2
-
 
 #ifdef JSON_TALKIE_DUMMY_HPP
 
@@ -65,11 +63,13 @@ void setup() {
     Serial.print("\nIP: ");
     Serial.println(WiFi.localIP());
     Serial.print("Broadcast: ");
-    Serial.println(WiFi.localIP() | ~WiFi.subnetMask());
+    Serial.println(WiFi.localIP());
 
-    udp.begin(PORT);
-
-    // Saving string in PROGMEM (flash) to save RAM memory
+    if (!udp.begin(PORT)) {
+        Serial.println("Failed to start UDP");
+        while(1);
+    }
+    
     Serial.println("\n\nOpening the Socket...");
     
     // By default is already 5005

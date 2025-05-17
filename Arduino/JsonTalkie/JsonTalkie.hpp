@@ -70,9 +70,31 @@ public:
 
     // JSONTALKIE DEFINITIONS
 
+    #if defined(ESP8266)
+    struct Device {
+        const char* name;      // Name of the Device (Talker)
+        const char* desc;      // Description of the Device
+    };
 
+    struct Run {
+        const char* name;      // "buzz", "print", etc.
+        const char* desc;      // Description
+        bool (*function)(JsonObject);  // Function pointer (no args)
+    };
+
+    struct Set {
+        const char* name;      // "buzz", "print", etc.
+        const char* desc;      // Description
+        bool (*function)(JsonObject, long);  // Function pointer (long)
+    };
+
+    struct Get {
+        const char* name;      // "buzz", "print", etc.
+        const char* desc;      // Description
+        long (*function)(JsonObject);  // Function pointer (no args)
+    };
+    #else
     // Using PROGMEM to save strings in Flash memory instead of the RAM
-
     struct Device {
         const char* PROGMEM name;      // Name of the Device (Talker)
         const char* PROGMEM desc;      // Description of the Device
@@ -95,6 +117,7 @@ public:
         const char* PROGMEM desc;      // Description
         long (*function)(JsonObject);  // Function pointer (no args)
     };
+    #endif
 
     // Manifesto Structure Definition
     struct Manifesto {

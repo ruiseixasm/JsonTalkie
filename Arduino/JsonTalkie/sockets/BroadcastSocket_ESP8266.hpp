@@ -15,24 +15,24 @@ https://github.com/ruiseixasm/JsonTalkie
 #define BROADCAST_SOCKET_ESP8266_HPP
 
 #include "../BroadcastSocket.hpp"
-#include <WiFi.h>
+#include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
 
 
-#define BROADCAST_ESP32_DEBUG
+#define BROADCAST_ESP8266_DEBUG
 #define ENABLE_DIRECT_ADDRESSING
 
 
-class BroadcastSocket_ESP32 : public BroadcastSocket {
+class BroadcastSocket_ESP8266 : public BroadcastSocket {
 private:
     static IPAddress _source_ip;
     static WiFiUDP* _udp;
 
 public:
     // Singleton accessor
-    static BroadcastSocket_ESP32& instance() {
-        static BroadcastSocket_ESP32 instance;
+    static BroadcastSocket_ESP8266& instance() {
+        static BroadcastSocket_ESP8266 instance;
         return instance;
     }
 
@@ -44,14 +44,14 @@ public:
         
         #ifdef ENABLE_DIRECT_ADDRESSING
         if (!_udp->beginPacket(as_reply ? _source_ip : broadcastIP, _port)) {
-            #ifdef BROADCAST_ESP32_DEBUG
+            #ifdef BROADCAST_ESP8266_DEBUG
             Serial.println(F("Failed to begin packet"));
             #endif
             return false;
         }
         #else
         if (!_udp->beginPacket(broadcastIP, _port)) {
-            #ifdef BROADCAST_ESP32_DEBUG
+            #ifdef BROADCAST_ESP8266_DEBUG
             Serial.println(F("Failed to begin packet"));
             #endif
             return false;
@@ -61,13 +61,13 @@ public:
         size_t bytesSent = _udp->write(reinterpret_cast<const uint8_t*>(data), size);
 
         if (!_udp->endPacket()) {
-            #ifdef BROADCAST_ESP32_DEBUG
+            #ifdef BROADCAST_ESP8266_DEBUG
             Serial.println(F("Failed to end packet"));
             #endif
             return false;
         }
 
-        #ifdef BROADCAST_ESP32_DEBUG
+        #ifdef BROADCAST_ESP8266_DEBUG
         Serial.print(F("S: "));
         Serial.write(data, size);
         Serial.println();
@@ -88,7 +88,7 @@ public:
             buffer[len] = '\0';
             _source_ip = _udp->remoteIP();
             
-            #ifdef BROADCAST_ESP32_DEBUG
+            #ifdef BROADCAST_ESP8266_DEBUG
             Serial.print(packetSize);
             Serial.print(F("B from "));
             Serial.print(_udp->remoteIP());
@@ -105,7 +105,7 @@ public:
     void set_udp(WiFiUDP* udp) { _udp = udp; }
 };
 
-IPAddress BroadcastSocket_ESP32::_source_ip(0, 0, 0, 0);
-WiFiUDP* BroadcastSocket_ESP32::_udp = nullptr;
+IPAddress BroadcastSocket_ESP8266::_source_ip(0, 0, 0, 0);
+WiFiUDP* BroadcastSocket_ESP8266::_udp = nullptr;
 
 #endif // BROADCAST_SOCKET_ESP8266_HPP
