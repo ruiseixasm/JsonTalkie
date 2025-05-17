@@ -30,6 +30,8 @@ class BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
     static uint8_t _source_ip[4];
     static size_t _data_length;
+    static char* _buffer;
+    static size_t _size;
     
     // Static callback remains unchanged
     static void udpCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, 
@@ -81,7 +83,8 @@ public:
 
 
     size_t receive(char* buffer, size_t size) override {
-        initialize_buffer(buffer, size);
+        _buffer = buffer;
+        _size = size;
         _data_length = 0;   // Makes sure it's the Ethernet reading that sets it!
         ether.packetLoop(ether.packetReceive());
         return _data_length;
@@ -97,5 +100,7 @@ public:
 
 uint8_t BroadcastSocket_EtherCard::_source_ip[4] = {0};
 size_t BroadcastSocket_EtherCard::_data_length = 0;
+char* BroadcastSocket_EtherCard::_buffer = nullptr;
+size_t BroadcastSocket_EtherCard::_size = 0;
 
 #endif // BROADCAST_SOCKET_ETHERCARD_HPP

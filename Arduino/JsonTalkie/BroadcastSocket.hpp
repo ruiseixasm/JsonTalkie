@@ -18,8 +18,6 @@ https://github.com/ruiseixasm/JsonTalkie
 class BroadcastSocket {
 protected:
     static uint16_t _port;
-    static char* _buffer;
-    static size_t _size;
 
     // Private constructor
     BroadcastSocket() = default;
@@ -37,18 +35,10 @@ public:
     virtual size_t receive(char* buffer, size_t size) = 0;
     
     virtual void set_port(uint16_t port) { _port = port; }
-
-    // Optional: Initialize buffer (now controlled by singleton)
-    static void initialize_buffer(char* buffer, size_t size) {
-        _buffer = buffer;
-        _size = size;
-    }
 };
 
 // Static member initialization
 uint16_t BroadcastSocket::_port = 5005; // The default port
-char* BroadcastSocket::_buffer = nullptr;
-size_t BroadcastSocket::_size = 0;
 
 
 #endif // BROADCAST_SOCKET_HPP

@@ -20,7 +20,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <EthernetUdp.h>
 
 
-// #define BROADCAST_ENC_DEBUG
+#define BROADCAST_ENC_DEBUG
 
 
 class BroadcastSocket_ENC : public BroadcastSocket {
@@ -33,11 +33,11 @@ public:
 
     
     bool send(const char* data, size_t size, bool as_reply = false) override {
+
         uint8_t broadcastIp[4] = {255, 255, 255, 255};
-        
-        const char msg[] = "Hello, UDP!";
+
         Udp.beginPacket(destIP, destPort);
-        Udp.write((const uint8_t*)msg, sizeof(msg));
+        Udp.write((const uint8_t*)data, size);
         Udp.endPacket();
 
         Serial.println("UDP packet sent");
@@ -53,17 +53,9 @@ public:
 
 
     size_t receive(char* buffer, size_t size) override {
-        initialize_buffer(buffer, size);
         _data_length = 0;   // Makes sure it's the Ethernet reading that sets it!
         ether.packetLoop(ether.packetReceive());
         return _data_length;
-    }
-
-
-    // Modified methods to work with singleton
-    void set_port(uint16_t port) override {
-        _port = port;
-        Udp.begin(_port);
     }
 };
 
