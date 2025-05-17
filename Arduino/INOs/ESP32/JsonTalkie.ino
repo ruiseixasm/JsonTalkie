@@ -50,7 +50,7 @@ void setup() {
     
     // Configure IP (static only when USE_DHCP is undefined)
     #ifndef USE_DHCP
-    IPAddress staticIP(192, 168, 31, 100);
+    IPAddress staticIP(192, 168, 31, 32);
     IPAddress gateway(192, 168, 31, 77);
     IPAddress subnet(255, 255, 255, 0);
     WiFi.config(staticIP, gateway, subnet);
@@ -163,7 +163,7 @@ void setup() {
     
     // Configure IP (static only when USE_DHCP is undefined)
     #ifndef USE_DHCP
-    IPAddress staticIP(192, 168, 31, 100);
+    IPAddress staticIP(192, 168, 31, 32);
     IPAddress gateway(192, 168, 31, 77);
     IPAddress subnet(255, 255, 255, 0);
     WiFi.config(staticIP, gateway, subnet);
