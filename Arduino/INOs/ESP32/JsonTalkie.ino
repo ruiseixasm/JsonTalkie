@@ -11,16 +11,16 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#include "sockets/BroadcastSocket_ESP8266.hpp"
-// #include "JsonTalkie.hpp"
-#include "dummies/JsonTalkie_Dummy.hpp"
+#include "sockets/BroadcastSocket_ESP32.hpp"
+#include "JsonTalkie.hpp"
+// #include "dummies/JsonTalkie_Dummy.hpp"
 #include "secrets/wifi_credentials.h"
 
 
 // To upload a sketch to an ESP32 when the "......." appears, press the button BOOT for a while
 
 
-auto& broadcast_socket = BroadcastSocket_ESP8266::instance();
+auto& broadcast_socket = BroadcastSocket_ESP32::instance();
 WiFiUDP udp;
 
 const char* ssid = WIFI_SSID;
