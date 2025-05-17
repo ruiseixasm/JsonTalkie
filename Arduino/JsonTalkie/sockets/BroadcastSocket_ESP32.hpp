@@ -95,8 +95,9 @@ public:
             Serial.print(F(" -> "));
             Serial.println(buffer);
             #endif
+            return len; // The right size of the read package
         }
-        return packetSize;
+        return 0;   // nothing received
     }
 
     void set_udp(WiFiUDP* udp) { _udp = udp; }

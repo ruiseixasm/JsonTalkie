@@ -115,7 +115,7 @@ private:
     BroadcastSocket* _socket = nullptr;
     Manifesto* _manifesto = nullptr;
 
-    char _buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
+    char _buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {1};   // {1} instead of {'\0'} to catch badly terminated buffer
     unsigned long _lastTime = 0;
 
 public:
@@ -173,6 +173,8 @@ public:
         if (_socket == nullptr) return;
         size_t len = _socket->receive(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);
         if (len > 0) {
+            if (len >= BROADCAST_SOCKET_BUFFER_SIZE || _buffer[len] != '\0')
+                Serial.println("Socket returned wrong len value");
             Serial.print("DUMMY LISTENED: ");
             Serial.write(_buffer, len);
             Serial.println();
