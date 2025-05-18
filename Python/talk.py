@@ -100,7 +100,11 @@ class CommandLine:
                             message["m"] = code
                             if code == 8:   # channel
                                 if len(words) == 3:
-                                    message["b"] = words[2]
+                                    try:
+                                        message["b"] = int(words[2])
+                                    except ValueError:
+                                        print(f"\t'{words[2]}' is not an integer!")
+                                        return
                             elif expected_args > 2:
                                 message["n"] = words[2]
                             if words[1] == "set":

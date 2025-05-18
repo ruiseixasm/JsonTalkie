@@ -11,70 +11,64 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#include "sockets/BroadcastSocket_ESP8266.hpp"
+#include "sockets/BroadcastSocket_EtherCard.hpp"
+// #include "dummies/BroadcastSocket_Dummy.hpp"
 #include "JsonTalkie.hpp"
 // #include "dummies/JsonTalkie_Dummy.hpp"
-#include "secrets/wifi_credentials.h"
+
+auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
+// auto& broadcast_socket = BroadcastSocket_Dummy::instance();
 
 
-// To upload a sketch to an ESP32 when the "......." appears, press the button BOOT for a while
-
-
-auto& broadcast_socket = BroadcastSocket_ESP8266::instance();
-WiFiUDP udp;
-
-const char* ssid = WIFI_SSID;
-const char* password = WIFI_PASSWORD;
-
-// Configuration
-// #define USE_DHCP  // Comment out to use static IP
+#define ETHERNET_BUFFER_SIZE 256
+byte Ethernet::buffer[ETHERNET_BUFFER_SIZE];  // Ethernet buffer
 
 
 // Network settings
-#define PORT 5005   // UDP port
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};      // MAC address
+byte my_ip[] = {192, 168, 31, 100};                     // Arduino IP
+byte gw_ip[] = {192, 168, 31, 77};                      // IP of the main router, gateway
+byte dns_ip[] = {192, 168, 31, 77};                     // DNS address is the same as the gateway router
+byte mask[] = {255, 255, 255, 0};                       // NEEDED FOR NETWORK BROADCAST
+#define PORT 5005                                       // UDP port
+
 
 
 #ifdef JSON_TALKIE_DUMMY_HPP
 
+
 JsonTalkie_Dummy json_talkie;
+
+
 
 void setup() {
     // Serial is a singleton class (can be began multiple times)
     Serial.begin(9600);
     while (!Serial);
+    
     delay(2000);    // Just to give some time to Serial
 
-    WiFi.begin(ssid, password);
-    
-    // Configure IP (static only when USE_DHCP is undefined)
-    #ifndef USE_DHCP
-    IPAddress staticIP(192, 168, 31, 100);
-    IPAddress gateway(192, 168, 31, 77);
-    IPAddress subnet(255, 255, 255, 0);
-    WiFi.config(staticIP, gateway, subnet);
-    #endif
-
-    Serial.print("\n\nConnecting");
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-
-    Serial.print("\nIP: ");
-    Serial.println(WiFi.localIP());
-    Serial.print("Broadcast: ");
-    Serial.println(WiFi.localIP());
-
-    if (!udp.begin(PORT)) {
-        Serial.println("Failed to start UDP");
-        while(1);
-    }
-
+    // Saving string in PROGMEM (flash) to save RAM memory
     Serial.println("\n\nOpening the Socket...");
     
+    #if defined(BROADCAST_SOCKET_ETHERCARD_HPP)
+    // MAC and CS pin in constructor
+    // SS is a macro variable normally equal to 10
+    if (!ether.begin(ETHERNET_BUFFER_SIZE, mac, SS)) {
+        Serial.println("Failed to access ENC28J60");
+        while (1);
+    }
+    // Set static IP (disable DHCP)
+    if (!ether.staticSetup(my_ip, gw_ip, dns_ip, mask)) {
+        Serial.println("Failed to access ENC28J60");
+        while (1);
+    }
+    // Makes sure it allows broadcast
+    ether.enableBroadcast();
+    #endif
+
     // By default is already 5005
     broadcast_socket.set_port(5005);
-    broadcast_socket.set_udp(&udp);
 
 
     json_talkie.plug_socket(&broadcast_socket);
@@ -105,7 +99,7 @@ JsonTalkie json_talkie;
 
 // Define the commands (stored in RAM)
 JsonTalkie::Device device = {
-    "ESP66", "I do a 500ms buzz!"
+    "Nano", "I do a 500ms buzz!"
 };
 
 bool buzz(JsonObject json_message);
@@ -147,7 +141,7 @@ JsonTalkie::Manifesto manifesto(
 
 
 // Buzzer pin
-#define buzzer_pin 2    // D2 (GPIO 4) is a fully available port on ESP8266
+#define buzzer_pin 3
 
 void setup() {
     // Serial is a singleton class (can be began multiple times)
@@ -159,37 +153,25 @@ void setup() {
     // Saving string in PROGMEM (flash) to save RAM memory
     Serial.println("\n\nOpening the Socket...");
     
-    WiFi.begin(ssid, password);
-    
-    // Configure IP (static only when USE_DHCP is undefined)
-    #ifndef USE_DHCP
-    IPAddress staticIP(192, 168, 31, 66);
-    IPAddress gateway(192, 168, 31, 77);
-    IPAddress subnet(255, 255, 255, 0);
-    WiFi.config(staticIP, gateway, subnet);
+    #if defined(BROADCAST_SOCKET_ETHERCARD_HPP)
+    // MAC and CS pin in constructor
+    // SS is a macro variable normally equal to 10
+    if (!ether.begin(ETHERNET_BUFFER_SIZE, mac, SS)) {
+        Serial.println("Failed to access ENC28J60");
+        while (1);
+    }
+    // Set static IP (disable DHCP)
+    if (!ether.staticSetup(my_ip, gw_ip, dns_ip, mask)) {
+        Serial.println("Failed to access ENC28J60");
+        while (1);
+    }
+    // Makes sure it allows broadcast
+    ether.enableBroadcast();
     #endif
 
-    Serial.print("\n\nConnecting");
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-
-    Serial.print("\nIP: ");
-    Serial.println(WiFi.localIP());
-    Serial.print("Broadcast: ");
-    Serial.println(WiFi.localIP());
-
-    if (!udp.begin(PORT)) {
-        Serial.println("Failed to start UDP");
-        while(1);
-    }
-
-    Serial.println("\n\nOpening the Socket...");
-    
     // By default is already 5005
     broadcast_socket.set_port(5005);
-    broadcast_socket.set_udp(&udp);
+
 
     json_talkie.set_manifesto(&manifesto);
     json_talkie.plug_socket(&broadcast_socket);
@@ -197,14 +179,15 @@ void setup() {
 
     Serial.println("Talker ready");
 
+    #ifndef BROADCAST_SOCKET_SERIAL_HPP
     pinMode(buzzer_pin, OUTPUT);
-    digitalWrite(buzzer_pin, LOW);
-    delay(10);
     digitalWrite(buzzer_pin, HIGH);
+    delay(10); 
+    digitalWrite(buzzer_pin, LOW);
+    #endif
     pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(20);
     digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED_BUILTIN, LOW);
 
     Serial.println("Sending JSON...");
 }
@@ -247,9 +230,9 @@ long _duration = 5;  // Example variable
 // Command implementations
 bool buzz(JsonObject json_message) {
     #ifndef BROADCASTSOCKET_SERIAL
-    digitalWrite(buzzer_pin, LOW);
-    delay(_duration); 
     digitalWrite(buzzer_pin, HIGH);
+    delay(_duration); 
+    digitalWrite(buzzer_pin, LOW);
     #endif
     total_runs++;
     return true;
@@ -260,7 +243,7 @@ bool is_led_on = false;  // keep track of state yourself, by default it's off
 
 bool led_on(JsonObject json_message) {
     if (!is_led_on) {
-        digitalWrite(LED_BUILTIN, LOW);
+        digitalWrite(LED_BUILTIN, HIGH);
         is_led_on = true;
         total_runs++;
     } else {
@@ -273,7 +256,7 @@ bool led_on(JsonObject json_message) {
 
 bool led_off(JsonObject json_message) {
     if (is_led_on) {
-        digitalWrite(LED_BUILTIN, HIGH);
+        digitalWrite(LED_BUILTIN, LOW);
         is_led_on = false;
         total_runs++;
     } else {

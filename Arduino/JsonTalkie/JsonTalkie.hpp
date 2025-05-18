@@ -595,6 +595,12 @@ private:
             }
         } else if (message_code == 8) {     // channel
             if (message.containsKey("b")) {
+
+                #ifdef JSONTALKIE_DEBUG
+                Serial.print(F("Channel B value is an <uint8_t>: "));
+                Serial.println(message["b"].is<uint8_t>());
+                #endif
+
                 if (message["b"].is<uint8_t>()) {
                     _channel = message["b"].as<uint8_t>();
                     return true;
