@@ -83,7 +83,10 @@ class CommandLine:
                         json_talkie.talk(message)
                         return
                 else:
-                    message = {"t": words[0]}
+                    try:
+                        message = {"t": int(words[0])}
+                    except ValueError:
+                        message = {"t": words[0]}
                     command_map = {
                         "talk": (0, 2),
                         "list": (1, 2),
