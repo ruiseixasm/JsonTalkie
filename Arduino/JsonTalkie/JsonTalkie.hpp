@@ -605,11 +605,10 @@ private:
                     _channel = message["b"].as<uint8_t>();
                     return true;
                 }
-            } else {
-                message["w"] = 8;
-                message["b"] = _channel;
-                return talk(message, true);
             }
+            message["w"] = 8;
+            message["b"] = _channel;
+            return talk(message, true);
         }
         return false;
     }
