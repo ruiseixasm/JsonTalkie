@@ -223,6 +223,13 @@ class JsonTalkie:
 
                 if "error" in self._manifesto:
                     self._manifesto["error"](message)
+            case 8:         # channel
+                if "b" in message and isinstance(message["b"], int):
+                    self._channel = message["b"]
+                message["m"] = 6
+                message["w"] = 8
+                message["b"] = self._channel
+                return self.talk(message)
             case _:
                 print("\tUnknown message!")
         return False
