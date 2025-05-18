@@ -90,14 +90,18 @@ class CommandLine:
                         "run": (2, 3),
                         "set": (3, 4),
                         "get": (4, 3),
-                        "sys": (5, 2)
+                        "sys": (5, 2),
+                        "channel": (8, 0)
                     }
                     
                     if words[1] in command_map:
                         code, expected_args = command_map[words[1]]
-                        if len(words) == expected_args:
+                        if len(words) == expected_args or expected_args == 0:
                             message["m"] = code
-                            if expected_args > 2:
+                            if code == 8:   # channel
+                                if len(words) == 3:
+                                    message["b"] = words[2]
+                            elif expected_args > 2:
                                 message["n"] = words[2]
                             if words[1] == "set":
                                 try:
