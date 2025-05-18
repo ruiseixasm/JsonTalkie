@@ -83,7 +83,7 @@ class CommandLine:
                         json_talkie.talk(message)
                         return
                 else:
-                    try:
+                    try:    # Try as channel first
                         message = {"t": int(words[0])}
                     except ValueError:
                         message = {"t": words[0]}
