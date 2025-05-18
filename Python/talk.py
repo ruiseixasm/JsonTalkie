@@ -121,6 +121,8 @@ class CommandLine:
         """Print command help"""
         print("\t[talk]\tPrints all devices' 'name' and description.")
         print("\t['device' list]\tList the entire 'device' manifesto.")
+        print("\t['device' channel]\tShows the Device channel.")
+        print("\t['device' channel n]\tSets the Device channel.")
         print("\t['device' run 'what']\tRuns the named function.")
         print("\t['device' set 'what']\tSets the named variable.")
         print("\t['device' get 'what']\tGets the named variable value.")
@@ -138,7 +140,7 @@ class CommandLine:
             if "w" in message:
                 what = {
                     0: "talk", 1: "list", 2: "run",
-                    3: "set", 4: "get", 5: "sys"
+                    3: "set", 4: "get", 5: "sys", 8: "channel"
                 }.get(message.get("w"), "echo")
                 parts.append(f" {what}")
                 
@@ -158,6 +160,8 @@ class CommandLine:
             value = ""
             if "v" in message:
                 value = str(message["v"])
+            elif "b" in message:
+                value = str(message["b"])
             elif "d" in message:
                 value = str(message["d"])
             elif "r" in message:
