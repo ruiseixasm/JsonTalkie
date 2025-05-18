@@ -603,7 +603,6 @@ private:
 
                 if (message["b"].is<uint8_t>()) {
                     _channel = message["b"].as<uint8_t>();
-                    return true;
                 }
             }
             message["w"] = 8;
