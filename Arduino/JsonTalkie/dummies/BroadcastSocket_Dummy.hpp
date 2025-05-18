@@ -43,14 +43,14 @@ private:
         return talk;
     }
 
-    bool valid_checksum(JsonObject message) {
+    bool valid_checksum(JsonObject message, char* buffer, size_t size) {
         // Use a static buffer size, large enough for your JSON
         uint16_t message_checksum = 0;
         if (message.containsKey("c")) {
             message_checksum = message["c"].as<uint16_t>();
         }
         message["c"] = 0;
-        size_t len = serializeJson(message, _buffer, _size);
+        size_t len = serializeJson(message, buffer, size);
 
         if (len == 0) {
             #ifdef BROADCAST_DUMMY_DEBUG
@@ -63,7 +63,7 @@ private:
         // DEBUG: Print buffer contents
         Serial.println("Buffer contents:");
         for (size_t i = 0; i < len; i++) {
-            Serial.print(_buffer[i], HEX);
+            Serial.print(buffer[i], HEX);
             Serial.print(" ");
         }
         Serial.println();
@@ -72,9 +72,9 @@ private:
         // 16-bit word and XORing
         uint16_t checksum = 0;
         for (size_t i = 0; i < len; i += 2) {
-            uint16_t chunk = _buffer[i] << 8;
+            uint16_t chunk = buffer[i] << 8;
             if (i + 1 < len) {
-                chunk |= _buffer[i + 1];
+                chunk |= buffer[i + 1];
             }
             checksum ^= chunk;
         }
@@ -107,7 +107,6 @@ public:
 
     
     size_t receive(char* buffer, size_t size) override {
-        initialize_buffer(buffer, size);
         if (millis() - _lastTime > 1000) {
             _lastTime = millis();
             if (random(1000) < 100) { // 10% chance
@@ -151,7 +150,7 @@ public:
                     return;
                 }
                 JsonObject message = message_doc.as<JsonObject>();
-                valid_checksum(message);
+                valid_checksum(message, buffer, size);
 
                 size_t message_len = serializeJson(message, buffer, size);
                 if (message_len == 0 || message_len >= size) {
