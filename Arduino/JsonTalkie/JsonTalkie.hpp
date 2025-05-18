@@ -29,6 +29,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 // Keys:
+//     b: byte number (channel)
 //     c: checksum
 //     d: description
 //     e: error code
@@ -51,6 +52,7 @@ https://github.com/ruiseixasm/JsonTalkie
 //     5 sys
 //     6 echo
 //     7 error
+//     8 channel
 
 // Echo codes (g):
 //     0 - ROGER
@@ -171,13 +173,12 @@ public:
     };
 
 
-
 private:
     // Configuration parameters
     BroadcastSocket* _socket = nullptr;
     Manifesto* _manifesto = nullptr;
 
-
+    uint8_t _channel = 0;
     // Compiler reports these static RAM allocation
     #if ARDUINO_JSON_VERSION == 6
     StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> _message_doc;
@@ -205,7 +206,6 @@ public:
     void unplug_socket() {
         _socket = nullptr;
     }
-
 
 
     bool talk(JsonObject message, bool as_reply = false) {
@@ -338,12 +338,26 @@ private:
         //     4 - Message NOT identified
         //     5 - Set command arrived too late
 
-        if (!(message["m"].as<int>() == 0 || message["m"].as<int>() == 5
-                || message.containsKey("t") && (message["t"] == _manifesto->device->name || message["t"] == "*"))) {
-            #ifdef JSONTALKIE_DEBUG
-            Serial.println(F("Message NOT for me!"));
-            #endif
-            return false;
+        if (!(message["m"].as<int>() == 0 || message["m"].as<int>() == 5 || message.containsKey("t") && message["t"] == "*")) {
+            if (!message.containsKey("t")) {
+                #ifdef JSONTALKIE_DEBUG
+                Serial.println(F("Message NOT for me!"));
+                #endif
+                return false;
+            }
+            if (message["t"].is<uint8_t>()) {
+                if (message["t"].as<uint8_t>() != _channel) {
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.println(F("Message NOT for me!"));
+                    #endif
+                    return false;
+                }
+            } else if (message["t"] != _manifesto->device->name) {
+                #ifdef JSONTALKIE_DEBUG
+                Serial.println(F("Message NOT for me!"));
+                #endif
+                return false;
+            }
         }
         if (!(message.containsKey("f") && message["f"].is<String>())) {
             #ifdef JSONTALKIE_DEBUG
@@ -569,6 +583,11 @@ private:
         } else if (message_code == 7) {     // error
             if (_manifesto->error != nullptr) {
                 _manifesto->error(message);
+                return true;
+            }
+        } else if (message_code == 8) {     // channel
+            if (message.containsKey("b") && message["b"].is<uint8_t>()) {
+                _channel = message["b"].as<uint8_t>();
                 return true;
             }
         }
