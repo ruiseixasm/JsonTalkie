@@ -461,7 +461,7 @@ private:
 
         int message_code = message["m"].as<int>(); // Throws on type mismatch
         message["t"] = message["f"];
-        message["m"] = 6;
+        message["m"] = 6;   // echo
         if (message_code == 0) {            // talk
             message["w"] = 0;
             message["d"] = _manifesto->device->desc;
@@ -594,9 +594,15 @@ private:
                 return true;
             }
         } else if (message_code == 8) {     // channel
-            if (message.containsKey("b") && message["b"].is<uint8_t>()) {
-                _channel = message["b"].as<uint8_t>();
-                return true;
+            if (message.containsKey("b")) {
+                if (message["b"].is<uint8_t>()) {
+                    _channel = message["b"].as<uint8_t>();
+                    return true;
+                }
+            } else {
+                message["w"] = 8;
+                message["b"] = _channel;
+                return talk(message, true);
             }
         }
         return false;
