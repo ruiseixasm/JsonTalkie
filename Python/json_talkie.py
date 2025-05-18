@@ -66,6 +66,7 @@ class JsonTalkie:
     def __init__(self, socket: BroadcastSocket, manifesto: Dict[str, Dict[str, Any]]):
         self._socket: BroadcastSocket = socket  # Composition over inheritance
         self._manifesto: Dict[str, Dict[str, Any]] = manifesto
+        self._channel: int = 0
         self._message_time: float = 0.0
         self._running: bool = False
         self._devices_address: Dict[str, Tuple[str, int]] = {}
@@ -226,6 +227,7 @@ class JsonTalkie:
                 print("\tUnknown message!")
         return False
 
+
     def validate_message(self, message: Dict[str, Any]) -> bool:
         if isinstance(message, dict) and "c" in message:
             try:
@@ -233,12 +235,24 @@ class JsonTalkie:
             except (ValueError, TypeError):
                 return False
             if JsonTalkie.valid_checksum(message):
-                if "m" in message and "f" in message and "i" in message:
-                    if "t" in message:
-                        return message["t"] == "*" or message["t"] == self._manifesto['talker']['name']
-                    else:
-                        return message["m"] == 0 or message["m"] == 5   # talk or sys
-        return False
+                if "m" not in message:
+                    return False
+                if not isinstance(message["m"], int):
+                    return False
+                if not ("f" in message and "i" in message):
+                    return False
+                if not (message["m"] == 0 or message["m"] == 5):
+                    if "t" not in message:
+                        return False
+                    if message["t"] != "*":
+                        if isinstance(message["t"], int):
+                            if message["t"] != self._channel:
+                                return False
+                        elif message["t"] != self._manifesto['talker']['name']:
+                            return False
+            else:
+                return False
+        return True
 
 
     @staticmethod
