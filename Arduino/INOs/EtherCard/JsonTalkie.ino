@@ -20,6 +20,9 @@ auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
 // auto& broadcast_socket = BroadcastSocket_Dummy::instance();
 
 
+#define ETHERNET_BUFFER_SIZE 256
+byte Ethernet::buffer[ETHERNET_BUFFER_SIZE];  // Ethernet buffer
+
 
 // Network settings
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};      // MAC address

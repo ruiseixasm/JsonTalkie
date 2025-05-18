@@ -11,61 +11,63 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#include "sockets/BroadcastSocket_EtherCard.hpp"
-// #include "dummies/BroadcastSocket_Dummy.hpp"
-#include "JsonTalkie.hpp"
-// #include "dummies/JsonTalkie_Dummy.hpp"
-
-auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
-// auto& broadcast_socket = BroadcastSocket_Dummy::instance();
+#include "sockets/BroadcastSocket_ENC.hpp"
+// #include "JsonTalkie.hpp"
+#include "dummies/JsonTalkie_Dummy.hpp"
 
 
+// // Linux testing commands:
+// echo "BROADCAST 255" | nc -ubv 255.255.255.255 5005
+// echo "BROADCAST 192" | nc -ubv 192.168.31.255 5005
+// echo "UNICAST" | nc -ubv 192.168.31.100 5005
 
-// Network settings
-byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};      // MAC address
-byte my_ip[] = {192, 168, 31, 100};                     // Arduino IP
-byte gw_ip[] = {192, 168, 31, 77};                      // IP of the main router, gateway
-byte dns_ip[] = {192, 168, 31, 77};                     // DNS address is the same as the gateway router
-byte mask[] = {255, 255, 255, 0};                       // NEEDED FOR NETWORK BROADCAST
-#define PORT 5005                                       // UDP port
 
+auto& broadcast_socket = BroadcastSocket_ENC::instance();
+
+// Configuration
+// #define USE_DHCP  // Comment out to use static IP
+
+// Network Settings
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+IPAddress ip(192, 168, 31, 101);       // Arduino IP
+IPAddress subnet(255, 255, 255, 0);   // Network mask
+IPAddress gateway(192, 168, 31, 77);    // Router IP (if needed)
+const unsigned int PORT = 5005;
+
+EthernetUDP udp;
 
 
 #ifdef JSON_TALKIE_DUMMY_HPP
 
-
 JsonTalkie_Dummy json_talkie;
-
-
 
 void setup() {
     // Serial is a singleton class (can be began multiple times)
     Serial.begin(9600);
     while (!Serial);
-    
     delay(2000);    // Just to give some time to Serial
 
-    // Saving string in PROGMEM (flash) to save RAM memory
-    Serial.println("\n\nOpening the Socket...");
-    
-    #if defined(BROADCAST_SOCKET_ETHERCARD_HPP)
-    // MAC and CS pin in constructor
-    // SS is a macro variable normally equal to 10
-    if (!ether.begin(ETHERNET_BUFFER_SIZE, mac, SS)) {
-        Serial.println("Failed to access ENC28J60");
-        while (1);
-    }
-    // Set static IP (disable DHCP)
-    if (!ether.staticSetup(my_ip, gw_ip, dns_ip, mask)) {
-        Serial.println("Failed to access ENC28J60");
-        while (1);
-    }
-    // Makes sure it allows broadcast
-    ether.enableBroadcast();
+    // Configure IP (static only when USE_DHCP is undefined)
+    #ifndef USE_DHCP
     #endif
 
-    // By default is already 5005
-    broadcast_socket.set_port(5005);
+    Serial.print("\n\nConnecting");
+
+    // Initialize Ethernet with static IP
+    Ethernet.begin(mac, ip, gateway, subnet);
+
+    // Start UDP
+    if (udp.begin(PORT)) {
+        Serial.print("\n\nUDP active on ");
+        Serial.println(Ethernet.localIP());
+    } else {
+        Serial.println("UDP failed!");
+    }
+    
+    Serial.println("\n\nOpening the Socket...");
+    
+    broadcast_socket.set_port(PORT);
+    broadcast_socket.set_udp(&udp);
 
 
     json_talkie.plug_socket(&broadcast_socket);
@@ -96,7 +98,7 @@ JsonTalkie json_talkie;
 
 // Define the commands (stored in RAM)
 JsonTalkie::Device device = {
-    "Nano", "I do a 500ms buzz!"
+    "Mega", "I do a 500ms buzz!"
 };
 
 bool buzz(JsonObject json_message);
@@ -150,25 +152,28 @@ void setup() {
     // Saving string in PROGMEM (flash) to save RAM memory
     Serial.println("\n\nOpening the Socket...");
     
-    #if defined(BROADCAST_SOCKET_ETHERCARD_HPP)
-    // MAC and CS pin in constructor
-    // SS is a macro variable normally equal to 10
-    if (!ether.begin(ETHERNET_BUFFER_SIZE, mac, SS)) {
-        Serial.println("Failed to access ENC28J60");
-        while (1);
-    }
-    // Set static IP (disable DHCP)
-    if (!ether.staticSetup(my_ip, gw_ip, dns_ip, mask)) {
-        Serial.println("Failed to access ENC28J60");
-        while (1);
-    }
-    // Makes sure it allows broadcast
-    ether.enableBroadcast();
+    // Configure IP (static only when USE_DHCP is undefined)
+    #ifndef USE_DHCP
     #endif
 
+    Serial.print("\n\nConnecting");
+    
+    // Initialize Ethernet with static IP
+    Ethernet.begin(mac, ip, gateway, subnet);
+
+    // Start UDP
+    if (udp.begin(PORT)) {
+        Serial.print("\n\nUDP active on ");
+        Serial.println(Ethernet.localIP());
+    } else {
+        Serial.println("UDP failed!");
+    }
+    
+    Serial.println("\n\nOpening the Socket...");
+    
     // By default is already 5005
     broadcast_socket.set_port(5005);
-
+    broadcast_socket.set_udp(&udp);
 
     json_talkie.set_manifesto(&manifesto);
     json_talkie.plug_socket(&broadcast_socket);

@@ -36,6 +36,7 @@
         "list": "cpp",
         "type_traits": "cpp",
         "array": "cpp",
-        "istream": "cpp"
+        "istream": "cpp",
+        "cstddef": "cpp"
     }
 }
