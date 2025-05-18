@@ -338,25 +338,33 @@ private:
         //     4 - Message NOT identified
         //     5 - Set command arrived too late
 
-        if (!(message["m"].as<int>() == 0 || message["m"].as<int>() == 5 || message.containsKey("t") && message["t"] == "*")) {
+        if (!(message.containsKey("m") && message["m"].is<int>())) {
+            #ifdef JSONTALKIE_DEBUG
+            Serial.println(F("Message \"m\" is NOT an integer!"));
+            #endif
+            return false;
+        }
+        if (!(message["m"].as<int>() == 0 || message["m"].as<int>() == 5)) {
             if (!message.containsKey("t")) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Message NOT for me!"));
                 #endif
                 return false;
             }
-            if (message["t"].is<uint8_t>()) {
-                if (message["t"].as<uint8_t>() != _channel) {
+            if (message["t"] != "*") {
+                if (message["t"].is<uint8_t>()) {
+                    if (message["t"].as<uint8_t>() != _channel) {
+                        #ifdef JSONTALKIE_DEBUG
+                        Serial.println(F("Message on different channel!"));
+                        #endif
+                        return false;
+                    }
+                } else if (message["t"] != _manifesto->device->name) {
                     #ifdef JSONTALKIE_DEBUG
                     Serial.println(F("Message NOT for me!"));
                     #endif
                     return false;
                 }
-            } else if (message["t"] != _manifesto->device->name) {
-                #ifdef JSONTALKIE_DEBUG
-                Serial.println(F("Message NOT for me!"));
-                #endif
-                return false;
             }
         }
         if (!(message.containsKey("f") && message["f"].is<String>())) {
