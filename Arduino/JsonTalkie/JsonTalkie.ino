@@ -11,7 +11,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#include "sockets/BroadcastSocket_ENC.hpp"
+#include "sockets/BroadcastSocket_UIP.hpp"
 // #include "JsonTalkie.hpp"
 #include "dummies/JsonTalkie_Dummy.hpp"
 
@@ -22,7 +22,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // echo "UNICAST" | nc -ubv 192.168.31.100 5005
 
 
-auto& broadcast_socket = BroadcastSocket_ENC::instance();
+auto& broadcast_socket = BroadcastSocket_UIP::instance();
 
 // Configuration
 // #define USE_DHCP  // Comment out to use static IP

@@ -11,33 +11,33 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#ifndef BROADCAST_SOCKET_ENC_HPP
-#define BROADCAST_SOCKET_ENC_HPP
+#ifndef BROADCAST_SOCKET_UIP_HPP
+#define BROADCAST_SOCKET_UIP_HPP
 
 #include "../BroadcastSocket.hpp"
 #include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
-#include <EthernetENC.h>
-#include <EthernetUdp.h>
+#include <UIPEthernet.h>
+#include <UIPUdp.h>  // If using UDP
 
 
-#define BROADCAST_ENC_DEBUG
+#define BROADCAST_UIP_DEBUG
 #define ENABLE_DIRECT_ADDRESSING
 
 
-class BroadcastSocket_ENC : public BroadcastSocket {
+class BroadcastSocket_UIP : public BroadcastSocket {
 private:
     IPAddress _source_ip;   // By default it's used the broadcast IP
     EthernetUDP* _udp = nullptr;
 
     // Private constructor for singleton
-    BroadcastSocket_ENC() {
+    BroadcastSocket_UIP() {
         _source_ip = IPAddress(255, 255, 255, 255);   // By default it's used the broadcast IP
     }
 
 public:
     // Singleton accessor
-    static BroadcastSocket_ENC& instance() {
-        static BroadcastSocket_ENC instance;
+    static BroadcastSocket_UIP& instance() {
+        static BroadcastSocket_UIP instance;
         return instance;
     }
 
@@ -49,14 +49,14 @@ public:
         
         #ifdef ENABLE_DIRECT_ADDRESSING
         if (!_udp->beginPacket(as_reply ? _source_ip : broadcastIP, _port)) {
-            #ifdef BROADCAST_ENC_DEBUG
+            #ifdef BROADCAST_UIP_DEBUG
             Serial.println(F("Failed to begin packet"));
             #endif
             return false;
         }
         #else
         if (!_udp->beginPacket(broadcastIP, _port)) {
-            #ifdef BROADCAST_ENC_DEBUG
+            #ifdef BROADCAST_UIP_DEBUG
             Serial.println(F("Failed to begin packet"));
             #endif
             return false;
@@ -66,13 +66,13 @@ public:
         size_t bytesSent = _udp->write(reinterpret_cast<const uint8_t*>(data), size);
 
         if (!_udp->endPacket()) {
-            #ifdef BROADCAST_ENC_DEBUG
+            #ifdef BROADCAST_UIP_DEBUG
             Serial.println(F("Failed to end packet"));
             #endif
             return false;
         }
 
-        #ifdef BROADCAST_ENC_DEBUG
+        #ifdef BROADCAST_UIP_DEBUG
         Serial.print(F("S: "));
         Serial.write(data, size);
         Serial.println();
@@ -87,13 +87,13 @@ public:
         // Receive packets
         int packetSize = _udp->parsePacket();
         if (packetSize > 0) {
-            int len = _udp->read(buffer, size - 1);
+            int len = _udp->read(buffer, min(packetSize, size - 1));
 
             if (len <= 0) return 0;  // Your requested check - handles all error cases
             buffer[len] = '\0';
             _source_ip = _udp->remoteIP();
             
-            #ifdef BROADCAST_ENC_DEBUG
+            #ifdef BROADCAST_UIP_DEBUG
             Serial.print(packetSize);
             Serial.print(F("B from "));
             Serial.print(_udp->remoteIP());
@@ -111,4 +111,4 @@ public:
 };
 
 
-#endif // BROADCAST_SOCKET_ENC_HPP
+#endif // BROADCAST_SOCKET_UIP_HPP
