@@ -26,8 +26,13 @@ https://github.com/ruiseixasm/JsonTalkie
 
 class BroadcastSocket_ENC : public BroadcastSocket {
 private:
-    static IPAddress _source_ip;
-    static EthernetUDP* _udp;
+    IPAddress _source_ip;   // By default it's used the broadcast IP
+    EthernetUDP* _udp = nullptr;
+
+    // Private constructor for singleton
+    BroadcastSocket_ENC() {
+        _source_ip = IPAddress(255, 255, 255, 255);   // By default it's used the broadcast IP
+    }
 
 public:
     // Singleton accessor
@@ -104,9 +109,6 @@ public:
 
     void set_udp(EthernetUDP* udp) { _udp = udp; }
 };
-
-IPAddress BroadcastSocket_ENC::_source_ip(0, 0, 0, 0);
-EthernetUDP* BroadcastSocket_ENC::_udp = nullptr;
 
 
 #endif // BROADCAST_SOCKET_ENC_HPP
