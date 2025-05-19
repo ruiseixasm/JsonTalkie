@@ -259,6 +259,8 @@ class JsonTalkie:
                             return False
             else:
                 return False
+        else:
+            return False
         return True
 
 
