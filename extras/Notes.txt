@@ -11,3 +11,12 @@ Path	Purpose	Example
 
 https://downloads.arduino.cc/libraries/github.com/ruiseixasm/JsonTalkie-1.1.1.zip
 
+Key Takeaway
+Arduino’s downloads.arduino.cc is a write-once, read-forever system. Your best leverage is to:
+
+Make old versions undesirable (via docs/warnings).
+
+Promote new versions aggressively.
+
+Need help crafting deprecation notices? I can draft templates!
+
