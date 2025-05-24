@@ -20,7 +20,10 @@ auto& broadcast_socket = BroadcastSocket_EtherCard::instance();
 // auto& broadcast_socket = BroadcastSocket_Dummy::instance();
 
 
-#define ETHERNET_BUFFER_SIZE 512
+// Adjust the Ethercard buffer size to the absolutely minimum needed
+// for the DHCP so that it works, but too much and the Json messages
+// become corrupted due to lack of memory in the Uno and Nano.
+#define ETHERNET_BUFFER_SIZE 350    // 256 or 300 and the DHCP won't work!
 byte Ethernet::buffer[ETHERNET_BUFFER_SIZE];  // Ethernet buffer
 
 
