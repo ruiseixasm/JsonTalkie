@@ -1,0 +1,42 @@
+{
+    "cSpell.words": [
+        "baudrate",
+        "DGRAM",
+        "ETHERCARD",
+        "JSONTALKIE",
+        "microcontrollers",
+        "REUSEADDR",
+        "simpleaudio",
+        "soundaudio",
+        "Walkie"
+    ],
+    "files.associations": {
+        "*.txt": "cmake",
+        "xlocale": "cpp",
+        "ostream": "cpp",
+        "xiosbase": "cpp",
+        "vector": "cpp",
+        "xstring": "cpp",
+        "xutility": "cpp",
+        "chrono": "cpp",
+        "limits": "cpp",
+        "utility": "cpp",
+        "system_error": "cpp",
+        "functional": "cpp",
+        "locale": "cpp",
+        "thread": "cpp",
+        "xlocmes": "cpp",
+        "xlocmon": "cpp",
+        "xlocnum": "cpp",
+        "xloctime": "cpp",
+        "xhash": "cpp",
+        "format": "cpp",
+        "forward_list": "cpp",
+        "initializer_list": "cpp",
+        "list": "cpp",
+        "type_traits": "cpp",
+        "array": "cpp",
+        "istream": "cpp",
+        "cstddef": "cpp"
+    }
+}
