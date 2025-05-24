@@ -1,0 +1,9 @@
+Arduino Libraries: https://downloads.arduino.cc/libraries/library_index.json
+
+1. Key Subdirectories & Files
+Path	Purpose	Example
+/libraries/	Pre-compiled library archives	github.com/ruiseixasm/JsonTalkie-1.0.0.zip
+/cores/	Core firmware for boards	arduino/avr/1.8.6/cores/arduino/
+/tools/	Compiler tools (avr-gcc, etc.)	avr-gcc/7.3.0-atmel3.6.1-arduino7/
+/packages/	Board manager packages	package_index.json
+/library_index.json	Master list of all libraries	Your JsonTalkie entries
