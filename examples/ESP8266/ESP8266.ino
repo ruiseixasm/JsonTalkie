@@ -15,9 +15,6 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <sockets/BroadcastSocket_ESP8266.hpp>
 
 
-// To upload a sketch to an ESP32 when the "......." appears, press the button BOOT for a while
-
-
 JsonTalkie json_talkie;
 auto& broadcast_socket = BroadcastSocket_ESP8266::instance();
 WiFiUDP udp;
