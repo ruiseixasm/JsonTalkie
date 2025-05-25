@@ -334,8 +334,8 @@ private:
             #ifdef JSONTALKIE_DEBUG
             Serial.println(0);
             #endif
-            message["m"] = 7;   // error
-            message["t"] = nullptr;  // Effectively removes the key (broadcasted to all)
+            message["m"] = 7;       // error
+            message.remove("t");    // removes the "to" key (broadcasted to all)
             message["e"] = 0;
             talk(message);
             return false;
