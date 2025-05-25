@@ -30,6 +30,7 @@ A lightweight library for Arduino communication and control using JSON messages 
 ## Python Command Line
 ### JsonTalkiePy repository with command line as Talker
    - Talker in [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy)
+   - Got the the page above for more details concerning its usage
 
 ### Typical usage
 ```bash
@@ -298,6 +299,7 @@ bool process_response(JsonObject json_message) {
 
 
 ## **User defined BroadcastSocket**
+### **How to include your own BroadcastSocket implementation**
 You can always implement your own Socket besides the ones given by the examples. To do so, you need to implement
 the `BroadcastSocket` abstract class (interface) with your own `BroadcastSocket_User` implementation.
 Then you can include it this way.
@@ -305,6 +307,16 @@ Then you can include it this way.
 #include <JsonTalkie.hpp>
 #include "BroadcastSocket_User.hpp"
 ```
+### **Using the JsonTalkie_Dummy for testing while developing**
+In order to be easier the development of your own `BroadcastSocket` file, you can use the Dummy version of the JsonTalkie,
+like this:
+```Arduino
+#include <dummies/JsonTalkie_Dummy.hpp>
+#include <ArduinoJson.h>    // Includes ArduinoJson Library NOT included in the Dummy file above
+#include "BroadcastSocket_User.hpp"
+```
+The `JsonTalkie_Dummy` periodically sends typical `JsonTalkie` messages as if it was the real deal.
+### **Example of a user defined BroadcastSocket file**
 Here is an example of such implementation that must be side-by-side with your `.ino` file.
 ```Arduino
 #ifndef BROADCAST_SOCKET_USER_HPP

@@ -19,7 +19,6 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <ArduinoJson.h>
 
 
-// Readjust if absolutely necessary
 #define BROADCAST_DUMMY_DEBUG
 
 
