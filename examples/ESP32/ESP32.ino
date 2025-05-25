@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <sockets/BroadcastSocket_ESP32.hpp>
 
 
-// To upload a sketch to an ESP32 when the "......." appears, press the button BOOT for a while
+// To upload a sketch to an ESP32, when the "......." appears press the button BOOT for a while
 
 
 JsonTalkie json_talkie;
