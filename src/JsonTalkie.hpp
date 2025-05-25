@@ -315,27 +315,19 @@ private:
             #endif
             return false;
         }
-        if (!(message["m"].as<int>() == 0 || message["m"].as<int>() == 5)) {
-            if (!message.containsKey("t")) {
+        if (message.containsKey("t") && message["t"] != "*") {
+            if (message["t"].is<uint8_t>()) {
+                if (message["t"].as<uint8_t>() != _channel) {
+                    #ifdef JSONTALKIE_DEBUG
+                    Serial.println(F("Message on different channel!"));
+                    #endif
+                    return false;
+                }
+            } else if (message["t"] != _manifesto->device->name) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Message NOT for me!"));
                 #endif
                 return false;
-            }
-            if (message["t"] != "*") {
-                if (message["t"].is<uint8_t>()) {
-                    if (message["t"].as<uint8_t>() != _channel) {
-                        #ifdef JSONTALKIE_DEBUG
-                        Serial.println(F("Message on different channel!"));
-                        #endif
-                        return false;
-                    }
-                } else if (message["t"] != _manifesto->device->name) {
-                    #ifdef JSONTALKIE_DEBUG
-                    Serial.println(F("Message NOT for me!"));
-                    #endif
-                    return false;
-                }
             }
         }
         if (!(message.containsKey("f") && message["f"].is<String>())) {
