@@ -315,7 +315,7 @@ private:
             #endif
             return false;
         }
-        if (message.containsKey("t") && message["t"] != "*") {
+        if (message.containsKey("t")) {
             if (message["t"].is<uint8_t>()) {
                 if (message["t"].as<uint8_t>() != _channel) {
                     #ifdef JSONTALKIE_DEBUG
@@ -335,8 +335,7 @@ private:
             Serial.println(0);
             #endif
             message["m"] = 7;   // error
-            message["t"] = "*";
-            message["f"] = _manifesto->device->name;
+            message["t"] = nullptr;  // Effectively removes the key (broadcasted to all)
             message["e"] = 0;
             talk(message);
             return false;
@@ -347,7 +346,6 @@ private:
             #endif
             message["m"] = 7;   // error
             message["t"] = message["f"];
-            message["f"] = _manifesto->device->name;
             message["e"] = 1;
             talk(message, true);
             return false;
@@ -358,7 +356,6 @@ private:
             #endif
             message["m"] = 7;   // error
             message["t"] = message["f"];
-            message["f"] = _manifesto->device->name;
             message["e"] = 2;
             talk(message, true);
             return false;
@@ -369,7 +366,6 @@ private:
             #endif
             message["m"] = 7;   // error
             message["t"] = message["f"];
-            message["f"] = _manifesto->device->name;
             message["e"] = 3;
             talk(message, true);
             return false;
@@ -380,7 +376,6 @@ private:
             #endif
             message["m"] = 7;   // error
             message["t"] = message["f"];
-            message["f"] = _manifesto->device->name;
             message["e"] = 4;
             talk(message, true);
             return false;
@@ -395,7 +390,6 @@ private:
                 #endif
                 message["m"] = 7;   // error
                 message["t"] = message["f"];
-                message["f"] = _manifesto->device->name;
                 message["e"] = 5;
                 talk(message, true);
                 return false;
