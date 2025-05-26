@@ -255,7 +255,7 @@ public:
                     _check_set_time = true;
                 }
 
-                process(message);
+                processMessage(message);
             }
         // In theory, a UDP packet on a local area network (LAN) could survive
         // for about 4.25 minutes (255 seconds).
@@ -403,7 +403,7 @@ private:
     }
     
 
-    bool process(JsonObject message) {
+    bool processMessage(JsonObject message) {
         if (_manifesto == nullptr || _manifesto->device == nullptr) return false;
         // Echo codes:
         //     0 - ROGER
