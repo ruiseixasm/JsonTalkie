@@ -105,11 +105,10 @@ void setup() {
     }
 
     Serial.println("\n\nOpening the Socket...");
-    
-    // By default is already 5005
-    broadcast_socket.set_port(5005);
+    broadcast_socket.set_port(5005);    // By default is already 5005
     broadcast_socket.set_udp(&udp);
 
+    Serial.println("Setting JsonTalkie...");
     json_talkie.set_manifesto(&manifesto);
     json_talkie.plug_socket(&broadcast_socket);
 
