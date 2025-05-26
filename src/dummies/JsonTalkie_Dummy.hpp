@@ -33,7 +33,6 @@ public:
     // Define JsonObject as void* given that ArduinoJson isn't included!
     typedef void* JsonObject;
 
-    #if defined(ESP8266) || defined(NO_PROGMEM)
     struct Device {
         const char* name;      // Name of the Device (Talker)
         const char* desc;      // Description of the Device
@@ -56,31 +55,6 @@ public:
         const char* desc;      // Description
         long (*function)(JsonObject);  // Function pointer (no args)
     };
-    #else
-    // Using PROGMEM to save strings in Flash memory instead of the RAM
-    struct Device {
-        const char* PROGMEM name;      // Name of the Device (Talker)
-        const char* PROGMEM desc;      // Description of the Device
-    };
-
-    struct Run {
-        const char* PROGMEM name;      // "buzz", "print", etc.
-        const char* PROGMEM desc;      // Description
-        bool (*function)(JsonObject);  // Function pointer (no args)
-    };
-
-    struct Set {
-        const char* PROGMEM name;      // "buzz", "print", etc.
-        const char* PROGMEM desc;      // Description
-        bool (*function)(JsonObject, long);  // Function pointer (long)
-    };
-
-    struct Get {
-        const char* PROGMEM name;      // "buzz", "print", etc.
-        const char* PROGMEM desc;      // Description
-        long (*function)(JsonObject);  // Function pointer (no args)
-    };
-    #endif
 
     // Manifesto Structure Definition
     struct Manifesto {
@@ -169,7 +143,7 @@ public:
                 
                 if (random(2) % 2 == 0) {
 
-                    const char direct_message_char[] = R"({"m":6,"f":"Dummy","t":"*","r":"Direct echo","i":3003412866,"c":10848})";
+                    const char direct_message_char[] = R"({"m":6,"f":"Dummy","r":"Direct echo","i":3003412866,"c":25184})";
                     
                     #ifdef JSONTALKIE_DEBUG
                     Serial.print("DUMMY TALKED: ");
@@ -179,7 +153,7 @@ public:
                     return _socket->send(direct_message_char, sizeof(direct_message_char) - 1, true);
                 }
 
-                const char broadcasted_message_char[] = R"({"m":6,"f":"Dummy","t":"*","r":"Broadcasted echo","i":3003412865,"c":3126})";
+                const char broadcasted_message_char[] = R"({"m":6,"f":"Dummy","r":"Broadcasted echo","i":3003412865,"c":17462})";
                 
                 #ifdef JSONTALKIE_DEBUG
                 Serial.print("DUMMY TALKED: ");

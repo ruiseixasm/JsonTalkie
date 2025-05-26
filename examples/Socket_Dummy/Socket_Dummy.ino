@@ -14,16 +14,12 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <JsonTalkie.hpp>
 #include <dummies/BroadcastSocket_Dummy.hpp>
 
+JsonTalkie json_talkie;
 auto& broadcast_socket = BroadcastSocket_Dummy::instance();
-
 
 
 // Network settings
 #define PORT 5005                                       // UDP port
-
-
-
-JsonTalkie json_talkie;
 
 
 // MANIFESTO DEFINITION
