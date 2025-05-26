@@ -290,8 +290,6 @@ private:
             }
             checksum ^= chunk;
         }
-        // Serial.print("Message checksum: ");
-        // Serial.println(checksum);  // optional: just to add a newline after the JSON
         message["c"] = checksum;
         return message_checksum == checksum;
     }
