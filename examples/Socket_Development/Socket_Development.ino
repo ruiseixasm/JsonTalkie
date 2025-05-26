@@ -18,6 +18,8 @@ https://github.com/ruiseixasm/JsonTalkie
 // Comment this one if you include your own above
 #include <dummies/BroadcastSocket_Dummy.hpp>
 
+// Got to the repository for more info in https://github.com/ruiseixasm/JsonTalkie
+
 JsonTalkie_Dummy json_talkie;
 auto& broadcast_socket = BroadcastSocket_Dummy::instance();
 
