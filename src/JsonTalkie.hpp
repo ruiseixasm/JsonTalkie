@@ -190,7 +190,7 @@ public:
                 message["i"] = generateMessageId();
             }
             message["f"] = _manifesto->device->name;
-            valid_checksum(message);
+            validateChecksum(message);
 
             size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
             if (len == 0) {
@@ -224,7 +224,6 @@ public:
             #endif
 
             // JsonDocument in the stack makes sure its memory is released (NOT GLOBAL)
-            // Compiler reports these static RAM allocation
             #if ARDUINOJSON_VERSION_MAJOR >= 7
             JsonDocument message_doc;
             #else
@@ -273,7 +272,7 @@ private:
     }
 
 
-    bool valid_checksum(JsonObject message) {
+    bool validateChecksum(JsonObject message) {
         // Use a static buffer size, large enough for your JSON
         uint16_t message_checksum = 0;
         if (message.containsKey("c")) {
@@ -351,7 +350,7 @@ private:
             talk(message, true);
             return false;
         }
-        if (!valid_checksum(message)) {
+        if (!validateChecksum(message)) {
             #ifdef JSONTALKIE_DEBUG
             Serial.println(2);
             #endif

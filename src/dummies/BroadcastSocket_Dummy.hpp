@@ -33,7 +33,7 @@ private:
         return talk;
     }
 
-    bool valid_checksum(JsonObject message, char* buffer, size_t size) {
+    bool validateChecksum(JsonObject message, char* buffer, size_t size) {
         // Use a static buffer size, large enough for your JSON
         uint16_t message_checksum = 0;
         if (message.containsKey("c")) {
@@ -142,7 +142,7 @@ public:
                     return;
                 }
                 JsonObject message = message_doc.as<JsonObject>();
-                valid_checksum(message, buffer, size);
+                validateChecksum(message, buffer, size);
 
                 size_t message_len = serializeJson(message, buffer, size);
                 if (message_len == 0 || message_len >= size) {
