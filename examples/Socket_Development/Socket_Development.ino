@@ -11,6 +11,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
+#include <BroadcastSocket.hpp>  //  It adds JsonTalkie/src/ to the include path, needed for dummies folder.
 #include <dummies/JsonTalkie_Dummy.hpp>
 // Replace this include with your own BroadcastSocket_User include
 // #include "BroadcastSocket_User.hpp"

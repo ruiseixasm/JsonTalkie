@@ -67,7 +67,7 @@ JsonTalkie::Manifesto manifesto(
 
 
 
-// Buzzer pin
+// Buzzer pin | PLEASE ADJUST IT FOR YOUR OWN LAYOUT
 #define buzzer_pin 3
 
 void setup() {
