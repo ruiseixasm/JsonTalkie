@@ -119,6 +119,7 @@ public:
                 
                 // 5. JSON Handling with Memory Checks
 
+                // JsonDocument in the stack makes sure its memory is released (NOT GLOBAL)
                 #if ARDUINOJSON_VERSION_MAJOR >= 7
                 JsonDocument message_doc;
                 if (message_doc.overflowed()) {

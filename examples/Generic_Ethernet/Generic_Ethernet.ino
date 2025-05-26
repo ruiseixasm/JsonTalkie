@@ -145,6 +145,7 @@ void loop() {
     static unsigned long lastSend = 0;
     if (millis() - lastSend > 39000) {
 
+        // AVOID GLOBAL JSONDOCUMENT VARIABLES, HIGH RISK OF MEMORY LEAKS
         #if ARDUINOJSON_VERSION_MAJOR >= 7
         JsonDocument message_doc;
         if (message_doc.overflowed()) {
