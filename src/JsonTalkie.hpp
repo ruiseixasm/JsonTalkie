@@ -150,12 +150,6 @@ private:
     Manifesto* _manifesto = nullptr;
 
     uint8_t _channel = 0;
-    // Compiler reports these static RAM allocation
-    #if ARDUINOJSON_VERSION_MAJOR >= 7
-    JsonDocument _message_doc;
-    #else
-    StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> _message_doc;
-    #endif
     char _buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
     uint32_t _sent_set_time[2] = {0};   // Keeps two time stamp
     String _set_name = "";              // Keeps the device name
@@ -229,16 +223,24 @@ public:
             Serial.println();            // Adds newline after the printed data
             #endif
 
-            DeserializationError error = deserializeJson(_message_doc, _buffer);
+            // JsonDocument in the stack makes sure its memory is released (NOT GLOBAL)
+            // Compiler reports these static RAM allocation
+            #if ARDUINOJSON_VERSION_MAJOR >= 7
+            JsonDocument message_doc;
+            #else
+            StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> message_doc;
+            #endif
+
+            DeserializationError error = deserializeJson(message_doc, _buffer);
             if (error) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Failed to deserialize buffer"));
                 #endif
                 return;
             }
-            JsonObject message = _message_doc.as<JsonObject>();
+            JsonObject message = message_doc.as<JsonObject>();
 
-            if (validateTalk(message)) {
+            if (validateMessage(message)) {
 
                 #ifdef JSONTALKIE_DEBUG
                 Serial.print(F("Listened: "));
@@ -295,7 +297,7 @@ private:
     }
 
 
-    bool validateTalk(JsonObject message) {
+    bool validateMessage(JsonObject message) {
         if (_manifesto == nullptr || _manifesto->device == nullptr) return false;
         #ifdef JSONTALKIE_DEBUG
         Serial.println(F("Validating..."));
@@ -334,7 +336,8 @@ private:
             #ifdef JSONTALKIE_DEBUG
             Serial.println(0);
             #endif
-            message["m"] = 7;       // error
+            message["m"] = 7;   // error
+            // JsonDocument was declared in the stack, not a global variable, so, no memory leak risk.
             message.remove("t");    // removes the "to" key (broadcasted to all)
             message["e"] = 0;
             talk(message);
