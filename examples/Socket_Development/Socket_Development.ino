@@ -12,6 +12,9 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
 #include <dummies/JsonTalkie_Dummy.hpp>
+// Replace this include with your own BroadcastSocket_User include
+// #include "BroadcastSocket_User.hpp"
+// Comment this one if you include your own above
 #include <dummies/BroadcastSocket_Dummy.hpp>
 
 JsonTalkie_Dummy json_talkie;
