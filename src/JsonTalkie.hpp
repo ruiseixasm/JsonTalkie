@@ -64,6 +64,29 @@ https://github.com/ruiseixasm/JsonTalkie
 //     4 - Message NOT identified
 //     5 - Set command arrived too late
 
+
+/**
+ * @class JsonTalkie
+ * @brief Uses a static shared buffer for temporary storage in sequential, single-threaded execution.
+ * 
+ * @details
+ * This class employs a STATIC SHARED BUFFER to minimize memory usage and avoid dynamic allocation.
+ * Designed for environments where:
+ * - Only **one thread/interrupt** accesses the buffer at a time (e.g., Arduino's `loop()`).
+ * - Calls are **non-reentrant** (no recursion/ISRs clobbering the buffer mid-operation).
+ * 
+ * @warning Usage constraints:
+ * - **Not thread-safe**: Do not share across threads/cores.
+ * - **Not reentrant**: If their _data_len is marked as 0.
+ * - **Buffer lifetime**: Data is valid only until the next method call if their _data_len is marked as 0..
+ * 
+ * @note Why use this design?
+ * 1. **Zero allocation overhead**: No heap/stack per-instance waste.
+ * 2. **Deterministic memory use**: Fixed size, no fragmentation.
+ * 3. **Optimized for single-threaded sequential use** (e.g., sensor processing pipelines).
+ */
+
+
 class JsonTalkie {
 public:
 
