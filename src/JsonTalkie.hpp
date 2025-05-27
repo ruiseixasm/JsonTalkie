@@ -257,7 +257,7 @@ public:
             StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> message_doc;
             #endif
 
-            DeserializationError error = deserializeJson(message_doc, _received_data);
+            DeserializationError error = deserializeJson(message_doc, _received_data, _data_len);
             if (error) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Failed to deserialize received data"));

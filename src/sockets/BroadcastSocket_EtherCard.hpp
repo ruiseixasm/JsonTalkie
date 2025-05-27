@@ -39,10 +39,9 @@ private:
         Serial.println();
         #endif
 
-        if (length < _size - 1) {
+        if (length <= _size) {
             memcpy(_source_ip, src_ip, 4);
             memcpy(_buffer, data, length);
-            _buffer[length] = '\0';
             _data_length = length;
         }
     }
