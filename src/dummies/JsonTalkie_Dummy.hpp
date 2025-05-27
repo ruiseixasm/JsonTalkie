@@ -167,7 +167,7 @@ public:
     }
 
 
-    void listen() {
+    void listen(bool receive = true) {
         if (_socket == nullptr) return;
         size_t len = _socket->receive(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);
         if (len > 0) {

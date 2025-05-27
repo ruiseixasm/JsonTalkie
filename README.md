@@ -78,8 +78,10 @@ Sets which socket to be used as BroadcastSocket.
 Removes any plugged socket.
 #### **`talk(JsonObject message, bool as_reply = false)`**
 Sends the message as a JsonObject to all existent devices or to a single device if `as_reply`.
-#### **`listen()`**
+#### **`listen(bool receive = true)`**
 This method processes received messages so it shall be called inside the `loop` function.
+In case you create more than one JsonTalkie object, only one listen should call receive, thus,
+all but one shall be `listen(false)` so that all can process the received data from the Socket.
 ### BroadcastSocket
 #### **`send(const char* data, size_t len, bool as_reply = false)`**
 Sends the `char` data to all devices or to a single device if `as_reply` over the protocol used by the socket (Ex. UDP).
