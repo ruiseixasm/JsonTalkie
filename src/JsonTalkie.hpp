@@ -67,13 +67,13 @@ https://github.com/ruiseixasm/JsonTalkie
 
 /**
  * @class JsonTalkie
- * @brief Uses a static shared buffer for temporary storage in sequential, single-threaded execution.
+ * @brief Uses a static shared _received_data for temporary storage in sequential, single-threaded execution.
  * 
  * @details
  * This class employs a STATIC SHARED BUFFER to minimize memory usage and avoid dynamic allocation.
  * Designed for environments where:
- * - Only **one thread/interrupt** accesses the buffer at a time (e.g., Arduino's `loop()`).
- * - Calls are **non-reentrant** (no recursion/ISRs clobbering the buffer mid-operation).
+ * - Only **one thread/interrupt** accesses the _received_data at a time (e.g., Arduino's `loop()`).
+ * - Calls are **non-reentrant** (no recursion/ISRs clobbering the _received_data mid-operation).
  * 
  * @warning Usage constraints:
  * - **Not thread-safe**: Do not share across threads/cores.
@@ -168,7 +168,7 @@ public:
 
 
 private:
-    // Shared buffer along all JsonTalkie instantiations
+    // Shared _received_data along all JsonTalkie instantiations
     static char _received_data[BROADCAST_SOCKET_BUFFER_SIZE];
     static size_t _data_len;
 
@@ -200,38 +200,39 @@ public:
 
     bool talk(JsonObject message, bool as_reply = false) {
         if (_socket == nullptr || _manifesto == nullptr || _manifesto->device == nullptr) return false;
-        // In order to release memory when done
-        {
-            // Directly nest the editable message under "m"
-            if (message.isNull()) {
-                #ifdef JSONTALKIE_DEBUG
-                Serial.println(F("Error: Null message received"));
-                #endif
-                return false;
-            }
+        
+        // Directly nest the editable message under "m"
+        if (message.isNull()) {
+            #ifdef JSONTALKIE_DEBUG
+            Serial.println(F("Error: Null message received"));
+            #endif
+            return false;
+        }
 
-            // Set default 'id' field if missing
-            if (!message.containsKey("i")) {
-                message["i"] = generateMessageId();
-            }
-            message["f"] = _manifesto->device->name;
-            validateChecksum(message);
+        // Set default 'id' field if missing
+        if (!message.containsKey("i")) {
+            message["i"] = generateMessageId();
+        }
+        message["f"] = _manifesto->device->name;
+        validateChecksum(message);
 
-            size_t len = serializeJson(message, _received_data, BROADCAST_SOCKET_BUFFER_SIZE);
-            if (len == 0) {
-                #ifdef JSONTALKIE_DEBUG
-                Serial.println(F("Error: Serialization failed"));
-                #endif
-            } else {
-                
-                #ifdef JSONTALKIE_DEBUG
-                Serial.print(F("T: "));
-                serializeJson(message, Serial);
-                Serial.println();  // optional: just to add a newline after the JSON
-                #endif
+        // Temporary buffer on the stack
+        // char buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
+        // size_t len = serializeJson(message, buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+        size_t len = serializeJson(message, _received_data, BROADCAST_SOCKET_BUFFER_SIZE);
+        if (len == 0) {
+            #ifdef JSONTALKIE_DEBUG
+            Serial.println(F("Error: Serialization failed"));
+            #endif
+        } else {
+            
+            #ifdef JSONTALKIE_DEBUG
+            Serial.print(F("T: "));
+            serializeJson(message, Serial);
+            Serial.println();  // optional: just to add a newline after the JSON
+            #endif
 
-                return _socket->send(_received_data, len, as_reply);
-            }
+            return _socket->send(_received_data, len, as_reply);
         }
         return false;
     }
@@ -239,14 +240,13 @@ public:
 
     void listen() {
         if (_socket == nullptr) return;
-        
-        static char buffer[BROADCAST_SOCKET_BUFFER_SIZE];
-        size_t len = _socket->receive(buffer, BROADCAST_SOCKET_BUFFER_SIZE);
-        if (len > 0) {
+        // Where the BroadcastSocket data is received
+        _data_len = _socket->receive(_received_data, BROADCAST_SOCKET_BUFFER_SIZE);
+        if (_data_len > 0) {
 
             #ifdef JSONTALKIE_DEBUG
             Serial.print(F("L: "));
-            Serial.write(buffer, len);  // Properly prints raw bytes as characters
+            Serial.write(_received_data, _data_len);  // Properly prints raw bytes as characters
             Serial.println();            // Adds newline after the printed data
             #endif
 
@@ -257,10 +257,10 @@ public:
             StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> message_doc;
             #endif
 
-            DeserializationError error = deserializeJson(message_doc, buffer);
+            DeserializationError error = deserializeJson(message_doc, _received_data);
             if (error) {
                 #ifdef JSONTALKIE_DEBUG
-                Serial.println(F("Failed to deserialize buffer"));
+                Serial.println(F("Failed to deserialize received data"));
                 #endif
                 return;
             }
@@ -300,12 +300,16 @@ private:
 
 
     bool validateChecksum(JsonObject message) {
-        // Use a static buffer size, large enough for your JSON
+        
         uint16_t message_checksum = 0;
         if (message.containsKey("c")) {
             message_checksum = message["c"].as<uint16_t>();
         }
         message["c"] = 0;
+        
+        // Temporary buffer on the stack
+        // char buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
+        // size_t len = serializeJson(message, buffer, BROADCAST_SOCKET_BUFFER_SIZE);
         size_t len = serializeJson(message, _received_data, BROADCAST_SOCKET_BUFFER_SIZE);
         // 16-bit word and XORing
         uint16_t checksum = 0;
