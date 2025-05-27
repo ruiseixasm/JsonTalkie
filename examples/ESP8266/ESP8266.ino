@@ -15,7 +15,8 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <sockets/BroadcastSocket_ESP8266.hpp>
 
 
-JsonTalkie json_talkie;
+JsonTalkie json_talkie_1;
+JsonTalkie json_talkie_2;
 auto& broadcast_socket = BroadcastSocket_ESP8266::instance();
 WiFiUDP udp;
 
@@ -31,15 +32,20 @@ const char password[] = "wifiPassword";
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-JsonTalkie::Device device = {
-    "ESP66", "I do a 500ms buzz!"
+JsonTalkie::Device device_1 = {
+    "ESP66_1", "I do a 500ms buzz!"
+};
+JsonTalkie::Device device_2 = {
+    "ESP66_2", "I do a 500ms buzz!"
 };
 
 bool buzz(JsonObject json_message);
 bool led_on(JsonObject json_message);
 bool led_off(JsonObject json_message);
-JsonTalkie::Run runCommands[] = {
-    {"buzz", "Triggers buzzing", buzz},
+JsonTalkie::Run runCommands_1[] = {
+    {"buzz", "Triggers buzzing", buzz}
+};
+JsonTalkie::Run runCommands_2[] = {
     {"on", "Turns led On", led_on},
     {"off", "Turns led Off", led_off}
 };
@@ -61,9 +67,17 @@ bool process_response(JsonObject json_message);
 
 // MANIFESTO DECLARATION
 
-JsonTalkie::Manifesto manifesto(
-    &device,
-    runCommands, sizeof(runCommands)/sizeof(JsonTalkie::Run),
+JsonTalkie::Manifesto manifesto_1(
+    &device_1,
+    runCommands, sizeof(runCommands_1)/sizeof(JsonTalkie::Run),
+    setCommands, sizeof(setCommands)/sizeof(JsonTalkie::Set),
+    getCommands, sizeof(getCommands)/sizeof(JsonTalkie::Get),
+    process_response, nullptr
+);
+
+JsonTalkie::Manifesto manifesto_2(
+    &device_2,
+    runCommands, sizeof(runCommands_2)/sizeof(JsonTalkie::Run),
     setCommands, sizeof(setCommands)/sizeof(JsonTalkie::Set),
     getCommands, sizeof(getCommands)/sizeof(JsonTalkie::Get),
     process_response, nullptr
@@ -108,9 +122,11 @@ void setup() {
     broadcast_socket.set_port(5005);    // By default is already 5005
     broadcast_socket.set_udp(&udp);
 
-    Serial.println("Setting JsonTalkie...");
-    json_talkie.set_manifesto(&manifesto);
-    json_talkie.plug_socket(&broadcast_socket);
+    Serial.println("Setting JsonTalkie devices...");
+    json_talkie_1.set_manifesto(&manifesto_1);
+    json_talkie_1.plug_socket(&broadcast_socket);
+    json_talkie_2.set_manifesto(&manifesto_2);
+    json_talkie_2.plug_socket(&broadcast_socket);
 
 
     Serial.println("Talker ready");
@@ -128,7 +144,8 @@ void setup() {
 }
 
 void loop() {
-    json_talkie.listen();
+    json_talkie_1.listen();
+    json_talkie_2.listen(false);    // Doesn't call socket receive, processes previous receive instead!
 
     static unsigned long lastSend = 0;
     if (millis() - lastSend > 39000) {
@@ -141,7 +158,7 @@ void loop() {
         } else {
             JsonObject message = message_doc.to<JsonObject>();
             message["m"] = 0;   // talk
-            json_talkie.talk(message);
+            json_talkie_1.talk(message);
         }
         #else
         StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> message_doc;
@@ -150,7 +167,7 @@ void loop() {
         } else {
             JsonObject message = message_doc.to<JsonObject>();
             message["m"] = 0;   // talk
-            json_talkie.talk(message);
+            json_talkie_1.talk(message);
         }
         #endif
         
@@ -170,6 +187,8 @@ bool buzz(JsonObject json_message) {
     digitalWrite(buzzer_pin, HIGH);
     #endif
     total_runs++;
+    json_message["r"] = "Buzzed!";
+    json_talkie_1.talk(json_message);
     return true;
 }
 
@@ -183,7 +202,7 @@ bool led_on(JsonObject json_message) {
         total_runs++;
     } else {
         json_message["r"] = "Already On!";
-        json_talkie.talk(json_message);
+        json_talkie_2.talk(json_message);
         return false;
     }
     return true;
@@ -196,7 +215,7 @@ bool led_off(JsonObject json_message) {
         total_runs++;
     } else {
         json_message["r"] = "Already Off!";
-        json_talkie.talk(json_message);
+        json_talkie_2.talk(json_message);
         return false;
     }
     return true;
