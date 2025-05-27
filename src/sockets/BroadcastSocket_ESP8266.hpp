@@ -80,25 +80,30 @@ public:
     size_t receive(char* buffer, size_t size) override {
         if (_udp == nullptr) return 0;
         // Receive packets
-        static bool unclosed = false;
         int packetSize = _udp->parsePacket();
         if (packetSize > 0) {
             int len = _udp->read(buffer, size);
             if (len <= 0) return 0;  // Your requested check - handles all error cases
-            _source_ip = _udp->remoteIP();
-            // size_t json_open_at = 0;
-            // for (; json_open_at < len; json_open_at++)
-            //     if (buffer[json_open_at] == '{') break;
-            // if (json_open_at == len) return 0;
-            // // Offsets the data
-            // size_t json_close_at = json_open_at + 1;
-            // for (; json_close_at < len; json_close_at++)
-            //     if (buffer[json_close_at] == '}') break;
-            // if (json_close_at == len) return 0;
+            
+            // Find the first '{' (start of JSON)
+            size_t json_start = 0;
+            while (json_start < static_cast<size_t>(len) && buffer[json_start] != '{') {
+                json_start++;
+            }
 
+            // If no '{', discard
+            if (json_start == static_cast<size_t>(len)) {
+                return 0;
+            }
 
+            // Shift JSON to start of buffer (if needed)
+            if (json_start > 0) {
+                // Copies "numBytes" bytes from address "from" to address "to"
+                // void * memmove(void *to, const void *from, size_t numBytes);
+                memmove(buffer, buffer + json_start, len - json_start);  // Safer than manual loop
+                len -= json_start;  // Update valid length
+            }
 
-            // buffer[len] = '\0';
 
             #ifdef BROADCAST_ESP8266_DEBUG
             Serial.print(packetSize);
@@ -109,7 +114,8 @@ public:
             Serial.print(F(" -> "));
             Serial.println(buffer);
             #endif
-
+            
+            _source_ip = _udp->remoteIP();
             return static_cast<size_t>(len);  // Safe cast (len >0 verified), so, the right size of the read package
         }
         return 0;   // nothing received
