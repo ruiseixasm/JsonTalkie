@@ -82,7 +82,7 @@ public:
         // Receive packets
         int packetSize = _udp->parsePacket();
         if (packetSize > 0) {
-            int len = _udp->read(buffer, size);
+            int len = _udp->read(buffer, min(static_cast<size_t>(packetSize), size));
             if (len <= 0) return 0;  // Your requested check - handles all error cases
             
             // Find the first '{' (start of JSON)
@@ -96,14 +96,23 @@ public:
                 return 0;
             }
 
-            // Shift JSON to start of buffer (if needed)
+            // Find the first '}' (finish of JSON)
+            size_t json_finish = static_cast<size_t>(len) - 1;  // json_start and json_finish are indexes, NOT sizes
+            while (json_finish > json_start && buffer[json_finish] != '}') {
+                json_finish--;
+            }
+
+            // If no '}', discard
+            if (json_finish == json_start) {
+                return 0;
+            }
+
+            // Shift JSON to start of buffer if needed
             if (json_start > 0) {
                 // Copies "numBytes" bytes from address "from" to address "to"
                 // void * memmove(void *to, const void *from, size_t numBytes);
-                memmove(buffer, buffer + json_start, len - json_start);  // Safer than manual loop
-                len -= json_start;  // Update valid length
+                memmove(buffer, buffer + json_start, json_finish - json_start + 1);
             }
-
 
             #ifdef BROADCAST_ESP8266_DEBUG
             Serial.print(packetSize);
@@ -116,7 +125,8 @@ public:
             #endif
             
             _source_ip = _udp->remoteIP();
-            return static_cast<size_t>(len);  // Safe cast (len >0 verified), so, the right size of the read package
+            // Return actual JSON length (including both braces)
+            return json_finish - json_start + 1;
         }
         return 0;   // nothing received
     }
