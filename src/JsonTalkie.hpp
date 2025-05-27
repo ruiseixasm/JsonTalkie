@@ -329,7 +329,7 @@ private:
         #endif
         
         // Error types:
-        //     0 - Unknown sender
+        //     0 - Unknown sender   // Removed, useless kind of error report that results in UDP flooding
         //     1 - Message missing the checksum
         //     2 - Message corrupted
         //     3 - Wrong message code
@@ -361,11 +361,6 @@ private:
             #ifdef JSONTALKIE_DEBUG
             Serial.println(0);
             #endif
-            message["m"] = 7;   // error
-            // JsonDocument was declared in the stack, not a global variable, so, no memory leak risk.
-            message.remove("t");    // removes the "to" key (broadcasted to all)
-            message["e"] = 0;
-            talk(message);
             return false;
         }
         if (!(message.containsKey("c") && message["c"].is<uint16_t>())) {
