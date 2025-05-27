@@ -36,7 +36,7 @@ JsonTalkie::Device device_1 = {
     "ESP66_1", "I do a 500ms buzz!"
 };
 JsonTalkie::Device device_2 = {
-    "ESP66_2", "I do a 500ms buzz!"
+    "ESP66_2", "I turn light On and Off!"
 };
 
 bool buzz(JsonObject json_message);
@@ -69,7 +69,7 @@ bool process_response(JsonObject json_message);
 
 JsonTalkie::Manifesto manifesto_1(
     &device_1,
-    runCommands, sizeof(runCommands_1)/sizeof(JsonTalkie::Run),
+    runCommands_1, sizeof(runCommands_1)/sizeof(JsonTalkie::Run),
     setCommands, sizeof(setCommands)/sizeof(JsonTalkie::Set),
     getCommands, sizeof(getCommands)/sizeof(JsonTalkie::Get),
     process_response, nullptr
@@ -77,7 +77,7 @@ JsonTalkie::Manifesto manifesto_1(
 
 JsonTalkie::Manifesto manifesto_2(
     &device_2,
-    runCommands, sizeof(runCommands_2)/sizeof(JsonTalkie::Run),
+    runCommands_2, sizeof(runCommands_2)/sizeof(JsonTalkie::Run),
     setCommands, sizeof(setCommands)/sizeof(JsonTalkie::Set),
     getCommands, sizeof(getCommands)/sizeof(JsonTalkie::Get),
     process_response, nullptr
