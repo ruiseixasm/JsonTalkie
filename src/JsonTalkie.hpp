@@ -169,7 +169,7 @@ public:
 
 private:
     // Shared buffer along all JsonTalkie instantiations
-    static char _buffer[BROADCAST_SOCKET_BUFFER_SIZE];
+    static char _received_data[BROADCAST_SOCKET_BUFFER_SIZE];
     static size_t _data_len;
 
     // Configuration parameters
@@ -217,7 +217,7 @@ public:
             message["f"] = _manifesto->device->name;
             validateChecksum(message);
 
-            size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+            size_t len = serializeJson(message, _received_data, BROADCAST_SOCKET_BUFFER_SIZE);
             if (len == 0) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Error: Serialization failed"));
@@ -230,7 +230,7 @@ public:
                 Serial.println();  // optional: just to add a newline after the JSON
                 #endif
 
-                return _socket->send(_buffer, len, as_reply);
+                return _socket->send(_received_data, len, as_reply);
             }
         }
         return false;
@@ -239,12 +239,14 @@ public:
 
     void listen() {
         if (_socket == nullptr) return;
-        size_t len = _socket->receive(_buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+        
+        static char buffer[BROADCAST_SOCKET_BUFFER_SIZE];
+        size_t len = _socket->receive(buffer, BROADCAST_SOCKET_BUFFER_SIZE);
         if (len > 0) {
 
             #ifdef JSONTALKIE_DEBUG
             Serial.print(F("L: "));
-            Serial.write(_buffer, len);  // Properly prints raw bytes as characters
+            Serial.write(buffer, len);  // Properly prints raw bytes as characters
             Serial.println();            // Adds newline after the printed data
             #endif
 
@@ -255,7 +257,7 @@ public:
             StaticJsonDocument<BROADCAST_SOCKET_BUFFER_SIZE> message_doc;
             #endif
 
-            DeserializationError error = deserializeJson(message_doc, _buffer);
+            DeserializationError error = deserializeJson(message_doc, buffer);
             if (error) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Failed to deserialize buffer"));
@@ -304,13 +306,13 @@ private:
             message_checksum = message["c"].as<uint16_t>();
         }
         message["c"] = 0;
-        size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+        size_t len = serializeJson(message, _received_data, BROADCAST_SOCKET_BUFFER_SIZE);
         // 16-bit word and XORing
         uint16_t checksum = 0;
         for (size_t i = 0; i < len; i += 2) {
-            uint16_t chunk = _buffer[i] << 8;
+            uint16_t chunk = _received_data[i] << 8;
             if (i + 1 < len) {
-                chunk |= _buffer[i + 1];
+                chunk |= _received_data[i + 1];
             }
             checksum ^= chunk;
         }
@@ -595,7 +597,7 @@ private:
     }
 };
 
-char JsonTalkie::_buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
+char JsonTalkie::_received_data[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
 size_t JsonTalkie::_data_len = 0;
 
 #endif
