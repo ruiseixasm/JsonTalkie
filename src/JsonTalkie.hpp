@@ -217,9 +217,9 @@ public:
         validateChecksum(message);
 
         // Temporary buffer on the stack
-        // char buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
-        // size_t len = serializeJson(message, buffer, BROADCAST_SOCKET_BUFFER_SIZE);
-        size_t len = serializeJson(message, _received_data, BROADCAST_SOCKET_BUFFER_SIZE);
+        char buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
+        size_t len = serializeJson(message, buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+        // size_t len = serializeJson(message, _received_data, BROADCAST_SOCKET_BUFFER_SIZE);
         if (len == 0) {
             #ifdef JSONTALKIE_DEBUG
             Serial.println(F("Error: Serialization failed"));
@@ -232,7 +232,7 @@ public:
             Serial.println();  // optional: just to add a newline after the JSON
             #endif
 
-            return _socket->send(_received_data, len, as_reply);
+            return _socket->send(buffer, len, as_reply);
         }
         return false;
     }
