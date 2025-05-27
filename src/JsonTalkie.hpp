@@ -67,18 +67,18 @@ https://github.com/ruiseixasm/JsonTalkie
 
 /**
  * @class JsonTalkie
- * @brief Uses a static shared _received_data for temporary storage in sequential, single-threaded execution.
+ * @brief Uses a static shared buffer for temporary storage in sequential, single-threaded execution.
  * 
  * @details
  * This class employs a STATIC SHARED BUFFER to minimize memory usage and avoid dynamic allocation.
  * Designed for environments where:
- * - Only **one thread/interrupt** accesses the _received_data at a time (e.g., Arduino's `loop()`).
- * - Calls are **non-reentrant** (no recursion/ISRs clobbering the _received_data mid-operation).
+ * - Only **one thread/interrupt** accesses the buffer at a time (e.g., Arduino's `loop()`).
+ * - Calls are **non-reentrant** (no recursion/ISRs clobbering the buffer mid-operation).
  * 
  * @warning Usage constraints:
  * - **Not thread-safe**: Do not share across threads/cores.
- * - **Not reentrant**: If their _data_len is marked as 0.
- * - **Buffer lifetime**: Data is valid only until the next method call if their _data_len is marked as 0..
+ * - **Not reentrant**: Unsafe if methods call each other recursively or from interrupts.
+ * - **Buffer lifetime**: Data is valid only until the next method call (no persistence).
  * 
  * @note Why use this design?
  * 1. **Zero allocation overhead**: No heap/stack per-instance waste.
@@ -171,6 +171,8 @@ private:
     // Shared _received_data along all JsonTalkie instantiations
     static char _received_data[BROADCAST_SOCKET_BUFFER_SIZE];
     static size_t _data_len;
+    // Shared processing data buffer Not reentrant, received data unaffected
+    static char _buffer[BROADCAST_SOCKET_BUFFER_SIZE];
 
     // Configuration parameters
     BroadcastSocket* _socket = nullptr;
@@ -216,10 +218,7 @@ public:
         message["f"] = _manifesto->device->name;
         validateChecksum(message);
 
-        // Temporary buffer on the stack
-        char buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
-        size_t len = serializeJson(message, buffer, BROADCAST_SOCKET_BUFFER_SIZE);
-        // size_t len = serializeJson(message, _received_data, BROADCAST_SOCKET_BUFFER_SIZE);
+        size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
         if (len == 0) {
             #ifdef JSONTALKIE_DEBUG
             Serial.println(F("Error: Serialization failed"));
@@ -232,17 +231,18 @@ public:
             Serial.println();  // optional: just to add a newline after the JSON
             #endif
 
-            return _socket->send(buffer, len, as_reply);
+            return _socket->send(_buffer, len, as_reply);
         }
         return false;
     }
 
 
-    void listen() {
+    void listen(bool receive = true) {
         if (_socket == nullptr) return;
         // Where the BroadcastSocket data is received
-        _data_len = _socket->receive(_received_data, BROADCAST_SOCKET_BUFFER_SIZE);
-        if (_data_len > 0) {
+        if (receive)
+            _data_len = _socket->receive(_received_data, BROADCAST_SOCKET_BUFFER_SIZE);
+        if (_data_len > 0) {    // Shared data length among multiple instantiations of JsonTalkie
 
             #ifdef JSONTALKIE_DEBUG
             Serial.print(F("L: "));
@@ -307,16 +307,13 @@ private:
         }
         message["c"] = 0;
         
-        // Temporary buffer on the stack
-        // char buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
-        // size_t len = serializeJson(message, buffer, BROADCAST_SOCKET_BUFFER_SIZE);
-        size_t len = serializeJson(message, _received_data, BROADCAST_SOCKET_BUFFER_SIZE);
+        size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
         // 16-bit word and XORing
         uint16_t checksum = 0;
         for (size_t i = 0; i < len; i += 2) {
-            uint16_t chunk = _received_data[i] << 8;
+            uint16_t chunk = _buffer[i] << 8;
             if (i + 1 < len) {
-                chunk |= _received_data[i + 1];
+                chunk |= _buffer[i + 1];
             }
             checksum ^= chunk;
         }
@@ -603,5 +600,7 @@ private:
 
 char JsonTalkie::_received_data[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
 size_t JsonTalkie::_data_len = 0;
+char JsonTalkie::_buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
+
 
 #endif
