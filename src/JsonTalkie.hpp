@@ -168,12 +168,14 @@ public:
 
 
 private:
+    // Shared buffer along all JsonTalkie instantiations
+    static char _buffer[BROADCAST_SOCKET_BUFFER_SIZE];
+    static size_t _data_len;
+
     // Configuration parameters
     BroadcastSocket* _socket = nullptr;
     Manifesto* _manifesto = nullptr;
-
     uint8_t _channel = 0;
-    char _buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
     uint32_t _sent_set_time[2] = {0};   // Keeps two time stamp
     String _set_name = "";              // Keeps the device name
     bool _check_set_time = false;
@@ -592,5 +594,8 @@ private:
         return false;
     }
 };
+
+char JsonTalkie::_buffer[BROADCAST_SOCKET_BUFFER_SIZE] = {'\0'};
+size_t JsonTalkie::_data_len = 0;
 
 #endif
