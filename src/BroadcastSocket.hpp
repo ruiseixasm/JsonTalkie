@@ -35,7 +35,7 @@ protected:
             
             #ifdef BROADCASTSOCKET_DEBUG
             if (json_start == 0)
-                Serial.println("Json LEFT strip");
+                Serial.println(F("Json LEFT strip"));
             #endif
             
             json_start++;
@@ -45,7 +45,7 @@ protected:
         if (json_start == length) {
 
             #ifdef BROADCASTSOCKET_DEBUG
-            Serial.println("Json '{' NOT found");
+            Serial.println(F("Json '{' NOT found"));
             #endif
             
             return 0;
@@ -57,7 +57,7 @@ protected:
 
             #ifdef BROADCASTSOCKET_DEBUG
             if (json_finish == length - 1)
-                Serial.println("Json RIGHT strip");
+                Serial.println(F("Json RIGHT strip"));
             #endif
             
             json_finish--;
@@ -67,7 +67,7 @@ protected:
         if (json_finish == json_start) {
             
             #ifdef BROADCASTSOCKET_DEBUG
-            Serial.println("Json '}' NOT found");
+            Serial.println(F("Json '}' NOT found"));
             #endif
             
             return 0;
