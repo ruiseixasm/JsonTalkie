@@ -23,6 +23,41 @@ protected:
     BroadcastSocket() = default;
     virtual ~BroadcastSocket() = default;
 
+    static size_t jsonStrip(char* buffer, size_t length) {
+
+        // Find the first '{' (start of JSON)
+        size_t json_start = 0;
+        while (json_start < length && buffer[json_start] != '{') {
+            json_start++;
+        }
+
+        // If no '{', discard
+        if (json_start == length) {
+            return 0;
+        }
+
+        // Find the first '}' (finish of JSON)
+        size_t json_finish = length - 1;  // json_start and json_finish are indexes, NOT sizes
+        while (json_finish > json_start && buffer[json_finish] != '}') {
+            json_finish--;
+        }
+
+        // If no '}', discard
+        if (json_finish == json_start) {
+            return 0;
+        }
+
+        // Shift JSON to start of buffer if needed
+        if (json_start > 0) {
+            // Copies "numBytes" bytes from address "from" to address "to"
+            // void * memmove(void *to, const void *from, size_t numBytes);
+            memmove(buffer, buffer + json_start, json_finish - json_start + 1);
+        }
+
+        // Return actual JSON length (including both braces)
+        return json_finish - json_start + 1;
+    }
+
 public:
     // Delete copy/move operations
     BroadcastSocket(const BroadcastSocket&) = delete;

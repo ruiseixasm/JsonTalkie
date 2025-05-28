@@ -41,38 +41,8 @@ private:
 
         if (length <= _size) {
             memcpy(_buffer, data, length);
-
-            // Find the first '{' (start of JSON)
-            size_t json_start = 0;
-            while (json_start < static_cast<size_t>(length) && _buffer[json_start] != '{') {
-                json_start++;
-            }
-
-            // If no '{', discard
-            if (json_start == static_cast<size_t>(length)) {
-                return;
-            }
-
-            // Find the first '}' (finish of JSON)
-            size_t json_finish = static_cast<size_t>(length) - 1;  // json_start and json_finish are indexes, NOT sizes
-            while (json_finish > json_start && _buffer[json_finish] != '}') {
-                json_finish--;
-            }
-
-            // If no '}', discard
-            if (json_finish == json_start) {
-                return;
-            }
-
-            // Shift JSON to start of _buffer if needed
-            if (json_start > 0) {
-                // Copies "numBytes" bytes from address "from" to address "to"
-                // void * memmove(void *to, const void *from, size_t numBytes);
-                memmove(_buffer, _buffer + json_start, json_finish - json_start + 1);
-            }
-
             memcpy(_source_ip, src_ip, 4);
-            _data_length = json_finish - json_start + 1;
+            _data_length = jsonStrip(_buffer, static_cast<size_t>(length));
         }
     }
 
