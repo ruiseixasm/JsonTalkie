@@ -52,14 +52,14 @@ JsonTalkie::Run runCommands[] = {
 
 bool set_duration(JsonObject json_message, long duration);
 JsonTalkie::Set setCommands[] = {
-    // {"duration", "Sets duration", set_duration}
+    {"duration", "Sets duration", set_duration}
 };
 
 long get_total_runs(JsonObject json_message);
 long get_duration(JsonObject json_message);
 JsonTalkie::Get getCommands[] = {
     {"total_runs", "Gets the total number of runs", get_total_runs}
-    // {"duration", "Gets duration", get_duration}
+    {"duration", "Gets duration", get_duration}
 };
 
 bool process_response(JsonObject json_message);

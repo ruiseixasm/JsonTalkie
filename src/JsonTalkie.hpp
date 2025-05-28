@@ -492,13 +492,12 @@ private:
                 const Set* set = _manifesto->get_set(message["n"]);
                 if (set == nullptr) {
                     message["g"] = 1;   // UNKNOWN
-                } else {
-                    message["g"] = 0;   // ROGER
+                    talk(message, true);
+                    return false;
                 }
+                message["g"] = 0;       // ROGER
                 talk(message, true);
-                if (set != nullptr) {
-                    set->function(message, message["v"].as<long>());
-                }
+                set->function(message, message["v"].as<long>());
                 return true;
             }
         } else if (message_code == 4) {     // get
