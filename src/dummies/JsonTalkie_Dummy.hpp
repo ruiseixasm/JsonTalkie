@@ -15,8 +15,6 @@ https://github.com/ruiseixasm/JsonTalkie
 #define JSON_TALKIE_DUMMY_HPP
 
 #include "../BroadcastSocket.hpp"
-#include <Arduino.h>
-
 
 
 // Readjust if absolutely necessary

@@ -15,7 +15,6 @@ https://github.com/ruiseixasm/JsonTalkie
 #define BROADCAST_SOCKET_DUMMY_HPP
 
 #include "../BroadcastSocket.hpp"
-#include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
 #include <ArduinoJson.h>
 
 
