@@ -325,74 +325,19 @@ Here is an example of such implementation that must be side-by-side with your `.
 #define BROADCAST_SOCKET_USER_HPP
 
 #include <BroadcastSocket.hpp>
-#include <ArduinoJson.h>
+#include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
+#include <Ethernet.h>
+#include <EthernetUdp.h>
 
 
-// Readjust if absolutely necessary
-#define BROADCAST_USER_DEBUG
+// #define BROADCAST_USER_DEBUG
+#define ENABLE_DIRECT_ADDRESSING
 
 
 class BroadcastSocket_User : public BroadcastSocket {
 private:
-    static unsigned long _lastTime;
-
-    // BroadcastSocket_User() {
-    //     Serial.println(F("[WARNING] Using Dummy Socket Implementation"));
-    //     Serial.println(F("[WARNING] No Ethernet library or custom socket defined"));
-    //     Serial.println(F("[WARNING] All network operations will be no-ops"));
-    // }
-
-    // Helper function to safely create char* from buffer
-    static char* decode(const uint8_t* data, const size_t length, char* talk) {
-        memcpy(talk, data, length);
-        talk[length] = '\0';
-        return talk;
-    }
-
-    bool valid_checksum(JsonObject message, char* buffer, size_t size) {
-        // Use a static buffer size, large enough for your JSON
-        uint16_t message_checksum = 0;
-        if (message.containsKey("c")) {
-            message_checksum = message["c"].as<uint16_t>();
-        }
-        message["c"] = 0;
-        size_t len = serializeJson(message, buffer, size);
-
-        if (len == 0) {
-            #ifdef BROADCAST_USER_DEBUG
-            Serial.println("ERROR: Checksum serialization failed!");
-            #endif
-            return false;
-        }
-
-        #ifdef BROADCAST_USER_DEBUG
-        // DEBUG: Print buffer contents
-        Serial.println("Buffer contents:");
-        for (size_t i = 0; i < len; i++) {
-            Serial.print(buffer[i], HEX);
-            Serial.print(" ");
-        }
-        Serial.println();
-        #endif
-
-        // 16-bit word and XORing
-        uint16_t checksum = 0;
-        for (size_t i = 0; i < len; i += 2) {
-            uint16_t chunk = buffer[i] << 8;
-            if (i + 1 < len) {
-                chunk |= buffer[i + 1];
-            }
-            checksum ^= chunk;
-        }
-
-        #ifdef BROADCAST_USER_DEBUG
-        Serial.print("Message checksum: ");
-        Serial.println(checksum);  // optional: just to add a newline after the JSON
-        #endif
-
-        message["c"] = checksum;
-        return message_checksum == checksum;
-    }
+    static IPAddress _source_ip;
+    static EthernetUDP* _udp;
 
 public:
     // Singleton accessor
@@ -401,76 +346,77 @@ public:
         return instance;
     }
 
+    
+    bool send(const char* data, size_t size, bool as_reply = false) override {
+        if (_udp == nullptr) return false;
 
-    bool send(const char* data, size_t len, bool as_reply = false) override {
-        #ifdef BROADCAST_USER_DEBUG
-        Serial.print(F("DUMMY SENT: "));
-        char talk[len + 1];
-        Serial.println(decode(data, len, talk));
+        IPAddress broadcastIP(255, 255, 255, 255);
+        
+        #ifdef ENABLE_DIRECT_ADDRESSING
+        if (!_udp->beginPacket(as_reply ? _source_ip : broadcastIP, _port)) {
+            #ifdef BROADCAST_USER_DEBUG
+            Serial.println(F("Failed to begin packet"));
+            #endif
+            return false;
+        }
+        #else
+        if (!_udp->beginPacket(broadcastIP, _port)) {
+            #ifdef BROADCAST_USER_DEBUG
+            Serial.println(F("Failed to begin packet"));
+            #endif
+            return false;
+        }
         #endif
+
+        size_t bytesSent = _udp->write(reinterpret_cast<const uint8_t*>(data), size);
+
+        if (!_udp->endPacket()) {
+            #ifdef BROADCAST_USER_DEBUG
+            Serial.println(F("Failed to end packet"));
+            #endif
+            return false;
+        }
+
+        #ifdef BROADCAST_USER_DEBUG
+        Serial.print(F("S: "));
+        Serial.write(data, size);
+        Serial.println();
+        #endif
+
         return true;
     }
 
-    
+
     size_t receive(char* buffer, size_t size) override {
-        if (millis() - _lastTime > 1000) {
-            _lastTime = millis();
-            if (random(1000) < 100) { // 10% chance
-                // 2. Message Selection
-                // ALWAYS VALIDATE THE MESSAGES FOR BAD FORMATING !!
-                const char* PROGMEM messages[] = {
-                    R"({"m":0,"f":"Dummy","i":3003412860})",
-                    R"({"m":2,"f":"Dummy","t":"Buzzer","n":"buzz","i":3003412861})",
-                    R"({"m":2,"f":"Dummy","t":"Buzzer","n":"on","i":3003412862})",
-                    R"({"m":2,"f":"Dummy","t":"Buzzer","n":"off","i":3003412863})",
-                    R"({"m":6,"f":"Dummy","t":"*","r":"Dummy echo","i":3003412864})",
-                    R"({"m":6,"f":"Dummy","t":"*","r":"Broadcasted echo","i":3003412865})",
-                    R"({"m":6,"f":"Dummy","t":"*","r":"Direct echo","i":3003412866})"
-                };
-                const size_t num_messages = sizeof(messages)/sizeof(char*);
-                
-                // 3. Safer Random Selection
-                const char* message_char = messages[random(num_messages)];
-                size_t message_size = strlen(message_char);
-                
-                // 5. JSON Handling with Memory Checks
-
-                JsonDocument message_doc;
-                if (message_doc.overflowed()) {
-                    Serial.println(F("Failed to allocate JSON message_doc"));
-                    return;
-                }
-                
-                // Message needs to be '\0' terminated and thus buffer is used instead
-                // it's possible to serialize from a JsonObject but it isn't to deserialize into a JsonObject!
-                DeserializationError error = deserializeJson(message_doc, message_char, message_size);
-                if (error) {
-                    Serial.println(F("Failed to deserialize message"));
-                    return;
-                }
-                JsonObject message = message_doc.as<JsonObject>();
-                valid_checksum(message, buffer, size);
-
-                size_t message_len = serializeJson(message, buffer, size);
-                if (message_len == 0 || message_len >= size) {
-                    Serial.println(F("Serialization failed/buffer overflow"));
-                    return;
-                }
-
-                #ifdef BROADCAST_USER_DEBUG
-                Serial.print("DUMMY RECEIVED: ");
-                serializeJson(message, Serial);
-                Serial.println();  // optional: just to add a newline after the JSON
-                #endif
-
-                return message_len;
-            }
+        if (_udp == nullptr) return 0;
+        // Receive packets
+        int packetSize = _udp->parsePacket();
+        if (packetSize > 0) {
+            int length = _udp->read(buffer, min(static_cast<size_t>(packetSize), size));
+            if (length <= 0) return 0;  // Your requested check - handles all error cases
+            
+            #ifdef BROADCAST_USER_DEBUG
+            Serial.print(packetSize);
+            Serial.print(F("B from "));
+            Serial.print(_udp->remoteIP());
+            Serial.print(F(":"));
+            Serial.print(_udp->remotePort());
+            Serial.print(F(" -> "));
+            Serial.println(buffer);
+            #endif
+            
+            _source_ip = _udp->remoteIP();
+            return jsonStrip(buffer, static_cast<size_t>(length));
         }
-        return 0;
+        return 0;   // nothing received
     }
+
+    void set_udp(EthernetUDP* udp) { _udp = udp; }
 };
 
-static unsigned long BroadcastSocket_User::_lastTime = 0;
+IPAddress BroadcastSocket_User::_source_ip(0, 0, 0, 0);
+EthernetUDP* BroadcastSocket_User::_udp = nullptr;
+
 
 #endif // BROADCAST_SOCKET_USER_HPP
 ```
