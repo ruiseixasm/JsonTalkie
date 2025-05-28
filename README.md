@@ -319,7 +319,7 @@ like this:
 ```
 The `JsonTalkie_Dummy` periodically sends typical `JsonTalkie` messages as if it was the real deal.
 ### **Example of a user defined BroadcastSocket file**
-Here is an example of such implementation that must be side-by-side with your `.ino` file.
+Here is an example of such implementation for `BroadcastSocket_User.hpp` that must be side-by-side with your `.ino` file.
 ```Arduino
 #ifndef BROADCAST_SOCKET_USER_HPP
 #define BROADCAST_SOCKET_USER_HPP
