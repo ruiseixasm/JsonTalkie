@@ -325,7 +325,6 @@ Here is an example of such implementation for `BroadcastSocket_User.hpp` that mu
 #define BROADCAST_SOCKET_USER_HPP
 
 #include <BroadcastSocket.hpp>
-#include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
 #include <Ethernet.h>
 #include <EthernetUdp.h>
 

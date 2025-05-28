@@ -14,6 +14,10 @@ https://github.com/ruiseixasm/JsonTalkie
 #ifndef BROADCAST_SOCKET_HPP
 #define BROADCAST_SOCKET_HPP
 
+#include <Arduino.h>    // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
+
+
+#define BROADCASTSOCKET_DEBUG
 
 class BroadcastSocket {
 protected:
@@ -28,22 +32,44 @@ protected:
         // Find the first '{' (start of JSON)
         size_t json_start = 0;
         while (buffer[json_start] != '{' && json_start < length) {
+            
+            #ifdef BROADCASTSOCKET_DEBUG
+            if (json_start == 0)
+                Serial.println("Json LEFT strip");
+            #endif
+            
             json_start++;
         }
 
         // If no '{', discard
         if (json_start == length) {
+
+            #ifdef BROADCASTSOCKET_DEBUG
+            Serial.println("Json '{' NOT found");
+            #endif
+            
             return 0;
         }
 
         // Find the first '}' (finish of JSON)
         size_t json_finish = length - 1;  // json_start and json_finish are indexes, NOT sizes
         while (buffer[json_finish] != '}' && json_finish > json_start) {
+
+            #ifdef BROADCASTSOCKET_DEBUG
+            if (json_finish == length - 1)
+                Serial.println("Json RIGHT strip");
+            #endif
+            
             json_finish--;
         }
 
         // If no '}', discard
         if (json_finish == json_start) {
+            
+            #ifdef BROADCASTSOCKET_DEBUG
+            Serial.println("Json '}' NOT found");
+            #endif
+            
             return 0;
         }
 
