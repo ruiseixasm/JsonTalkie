@@ -58,7 +58,7 @@ JsonTalkie::Set setCommands[] = {
 long get_total_runs(JsonObject json_message);
 long get_duration(JsonObject json_message);
 JsonTalkie::Get getCommands[] = {
-    {"total_runs", "Gets the total number of runs", get_total_runs}
+    {"total_runs", "Gets the total number of runs", get_total_runs},
     {"duration", "Gets duration", get_duration}
 };
 
