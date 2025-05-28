@@ -82,11 +82,8 @@ public:
         // Receive packets
         int packetSize = _udp->parsePacket();
         if (packetSize > 0) {
-            int len = _udp->read(buffer, size - 1);
-
-            if (len <= 0) return 0;  // Your requested check - handles all error cases
-            buffer[len] = '\0';
-            _source_ip = _udp->remoteIP();
+            int length = _udp->read(buffer, min(static_cast<size_t>(packetSize), size));
+            if (length <= 0) return 0;  // Your requested check - handles all error cases
             
             #ifdef BROADCAST_ETHERNET_DEBUG
             Serial.print(packetSize);
@@ -97,7 +94,9 @@ public:
             Serial.print(F(" -> "));
             Serial.println(buffer);
             #endif
-            return static_cast<size_t>(len);  // Safe cast (len >0 verified), so, the right size of the read package
+            
+            _source_ip = _udp->remoteIP();
+            return jsonStrip(buffer, static_cast<size_t>(length));
         }
         return 0;   // nothing received
     }

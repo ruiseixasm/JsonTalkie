@@ -27,7 +27,7 @@ protected:
 
         // Find the first '{' (start of JSON)
         size_t json_start = 0;
-        while (json_start < length && buffer[json_start] != '{') {
+        while (buffer[json_start] != '{' && json_start < length) {
             json_start++;
         }
 
@@ -38,7 +38,7 @@ protected:
 
         // Find the first '}' (finish of JSON)
         size_t json_finish = length - 1;  // json_start and json_finish are indexes, NOT sizes
-        while (json_finish > json_start && buffer[json_finish] != '}') {
+        while (buffer[json_finish] != '}' && json_finish > json_start) {
             json_finish--;
         }
 
