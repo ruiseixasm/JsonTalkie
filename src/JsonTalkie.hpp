@@ -483,6 +483,8 @@ private:
                 }
                 message["g"] = 0;       // ROGER
                 talk(message, true);
+                // No memory leaks because message_doc exists in the listen() method stack
+                message.remove("g");
                 run->function(message);
                 return true;
             }
@@ -497,6 +499,8 @@ private:
                 }
                 message["g"] = 0;       // ROGER
                 talk(message, true);
+                // No memory leaks because message_doc exists in the listen() method stack
+                message.remove("g");
                 set->function(message, message["v"].as<long>());
                 return true;
             }
@@ -507,10 +511,14 @@ private:
                 const Get* get = _manifesto->get_get(message["n"]);
                 if (get == nullptr) {
                     message["g"] = 1;   // UNKNOWN
-                } else {
-                    message["g"] = 0;   // ROGER
-                    message["v"] = get->function(message);
+                    talk(message, true);
+                    return false;
                 }
+                message["g"] = 0;       // ROGER
+                talk(message, true);
+                // No memory leaks because message_doc exists in the listen() method stack
+                message.remove("g");
+                message["v"] = get->function(message);
                 return talk(message, true);
             }
         } else if (message_code == 5) {     // sys

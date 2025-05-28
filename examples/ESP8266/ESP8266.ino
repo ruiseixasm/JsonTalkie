@@ -33,7 +33,7 @@ const char password[] = "wifiPassword";
 
 // Define the commands (stored in RAM)
 JsonTalkie::Device device_1 = {
-    "ESP66_1", "I do a 500ms buzz!"
+    "ESP66_1", "I do a 500ms buzz for a given duration!"
 };
 JsonTalkie::Device device_2 = {
     "ESP66_2", "I turn light On and Off!"
@@ -52,14 +52,17 @@ JsonTalkie::Run runCommands_2[] = {
 
 bool set_duration(JsonObject json_message, long duration);
 JsonTalkie::Set setCommands[] = {
-    // {"duration", "Sets duration", set_duration}
+    {"duration", "Sets duration", set_duration}
 };
 
 long get_total_runs(JsonObject json_message);
 long get_duration(JsonObject json_message);
-JsonTalkie::Get getCommands[] = {
+JsonTalkie::Get getCommands_1[] = {
+    {"total_runs", "Gets the total number of runs", get_total_runs},
+    {"duration", "Gets duration", get_duration}
+};
+JsonTalkie::Get getCommands_2[] = {
     {"total_runs", "Gets the total number of runs", get_total_runs}
-    // {"duration", "Gets duration", get_duration}
 };
 
 bool process_response(JsonObject json_message);
@@ -71,15 +74,15 @@ JsonTalkie::Manifesto manifesto_1(
     &device_1,
     runCommands_1, sizeof(runCommands_1)/sizeof(JsonTalkie::Run),
     setCommands, sizeof(setCommands)/sizeof(JsonTalkie::Set),
-    getCommands, sizeof(getCommands)/sizeof(JsonTalkie::Get),
+    getCommands_1, sizeof(getCommands_1)/sizeof(JsonTalkie::Get),
     process_response, nullptr
 );
 
 JsonTalkie::Manifesto manifesto_2(
     &device_2,
     runCommands_2, sizeof(runCommands_2)/sizeof(JsonTalkie::Run),
-    setCommands, sizeof(setCommands)/sizeof(JsonTalkie::Set),
-    getCommands, sizeof(getCommands)/sizeof(JsonTalkie::Get),
+    nullptr, 0,
+    getCommands_2, sizeof(getCommands_2)/sizeof(JsonTalkie::Get),
     process_response, nullptr
 );
 
