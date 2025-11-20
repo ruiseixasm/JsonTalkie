@@ -225,9 +225,9 @@ long get_total_runs(JsonObject json_message) {
 bool process_response(JsonObject json_message) {
     Serial.print(json_message["f"].as<String>());
     Serial.print(" - ");
-    if (json_message.containsKey("r")) {
+    if (json_message["r"].is<String>()) {
         Serial.println(json_message["r"].as<String>());
-    } else if (json_message.containsKey("d")) {
+    } else if (json_message["d"].is<String>()) {
         Serial.println(json_message["d"].as<String>());
     } else {
         Serial.println("Empty echo received!");
