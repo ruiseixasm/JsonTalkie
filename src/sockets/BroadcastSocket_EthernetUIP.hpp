@@ -23,20 +23,20 @@ https://github.com/ruiseixasm/JsonTalkie
 #define ENABLE_DIRECT_ADDRESSING
 
 
-class BroadcastSocket_UIP : public BroadcastSocket {
+class BroadcastSocket_EthernetUIP : public BroadcastSocket {
 private:
     IPAddress _source_ip;   // By default it's used the broadcast IP
     EthernetUDP* _udp = nullptr;
 
     // Private constructor for singleton
-    BroadcastSocket_UIP() {
+    BroadcastSocket_EthernetUIP() {
         _source_ip = IPAddress(255, 255, 255, 255);   // By default it's used the broadcast IP
     }
 
 public:
     // Singleton accessor
-    static BroadcastSocket_UIP& instance() {
-        static BroadcastSocket_UIP instance;
+    static BroadcastSocket_EthernetUIP& instance() {
+        static BroadcastSocket_EthernetUIP instance;
         return instance;
     }
 
@@ -63,6 +63,7 @@ public:
         #endif
 
         size_t bytesSent = _udp->write(reinterpret_cast<const uint8_t*>(data), size);
+        (void)bytesSent; // Silence unused variable warning
 
         if (!_udp->endPacket()) {
             #ifdef BROADCAST_UIP_DEBUG
