@@ -25,7 +25,7 @@ auto& broadcast_socket = BroadcastSocket_Dummy::instance();
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-JsonTalkie::Device device = {
+JsonTalkie::Talker device = {
     "Nano", "I do a 500ms buzz!"
 };
 

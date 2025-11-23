@@ -35,7 +35,7 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};      // MAC address
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-JsonTalkie::Device device = {
+JsonTalkie::Talker device = {
     "Nano", "I do a 500ms buzz!"
 };
 

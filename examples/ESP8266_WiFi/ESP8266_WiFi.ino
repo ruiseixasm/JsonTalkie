@@ -32,10 +32,10 @@ const char password[] = "wifiPassword";
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-JsonTalkie::Device device_1 = {
+JsonTalkie::Talker device_1 = {
     "ESP66_1", "I do a 500ms buzz for a given duration!"
 };
-JsonTalkie::Device device_2 = {
+JsonTalkie::Talker device_2 = {
     "ESP66_2", "I turn light On and Off!"
 };
 

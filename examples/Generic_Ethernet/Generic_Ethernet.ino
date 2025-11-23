@@ -42,7 +42,7 @@ JsonTalkie json_talkie;
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-JsonTalkie::Device device = {
+JsonTalkie::Talker device = {
     "Mega", "I do a 500ms buzz!"
 };
 

@@ -37,7 +37,7 @@ const int LED_BUILTIN = 2;  // Most ESP32 boards have onboard LED at GPIO2
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-JsonTalkie::Device device = {
+JsonTalkie::Talker device = {
     "ESP32", "I do a 500ms buzz!"
 };
 

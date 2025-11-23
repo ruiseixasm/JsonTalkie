@@ -48,7 +48,7 @@ JsonTalkie json_talkie;
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-JsonTalkie::Device device = {
+JsonTalkie::Talker device = {
     "ESP32", "I turn my blue light on and off!"
 };
 
