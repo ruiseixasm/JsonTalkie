@@ -50,12 +50,12 @@ rui@acer:~/GitHub/JsonTalkie/Python$ python3.13 talk.py
 	[Nano run buzz]      	ROGER
 >>> help
 	[talk]                  Prints all devices' 'name' and description.
-	['device' list]         List the entire 'device' manifesto.
-	['device' channel]      Shows the Device channel.
-	['device' channel n]    Sets the Device channel.
-	['device' run 'what']   Runs the named function.
-	['device' set 'what']   Sets the named variable.
-	['device' get 'what']   Gets the named variable value.
+	['talker' list]         List the entire 'talker' manifesto.
+	['talker' channel]      Shows the Device channel.
+	['talker' channel n]    Sets the Device channel.
+	['talker' run 'what']   Runs the named function.
+	['talker' set 'what']   Sets the named variable.
+	['talker' get 'what']   Gets the named variable value.
 	[sys]                   Prints the platform of the Device.
 	[port]                  Gets the Broadcast Socket port.
 	[port n]                Sets the Broadcast Socket port.
@@ -77,14 +77,14 @@ Sets which socket to be used as BroadcastSocket.
 #### **`unplug_socket(BroadcastSocket* socket)`**
 Removes any plugged socket.
 #### **`talk(JsonObject message, bool as_reply = false)`**
-Sends the message as a JsonObject to all existent devices or to a single device if `as_reply`.
+Sends the message as a JsonObject to all existent devices or to a single talker if `as_reply`.
 #### **`listen(bool receive = true)`**
 This method processes received messages so it shall be called inside the `loop` function.
 In case you create more than one JsonTalkie object, only one listen should call receive, thus,
 all but one shall be `listen(false)` so that all can process the received data from the Socket.
 ### BroadcastSocket
 #### **`send(const char* data, size_t len, bool as_reply = false)`**
-Sends the `char` data to all devices or to a single device if `as_reply` over the protocol used by the socket (Ex. UDP).
+Sends the `char` data to all devices or to a single talker if `as_reply` over the protocol used by the socket (Ex. UDP).
 #### **`receive(char* buffer, size_t size)`**
 Receives data from the socket, this method is called by the JsonTalkie `listen()` method, so, it doesn't need to be called.
 #### **`set_port(uint16_t port)`**
@@ -113,7 +113,7 @@ const unsigned int PORT = 5005;
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-JsonTalkie::Device device = {
+JsonTalkie::Talker talker = {
     "Mega", "I do a 500ms buzz!"
 };
 
@@ -144,7 +144,7 @@ bool process_response(JsonObject json_message);
 // MANIFESTO DECLARATION
 
 JsonTalkie::Manifesto manifesto(
-    &device,
+    &talker,
     runCommands, sizeof(runCommands)/sizeof(JsonTalkie::Run),
     setCommands, sizeof(setCommands)/sizeof(JsonTalkie::Set),
     getCommands, sizeof(getCommands)/sizeof(JsonTalkie::Get),

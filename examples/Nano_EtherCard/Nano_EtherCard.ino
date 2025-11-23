@@ -35,7 +35,7 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};      // MAC address
 // MANIFESTO DEFINITION
 
 // Define the commands (stored in RAM)
-JsonTalkie::Talker device = {
+JsonTalkie::Talker talker = {
     "Nano", "I do a 500ms buzz!"
 };
 
@@ -66,7 +66,7 @@ bool process_response(JsonObject json_message);
 // MANIFESTO DECLARATION
 
 JsonTalkie::Manifesto manifesto(
-    &device,
+    &talker,
     runCommands, sizeof(runCommands)/sizeof(JsonTalkie::Run),
     setCommands, sizeof(setCommands)/sizeof(JsonTalkie::Set),
     getCommands, sizeof(getCommands)/sizeof(JsonTalkie::Get),

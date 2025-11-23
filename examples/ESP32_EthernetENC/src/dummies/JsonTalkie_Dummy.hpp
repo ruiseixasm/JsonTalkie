@@ -57,7 +57,7 @@ public:
     // Manifesto Structure Definition
     struct Manifesto {
 
-        Device* device = nullptr;
+        Device* talker = nullptr;
         Run* runCommands = nullptr;
         size_t runSize = 0;
         Set* setCommands = nullptr;
@@ -98,7 +98,7 @@ public:
         //    so it's not considered an aggregate, and therefore cannot be initialized using a brace-enclosed list like this.
         Manifesto(Device* d, Run* r, size_t rsz, Set* s, size_t ssz, 
                 Get* g, size_t gsz, bool (*e)(JsonObject), bool (*err)(JsonObject))
-            : device(d),
+            : talker(d),
             runCommands(r), runSize(rsz),
             setCommands(s), setSize(ssz),
             getCommands(g), getSize(gsz),
