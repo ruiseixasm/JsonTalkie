@@ -105,9 +105,9 @@ public:
 
     // JSONTALKIE DEFINITIONS
 
-    struct Device {
-        const char* name;      // Name of the Device (Talker)
-        const char* desc;      // Description of the Device
+    struct Talker {
+        const char* name;      // Name of the Talker
+        const char* desc;      // Description of the Talker
     };
 
     struct Run {
@@ -131,7 +131,7 @@ public:
     // Manifesto Structure Definition
     struct Manifesto {
 
-        Device* device = nullptr;
+        Talker* talker = nullptr;
         Run* runCommands = nullptr;
         size_t runSize = 0;
         Set* setCommands = nullptr;
@@ -170,9 +170,9 @@ public:
 
         // Add this constructor, because Manifesto struct has methods,
         //    so it's not considered an aggregate, and therefore cannot be initialized using a brace-enclosed list like this.
-        Manifesto(Device* d, Run* r, size_t rsz, Set* s, size_t ssz, 
+        Manifesto(Talker* d, Run* r, size_t rsz, Set* s, size_t ssz, 
                 Get* g, size_t gsz, bool (*e)(JsonObject), bool (*err)(JsonObject))
-            : device(d),
+            : talker(d),
             runCommands(r), runSize(rsz),
             setCommands(s), setSize(ssz),
             getCommands(g), getSize(gsz),
@@ -192,7 +192,7 @@ private:
     Manifesto* _manifesto = nullptr;
     uint8_t _channel = 0;
     uint32_t _sent_set_time[2] = {0};   // Keeps two time stamp
-    String _set_name = "";              // Keeps the device name
+    String _set_name = "";              // Keeps the talker name
     bool _check_set_time = false;
 
 public:
@@ -214,7 +214,7 @@ public:
 
 
     bool talk(JsonObject message, bool as_reply = false) {
-        if (_socket == nullptr || _manifesto == nullptr || _manifesto->device == nullptr) return false;
+        if (_socket == nullptr || _manifesto == nullptr || _manifesto->talker == nullptr) return false;
         
         // Directly nest the editable message under "m"
         if (message.isNull()) {
@@ -228,7 +228,7 @@ public:
         if (!message["i"].is<uint32_t>()) {
             message["i"] = generateMessageId();
         }
-        message["f"] = _manifesto->device->name;
+        message["f"] = _manifesto->talker->name;
         validateChecksum(message);
 
         size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
@@ -336,7 +336,7 @@ private:
 
 
     bool validateMessage(JsonObject message) {
-        if (_manifesto == nullptr || _manifesto->device == nullptr) return false;
+        if (_manifesto == nullptr || _manifesto->talker == nullptr) return false;
         #ifdef JSONTALKIE_DEBUG
         Serial.println(F("Validating..."));
         #endif
@@ -364,7 +364,7 @@ private:
             }
         } else if (message["t"].is<String>()) {
         
-            if (message["t"] != _manifesto->device->name) {
+            if (message["t"] != _manifesto->talker->name) {
                 #ifdef JSONTALKIE_DEBUG
                 Serial.println(F("Message NOT for me!"));
                 #endif
@@ -440,7 +440,7 @@ private:
     }
     
     bool processMessage(JsonObject message) {
-        if (_manifesto == nullptr || _manifesto->device == nullptr) return false;
+        if (_manifesto == nullptr || _manifesto->talker == nullptr) return false;
         // Echo codes:
         //     0 - ROGER
         //     1 - UNKNOWN
@@ -460,7 +460,7 @@ private:
         {
         case MessageCode::talk:
             message["w"] = 0;
-            message["d"] = _manifesto->device->desc;
+            message["d"] = _manifesto->talker->desc;
             return talk(message, true);
         
         case MessageCode::list:

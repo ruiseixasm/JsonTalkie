@@ -6,7 +6,7 @@ A lightweight library for Arduino communication and control using JSON messages 
 
 - Bi-directional JSON-based communication between Arduino and Python
 - Simple command/response pattern with "Walkie-talkie" style interaction
-- Device configuration with a Manifesto for self-describing capabilities
+- Talker configuration with a Manifesto for self-describing capabilities
 - Automatic command discovery and documentation
 - Support for multiple devices on the same network
 
@@ -51,12 +51,12 @@ rui@acer:~/GitHub/JsonTalkie/Python$ python3.13 talk.py
 >>> help
 	[talk]                  Prints all devices' 'name' and description.
 	['talker' list]         List the entire 'talker' manifesto.
-	['talker' channel]      Shows the Device channel.
-	['talker' channel n]    Sets the Device channel.
+	['talker' channel]      Shows the Talker channel.
+	['talker' channel n]    Sets the Talker channel.
 	['talker' run 'what']   Runs the named function.
 	['talker' set 'what']   Sets the named variable.
 	['talker' get 'what']   Gets the named variable value.
-	[sys]                   Prints the platform of the Device.
+	[sys]                   Prints the platform of the Talker.
 	[port]                  Gets the Broadcast Socket port.
 	[port n]                Sets the Broadcast Socket port.
 	[exit]                  Exits the command line (Ctrl+D).
@@ -69,7 +69,7 @@ rui@acer:~/GitHub/JsonTalkie/Python$ python3.13 talk.py
 ## **Library functions**
 ### JsonTalkie
 #### **`set_manifesto(Manifesto* manifesto)`**
-This function sets the `Manifesto` to be used as the Device attributes and capabilities.
+This function sets the `Manifesto` to be used as the Talker attributes and capabilities.
 #### **`get_manifesto()`**
 Returns the Manifesto set above.
 #### **`plug_socket(BroadcastSocket* socket)`**

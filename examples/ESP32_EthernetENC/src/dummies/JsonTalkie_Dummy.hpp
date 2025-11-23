@@ -31,9 +31,9 @@ public:
     // Define JsonObject as void* given that ArduinoJson isn't included!
     typedef void* JsonObject;
 
-    struct Device {
-        const char* name;      // Name of the Device (Talker)
-        const char* desc;      // Description of the Device
+    struct Talker {
+        const char* name;      // Name of the Talker
+        const char* desc;      // Description of the Talker
     };
 
     struct Run {
@@ -57,7 +57,7 @@ public:
     // Manifesto Structure Definition
     struct Manifesto {
 
-        Device* talker = nullptr;
+        Talker* talker = nullptr;
         Run* runCommands = nullptr;
         size_t runSize = 0;
         Set* setCommands = nullptr;
@@ -96,7 +96,7 @@ public:
 
         // Add this constructor, because Manifesto struct has methods,
         //    so it's not considered an aggregate, and therefore cannot be initialized using a brace-enclosed list like this.
-        Manifesto(Device* d, Run* r, size_t rsz, Set* s, size_t ssz, 
+        Manifesto(Talker* d, Run* r, size_t rsz, Set* s, size_t ssz, 
                 Get* g, size_t gsz, bool (*e)(JsonObject), bool (*err)(JsonObject))
             : talker(d),
             runCommands(r), runSize(rsz),
