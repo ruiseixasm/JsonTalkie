@@ -229,7 +229,8 @@ public:
             message["i"] = generateMessageId();
         }
         message["f"] = _manifesto->device->name;
-        validateChecksum(message);
+
+        setChecksum(message);
 
         size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
         if (len == 0) {
@@ -252,16 +253,49 @@ public:
 
     void listen(bool receive = true) {
         if (_socket == nullptr) return;
-        // Where the BroadcastSocket data is received
-        if (receive)
-            _data_len = _socket->receive(_received_data, BROADCAST_SOCKET_BUFFER_SIZE);
-        if (_data_len > 0) {    // Shared data length among multiple instantiations of JsonTalkie
 
-            #ifdef JSONTALKIE_DEBUG
-            Serial.print(F("L: "));
-            Serial.write(_received_data, _data_len);  // Properly prints raw bytes as characters
-            Serial.println();            // Adds newline after the printed data
-            #endif
+        // Where the BroadcastSocket data is received
+        if (receive) {
+            _data_len = _socket->receive(_received_data, BROADCAST_SOCKET_BUFFER_SIZE);
+
+            if (_data_len > 0) {
+            
+                #ifdef JSONTALKIE_DEBUG
+                Serial.print(F("L: "));
+                Serial.write(_received_data, _data_len);  // Properly prints raw bytes as characters
+                Serial.println();            // Adds newline after the printed data
+                #endif
+
+                // HERE IS WHERE THE CHECK SUM SHALL BE DONE
+                #ifdef JSONTALKIE_DEBUG
+                Serial.print(F("C: "));
+                Serial.print(_data_len);
+                #endif
+
+                uint16_t data_checksum = readChecksum(_received_data, &_data_len);
+
+                #ifdef JSONTALKIE_DEBUG
+                Serial.print(" - ");
+                Serial.print(data_checksum);
+                #endif
+
+                uint16_t checksum = getChecksum(_received_data, _data_len);
+
+                #ifdef JSONTALKIE_DEBUG
+                Serial.print("  |  ");
+                Serial.print(_data_len);
+                Serial.print(" - ");
+                Serial.print(checksum);
+                Serial.println();            // Adds newline after the printed data
+                #endif
+
+                if (data_checksum != checksum)
+                    _data_len = 0;  // Disables the following processing
+
+            }
+        }
+
+        if (_data_len > 0) {    // Shared data length among multiple instantiations of JsonTalkie
 
             // JsonDocument in the stack makes sure its memory is released (NOT GLOBAL)
             #if ARDUINOJSON_VERSION_MAJOR >= 7
@@ -297,6 +331,7 @@ public:
 
                 processMessage(message);
             }
+
         // In theory, a UDP packet on a local area network (LAN) could survive
         // for about 4.25 minutes (255 seconds).
         } else if (_check_set_time && millis() - _sent_set_time[1] > 255 * 1000) {
@@ -312,14 +347,7 @@ private:
     }
 
 
-    bool validateChecksum(JsonObject message) {
-        
-        uint16_t message_checksum = 0;
-        if (message["c"].is<uint16_t>()) {
-            message_checksum = message["c"].as<uint16_t>();
-        }
-        
-        size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+    uint16_t readChecksum(char* source_data, size_t* source_len) {
         
         // ASCII byte values:
         // 	'c' = 99
@@ -328,39 +356,55 @@ private:
         // 	'0' = 48
         // 	'9' = 57
 
+        uint16_t data_checksum = 0;
         // Has to be pre processed (linearly)
         bool at_c0 = false;
-        size_t buffer_i = 4;
-        for (size_t i = 4; i < len; ++i) {
-            if (!at_c0 && _buffer[i - 3] == 'c' && _buffer[i - 1] == ':' && _buffer[i - 4] == '"' && _buffer[i - 2] == '"') {
+        size_t data_i = 4;
+        for (size_t i = data_i; i < *source_len; ++i) {
+            if (!at_c0 && source_data[i - 3] == 'c' && source_data[i - 1] == ':' && source_data[i - 4] == '"' && source_data[i - 2] == '"') {
                 at_c0 = true;
-                _buffer[buffer_i++] = '0';
+                data_checksum = source_data[data_i] - '0';
+                source_data[data_i++] = '0';
                 continue;
             } else if (at_c0) {
-                if (_buffer[i] < '0' || _buffer[i] > '9') {
+                if (source_data[i] < '0' || source_data[i] > '9') {
                     at_c0 = false;
                 } else {
+                    data_checksum *= 10;
+                    data_checksum += source_data[i] - '0';
                     continue;
                 }
             }
-            _buffer[buffer_i] = _buffer[i]; // Does an offset
-            buffer_i++;
+            source_data[data_i] = source_data[i]; // Does an offset
+            data_i++;
         }
-        len = buffer_i;
+        *source_len = data_i;
+        return data_checksum;
+    }
 
+
+    uint16_t getChecksum(const char* net_data, const size_t len) {
         // 16-bit word and XORing
         uint16_t checksum = 0;
         for (size_t i = 0; i < len; i += 2) {
-            uint16_t chunk = _buffer[i] << 8;
+            uint16_t chunk = net_data[i] << 8;
             if (i + 1 < len) {
-                chunk |= _buffer[i + 1];
+                chunk |= net_data[i + 1];
             }
             checksum ^= chunk;
         }
-        message["c"] = checksum;
-        return message_checksum == checksum;
+        return checksum;
     }
 
+
+    uint16_t setChecksum(JsonObject message) {
+        message["c"] = 0;   // makes _buffer a net_data buffer
+        size_t len = serializeJson(message, _buffer, BROADCAST_SOCKET_BUFFER_SIZE);
+        uint16_t checksum = getChecksum(_buffer, len);
+        message["c"] = checksum;
+        return checksum;
+    }
+    
 
     bool validateMessage(JsonObject message) {
         if (_manifesto == nullptr || _manifesto->device == nullptr) return false;
@@ -411,16 +455,6 @@ private:
             message["m"] = 7;   // error
             message["t"] = message["f"];
             message["e"] = 1;
-            talk(message, true);
-            return false;
-        }
-        if (!validateChecksum(message)) {
-            #ifdef JSONTALKIE_DEBUG
-            Serial.println(2);
-            #endif
-            message["m"] = 7;   // error
-            message["t"] = message["f"];
-            message["e"] = 2;
             talk(message, true);
             return false;
         }
