@@ -85,15 +85,15 @@ public:
 
 			case 1:
 			{
+				uint32_t present_time = millis();
 				if (json_message.has_nth_value_number(0)) {
 					uint32_t milliseconds_to_call = json_message.get_nth_value_number(0) % 60;
-					milliseconds_to_call = (60UL - milliseconds_to_call) * 60 * 1000;
-					uint32_t present_time = millis();
+					milliseconds_to_call = (59UL - milliseconds_to_call) * 60 * 1000;
 					_time_to_call = present_time + milliseconds_to_call;
 					return true;
 				} else {
-					uint32_t minutes = _time_to_call / 1000 / 60;
-					minutes = 60 - minutes % 60;
+					uint32_t minutes = (_time_to_call - present_time) / 1000 / 60;
+					minutes = 59UL - minutes % 60;	// 0 based
 					return json_message.set_nth_value_number(0, minutes);
 				}
 			}
