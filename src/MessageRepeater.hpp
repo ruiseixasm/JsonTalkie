@@ -389,7 +389,7 @@ public:
 								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
 								if (strcmp(talker_name, message_to_name) == 0) {
 									_uplinked_talkers[talker_i]->_handleTransmission(message, talker_match);
-									return;
+									return true;
 								}
 							}
 						}
