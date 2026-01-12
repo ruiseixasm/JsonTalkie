@@ -105,7 +105,7 @@ public:
 
 	void _loop(JsonTalker& talker) override {
 		uint32_t present_time = millis();
-		if ((int32_t)(present_time - _time_to_call) >= 0) {
+		if (_active_caller && (int32_t)(present_time - _time_to_call) >= 0) {
 			JsonMessage call_buzzer;
 			call_buzzer.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
 			call_buzzer.set_message_value(MessageValue::TALKIE_MSG_CALL);
