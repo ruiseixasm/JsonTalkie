@@ -12,26 +12,14 @@ Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
 
-
-/**
- * @file JsonTalkie.hpp
- * @brief This file aggregates all the JsonTalkie libraries by including them.
- * 
- * @author Rui Seixas Monteiro
- * @date Created: 2026-01-11
- * @version 4.0.0
- */
-
-#ifndef JSON_TALKIE_HPP
-#define JSON_TALKIE_HPP
-
-#include <Arduino.h>        // Needed for Serial given that Arduino IDE only includes Serial in .ino files!
-#include "TalkieCodes.hpp"
-#include "JsonMessage.hpp"
-#include "BroadcastSocket.h"
-#include "TalkerManifesto.hpp"
-#include "JsonTalker.h"
-#include "MessageRepeater.hpp"
+#include "BroadcastSocket_EtherCard.h"
 
 
-#endif // JSON_TALKIE_HPP
+JsonMessage BroadcastSocket_EtherCard::_json_message;
+char* BroadcastSocket_EtherCard::_ptr_received_buffer = nullptr;
+
+uint8_t BroadcastSocket_EtherCard::_source_ip[4] = {0};
+size_t BroadcastSocket_EtherCard::_data_length = 0;
+// ===== [SELF IP] =====
+uint8_t BroadcastSocket_EtherCard::_local_ip[4] = {0};
+
