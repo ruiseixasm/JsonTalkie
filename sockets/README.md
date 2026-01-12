@@ -177,7 +177,7 @@ it can be used via Wi-Fi too without the latency referred above, 6 instead of 10
 >>>
 ```
 #### Dependencies
-This Socket depends on the [Ethernet library](https://github.com/arduino-libraries/Ethernet), so, you need to install with the Arduino IDE.
+This Socket depends on the [Ethernet library](https://github.com/arduino-libraries/Ethernet), so, you need to install it with the Arduino IDE.
 ## WiFi
 ### BroadcastESP_WiFi
 #### Description
