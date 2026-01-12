@@ -1,10 +1,10 @@
-# JsonTalkie - JSON-based Communication for Arduino
+# JsonTalkie - Walkie-Talkie based Communication for Arduino
 
 A lightweight library for Arduino communication and control using JSON messages over network sockets, with Python companion scripts for host computer interaction.
 
 ## Features
 
-- Bi-directional JSON-based communication between Arduino and Python
+- Bi-directional Walkie-Talkie based communication between Arduino and Python
 - Simple command/response pattern with "Walkie-talkie" style interaction
 - Talker configuration with a Manifesto for self-describing capabilities
 - Automatic command discovery and documentation
@@ -24,398 +24,384 @@ A lightweight library for Arduino communication and control using JSON messages 
    - Extract to your Arduino libraries folder
    - Restart Arduino IDE
 
-### Dependencies
-   - Requires [ArduinoJson](https://arduinojson.org/) (any recent version)
-
 ## Python Command Line
 ### JsonTalkiePy repository with command line as Talker
    - Talker in [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy)
    - Got the the page above for more details concerning its usage
 
+
 ### Typical usage
 ```bash
-rui@acer:~/GitHub/JsonTalkie/Python$ python3.13 talk.py 
-	[Talker-1b] running. Type 'exit' to exit or 'talk' to make them talk.
 >>> talk
-	[Talker-1b talk]     	A simple Talker!
-	[Nano talk]          	I do a 500ms buzz!
->>> Nano sys
-	[Nano sys]            	Arduino Uno/Nano (ATmega328P)
->>> Nano list
-	[Nano run buzz]      	Triggers buzzing
-	[Nano run on]        	Turns led On
-	[Nano run off]       	Turns led Off
-	[Nano get total_runs]	Gets the total number of runs
->>> Nano run buzz
-	[Nano run buzz]      	ROGER
->>> help
-	[talk]                  Prints all devices' 'name' and description.
-	['talker' list]         List the entire 'talker' manifesto.
-	['talker' channel]      Shows the Talker channel.
-	['talker' channel n]    Sets the Talker channel.
-	['talker' run 'what']   Runs the named function.
-	['talker' set 'what']   Sets the named variable.
-	['talker' get 'what']   Gets the named variable value.
-	[sys]                   Prints the platform of the Talker.
-	[port]                  Gets the Broadcast Socket port.
-	[port n]                Sets the Broadcast Socket port.
-	[exit]                  Exits the command line (Ctrl+D).
-	[help]                  Shows the present help.
+        [talk spy]                 I'm a Spy and I spy the talkers' pings
+        [talk test]                I test the JsonMessage class
+        [talk blue]                I turn led Blue on and off
+        [talk nano]                Arduino Nano
+        [talk mega]                I'm a Mega talker
+        [talk uno]                 Arduino Uno
+        [talk green]               I'm a green talker
+        [talk buzzer]              I'm a buzzer that buzzes
+>>> list nano
+        [call nano 0|buzz]         Buzz for a while
+        [call nano 1|ms]           Gets and sets the buzzing duration
+>>> call nano 0
+        [call nano 0]              roger
+>>> ping nano
+        [ping nano]                3
+>>> system nano board
+        [system nano board]        Arduino Uno/Nano (ATmega328P)
+>>> system nano socket
+        [system nano socket]       0       BroadcastSocket_EtherCard
+>>> system nano manifesto
+        [system nano manifesto]    BlackManifesto
+>>> list test
+        [call test 0|all]          Tests all methods
+        [call test 1|deserialize]          Test deserialize (fill up)
+        [call test 2|compare]      Test if it's the same
+        [call test 3|has]          Test if it finds the given char
+        [call test 4|has_not]      Test if DOESN't find the given char
+        [call test 5|length]       Test it has the right length
+        [call test 6|type]         Test the type of value
+        [call test 7|validate]     Validate message fields
+        [call test 8|identity]     Extract the message identity
+        [call test 9|value]        Checks if it has a value 0
+        [call test 10|message]     Gets the message number
+        [call test 11|from]        Gets the from name string
+        [call test 12|remove]      Removes a given field
+        [call test 13|set]         Sets a given field
+        [call test 14|edge]        Tests edge cases
+        [call test 15|copy]        Tests the copy constructor
+        [call test 16|string]      Checks if it has a value 0 as string
+>>> call test 0
+        [call test 0]              roger
 >>> exit
 	Exiting...
 ```
 
+## JsonTalkie architecture
+## Description
+The center class is the `MessageRepeater` class, this class routes the JsonMessage between Uplinked
+Talkers and Sockets and Downlinked Talkers and Sockets.
+## Repeater diagram
+![The Repeater](repeater.png)
 
-## **Library functions**
-### JsonTalkie
-#### **`set_manifesto(Manifesto* manifesto)`**
-This function sets the `Manifesto` to be used as the Talker attributes and capabilities.
-#### **`get_manifesto()`**
-Returns the Manifesto set above.
-#### **`plug_socket(BroadcastSocket* socket)`**
-Sets which socket to be used as BroadcastSocket.
-#### **`unplug_socket(BroadcastSocket* socket)`**
-Removes any plugged socket.
-#### **`talk(JsonObject message, bool as_reply = false)`**
-Sends the message as a JsonObject to all existent devices or to a single talker if `as_reply`.
-#### **`listen(bool receive = true)`**
-This method processes received messages so it shall be called inside the `loop` function.
-In case you create more than one JsonTalkie object, only one listen should call receive, thus,
-all but one shall be `listen(false)` so that all can process the received data from the Socket.
-### BroadcastSocket
-#### **`send(const char* data, size_t len, bool as_reply = false)`**
-Sends the `char` data to all devices or to a single talker if `as_reply` over the protocol used by the socket (Ex. UDP).
-#### **`receive(char* buffer, size_t size)`**
-Receives data from the socket, this method is called by the JsonTalkie `listen()` method, so, it doesn't need to be called.
-#### **`set_port(uint16_t port)`**
-This method sets a different `port` for the Socket being used.
-#### **`get_port(uint16_t port)`**
-This method returns the `port` number of the Socket being used.
+The Repeater works in similar fashion as an HAM radio repeater on the top of a mountain, with a clear distinction of Uplinked and Downlinked communications, where the Uplinked nodes are considered remote nodes and the downlinked nodes are considered local nodes.
+```
++-------------------------+      +-------------------------+
+| Uplinked Sockets (node) |      | Uplinked Talkers (node) |
++-------------------------+      +-------------------------+
+                        |          |
+                    +------------------+
+                    | Message Repeater |
+                    +------------------+
+                        |          |
++---------------------------+  +---------------------------+
+| Downlinked Sockets (node) |  | Downlinked Talkers (node) |
++---------------------------+  +---------------------------+
+```
 
-## **Examples**
-### **Usage of the UDP protocol in a Arduino Mega with an ENC28J60 module**
-```Arduino
+## Talker diagram
+```
++--------+
+| Talker |
++--------+
+       |
+     +-----------+
+     | Manifesto |
+     +-----------+
+```
+
+## Message protocol
+The extensive list of all Values is in the structure `TalkieCodes`.
+### Message Value
+These are the Message Values (commands):
+- **noise** - Invalid, missing or malformed data
+- **talk** - Lists existent talkers in the network
+- **channel** - Channel management/configuration
+- **ping** - Network presence check and latency
+- **call** - Action Talker invocation
+- **list** - Lists Talker actions
+- **system** - System control/status messages
+- **echo** - Messages Echo returns
+- **error** - Error notification
+
+### Broadcast Value
+Local messages aren't send to uplinked Sockets, except if they are up bridged.
+- **none** - No broadcast, the message is dropped
+- **remote** - Broadcast to remote talkers
+- **local** - Broadcast within local network talkers
+- **self** - Broadcast to self only (loopback)
+
+### System Value
+This messages are exclusive to the system.
+- **undefined** - Unspecified system request
+- **board** - Board/system information request
+- **mute** - Returns or sets the mute mode
+- **drops** - Packet loss statistics
+- **delay** - Network delay configuration
+- **socket** - List Socket class names
+- **manifesto** - Show the Manifesto class name
+
+The `mute` setting is exclusive to the `call` commands in order to reduce network overhead.
+
+### Repeater Rules
+The `MessageRepeater` routes the messages accordingly to its source and message value, the source
+comes from the call method `_transmitToRepeater` depending if it's a Socket or a Talker, both here called
+nodes.
+1. All `remote` messages from `up_linked` nodes are routed to `down_linked` nodes (just);
+1. All `remote` messages from `down_linked` nodes are routed to the `up_linked` nodes (just);
+1. All `remote` and `local` messages from `up_bridged` nodes are routed to `down_linked` nodes (both);
+1. All `remote` and `local` messages from `down_linked` nodes are routed to the `up_bridged` nodes (both);
+1. All `local` messages from `down_linked` nodes are also routed to other `down_linked` nodes;
+1. All `self` messages from a Talker are routed to the same Talker;
+1. All `none` messages are dropped and thus NOT sent to any node.
+
+The configuration of an `up_linked` node into an `up_bridged` one is needed for the case where the
+communications are done in the same platform passible of being considered local and thus it shall process
+`local` messages too.
+
+## The Talker and its Manifesto
+### Talker
+These are the attributes of a Talker:
+- **name** - The name by which a Talker is identified in the network and targeted with
+- **description** - A brief description of the Talker returned in response to the `talk` command
+- **channel** - A channel in order to be simultaneously target among other talkers
+- **manifesto** - The Talker manifesto that sets all its Actions in detail
+
+### Manifesto interface
+In the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/manifestos) you can find further description and some manifesto examples for diverse type of actions and Talker methods processing, like echo and error.
+
+A Manifesto **implementation** has the following attributes:
+- **calls** - An array of Actions (name and description)
+
+An example of a calls array:
+```
+Action calls[3] = {
+	{"on", "Turns led ON"},
+	{"off", "Turns led OFF"},
+	{"actions", "Returns the number of triggered Actions"}
+};
+```
+Besides the calls, a Manifesto implementation should also have these mandatory methods:
+```
+const char* class_name() const override { return "BlueManifesto"; }
+const Action* _getActionsArray() const override { return calls; }
+uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+```
+## The Broadcast Socket (interface)
+A Broadcast Socket **implementation** shall be able to receive and send in broadcast mode, this ability is required because the Talkers are recognizable by their names shown by the `talk` command, and thus, become able to auto configure the following direct connections (unicast). The broadcast communications are mainly intended to discover talkers or send to a channel (many) instead of talker name (single).
+
+### Implementation
+In the folders [sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/sockets) you can find further description and many socket examples for diverse type of protocols and even libraries, like Ethernet and SPI protocols.
+
+These are the member variables of the `BroadcastSocket`:
+```
+	MessageRepeater* _message_repeater = nullptr;
+	LinkType _link_type = LinkType::TALKIE_LT_NONE;
+
+    // Pointer PRESERVE the polymorphism while objects don't!
+    uint8_t _max_delay_ms = 5;
+    bool _control_timing = false;
+    uint16_t _last_local_time = 0;
+    uint16_t _last_message_timestamp = 0;
+    uint16_t _drops_count = 0;
+```
+And these are the methods which definition in the socket implementation is mandatory:
+```
+virtual const char* class_name() const = 0;
+virtual void _receive() = 0;
+virtual bool _send(const JsonMessage& json_message) = 0;
+```
+
+## A bare minimum sketch with a Serial socket
+This example is useful to illustrate how easy it is to include this library for a simple Serial socket.
+
+### The .ino sketch for a Serial socket (115200)
+```
 #include <JsonTalkie.hpp>
-#include <sockets/BroadcastSocket_UIP.hpp>
+#include <sockets/SocketSerial.hpp>
+#include <manifestos/SerialManifesto.hpp>
 
 
-JsonTalkie json_talkie;
-auto& broadcast_socket = BroadcastSocket_UIP::instance();
-EthernetUDP udp;
+const char talker_name[] = "serial";
+const char talker_desc[] = "I'm a serial talker";
+SerialManifesto serial_manifesto;
+JsonTalker talker = JsonTalker(talker_name, talker_desc, &serial_manifesto);
 
-// Network Settings
-byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-const unsigned int PORT = 5005;
+// Singleton requires the & (to get a reference variable)
+auto& serial_socket = SocketSerial::instance();
 
+// SETTING THE REPEATER
+BroadcastSocket* uplinked_sockets[] = { &serial_socket };
+JsonTalker* downlinked_talkers[] = { &talker };
+MessageRepeater message_repeater(
+		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
+		downlinked_talkers, sizeof(downlinked_talkers)/sizeof(JsonTalker*)
+	);
 
-
-
-// MANIFESTO DEFINITION
-
-// Define the commands (stored in RAM)
-JsonTalkie::Talker talker = {
-    "Mega", "I do a 500ms buzz!"
-};
-
-bool buzz(JsonObject json_message);
-bool led_on(JsonObject json_message);
-bool led_off(JsonObject json_message);
-JsonTalkie::Run runCommands[] = {
-    {"buzz", "Triggers buzzing", buzz},
-    {"on", "Turns led On", led_on},
-    {"off", "Turns led Off", led_off}
-};
-
-bool set_duration(JsonObject json_message, long duration);
-JsonTalkie::Set setCommands[] = {
-    // {"duration", "Sets duration", set_duration}
-};
-
-long get_total_runs(JsonObject json_message);
-long get_duration(JsonObject json_message);
-JsonTalkie::Get getCommands[] = {
-    {"total_runs", "Gets the total number of runs", get_total_runs}
-    // {"duration", "Gets duration", get_duration}
-};
-
-bool process_response(JsonObject json_message);
-
-
-// MANIFESTO DECLARATION
-
-JsonTalkie::Manifesto manifesto(
-    &talker,
-    runCommands, sizeof(runCommands)/sizeof(JsonTalkie::Run),
-    setCommands, sizeof(setCommands)/sizeof(JsonTalkie::Set),
-    getCommands, sizeof(getCommands)/sizeof(JsonTalkie::Get),
-    process_response, nullptr
-);
-
-// END OF MANIFESTO
-
-
-
-// Buzzer pin
-#define buzzer_pin 3
 
 void setup() {
-    // Serial is a singleton class (can be began multiple times)
-    Serial.begin(9600);
-    while (!Serial);
-    
-    delay(2000);    // Just to give some time to Serial
-
-    Serial.print("\n\nConnecting");
-      
-    // Start Ethernet connection
-    if (Ethernet.begin(mac) == 0) {
-        Serial.println("Failed to configure Ethernet using DHCP");
-        while (1); // Halt if connection fails
-    }
-
-    // Start UDP
-    if (udp.begin(PORT)) {
-        Serial.print("\n\nUDP active on ");
-        Serial.println(Ethernet.localIP());
-    } else {
-        Serial.println("UDP failed!");
-        while (1); // Halt if connection fails
-    }
-    
-    Serial.println("\n\nOpening the Socket...");
-    
-    // By default is already 5005
-    broadcast_socket.set_port(5005);
-    broadcast_socket.set_udp(&udp);
-
-    json_talkie.set_manifesto(&manifesto);
-    json_talkie.plug_socket(&broadcast_socket);
-
-
-    Serial.println("Talker ready");
-
-    #ifndef BROADCAST_SOCKET_SERIAL_HPP
-    pinMode(buzzer_pin, OUTPUT);
-    digitalWrite(buzzer_pin, HIGH);
-    delay(10); 
-    digitalWrite(buzzer_pin, LOW);
-    #endif
+    // Initialize pins FIRST before anything else
     pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, LOW); // Start with LED off
+
+    // Then start Serial
+    Serial.begin(115200);
+    delay(250); // Important: Give time for serial to initialize
+    Serial.println("\n\n=== Arduino with SERIAL ===");
+
+    // Final startup indication
     digitalWrite(LED_BUILTIN, HIGH);
+    delay(500);
     digitalWrite(LED_BUILTIN, LOW);
 
-    Serial.println("Sending JSON...");
+    Serial.println("Setup completed - Ready for JSON communication!");
 }
+
 
 void loop() {
-    json_talkie.listen();
-
-    static unsigned long lastSend = 0;
-    if (millis() - lastSend > 39000) {
-
-        JsonDocument message_doc;
-        if (message_doc.overflowed()) {
-            Serial.println("CRITICAL: Insufficient RAM");
-        } else {
-            JsonObject message = message_doc.to<JsonObject>();
-            message["m"] = 0;   // talk
-            json_talkie.talk(message);
-        }
-        
-        lastSend = millis();
-    }
-}
-
-
-long total_runs = 0;
-long _duration = 5;  // Example variable
-
-// Command implementations
-bool buzz(JsonObject json_message) {
-    #ifndef BROADCASTSOCKET_SERIAL
-    digitalWrite(buzzer_pin, HIGH);
-    delay(_duration); 
-    digitalWrite(buzzer_pin, LOW);
-    #endif
-    total_runs++;
-    return true;
-}
-
-
-bool is_led_on = false;  // keep track of state yourself, by default it's off
-
-bool led_on(JsonObject json_message) {
-    if (!is_led_on) {
-        digitalWrite(LED_BUILTIN, HIGH);
-        is_led_on = true;
-        total_runs++;
-    } else {
-        json_message["r"] = "Already On!";
-        json_talkie.talk(json_message);
-        return false;
-    }
-    return true;
-}
-
-bool led_off(JsonObject json_message) {
-    if (is_led_on) {
-        digitalWrite(LED_BUILTIN, LOW);
-        is_led_on = false;
-        total_runs++;
-    } else {
-        json_message["r"] = "Already Off!";
-        json_talkie.talk(json_message);
-        return false;
-    }
-    return true;
-}
-
-
-bool set_duration(JsonObject json_message, long duration) {
-    _duration = duration;
-    return true;
-}
-
-long get_duration(JsonObject json_message) {
-    return _duration;
-}
-
-long get_total_runs(JsonObject json_message) {
-    return total_runs;
-}
-
-
-bool process_response(JsonObject json_message) {
-    Serial.print(json_message["f"].as<String>());
-    Serial.print(" - ");
-    if (json_message["r"].is<String>()) {
-        Serial.println(json_message["r"].as<String>());
-    } else if (json_message["d"].is<String>()) {
-        Serial.println(json_message["d"].as<String>());
-    } else {
-        Serial.println("Empty echo received!");
-    }
-    return false;
+    message_repeater.loop();
 }
 ```
+### The included manifesto and socket
+The included manifesto and socket are in the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/manifestos) and [sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/sockets) respectively, depending on the socket implemented being used, you may have more methods available specific for that socket.
+### Interacting with the Talker
+This example uses a Serial socket, so, the interaction is always one-to-one, and here you have two options, using another Talker with a different Manifesto that sends commands to this one, or just for testing, do it in an easier way with the [JsonTalkerPy](https://github.com/ruiseixasm/JsonTalkiePy) command line in the computer. To do so just follow the instructions [here](https://github.com/ruiseixasm/JsonTalkiePy).
 
-
-## **User defined BroadcastSocket**
-### **How to include your own BroadcastSocket implementation**
-You can always implement your own Socket besides the ones given by the examples. To do so, you need to implement
-the `BroadcastSocket` abstract class (interface) with your own `BroadcastSocket_User` implementation.
-Then you can include it this way.
-```Arduino
-#include <JsonTalkie.hpp>
-#include "BroadcastSocket_User.hpp"
+### Command line usage
+Type the following commands to start the Serial communication (change port if needed)
 ```
-### **Using the JsonTalkie_Dummy for testing while developing**
-In order to be easier the development of your own `BroadcastSocket` file, you can use the Dummy version of the JsonTalkie,
-like this:
-```Arduino
-#include <dummies/JsonTalkie_Dummy.hpp>
-#include <ArduinoJson.h>    // Includes ArduinoJson Library NOT included in the Dummy file above
-#include "BroadcastSocket_User.hpp"
+python talk.py --socket SERIAL --port COM5
 ```
-The `JsonTalkie_Dummy` periodically sends typical `JsonTalkie` messages as if it was the real deal.
-### **Example of a user defined BroadcastSocket file**
-Here is an example of such implementation for `BroadcastSocket_User.hpp` that must be side-by-side with your `.ino` file.
-```Arduino
-#ifndef BROADCAST_SOCKET_USER_HPP
-#define BROADCAST_SOCKET_USER_HPP
-
-#include <BroadcastSocket.hpp>
-#include <Ethernet.h>
-#include <EthernetUdp.h>
-
-
-// #define BROADCAST_USER_DEBUG
-#define ENABLE_DIRECT_ADDRESSING
-
-
-class BroadcastSocket_User : public BroadcastSocket {
-private:
-    static IPAddress _source_ip;
-    static EthernetUDP* _udp;
-
-public:
-    // Singleton accessor
-    static BroadcastSocket_User& instance() {
-        static BroadcastSocket_User instance;
-        return instance;
-    }
-
-    
-    bool send(const char* data, size_t size, bool as_reply = false) override {
-        if (_udp == nullptr) return false;
-
-        IPAddress broadcastIP(255, 255, 255, 255);
-        
-        #ifdef ENABLE_DIRECT_ADDRESSING
-        if (!_udp->beginPacket(as_reply ? _source_ip : broadcastIP, _port)) {
-            #ifdef BROADCAST_USER_DEBUG
-            Serial.println(F("Failed to begin packet"));
-            #endif
-            return false;
-        }
-        #else
-        if (!_udp->beginPacket(broadcastIP, _port)) {
-            #ifdef BROADCAST_USER_DEBUG
-            Serial.println(F("Failed to begin packet"));
-            #endif
-            return false;
-        }
-        #endif
-
-        size_t bytesSent = _udp->write(reinterpret_cast<const uint8_t*>(data), size);
-
-        if (!_udp->endPacket()) {
-            #ifdef BROADCAST_USER_DEBUG
-            Serial.println(F("Failed to end packet"));
-            #endif
-            return false;
-        }
-
-        #ifdef BROADCAST_USER_DEBUG
-        Serial.print(F("S: "));
-        Serial.write(data, size);
-        Serial.println();
-        #endif
-
-        return true;
-    }
-
-
-    size_t receive(char* buffer, size_t size) override {
-        if (_udp == nullptr) return 0;
-        // Receive packets
-        int packetSize = _udp->parsePacket();
-        if (packetSize > 0) {
-            int length = _udp->read(buffer, min(static_cast<size_t>(packetSize), size));
-            if (length <= 0) return 0;  // Your requested check - handles all error cases
-            
-            #ifdef BROADCAST_USER_DEBUG
-            Serial.print(packetSize);
-            Serial.print(F("B from "));
-            Serial.print(_udp->remoteIP());
-            Serial.print(F(":"));
-            Serial.print(_udp->remotePort());
-            Serial.print(F(" -> "));
-            Serial.println(buffer);
-            #endif
-            
-            _source_ip = _udp->remoteIP();
-            return jsonStrip(buffer, static_cast<size_t>(length));
-        }
-        return 0;   // nothing received
-    }
-
-    void set_udp(EthernetUDP* udp) { _udp = udp; }
-};
-
-IPAddress BroadcastSocket_User::_source_ip(0, 0, 0, 0);
-EthernetUDP* BroadcastSocket_User::_udp = nullptr;
-
-
-#endif // BROADCAST_SOCKET_USER_HPP
+Then you can just type commands
 ```
+>>> talk
+        [talk serial]              I'm a serial talker
+>>> list serial
+        [call serial 0|on]         Turns led ON
+        [call serial 1|off]        Turns led OFF
+>>> ping serial
+        [ping serial]              15
+>>> call serial on
+        [call serial on]           roger
+>>> call serial off
+        [call serial off]          roger
+>>> call serial off
+        [call serial off]          negative        Already Off!
+>>>
+        Exiting...
+```
+## Use Cases
+Besides the simple examples shown above, there are other interesting use cases that are important to consider.
+### One platform, multiple boards
+The JsonTalkie allows both **remote** and **local** communication depending on the type of linking.
+By local communication one doesn't necessarily mean in the same board, it is possible to have local communication among multiple boards as long as they are in the same *platform*, so, you may have a circuit where different boards communicate with each other via protocols like the SPI.
+```
++-----------------------------+                                     +-----------------------------+
+| Ethernet socket (up linked) |                              +------| SPI socket (**up bridged**) |
++-----------------------------+                              |      +-----------------------------+
+                          |                                  |                    |
+                 +------------------+                        |           +------------------+
+                 | Message Repeater |                        |           | Message Repeater |
+                 +------------------+                        |           +------------------+
+                    |           |                            |                    |
++-----------------------+  +--------------------------+      |         +-----------------------+
+| Talkers (down linked) |  | SPI Socket (down linked) |------+         | Talkers (down linked) |
++-----------------------+  +--------------------------+                +-----------------------+
+
++-----------------------------------------------------+             +-----------------------------+
+|                   ESP32 Board                       |             |        Arduino nano         |
++-----------------------------------------------------+             +-----------------------------+
++-------------------------------------------------------------------------------------------------+
+|                                    Local platform with two boards                               |
++-------------------------------------------------------------------------------------------------+
+```
+In the scheme above, the Arduino nano board has its SPI Socket configured as *bridged*, this means
+that not only remote messages are sent trough it, buy *also*, local messages. The SPI Socket in
+the ESP32 board is a down linked one, this means it behaves like a down linked Talker, sending both
+remote and local messages to its Repeater. This way, the SPI link between both SPI Sockets carries
+both remote and local messages, like a bridge.
+
+The Repeater automatically sets the up linked sockets as up linked, so, in order to turn an up linked socket into a bridged one, you need to set it in the `setup` function like so:
+```
+    spi_socket.setLinkType(LinkType::TALKIE_LT_UP_BRIDGED);  // Makes sure it accepts LOCAL messages too
+```
+With the command `system` it's possible to get the board and the sockets associated to each Talker.
+```
+>>> talk
+	[talk spy]           	   I'm a Spy and I spy the talkers' pings
+	[talk test]          	   I test the JsonMessage class
+	[talk blue]          	   I turn led Blue on and off
+	[talk green]         	   I'm a green talker
+	[talk buzzer]        	   I'm a buzzer that buzzes
+>>> system blue board
+	[system blue board]  	   ESP32 (Rev: 100)
+>>> system green board
+	[system green board] 	   Arduino Uno/Nano (ATmega328P)
+>>> system blue socket
+	[system blue socket] 	   0	   Changed_EthernetENC
+	[system blue socket] 	   1	   SPI_ESP_Arduino_Master
+>>> system green socket
+	[system green socket]	   0	   SPI_Arduino_Slave
+>>>
+```
+Note that you can have more than two boards, given that the SPI protocol allows more than a single
+connection.
+### Unit testing
+One difficulty in dealing with embedded development, is the ability of testing and debugging single methods,
+this can be easily accomplished with the JsonTalkie. You can create a Manifesto that does just that.
+
+Bellow is an example of a series of unit tests done to the class `JsonMessage` during its development.
+```
+>>> talk test
+	[talk test]          	   I test the JsonMessage class
+>>> list test
+	[call test 0|all]    	   Tests all methods
+	[call test 1|deserialize]	   Test deserialize (fill up)
+	[call test 2|compare]	   Test if it's the same
+	[call test 3|has]    	   Test if it finds the given char
+	[call test 4|has_not]	   Test if DOESN't find the given char
+	[call test 5|length] 	   Test it has the right length
+	[call test 6|type]   	   Test the type of value
+	[call test 7|identity]	   Extract the message identity
+	[call test 8|value]  	   Checks if it has a value 0
+	[call test 9|message]	   Gets the message number
+	[call test 10|from]  	   Gets the from name string
+	[call test 11|remove]	   Removes a given field
+	[call test 12|set]   	   Sets a given field
+	[call test 13|edge]  	   Tests edge cases
+	[call test 14|copy]  	   Tests the copy constructor
+	[call test 15|string]	   Checks if it has a value 0 as string
+>>> call test edge
+	[call test edge]     	   roger
+>>> call test 0
+	[call test 0]        	   roger
+>>>
+```
+In the example above, specific edge cases are tested, the *roger* return means that the test passed, otherwise
+the return value would be *negative*. It is also possible to run all tests at once, with roger meaning all
+have passed. You can find the *test* Manifesto in the [manifestos folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/manifestos).
+### Inside calls
+So far we have been doing remote calls from a computer via Python, but there are cases that would be useful
+to do a call from inside the board's Talker itself. This is the case of the *spy* manifesto.
+```
+>>> talk spy
+	[talk spy]           	   I'm a Spy and I spy the talkers' pings
+>>> list spy
+	[call spy 0|ping]    	   I ping every talker, also by name or channel
+	[call spy 1|ping_self]	   I can even ping myself
+	[call spy 2|call]    	   Able to do [<talker> <action>]
+>>> call spy 0 blue
+	[call spy 0]         	   roger	   1	   blue
+>>> call spy 0 green
+	[call spy 0]         	   roger	   4	   green
+>>> ping blue
+	[ping blue]          	   3
+>>> ping green
+	[ping green]         	   8
+>>>
+```
+In the interaction above, we have the ping results, from inside the ESP32 board (spy Talker), 1 and 4 milliseconds respectively. From the computer those results are greater because they reflect the wi-fi latency too. Note that the latency values above include the return time, so, in reality, it takes around half those values to reach the Talker.
+
+Nevertheless, with the help of the spy, we can see that the SPI connections represents an increase 0f 3 milliseconds in latency (4 - 1).
+
