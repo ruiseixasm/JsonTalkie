@@ -29,7 +29,7 @@ auto& serial_socket = SocketSerial::instance();
 // SETTING THE REPEATER
 BroadcastSocket* uplinked_sockets[] = { &serial_socket };
 JsonTalker* downlinked_talkers[] = { &talker };
-MessageRepeater message_repeater(
+const MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
 		downlinked_talkers, sizeof(downlinked_talkers)/sizeof(JsonTalker*)
 	);

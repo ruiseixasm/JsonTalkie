@@ -60,7 +60,7 @@ auto& ethernet_socket = BroadcastESP_WiFi::instance();
 // SETTING THE REPEATER
 BroadcastSocket* uplinked_sockets[] = { &ethernet_socket };
 JsonTalker* downlinked_talkers[] = { &t_spy, &t_tester, &l_blue };
-MessageRepeater message_repeater(
+const MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
 		downlinked_talkers, sizeof(downlinked_talkers)/sizeof(JsonTalker*)
 	);

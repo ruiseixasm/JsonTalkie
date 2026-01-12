@@ -30,7 +30,7 @@ JsonTalker* downlinked_talkers[] = { &mega };    // Only an array of pointers pr
 auto& ethernet_socket = BroadcastSocket_Ethernet::instance();
 BroadcastSocket* uplinked_sockets[] = { &ethernet_socket };	// list of pointers
 
-MessageRepeater message_repeater(
+const MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
 		downlinked_talkers, sizeof(downlinked_talkers)/sizeof(JsonTalker*)
 	);
