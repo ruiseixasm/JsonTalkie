@@ -74,7 +74,7 @@ protected:
     // Pointer PRESERVE the polymorphism while objects don't!
     uint8_t _max_delay_ms = 5;
     bool _control_timing = false;
-    uint16_t _last_local_time = 0;
+    unsigned long _last_local_time = 0;	// millis() compatible
     uint16_t _last_message_timestamp = 0;
     uint16_t _drops_count = 0;
 
@@ -136,7 +136,7 @@ protected:
 				Serial.println(message_timestamp);
 				#endif
 			
-				const uint16_t local_time = (uint16_t)millis();
+				const unsigned long local_time = millis();
 				
 				if (_control_timing) {
 					
@@ -223,7 +223,7 @@ public:
         // In theory, a UDP packet on a local area network (LAN) could survive
         // for about 4.25 minutes (255 seconds).
         // BUT in practice it won't more that 256 milliseconds given that is a Ethernet LAN
-        if (_control_timing && (uint16_t)millis() - _last_local_time > MAX_NETWORK_PACKET_LIFETIME_MS) {
+        if (_control_timing && millis() - _last_local_time > MAX_NETWORK_PACKET_LIFETIME_MS) {
             _control_timing = false;
         }
         _receive();

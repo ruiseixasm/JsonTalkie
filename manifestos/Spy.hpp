@@ -146,9 +146,9 @@ public:
 
     void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
 		(void)talker_match;	// Silence unused parameter warning
-		Original original_message = talker.get_original();
 		
 		#ifdef SPY_MANIFESTO_DEBUG
+		Original original_message = talker.get_original();
 		Serial.print(F("\t\t\tSpy::echo1: "));
 		json_message.write_to(Serial);
 		Serial.print(" | ");
