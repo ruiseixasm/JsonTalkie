@@ -19,13 +19,20 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <JsonTalkie.hpp>
 #include "BroadcastSocket_Ethernet.hpp"
 #include "MegaManifesto.hpp"
+#include "CallerManifesto.hpp"
 
 const char mega_name[] = "mega";
 const char mega_desc[] = "I'm a Mega talker";
 MegaManifesto mega_manifesto;
 JsonTalker mega = JsonTalker(mega_name, mega_desc, &mega_manifesto);
 
-JsonTalker* downlinked_talkers[] = { &mega };    // Only an array of pointers preserves polymorphism!!
+const char caller_name[] = "caller";
+const char caller_desc[] = "I'm a 60 minutes buzzer caller";
+CallerManifesto caller_manifesto;
+JsonTalker caller = JsonTalker(caller_name, caller_desc, &caller_manifesto);
+
+
+JsonTalker* downlinked_talkers[] = { &mega, &caller };    // Only an array of pointers preserves polymorphism!!
 // Singleton requires the & (to get a reference variable)
 auto& ethernet_socket = BroadcastSocket_Ethernet::instance();
 BroadcastSocket* uplinked_sockets[] = { &ethernet_socket };	// list of pointers
