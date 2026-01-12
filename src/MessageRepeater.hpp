@@ -19,8 +19,8 @@ https://github.com/ruiseixasm/JsonTalkie
  *        between Talkers and Sockets.
  * 
  * @author Rui Seixas Monteiro
- * @date Created: 2026-01-03
- * @version 1.0.0
+ * @date Created: 2026-01-11
+ * @version 1.1.0
  */
 
 #ifndef MESSAGE_REPEATER_HPP
@@ -679,8 +679,7 @@ public:
 
 		switch (broadcast) {
 			
-			// A Talker is always a local talker, so, it's an implicit bridge
-			case BroadcastValue::TALKIE_BC_REMOTE:
+			// A Talker is always a local node, so, it only transmits local messages
 			case BroadcastValue::TALKIE_BC_LOCAL:
 			{
 				TalkerMatch talker_match = message.get_talker_match();
@@ -738,6 +737,14 @@ public:
 					// Sockets ONLY manipulate the checksum ('c')
 					if (!_downlinked_sockets[socket_j]->_finishTransmission(message)) {
 						no_fails = false;
+					}
+				}
+				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
+					if (_uplinked_sockets[socket_j]->getLinkType() == LinkType::TALKIE_LT_UP_BRIDGED) {
+						// Sockets ONLY manipulate the checksum ('c')
+						if (!_uplinked_sockets[socket_j]->_finishTransmission(message)) {
+							no_fails = false;
+						}
 					}
 				}
 				return no_fails;
