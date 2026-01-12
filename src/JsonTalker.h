@@ -217,14 +217,71 @@ private:
 	BroadcastSocket* _getSocket(uint8_t socket_index);
 
 
+	/** @brief Returns the class name of the manifesto */
 	const char* _manifesto_name() const;
+
+
+	/** @brief Returns the number of actions in the manifesto */
 	uint8_t _actionsCount() const;
+
+	
+	/** @brief Returns the actions array */
 	const Action* _getActionsArray() const;
+
+
+	/**
+     * @brief Returns the index Action for a given Action name
+     * @param name The name of the Action
+     * @return The index number of the action or 255 if none was found
+     */
 	uint8_t _actionIndex(const char* name) const;
+
+
+	/**
+     * @brief Confirms the index Action for a given index Action
+     * @param index The index of the Action to be confirmed
+     * @return The index number of the action or 255 if none exists
+     */
 	uint8_t _actionIndex(uint8_t index) const;
+
+		
+    /**
+     * @brief Calls a given Action by it's index number
+     * @param index The index of the Action being called
+     * @param json_message The json message made available for manipulation
+     * @param talker_match The type of matching concerning the Talker call
+     * @return Returns true if the call if successful (roger) or false if not (negative)
+     */
 	bool _actionByIndex(uint8_t index, JsonMessage& json_message, TalkerMatch talker_match);
+
+
+    /**
+     * @brief The method that processes the received echoes of the messages sent
+     * @param json_message The json message made available for manipulation
+     * @param talker_match The type of matching concerning the Talker call
+	 * 
+	 * This method is intended to process the echoes from the talker sent messages.
+     */
 	void _echo(JsonMessage& json_message, TalkerMatch talker_match);
+
+
+    /**
+     * @brief The method that processes the received errors of the messages sent
+     * @param json_message The json message made available for manipulation
+     * @param talker_match The type of matching concerning the Talker call
+	 * 
+	 * This method is intended to process the errors from the talker sent messages.
+     */
 	void _error(JsonMessage& json_message, TalkerMatch talker_match);
+
+
+    /**
+     * @brief The method that processes the noisy messages received
+     * @param json_message The json message made available for manipulation
+     * @param talker_match The type of matching concerning the Talker call
+	 * 
+     * @note This method excludes noisy messages associated to errors (with error field).
+     */
 	void _noise(JsonMessage& json_message, TalkerMatch talker_match);
 
 

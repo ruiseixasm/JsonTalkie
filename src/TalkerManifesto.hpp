@@ -40,8 +40,6 @@ using ValueType 		= TalkieCodes::ValueType;
 using Original 			= JsonMessage::Original;
 using Action 			= JsonTalker::Action;
 
-class JsonTalker;
-
 
 /**
  * @class TalkerManifesto
@@ -74,7 +72,7 @@ public:
 	 * The typical method is:
 	 * `uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }`
      */
-    virtual uint8_t _actionsCount() const = 0;
+	virtual uint8_t _actionsCount() const = 0;
 
 
 	/**
