@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #include <TalkerManifesto.hpp>
 
-// #define MEGA_MANIFESTO_DEBUG
+// #define CALLER_MANIFESTO_DEBUG
 
 
 class CallerManifesto : public TalkerManifesto {
@@ -60,19 +60,19 @@ public:
 
 			case 0:
 			{
-				#ifdef MEGA_MANIFESTO_DEBUG
+				#ifdef CALLER_MANIFESTO_DEBUG
 				Serial.println(F("\tCase 0 - Turning LED ON"));
 				#endif
 		
 				if (!_is_led_on) {
 				#ifdef LED_BUILTIN
-					#ifdef MEGA_MANIFESTO_DEBUG
+					#ifdef CALLER_MANIFESTO_DEBUG
 						Serial.print(F("\tLED_BUILTIN IS DEFINED as: "));
 						Serial.println(LED_BUILTIN);
 					#endif
 					digitalWrite(LED_BUILTIN, HIGH);
 				#else
-					#ifdef MEGA_MANIFESTO_DEBUG
+					#ifdef CALLER_MANIFESTO_DEBUG
 						Serial.println(F("\tLED_BUILTIN IS NOT DEFINED in this context!"));
 					#endif
 				#endif
@@ -89,7 +89,7 @@ public:
 
 			case 1:
 			{
-				#ifdef MEGA_MANIFESTO_DEBUG
+				#ifdef CALLER_MANIFESTO_DEBUG
 				Serial.println(F("\tCase 1 - Turning LED OFF"));
 				#endif
 		
