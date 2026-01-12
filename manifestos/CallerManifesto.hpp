@@ -24,20 +24,21 @@ public:
 
     const char* class_name() const override { return "CallerManifesto"; }
 
-    CallerManifesto() : TalkerManifesto() {}	// Constructor
+    CallerManifesto() : TalkerManifesto() {
+		pinMode(LED_BUILTIN, OUTPUT);
+		digitalWrite(LED_BUILTIN, LOW); // Start with LED off
+	}	// Constructor
 
 
 protected:
 
-    bool _is_led_on = false;  // keep track of state yourself, by default it's off
-    uint16_t _bpm_10 = 1200;
-    uint16_t _total_calls = 0;
+	bool _active_caller = false;
+	uint32_t _time_to_call = 0;
+	uint32_t _time_to_live = 0;
 
-
-    Action calls[3] = {
-		{"on", "Turns led ON"},
-		{"off", "Turns led OFF"},
-		{"bpm_10", "Sets the Tempo in BPM x 10"}
+    Action calls[2] = {
+		{"active", "Gets or set the active status"},
+		{"minutes", "Gets or sets the actual minutes"}
     };
     
 public:
@@ -60,65 +61,75 @@ public:
 
 			case 0:
 			{
-				#ifdef CALLER_MANIFESTO_DEBUG
-				Serial.println(F("\tCase 0 - Turning LED ON"));
-				#endif
-		
-				if (!_is_led_on) {
-				#ifdef LED_BUILTIN
-					#ifdef CALLER_MANIFESTO_DEBUG
-						Serial.print(F("\tLED_BUILTIN IS DEFINED as: "));
-						Serial.println(LED_BUILTIN);
-					#endif
-					digitalWrite(LED_BUILTIN, HIGH);
-				#else
-					#ifdef CALLER_MANIFESTO_DEBUG
-						Serial.println(F("\tLED_BUILTIN IS NOT DEFINED in this context!"));
-					#endif
-				#endif
-					_is_led_on = true;
-					_total_calls++;
-					return true;
+				if (json_message.has_nth_value_number(0)) {
+					if (json_message.get_nth_value_number(0)) {
+						if (_active_caller) {
+							json_message.set_nth_value_string(0, "Already active!");
+						} else {
+							_active_caller = true;
+							return true;
+						}
+					} else {
+						if (!_active_caller) {
+							json_message.set_nth_value_string(0, "Already inactive!");
+						} else {
+							_active_caller = false;
+							return true;
+						}
+					}
 				} else {
-					// *************** PARALLEL DEVELOPMENT WITH JSONMESSAGE (DONE) ***************
-					json_message.set_nth_value_string(0, "Already On!");
-					return false;
+					return json_message.set_nth_value_number(0, (uint32_t)_active_caller);
 				}
 			}
 			break;
 
 			case 1:
 			{
-				#ifdef CALLER_MANIFESTO_DEBUG
-				Serial.println(F("\tCase 1 - Turning LED OFF"));
-				#endif
-		
-				if (_is_led_on) {
-				#ifdef LED_BUILTIN
-					digitalWrite(LED_BUILTIN, LOW);
-				#endif
-					_is_led_on = false;
-					_total_calls++;
+				if (json_message.has_nth_value_number(0)) {
+					uint32_t milliseconds_to_call = json_message.get_nth_value_number(0) % 60;
+					milliseconds_to_call = (60UL - milliseconds_to_call) * 60 * 1000;
+					uint32_t present_time = millis();
+					_time_to_call = present_time + milliseconds_to_call;
+					return true;
 				} else {
-					// *************** PARALLEL DEVELOPMENT WITH JSONMESSAGE (DONE) ***************
-					json_message.set_nth_value_string(0, "Already Off!");
-					return false;
+					uint32_t minutes = _time_to_call / 1000 / 60;
+					minutes = 60 - minutes % 60;
+					return json_message.set_nth_value_number(0, minutes);
 				}
-				return true;
 			}
 			break;
-			
-            case 2:
-				// *************** PARALLEL DEVELOPMENT WITH JSONMESSAGE (DONE) ***************
-                _bpm_10 = json_message.get_nth_value_number(0);
-                return true;
-                break;
-				
-            // case 3:
-			// 	return _bpm_10;
 		}
 		return false;
 	}
+
+
+	void _loop(JsonTalker& talker) override {
+		uint32_t present_time = millis();
+		if ((int32_t)(present_time - _time_to_call) >= 0) {
+			JsonMessage call_buzzer;
+			call_buzzer.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
+			call_buzzer.set_message_value(MessageValue::TALKIE_MSG_CALL);
+			call_buzzer.set_to_name("buzzer");
+			call_buzzer.set_action_name("buzz");
+			talker.transmitToRepeater(call_buzzer);
+			_time_to_call = present_time + 60UL * 60 * 1000;	// 60 minutes
+		}
+		if ((int32_t)(present_time - _time_to_live) >= 0) {
+			digitalWrite(LED_BUILTIN, LOW);
+			_time_to_live = present_time + 61UL * 60 * 1000;	// 61 minutes
+		}
+	}
+
+
+	void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
+        (void)talker;		// Silence unused parameter warning
+        (void)json_message;	// Silence unused parameter warning
+        (void)talker_match;	// Silence unused parameter warning
+
+		uint32_t present_time = millis();
+		_time_to_live = present_time + 61UL * 60 * 1000;	// 61 minutes
+		digitalWrite(LED_BUILTIN, HIGH);
+    }
     
 };
 
