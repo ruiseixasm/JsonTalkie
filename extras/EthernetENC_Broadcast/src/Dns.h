@@ -5,7 +5,7 @@
 #ifndef DNSClient_h
 #define DNSClient_h
 
-#include "EthernetENC_BroadcastUDP.h"
+#include "EthernetENC_BroadcastUdp.h"
 
 class DNSClient
 {

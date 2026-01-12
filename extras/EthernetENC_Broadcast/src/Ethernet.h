@@ -31,7 +31,7 @@
 #include "utility/Enc28J60Network.h"
 #include "EthernetClient.h"
 #include "EthernetServer.h"
-#include "EthernetENC_BroadcastUDP.h"
+#include "EthernetENC_BroadcastUdp.h"
 
 extern "C"
 {

@@ -18,7 +18,7 @@
  */
 
 #include "Ethernet.h"
-#include "EthernetENC_BroadcastUDP.h"
+#include "EthernetENC_BroadcastUdp.h"
 
 extern "C" {
 #include "utility/uip-conf.h"
