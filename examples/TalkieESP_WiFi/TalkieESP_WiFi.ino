@@ -129,7 +129,6 @@ void setup() {
 
 	JsonMessage turn_off;
 	turn_off.set_message_value(MessageValue::TALKIE_MSG_CALL);
-	turn_off.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
 	turn_off.set_to_name("blue2");	// The blue Talker is the one that controls the blue light
 	turn_off.set_action_name("on");	// Because 'on' is 'off' on the ESP8266
 

@@ -137,6 +137,7 @@ public:
 		JsonMessage message_copy(message);
 		message_copy.set_from_name("");
 		message_copy.set_identity();
+		message_copy.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
 		message_copy.set_no_reply();
 		return _talkerDownlink(dummy_talker, message_copy);
 	}
