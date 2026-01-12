@@ -29,9 +29,9 @@ https://github.com/ruiseixasm/JsonTalkie
 #include "TalkieCodes.hpp"
 #include "JsonMessage.hpp"
 #include "BroadcastSocket.h"
-#include "TalkerManifesto.hpp"
 #include "JsonTalker.h"
 #include "MessageRepeater.hpp"
+#include "TalkerManifesto.hpp"
 
 
 #endif // JSON_TALKIE_HPP
