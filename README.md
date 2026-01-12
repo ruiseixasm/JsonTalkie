@@ -160,13 +160,13 @@ In total there are the following 5 types of nodes:
 1. `down_linked` Talkers;
 1. `up_linked` Talkers.
 
-A Socket being `up_linked` means that it can NOT handle or transmit `local` messages.
+The rules above result in the following exclusions of message transmission:
+- A Socket being `up_linked` means that it can NOT handle or transmit `local` messages.
+- A Talker being `up_linked` means that it can NOT handle or transmit `remote` messages.
 
-A Talker being `up_linked` means that it can NOT handle or transmit `remote` messages.
-
-The setting of an `up_linked` Socket into an `up_bridged` one is needed for the case where the
-communications are done in the same platform passible of being considered local and thus it shall process
-`local` messages too.
+The setting of an `up_linked` Socket into an `up_bridged` one is useful for the situation where the
+transmissions are done in the same platform considered local and thus it shall
+bridge all `local` messages too.
 
 The placement of a Talker as `up_linked` is intended to keep all its transmissions as local,
 thus invisible to all remote Talkers.
