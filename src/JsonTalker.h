@@ -344,7 +344,7 @@ public:
 
 
 	/**
-     * @brief Gets the spointer to the Repeater allowing its direct access
+     * @brief Gets the Repeater pointer enabling its direct access
 	 * 
      * @return Returns the MessageRepeater pointer of the Talker
      */
