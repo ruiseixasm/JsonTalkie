@@ -168,7 +168,7 @@ These are the attributes of a Talker:
 - **manifesto** - The Talker manifesto that sets all its Actions in detail
 
 ### Manifesto interface
-In the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/manifestos) you can find further description and some manifesto examples for diverse type of actions and Talker methods processing, like echo and error.
+In the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) you can find further description and some manifesto examples for diverse type of actions and Talker methods processing, like echo and error.
 
 A Manifesto **implementation** has the following attributes:
 - **calls** - An array of Actions (name and description)
@@ -191,7 +191,7 @@ uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
 A Broadcast Socket **implementation** shall be able to receive and send in broadcast mode, this ability is required because the Talkers are recognizable by their names shown by the `talk` command, and thus, become able to auto configure the following direct connections (unicast). The broadcast communications are mainly intended to discover talkers or send to a channel (many) instead of talker name (single).
 
 ### Implementation
-In the folders [sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/sockets) you can find further description and many socket examples for diverse type of protocols and even libraries, like Ethernet and SPI protocols.
+In the folders [sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets) you can find further description and many socket examples for diverse type of protocols and even libraries, like Ethernet and SPI protocols.
 
 These are the member variables of the `BroadcastSocket`:
 ```cpp
@@ -263,7 +263,7 @@ void loop() {
 }
 ```
 ### The included manifesto and socket
-The included manifesto and socket are in the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/manifestos) and [sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/sockets) respectively, depending on the socket implemented being used, you may have more methods available specific for that socket.
+The included manifesto and socket are in the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) and [sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets) respectively, depending on the socket implemented being used, you may have more methods available specific for that socket.
 ### Interacting with the Talker
 This example uses a Serial socket, so, the interaction is always one-to-one, and here you have two options, using another Talker with a different Manifesto that sends commands to this one, or just for testing, do it in an easier way with the [JsonTalkerPy](https://github.com/ruiseixasm/JsonTalkiePy) command line in the computer. To do so just follow the instructions [here](https://github.com/ruiseixasm/JsonTalkiePy).
 
@@ -379,7 +379,7 @@ Bellow is an example of a series of unit tests done to the class `JsonMessage` d
 ```
 In the example above, specific edge cases are tested, the *roger* return means that the test passed, otherwise
 the return value would be *negative*. It is also possible to run all tests at once, with roger meaning all
-have passed. You can find the *test* Manifesto in the [manifestos folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/manifestos).
+have passed. You can find the *test* Manifesto in the [manifestos folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos).
 ### Inside calls
 So far we have been doing remote calls from a computer via Python, but there are cases that would be useful
 to do a call from inside the board's Talker itself. This is the case of the *spy* manifesto.
