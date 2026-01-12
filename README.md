@@ -147,11 +147,18 @@ The `mute` setting is exclusive to the `call` commands in order to reduce networ
 The `MessageRepeater` routes the messages accordingly to its source and message value, the source
 comes from the call method `_transmitToRepeater` depending if it's a Socket or a Talker, both here called
 nodes.
-1. All `remote` messages from `up_linked` *and* `up_bridged` Sockets are routed to `down_linked` nodes (2 to 1);
-1. All `remote` messages from `down_linked` nodes are routed to the `up_linked` *and* `up_bridged` Sockets (1 to 2);
+1. All `remote` messages from `up_linked` *and* `up_bridged` Sockets are routed to `down_linked` nodes (2 to 2);
+1. All `remote` messages from `down_linked` nodes are routed to the `up_linked` *and* `up_bridged` Sockets (2 to 2);
 1. All `local` messages are routed to all nodes except the `up_linked` Sockets (4 to 4);
-1. All `self` messages from a Talker are routed to that same Talker;
-1. All `none` messages are dropped and thus NOT sent to any node.
+1. All `self` messages from a Talker are routed to that same Talker (1 to 1);
+1. All `none` messages are dropped and thus NOT sent to any node (0 to 0).
+
+In total there are the following 5 types of nodes:
+1. `up_linked` Sockets;
+1. `up_bridged` Sockets;
+1. `down_linked` Sockets;
+1. `down_linked` Talkers;
+1. `up_linked` Talkers.
 
 The setting of an `up_linked` node into an `up_bridged` one is needed for the case where the
 communications are done in the same platform passible of being considered local and thus it shall process
