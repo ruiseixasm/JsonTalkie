@@ -207,7 +207,6 @@ This is an example that just prints the first value of the 'noisy' message.
 ```cpp
 	void _noise(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) {
 		(void)talker;		// Silence unused parameter warning
-		(void)json_message;	// Silence unused parameter warning
 		(void)talker_match;	// Silence unused parameter warning
 
 		Serial.println(json_message.get_nth_value_string(0));
