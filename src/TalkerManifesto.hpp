@@ -28,6 +28,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #include <Arduino.h>
 #include "JsonTalker.h"
+#include "MessageRepeater.hpp"
 
 using LinkType			= TalkieCodes::LinkType;
 using TalkerMatch 		= TalkieCodes::TalkerMatch;
