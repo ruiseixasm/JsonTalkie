@@ -2,18 +2,18 @@
 
 Multiple manifestos that can be used with the [JsonTalkie](https://github.com/ruiseixasm/JsonTalkie)
 software by implementing its `TalkerManifesto` interface.
-You can see many examples of manifestos right in [this same folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/manifestos).
+You can see many examples of manifestos right in [this same folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos).
 ## Implementation
 You can create many Manifestos to different scenarios by extending the `TalkerManifesto` class.
 To do so, you must override, at least, the following methods:
-```
+```cpp
 	const char* class_name() const override { return "LedManifesto"; }
 	const Action* _getActionsArray() const override { return calls; }
     uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
 ```
 As it's possible to be seen, these methods relate to the member variable `calls`,
 that depending on the number of the actions, it shall follow the following structure:
-```
+```cpp
     Action calls[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
@@ -26,11 +26,11 @@ in the case above, that is represented with `[3]`.
 
 ### Example
 Here is a bare minimum example of such implementation that controls a Blue LED:
-```
+```cpp
 #ifndef BLUE_MANIFESTO_HPP
 #define BLUE_MANIFESTO_HPP
 
-#include "../TalkerManifesto.hpp"
+#include <TalkerManifesto.hpp>
 
 class BlueManifesto : public TalkerManifesto {
 public:
@@ -129,7 +129,7 @@ in the same fashion as you would for the typical `loop` function in the Arduino,
 
 Here is an example of such programming, a buzzer that takes it's time that with the loop
 avoids the usage of `delay` calls that interrupt the normal flow of the program.
-```
+```cpp
 	void _loop(JsonTalker& talker) override {
         (void)talker;		// Silence unused parameter warning
 		if ((uint16_t)millis() - _buzz_start > _buzz_duration_ms) {
@@ -145,56 +145,56 @@ So, a talker not only is able to receive messages as also is able to send new on
 by the Talker Manifesto, and thus, is able to process the respective responses, echoes, in this method.
 
 Here is an example of a Manifesto that processes the responses to its generated pings.
-```
-void Spy::_echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) {
-    (void)talker_match;	// Silence unused parameter warning
+```cpp
+	void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) {
+		(void)talker_match;	// Silence unused parameter warning
 
-	Original original_message = talker.get_original();
-	
-	// In condition to calculate the delay right away, no need to extra messages
-	uint16_t actual_time = static_cast<uint16_t>(millis());
-	uint16_t message_time = json_message.get_timestamp();	// must have
-	uint16_t time_delay = actual_time - message_time;
-	json_message.set_nth_value_number(0, time_delay);
-	json_message.set_nth_value_string(1, json_message.get_from_name());
+		Original original_message = talker.get_original();
+		
+		// In condition to calculate the delay right away, no need to extra messages
+		uint16_t actual_time = static_cast<uint16_t>(millis());
+		uint16_t message_time = json_message.get_timestamp();	// must have
+		uint16_t time_delay = actual_time - message_time;
+		json_message.set_nth_value_number(0, time_delay);
+		json_message.set_nth_value_string(1, json_message.get_from_name());
 
-	// Prepares headers for the original REMOTE sender
-	json_message.set_to_name(_original_talker.c_str());
-	json_message.set_from_name(talker.get_name());
+		// Prepares headers for the original REMOTE sender
+		json_message.set_to_name(_original_talker.c_str());
+		json_message.set_from_name(talker.get_name());
 
-	// Emulates the REMOTE original call
-	json_message.set_identity(_original_message.identity);
+		// Emulates the REMOTE original call
+		json_message.set_identity(_original_message.identity);
 
-	// It's already an ECHO message, it's because of that that entered here
-	// Finally answers to the REMOTE caller by repeating all other json fields
-	json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
-	talker.transmitToRepeater(json_message);
-}
+		// It's already an ECHO message, it's because of that that entered here
+		// Finally answers to the REMOTE caller by repeating all other json fields
+		json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
+		talker.transmitToRepeater(json_message);
+	}
 ```
 ### _error
 The `_error` method can be used for report the errors returned by other Talkers,
 in this example the Talker Manifesto results in the printing of those errors received.
-```
-void Spy::_error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) {
-    (void)talker;		// Silence unused parameter warning
-    (void)talker_match;	// Silence unused parameter warning
+```cpp
+	void _error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) {
+		(void)talker;		// Silence unused parameter warning
+		(void)talker_match;	// Silence unused parameter warning
 
-	ValueType value_type = json_message.get_nth_value_type(0);
-	switch (value_type) {
+		ValueType value_type = json_message.get_nth_value_type(0);
+		switch (value_type) {
 
-		case ValueType::TALKIE_VT_STRING:
-			Serial.println(json_message.get_nth_value_string(0));
-			break;
-		
-		case ValueType::TALKIE_VT_INTEGER:
-			Serial.println(json_message.get_nth_value_number(0));
-			break;
-		
-		default:
-			Serial.println(F("Empty error received!"));
-			break;
+			case ValueType::TALKIE_VT_STRING:
+				Serial.println(json_message.get_nth_value_string(0));
+				break;
+			
+			case ValueType::TALKIE_VT_INTEGER:
+				Serial.println(json_message.get_nth_value_number(0));
+				break;
+			
+			default:
+				Serial.println(F("Empty error received!"));
+				break;
+		}
 	}
-}
 ```
 ### _noise
 The `_noise` as it implies processes messages that lost their usual meaning, this is, their usual meaning was
@@ -204,12 +204,12 @@ any error associated end up triggering this method. So, the remaining 'noisy' me
 in the way you see fit.
 
 This is an example that just prints the first value of the 'noisy' message.
-```
-void Spy::_noise(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) {
-    (void)talker;		// Silence unused parameter warning
-    (void)json_message;	// Silence unused parameter warning
-    (void)talker_match;	// Silence unused parameter warning
+```cpp
+	void _noise(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) {
+		(void)talker;		// Silence unused parameter warning
+		(void)json_message;	// Silence unused parameter warning
+		(void)talker_match;	// Silence unused parameter warning
 
-	Serial.println(json_message.get_nth_value_string(0));
-}
+		Serial.println(json_message.get_nth_value_string(0));
+	}
 ```
