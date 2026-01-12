@@ -596,9 +596,8 @@ public:
 			}
 			break;
 			
-			case BroadcastValue::TALKIE_BC_LOCAL:		// To downlinked nodes
+			case BroadcastValue::TALKIE_BC_LOCAL:		// To local talkers and bridged sockets
 			{
-
 				switch (talker_match) {
 
 					case TalkerMatch::TALKIE_MATCH_ANY:
@@ -606,6 +605,10 @@ public:
 						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count;) {
 							JsonMessage message_copy(message);
 							_downlinked_talkers[talker_i++]->_handleTransmission(message_copy, talker_match);
+						}
+						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count;) {
+							JsonMessage message_copy(message);
+							_uplinked_talkers[talker_i++]->_handleTransmission(message_copy, talker_match);
 						}
 					}
 					break;
@@ -620,6 +623,13 @@ public:
 								_downlinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
 							}
 						}
+						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+							uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
+							if (talker_channel == message_channel) {
+								JsonMessage message_copy(message);
+								_uplinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
+							}
+						}
 					}
 					break;
 					
@@ -631,6 +641,13 @@ public:
 							const char* talker_name = _downlinked_talkers[talker_i]->get_name();
 							if (strcmp(talker_name, message_to_name) == 0) {
 								_downlinked_talkers[talker_i]->_handleTransmission(message, talker_match);
+								return;
+							}
+						}
+						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+							const char* talker_name = _uplinked_talkers[talker_i]->get_name();
+							if (strcmp(talker_name, message_to_name) == 0) {
+								_uplinked_talkers[talker_i]->_handleTransmission(message, talker_match);
 								return;
 							}
 						}
