@@ -31,7 +31,7 @@ A lightweight library for Arduino communication and control using JSON messages 
 
 
 ### Typical usage
-```bash
+```md
 >>> talk
         [talk spy]                 I'm a Spy and I spy the talkers' pings
         [talk test]                I test the JsonMessage class
@@ -175,7 +175,7 @@ A Manifesto **implementation** has the following attributes:
 - **calls** - An array of Actions (name and description)
 
 An example of a calls array:
-```
+```cpp
 Action calls[3] = {
 	{"on", "Turns led ON"},
 	{"off", "Turns led OFF"},
@@ -195,7 +195,7 @@ A Broadcast Socket **implementation** shall be able to receive and send in broad
 In the folders [sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/sockets) you can find further description and many socket examples for diverse type of protocols and even libraries, like Ethernet and SPI protocols.
 
 These are the member variables of the `BroadcastSocket`:
-```
+```cpp
 	MessageRepeater* _message_repeater = nullptr;
 	LinkType _link_type = LinkType::TALKIE_LT_NONE;
 
@@ -207,7 +207,7 @@ These are the member variables of the `BroadcastSocket`:
     uint16_t _drops_count = 0;
 ```
 And these are the methods which definition in the socket implementation is mandatory:
-```
+```cpp
 virtual const char* class_name() const = 0;
 virtual void _receive() = 0;
 virtual bool _send(const JsonMessage& json_message) = 0;
@@ -217,7 +217,7 @@ virtual bool _send(const JsonMessage& json_message) = 0;
 This example is useful to illustrate how easy it is to include this library for a simple Serial socket.
 
 ### The .ino sketch for a Serial socket (115200)
-```
+```cpp
 #include <JsonTalkie.hpp>
 #include <sockets/SocketSerial.hpp>
 #include <manifestos/SerialManifesto.hpp>
@@ -270,11 +270,11 @@ This example uses a Serial socket, so, the interaction is always one-to-one, and
 
 ### Command line usage
 Type the following commands to start the Serial communication (change port if needed)
-```
+```sh
 python talk.py --socket SERIAL --port COM5
 ```
 Then you can just type commands
-```
+```md
 >>> talk
         [talk serial]              I'm a serial talker
 >>> list serial
@@ -327,7 +327,7 @@ The Repeater automatically sets the up linked sockets as up linked, so, in order
     spi_socket.setLinkType(LinkType::TALKIE_LT_UP_BRIDGED);  // Makes sure it accepts LOCAL messages too
 ```
 With the command `system` it's possible to get the board and the sockets associated to each Talker.
-```
+```md
 >>> talk
 	[talk spy]           	   I'm a Spy and I spy the talkers' pings
 	[talk test]          	   I test the JsonMessage class
@@ -352,7 +352,7 @@ One difficulty in dealing with embedded development, is the ability of testing a
 this can be easily accomplished with the JsonTalkie. You can create a Manifesto that does just that.
 
 Bellow is an example of a series of unit tests done to the class `JsonMessage` during its development.
-```
+```md
 >>> talk test
 	[talk test]          	   I test the JsonMessage class
 >>> list test
@@ -384,7 +384,7 @@ have passed. You can find the *test* Manifesto in the [manifestos folder](https:
 ### Inside calls
 So far we have been doing remote calls from a computer via Python, but there are cases that would be useful
 to do a call from inside the board's Talker itself. This is the case of the *spy* manifesto.
-```
+```md
 >>> talk spy
 	[talk spy]           	   I'm a Spy and I spy the talkers' pings
 >>> list spy
