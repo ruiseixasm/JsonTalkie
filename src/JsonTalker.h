@@ -342,6 +342,16 @@ public:
      */
 	LinkType getLinkType() const { return _link_type; }
 
+
+	/**
+     * @brief Gets the spointer to the Repeater allowing its direct access
+	 * 
+     * @return Returns the MessageRepeater pointer of the Talker
+     */
+	const MessageRepeater* getMessageRepeater() const {
+		return _message_repeater;
+	}
+
 	
     /**
      * @brief Get the last, non echo message (original)
