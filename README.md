@@ -183,7 +183,7 @@ Action calls[3] = {
 };
 ```
 Besides the calls, a Manifesto implementation should also have these mandatory methods:
-```
+```cpp
 const char* class_name() const override { return "BlueManifesto"; }
 const Action* _getActionsArray() const override { return calls; }
 uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
