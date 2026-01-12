@@ -85,15 +85,15 @@ public:
 
 			case 1:
 			{
+				uint32_t present_time = millis();
 				if (json_message.has_nth_value_number(0)) {
 					uint32_t milliseconds_to_call = json_message.get_nth_value_number(0) % 60;
 					milliseconds_to_call = (60UL - milliseconds_to_call) * 60 * 1000;
-					uint32_t present_time = millis();
 					_time_to_call = present_time + milliseconds_to_call;
 					return true;
 				} else {
-					uint32_t minutes = _time_to_call / 1000 / 60;
-					minutes = 60 - minutes % 60;
+					uint32_t minutes = (_time_to_call - present_time) / 1000 / 60;
+					minutes = 59UL - minutes % 60;	// 0 based (0 to 59 minutes)
 					return json_message.set_nth_value_number(0, minutes);
 				}
 			}
@@ -105,13 +105,16 @@ public:
 
 	void _loop(JsonTalker& talker) override {
 		uint32_t present_time = millis();
-		if (_active_caller && (int32_t)(present_time - _time_to_call) >= 0) {
-			JsonMessage call_buzzer;
-			call_buzzer.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
-			call_buzzer.set_message_value(MessageValue::TALKIE_MSG_CALL);
-			call_buzzer.set_to_name("buzzer");
-			call_buzzer.set_action_name("buzz");
-			talker.transmitToRepeater(call_buzzer);
+		if ((int32_t)(present_time - _time_to_call) >= 0) {
+			if (_active_caller) {
+				JsonMessage call_buzzer;
+				call_buzzer.set_message_value(MessageValue::TALKIE_MSG_CALL);
+				call_buzzer.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
+				call_buzzer.set_to_name("nano");
+				call_buzzer.set_action_name("buzz");
+				talker.transmitToRepeater(call_buzzer);
+			}
+			// The time needs to be updated regardless of the transmission above
 			_time_to_call = present_time + 60UL * 60 * 1000;	// 60 minutes
 		}
 		if ((int32_t)(present_time - _time_to_live) >= 0) {
