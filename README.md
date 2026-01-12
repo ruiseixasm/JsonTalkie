@@ -29,9 +29,8 @@ A lightweight library for Arduino communication and control using JSON messages 
    - Talker in [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy)
    - Got the the page above for more details concerning its usage
 
-
 ### Typical usage
-```md
+```
 >>> talk
         [talk spy]                 I'm a Spy and I spy the talkers' pings
         [talk test]                I test the JsonMessage class
@@ -274,7 +273,7 @@ Type the following commands to start the Serial communication (change port if ne
 python talk.py --socket SERIAL --port COM5
 ```
 Then you can just type commands
-```md
+```
 >>> talk
         [talk serial]              I'm a serial talker
 >>> list serial
@@ -296,7 +295,7 @@ Besides the simple examples shown above, there are other interesting use cases t
 ### One platform, multiple boards
 The JsonTalkie allows both **remote** and **local** communication depending on the type of linking.
 By local communication one doesn't necessarily mean in the same board, it is possible to have local communication among multiple boards as long as they are in the same *platform*, so, you may have a circuit where different boards communicate with each other via protocols like the SPI.
-```m
+```
 +-----------------------------+                                     +-----------------------------+
 | Ethernet socket (up linked) |                              +------| SPI socket (**up bridged**) |
 +-----------------------------+                              |      +-----------------------------+
@@ -327,7 +326,7 @@ The Repeater automatically sets the up linked sockets as up linked, so, in order
     spi_socket.setLinkType(LinkType::TALKIE_LT_UP_BRIDGED);  // Now accepts LOCAL messages too
 ```
 With the command `system` it's possible to get the board and the sockets associated to each Talker.
-```md
+```
 >>> talk
 	[talk spy]           	   I'm a Spy and I spy the talkers' pings
 	[talk test]          	   I test the JsonMessage class
@@ -352,7 +351,7 @@ One difficulty in dealing with embedded development, is the ability of testing a
 this can be easily accomplished with the JsonTalkie. You can create a Manifesto that does just that.
 
 Bellow is an example of a series of unit tests done to the class `JsonMessage` during its development.
-```md
+```
 >>> talk test
 	[talk test]          	   I test the JsonMessage class
 >>> list test
@@ -384,7 +383,7 @@ have passed. You can find the *test* Manifesto in the [manifestos folder](https:
 ### Inside calls
 So far we have been doing remote calls from a computer via Python, but there are cases that would be useful
 to do a call from inside the board's Talker itself. This is the case of the *spy* manifesto.
-```md
+```
 >>> talk spy
 	[talk spy]           	   I'm a Spy and I spy the talkers' pings
 >>> list spy
