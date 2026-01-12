@@ -109,7 +109,7 @@ public:
 	 * }
 	 * ```
 	 */
-    void loop() {
+    void loop() const {
 		for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
 			_uplinked_sockets[socket_j]->_loop();
 		}
@@ -132,7 +132,7 @@ public:
 	 * 
      * @note Transmits a downlink message to the Repeater.
      */
-	bool downlinkMessage(const JsonMessage &message) {
+	bool downlinkMessage(const JsonMessage &message) const {
 		JsonTalker dummy_talker = JsonTalker("", "", nullptr);
 		JsonMessage message_copy(message);
 		message_copy.set_from_name("");
@@ -150,7 +150,7 @@ public:
 	 * 
      * @note Transmits a uplink message to the Repeater.
      */
-	bool uplinkMessage(const JsonMessage &message) {
+	bool uplinkMessage(const JsonMessage &message) const {
 		JsonTalker dummy_talker = JsonTalker("", "", nullptr);
 		JsonMessage message_copy(message);
 		message_copy.set_from_name("");
@@ -215,7 +215,7 @@ public:
 	 * 
      * @note This is intended to be called internally and not by the user code.
      */
-	void _socketDownlink(BroadcastSocket &socket, JsonMessage &message) {
+	void _socketDownlink(BroadcastSocket &socket, JsonMessage &message) const {
 		BroadcastValue broadcast = message.get_broadcast_value();
 		TalkerMatch talker_match = message.get_talker_match();
 
@@ -302,7 +302,7 @@ public:
 	 * 
      * @note This is intended to be called internally and not by the user code.
      */
-	bool _talkerUplink(JsonTalker &talker, JsonMessage &message) {
+	bool _talkerUplink(JsonTalker &talker, JsonMessage &message) const {
 
 		BroadcastValue broadcast = message.get_broadcast_value();
 
@@ -493,7 +493,7 @@ public:
 	 * 
      * @note This is intended to be called internally and not by the user code.
      */
-	void _socketUplink(BroadcastSocket &socket, JsonMessage &message) {
+	void _socketUplink(BroadcastSocket &socket, JsonMessage &message) const {
 		BroadcastValue broadcast = message.get_broadcast_value();
 		TalkerMatch talker_match = message.get_talker_match();
 
@@ -612,7 +612,7 @@ public:
 	 * 
      * @note This is intended to be called internally and not by the user code.
      */
-	bool _talkerDownlink(JsonTalker &talker, JsonMessage &message) {
+	bool _talkerDownlink(JsonTalker &talker, JsonMessage &message) const {
 
 		BroadcastValue broadcast = message.get_broadcast_value();
 
