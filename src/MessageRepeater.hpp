@@ -315,51 +315,8 @@ public:
 
 		switch (broadcast) {
 
-			case BroadcastValue::TALKIE_BC_REMOTE:		// To uplinked nodes
+			case BroadcastValue::TALKIE_BC_REMOTE:		// To uplinked Sockets only
 			{
-				TalkerMatch talker_match = message.get_talker_match();
-
-				switch (talker_match) {
-
-					case TalkerMatch::TALKIE_MATCH_ANY:
-					{
-						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count;) {
-							JsonMessage message_copy(message);
-							_uplinked_talkers[talker_i++]->_handleTransmission(message_copy, talker_match);
-						}
-					}
-					break;
-					
-					case TalkerMatch::TALKIE_MATCH_BY_CHANNEL:
-					{
-						uint8_t message_channel = message.get_to_channel();
-						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
-							uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
-							if (talker_channel == message_channel) {
-								JsonMessage message_copy(message);
-								_uplinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
-							}
-						}
-					}
-					break;
-					
-					case TalkerMatch::TALKIE_MATCH_BY_NAME:
-					{
-						char message_to_name[TALKIE_NAME_LEN];
-						strcpy(message_to_name, message.get_to_name());
-						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
-							const char* talker_name = _uplinked_talkers[talker_i]->get_name();
-							if (strcmp(talker_name, message_to_name) == 0) {
-								_uplinked_talkers[talker_i]->_handleTransmission(message, talker_match);
-								return true;
-							}
-						}
-					}
-					break;
-
-					case TalkerMatch::TALKIE_MATCH_NONE: return true;
-					default: return false;
-				}
 				bool no_fails = true;
 				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
 					// Sockets ONLY manipulate the checksum ('c')
@@ -386,6 +343,10 @@ public:
 									_downlinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
 								}
 							}
+							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count;) {
+								JsonMessage message_copy(message);
+								_uplinked_talkers[talker_i++]->_handleTransmission(message_copy, talker_match);
+							}
 						}
 						break;
 						
@@ -399,6 +360,13 @@ public:
 										JsonMessage message_copy(message);
 										_downlinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
 									}
+								}
+							}
+							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+								uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
+								if (talker_channel == message_channel) {
+									JsonMessage message_copy(message);
+									_uplinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
 								}
 							}
 						}
@@ -415,6 +383,13 @@ public:
 										_downlinked_talkers[talker_i]->_handleTransmission(message, talker_match);
 										return true;
 									}
+								}
+							}
+							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
+								if (strcmp(talker_name, message_to_name) == 0) {
+									_uplinked_talkers[talker_i]->_handleTransmission(message, talker_match);
+									return;
 								}
 							}
 						}
