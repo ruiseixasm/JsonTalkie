@@ -1,11 +1,11 @@
 # JsonTalkie - Broadcast Sockets
 
 Multiple sockets that can be used with the [JsonTalkie](https://github.com/ruiseixasm/JsonTalkie) software by implementing its `BroadcastSocket` interface.
-You can see many examples of sockets right in [this same folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/src/sockets).
+You can see many examples of sockets right in [this same folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets).
 
 ## Implementation
 You can always implement your own socket, by extending the `BroadcastSocket` class. To do so, you must override the following methods:
-```
+```cpp
 	const char* class_name() const override { return "YourSocketName"; }
 	void _receive() override {}
 	bool _send(const JsonMessage& json_message) override {}
@@ -15,11 +15,11 @@ The methods above should follow these basic rules:
 - In the `_send` method you must read from the `json_message` buffer with the help of the methods `_read_buffer` and `_get_length`.
 ### Example
 Here is an example of such implementation for the Serial protocol:
-```
+```cpp
 #ifndef SOCKET_SERIAL_HPP
 #define SOCKET_SERIAL_HPP
 
-#include "../BroadcastSocket.h"
+#include <BroadcastSocket.h>
 
 class SocketSerial : public BroadcastSocket {
 public:
@@ -93,6 +93,7 @@ public:
 ```
 ## Ethernet
 ### BroadcastSocket_EtherCard
+#### Description
 Lightweight socket intended to be used with low memory boards like the Uno and the Nano, for the ethernet module `ENC28J60`.
 This library has the limitation of not being able to send *unicast* messages, all its responses are in *broadcast* mode, so, one
 way to avoid it is to mute the Talker and in that way the `call` commands on it don't overload the network.
@@ -121,20 +122,24 @@ if the message was sent via Wi-Fi.
 Above, besides a long ping, 106 milliseconds, some replies weren't even received, so, this library shouldn't be
 used via Wi-Fi if replies are critical. Must be noted however, that this huge latency is mainly due to the broadcasted reply,
 meaning that the received unicast message by the Uno board has the usual small latency.
-### Changed_EthernetENC
+#### Dependencies
+This Socket depends on the [library EtherCard](https://github.com/njh/EtherCard) that you can instal directly from the Arduino IDE.
+### EthernetENC_Broadcast
+#### Description
 This is the best library to be used with the module `ENC28J60`, it requires more memory so it shall be used with an
 Arduino Mega or any other with similar amount of memory or more.
 
 One of it's problems is that relies in a change done to the original library, as it's one that doesn't respond to broadcasted UDP packets
-out of the box. To do so, you can pick up the already changed one [here](https://github.com/ruiseixasm/JsonTalkie/tree/main/extras/Changed_EthernetENC),
+out of the box. To do so, you can pick up the already changed one [here](https://github.com/ruiseixasm/EthernetENC_Broadcast),
 or you can tweak the original yourself, by changing these lines in the file `Enc28J60Network.cpp`.
 
 Comment the existing lines and add the new one as bellow:
-```
-    // Pattern matching disabled – not needed for broadcast
+```cpp
+    // Pattern matching disabled – not needed for broadcast and multicast
+	// writeReg(ERXFCON, ERXFCON_UCEN|ERXFCON_CRCEN|ERXFCON_PMEN);
     // writeRegPair(EPMM0, 0x303f);
     // writeRegPair(EPMCSL, 0xf7f9);
-    writeReg(ERXFCON, ERXFCON_UCEN | ERXFCON_CRCEN | ERXFCON_BCEN);
+    writeReg(ERXFCON, ERXFCON_UCEN | ERXFCON_CRCEN | ERXFCON_BCEN | ERXFCON_MCEN);
 ```
 After these changes the library will start to receive broadcasted UDP messages too.
 For more details check the data sheet of the chip [ENC28J60](https://ww1.microchip.com/downloads/en/devicedoc/39662a.pdf).
@@ -147,7 +152,11 @@ it can be used via Wi-Fi too without the latency referred above, 4 instead of 10
 	[ping spy]           	   4
 >>>
 ```
+#### Dependencies
+This library is the adaptation of the EthernetENC library that allows the needed broadcast via UDP. You need to download the zip from
+the [EthernetENC_Broadcast repository](https://github.com/ruiseixasm/EthernetENC_Broadcast) as zip and then unzip it in the *libraries* Arduino folder.
 ### BroadcastSocket_Ethernet
+#### Description
 This socket is intended to be used with the original [Arduino Ethernet board](https://docs.arduino.cc/retired/shields/arduino-ethernet-shield-without-poe-module/),
 or other that has the chip `W5500` or `W5100`. Take note that depending on the board, the pins may vary, so read the
 following notes first.
@@ -167,8 +176,11 @@ it can be used via Wi-Fi too without the latency referred above, 6 instead of 10
 	[ping mega]          	   6
 >>>
 ```
+#### Dependencies
+This Socket already uses the Arduino Ethernet library that comes pre installed with the IDE.
 ## WiFi
 ### BroadcastESP_WiFi
+#### Description
 This socket is intended to be used with the boards ESP8266 or ESP32 that come with WiFi out of the box.
 
 Contrary to the socket implementation `BroadcastSocket_EtherCard` described above, this socket does *unicast*, so,
@@ -183,30 +195,42 @@ it can be used via Wi-Fi too without the latency referred above, 3 instead of 10
 One thing to take into consideration though, is that the fist ping can be sent in Broadcast mode because the first command is also
 used to get the Talker address and only then the messages are sent in unicast mode afterwards. So, in the example above,
 the `talk blue` command resulted in the association of the IP address with the Talker's name enabling the unicast `ping blue` command.
+#### Dependencies
+By installing the ESP8266 or ESP32 boards, you already get the WiFi library available.
 ## SPI
 SPI is among the most difficult protocols to implement, mainly in the Slave side. This happens because the SPI Arduino Slave is software based and the interrupts
 are done per byte and also they take their time, around, 12us. So, a message of 90 bytes long will take around 1 millisecond to be transmitted, this means that,
 it is best to target the talkers by name (unicast) than by channel (broadcast) to avoid repeating a single message among multiple Slave sockets.
 ### ESP32 Master
 #### SPI_ESP_Arduino_Master
+#### Description
 This Socket allows the communication centered in a single ESP32 master board to many Arduino slave boards.
+#### Dependencies
+This uses the already installed SPI Arduino library.
 ### Arduino Master
 #### SPI_Arduino_Arduino_Master_Multiple
+#### Description
 This Socket allows the communication centered in a single Arduino master board to many Arduino slave boards.
+#### Dependencies
+This uses the already installed SPI Arduino library.
 #### SPI_Arduino_Arduino_Master_Single
+#### Description
 This Socket allows the communication centered in a single Arduino master board to another single Arduino slave board.
+#### Dependencies
+This uses the already installed SPI Arduino library.
 ### Arduino Slave
 #### SPI_Arduino_Slave
+#### Description
 This Socket is targeted to Arduino boards intended to be used as SPI Slaves.
-
+#### Dependencies
+This uses the already installed SPI Arduino library.
 ## Serial
 ### SocketSerial
+#### Description
 This is the simplest Socket of all, and it's not a Broadcast Socket at all, given that the Serial protocol is one-to-one, so, it's main purpose is just that, for one board to communicate with other, ideal for local communication in the same platform.
 
 It may be used for testing too, by allowing a direct connection with a computer. Just make sure you disable any Serial print as those
 may interfere with the normal flow of communication if formatted in the same way as a json string.
-
-
-
-
+#### Dependencies
+This uses the Serial communication, so, no need to install any extra library.
 
