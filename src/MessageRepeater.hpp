@@ -287,6 +287,15 @@ public:
 				// Sockets ONLY manipulate the checksum ('c')
 				_downlinked_sockets[socket_j]->_finishTransmission(message);
 			}
+			if (broadcast == BroadcastValue::TALKIE_BC_LOCAL) {
+				// Only Local messages are routed to the ulinked sockets
+				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
+					if (_uplinked_sockets[socket_j]->getLinkType() == LinkType::TALKIE_LT_UP_BRIDGED) {
+						// Sockets ONLY manipulate the checksum ('c')
+						_uplinked_sockets[socket_j]->_finishTransmission(message);
+					}
+				}
+			}
 			
 			#ifdef MESSAGE_DEBUG_TIMING
 			Serial.print(" | ");
