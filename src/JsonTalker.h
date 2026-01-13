@@ -624,7 +624,7 @@ public:
 				break;
 			
 			case MessageValue::TALKIE_MSG_ECHO:
-				if (_manifesto) {
+				if (_manifesto && talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
 
 					// Makes sure it has the same id first (echo condition)
 					uint16_t message_id = json_message.get_identity();
