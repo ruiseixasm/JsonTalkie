@@ -114,7 +114,7 @@ private:
 			return buffer;
 			
 		#elif defined(ESP32)
-			static char buffer[64];
+			static char buffer[TALKIE_MAX_LEN];
     		uint64_t chipId = ESP.getEfuseMac();
 			snprintf(buffer, sizeof(buffer),
 				"ESP32 (Rev: %d) (Chip ID: %08X%08X)",
