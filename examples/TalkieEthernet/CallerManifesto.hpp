@@ -37,7 +37,7 @@ protected:
 	uint32_t _time_to_live = 0;
 
     Action calls[2] = {
-		{"active", "Gets or set the active status"},
+		{"active", "Gets or sets the active status"},
 		{"minutes", "Gets or sets the actual minutes"}
     };
     

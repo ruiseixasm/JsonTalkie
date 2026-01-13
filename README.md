@@ -426,7 +426,7 @@ and on the action *buzz*. This is done once as it follows.
 >>> talk caller
         [talk caller]              I'm a 60 minutes buzzer caller
 >>> list caller
-        [call caller 0|active]     Gets or set the active status
+        [call caller 0|active]     Gets or sets the active status
         [call caller 1|minutes]    Gets or sets the actual minutes
 >>> call caller 0
         [call caller 0]            roger           0
@@ -466,7 +466,7 @@ protected:
 	uint32_t _time_to_live = 0;
 
     Action calls[2] = {
-		{"active", "Gets or set the active status"},
+		{"active", "Gets or sets the active status"},
 		{"minutes", "Gets or sets the actual minutes"}
     };
     
