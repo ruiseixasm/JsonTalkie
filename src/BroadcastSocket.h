@@ -70,7 +70,7 @@ protected:
 
 	MessageRepeater* _message_repeater = nullptr;
 	LinkType _link_type = LinkType::TALKIE_LT_NONE;
-	bool _bridged = false;
+	bool _bridged = false;	///< Bridged: Can send and receive LOCAL broadcast messages too
 
     // Pointer PRESERVE the polymorphism while objects don't!
     uint8_t _max_delay_ms = 5;

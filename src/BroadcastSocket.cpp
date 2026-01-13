@@ -36,7 +36,6 @@ void BroadcastSocket::_transmitToRepeater(JsonMessage& json_message) {
 	if (_message_repeater) {
 		switch (_link_type) {
 			case LinkType::TALKIE_LT_UP_LINKED:
-			case LinkType::TALKIE_LT_UP_BRIDGED:
 				_message_repeater->_socketDownlink(*this, json_message);
 				break;
 			case LinkType::TALKIE_LT_DOWN_LINKED:
