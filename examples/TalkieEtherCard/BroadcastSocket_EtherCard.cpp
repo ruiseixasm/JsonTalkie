@@ -18,8 +18,10 @@ https://github.com/ruiseixasm/JsonTalkie
 JsonMessage BroadcastSocket_EtherCard::_json_message;
 char* BroadcastSocket_EtherCard::_ptr_received_buffer = nullptr;
 
-uint8_t BroadcastSocket_EtherCard::_source_ip[4] = {0};
 size_t BroadcastSocket_EtherCard::_data_length = 0;
 // ===== [SELF IP] =====
 uint8_t BroadcastSocket_EtherCard::_local_ip[4] = {0};
+#ifdef ENABLE_DIRECT_ADDRESSING
+uint8_t BroadcastSocket_EtherCard::_source_ip[4] = {0};
+#endif
 
