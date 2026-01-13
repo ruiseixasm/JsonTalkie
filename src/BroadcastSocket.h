@@ -272,7 +272,7 @@ public:
      * 
      * @note This method is used by the Message Repeater to set up the Socket
      */
-	void _setLink(MessageRepeater* message_repeater, LinkType link_type);
+	virtual void _setLink(MessageRepeater* message_repeater, LinkType link_type);
 
 
     /**
