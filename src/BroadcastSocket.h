@@ -244,7 +244,7 @@ public:
      */
 	LinkType getLinkType() const { return _link_type; }
 
-	
+
     /**
      * @brief Get the maximum amount of delay a message can have before being dropped
      * @return Returns the delay in microseconds
@@ -261,6 +261,15 @@ public:
      */
     uint16_t get_drops_count() const { return _drops_count; }
 
+	
+    /**
+     * @brief Get the the bridged configuration of the Socket
+     * @return true if bridged and false if unbridged
+     */
+	bool isBridged() const {
+		return _bridged;
+	}
+	
 
     // ============================================
     // SETTERS - FIELD MODIFICATION
@@ -295,6 +304,26 @@ public:
      */
     void set_max_delay(uint8_t max_delay_ms = 5) { _max_delay_ms = max_delay_ms; }
 	
+
+    /**
+     * @brief Sets the Socket as Bridged
+     * 
+     * @note As bridged, the Socket receives Local messages even if uplinked
+     */
+	void bridgeSocket() { 
+        _bridged = true;
+    }
+    
+
+    /**
+     * @brief Sets the Socket as unbridged (removes the bridge)
+     * 
+     * @note As bridged, the Socket receives Local messages even if uplinked
+     */
+    void unbridgeSocket() { 
+        _bridged = false; 
+    }
+
 
 	/**
      * @brief The final step in a cycle of processing a json message in which the
