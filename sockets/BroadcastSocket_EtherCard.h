@@ -28,11 +28,17 @@ private:
 	static JsonMessage _json_message;
     static char* _ptr_received_buffer;
     uint16_t _port = 5005;
-    static uint8_t _source_ip[4];
     static size_t _data_length;
-
     // ===== [SELF IP] cache our own IP =====
     static uint8_t _local_ip[4];
+	
+	#ifdef ENABLE_DIRECT_ADDRESSING
+	// Source Talker info
+    static uint8_t _source_ip[4];
+	char _from_name[TALKIE_NAME_LEN] = {'\0'};
+    uint8_t _from_ip[4];
+	#endif
+
 
     static void staticCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, 
                           const char* data, uint16_t length) {
@@ -57,7 +63,9 @@ private:
 			if (message_buffer) {
 				_json_message._set_length(length);
 				memcpy(message_buffer, data, length);
+				#ifdef ENABLE_DIRECT_ADDRESSING
 				memcpy(_source_ip, src_ip, 4);
+				#endif
 				_data_length = length;	// Where is marked as received (> 0)
 			}
 		}
@@ -84,7 +92,12 @@ protected:
 			#endif
 
 			if (_json_message._validate_json()) {
-				_json_message._process_checksum();	// Has to be done before transmission
+				if (_json_message._process_checksum()) {
+					#ifdef ENABLE_DIRECT_ADDRESSING
+					strcpy(_from_name, _json_message.get_from_name());
+					memcpy(_from_ip, _source_ip, 4);
+					#endif
+				}
 				_startTransmission(_json_message);
 			}
 		}
@@ -104,7 +117,11 @@ protected:
 		#endif
 
 		#ifdef ENABLE_DIRECT_ADDRESSING
-		ether.sendUdp(message_buffer, message_length, _port, _source_ip, _port);
+		if (json_message.is_to_name(_from_name)) {
+			ether.sendUdp(message_buffer, message_length, _port, _from_ip, _port);
+		} else {
+			ether.sendUdp(message_buffer, message_length, _port, broadcastIp, _port);
+		}
 		#else
 		ether.sendUdp(message_buffer, message_length, _port, broadcastIp, _port);
 		#endif

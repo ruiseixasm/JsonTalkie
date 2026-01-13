@@ -18,7 +18,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <Ethernet.h>
 #include <EthernetUdp.h>
 
-// #define BROADCAST_ETHERNETENC_DEBUG
+// #define BROADCAST_ETHERNET_DEBUG
 #define ENABLE_DIRECT_ADDRESSING
 
 
@@ -49,7 +49,7 @@ protected:
 				if (_udp->remoteIP() == _local_ip) {
 					_udp->flush();   // discard payload
 					
-					#ifdef BROADCAST_ETHERNETENC_DEBUG
+					#ifdef BROADCAST_ETHERNET_DEBUG
 					Serial.println(F("\treceive1: Dropped packet for being sent from this socket"));
 					Serial.print(F("\t\tRemote IP: "));
 					Serial.println(_udp->remoteIP());
@@ -60,7 +60,7 @@ protected:
 					return;
 				} else {
 					
-					#ifdef BROADCAST_ETHERNETENC_DEBUG
+					#ifdef BROADCAST_ETHERNET_DEBUG
 					Serial.println(F("\treceive1: Packet NOT sent from this socket"));
 					Serial.print(F("\t\tRemote IP: "));
 					Serial.println(_udp->remoteIP());
@@ -85,7 +85,7 @@ protected:
 							_from_ip = _udp->remoteIP();
 						}
 		
-						#ifdef BROADCAST_ETHERNETENC_DEBUG
+						#ifdef BROADCAST_ETHERNET_DEBUG
 						Serial.print(F("\treceive1: "));
 						Serial.print(packetSize);
 						Serial.print(F("B from "));
@@ -111,15 +111,22 @@ protected:
 			IPAddress broadcastIP(255, 255, 255, 255);
 
 			#ifdef ENABLE_DIRECT_ADDRESSING
-			if (!_udp->beginPacket(_from_ip, _port)) {
-				#ifdef BROADCAST_ETHERNETENC_DEBUG
+			if (json_message.is_to_name(_from_name)) {
+				if (!_udp->beginPacket(_from_ip, _port)) {
+					#ifdef BROADCAST_ETHERNET_DEBUG
+					Serial.println(F("Failed to begin packet"));
+					#endif
+					return false;
+				}
+			} else if (!_udp->beginPacket(broadcastIP, _port)) {
+				#ifdef BROADCAST_ETHERNET_DEBUG
 				Serial.println(F("Failed to begin packet"));
 				#endif
 				return false;
 			}
 			#else
 			if (!_udp->beginPacket(broadcastIP, _port)) {
-				#ifdef BROADCAST_ETHERNETENC_DEBUG
+				#ifdef BROADCAST_ETHERNET_DEBUG
 				Serial.println(F("Failed to begin packet"));
 				#endif
 				return false;
@@ -133,13 +140,13 @@ protected:
 			(void)bytesSent; // Silence unused variable warning
 
 			if (!_udp->endPacket()) {
-				#ifdef BROADCAST_ETHERNETENC_DEBUG
+				#ifdef BROADCAST_ETHERNET_DEBUG
 				Serial.println(F("Failed to end packet"));
 				#endif
 				return false;
 			}
 
-			#ifdef BROADCAST_ETHERNETENC_DEBUG
+			#ifdef BROADCAST_ETHERNET_DEBUG
 			Serial.print(F("S: "));
 			Serial.write(
 				json_message._read_buffer(),
