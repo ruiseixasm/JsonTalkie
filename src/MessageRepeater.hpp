@@ -136,8 +136,8 @@ public:
 		JsonTalker dummy_talker = JsonTalker("", "", nullptr);
 		JsonMessage message_copy(message);
 		if (!message_copy.has_from_name()) message_copy.set_from_name("");
-		message_copy.set_identity();
-		message_copy.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
+		if (!message_copy.has_identity()) message_copy.set_identity();
+		if (!message_copy.has_broadcast_value()) message_copy.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
 		message_copy.set_no_reply();
 		return _talkerDownlink(dummy_talker, message_copy);
 	}
@@ -154,7 +154,7 @@ public:
 		JsonTalker dummy_talker = JsonTalker("", "", nullptr);
 		JsonMessage message_copy(message);
 		if (!message_copy.has_from_name()) message_copy.set_from_name("");
-		message_copy.set_identity();
+		if (!message_copy.has_identity()) message_copy.set_identity();
 		message_copy.set_no_reply();
 		return _talkerUplink(dummy_talker, message_copy);
 	}
