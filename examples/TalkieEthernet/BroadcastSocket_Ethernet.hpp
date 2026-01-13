@@ -29,8 +29,6 @@ private:
 	// Source Talker info
 	char _from_name[TALKIE_NAME_LEN] = {'\0'};
     IPAddress _from_ip = IPAddress(255, 255, 255, 255);   // By default it's used the broadcast IP
-    // ===== [SELF IP] cache our own IP =====
-    IPAddress _local_ip;
 
 
 protected:
@@ -45,30 +43,13 @@ protected:
 			int packetSize = _udp->parsePacket();
 			if (packetSize > 0) {
 
-				// ===== [SELF IP] DROP self-sent packets =====
-				if (_udp->remoteIP() == _local_ip) {
-					_udp->flush();   // discard payload
-					
-					#ifdef BROADCAST_ETHERNET_DEBUG
-					Serial.println(F("\treceive1: Dropped packet for being sent from this socket"));
-					Serial.print(F("\t\tRemote IP: "));
-					Serial.println(_udp->remoteIP());
-					Serial.print(F("\t\tLocal IP:  "));
-					Serial.println(_local_ip);
-					#endif
-					
-					return;
-				} else {
-					
-					#ifdef BROADCAST_ETHERNET_DEBUG
-					Serial.println(F("\treceive1: Packet NOT sent from this socket"));
-					Serial.print(F("\t\tRemote IP: "));
-					Serial.println(_udp->remoteIP());
-					Serial.print(F("\t\tLocal IP:  "));
-					Serial.println(_local_ip);
-					#endif
-					
-				}
+        		// ===== [SELF IP] By design it doesn-t receive from SELF =====
+
+				#ifdef BROADCAST_ETHERNET_DEBUG
+				Serial.println(F("\treceive1: Packet NOT sent from this socket"));
+				Serial.print(F("\t\tRemote IP: "));
+				Serial.println(_udp->remoteIP());
+				#endif
 
 				JsonMessage new_message;
 				char* message_buffer = new_message._write_buffer((size_t)packetSize);
@@ -90,8 +71,6 @@ protected:
 						Serial.print(packetSize);
 						Serial.print(F("B from "));
 						Serial.print(_udp->remoteIP());
-						Serial.print(F(" to "));
-						Serial.print(_local_ip);
 						Serial.print(F(" -->      "));
 						Serial.println(message_buffer);
 						#endif
@@ -175,8 +154,6 @@ public:
     void set_port(uint16_t port) { _port = port; }
     void set_udp(EthernetUDP* udp) {
 		
-        // ===== [SELF IP] store local IP for self-filtering =====
-        _local_ip = Ethernet.localIP();
 		_udp = udp;
 	}
 };

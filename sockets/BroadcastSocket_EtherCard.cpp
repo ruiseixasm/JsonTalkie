@@ -19,9 +19,7 @@ JsonMessage BroadcastSocket_EtherCard::_json_message;
 char* BroadcastSocket_EtherCard::_ptr_received_buffer = nullptr;
 
 size_t BroadcastSocket_EtherCard::_data_length = 0;
-// ===== [SELF IP] =====
-uint8_t BroadcastSocket_EtherCard::_local_ip[4] = {0};
 #ifdef ENABLE_DIRECT_ADDRESSING
-uint8_t BroadcastSocket_EtherCard::_source_ip[4] = {0};
+uint8_t BroadcastSocket_EtherCard::_source_ip[4] = {255, 255, 255, 255};
 #endif
 

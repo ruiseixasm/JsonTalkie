@@ -29,8 +29,6 @@ private:
     static char* _ptr_received_buffer;
     uint16_t _port = 5005;
     static size_t _data_length;
-    // ===== [SELF IP] cache our own IP =====
-    static uint8_t _local_ip[4];
 	
 	#ifdef ENABLE_DIRECT_ADDRESSING
 	// Source Talker info
@@ -46,10 +44,7 @@ private:
         (void)src_port; // Silence unused parameter warning
         (void)dst_port; // Silence unused parameter warning
 
-        // ===== [SELF IP] DROP self-sent packets =====
-        if (memcmp(src_ip, _local_ip, 4) == 0) {
-            return;   // silently discard
-        }
+        // ===== [SELF IP] By design it doesn-t receive from SELF =====
 
         #ifdef BROADCAST_ETHERCARD_DEBUG
         Serial.print(F("C: "));

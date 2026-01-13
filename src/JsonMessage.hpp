@@ -254,14 +254,14 @@ private:
      * @param[out] buffer Output buffer for string
      * @param size Size of output buffer (including null terminator)
      * @param colon_position Optional hint for colon position
-     * @return true if successful, false if key not found or buffer too small
+     * @return true if successful, false if key not found, buffer too small or not a string
      * 
      * @warning Buffer size must include space for null terminator
      */
 	bool _get_value_string(char key, char* buffer, size_t size, size_t colon_position = 4) const {
 		if (buffer && size) {
 			size_t json_i = _get_value_position(key, colon_position);
-			if (json_i && _json_payload[json_i++] == '"' && buffer && size) {	// Safe code
+			if (json_i && _json_payload[json_i++] == '"' && buffer && size) {	// Safe code, makes sure it's a string
 				size_t char_j = 0;
 				while (_json_payload[json_i] != '"' && json_i < _json_length && char_j < size) {
 					buffer[char_j++] = _json_payload[json_i++];
@@ -970,7 +970,7 @@ public:
 		size_t colon_position = _get_colon_position('t');
 		if (colon_position) {
 			ValueType value_type = _get_value_type('t', colon_position);
-			if (value_type == ValueType::TALKIE_VT_STRING && _get_value_string('t', _temp_string, TALKIE_NAME_LEN, colon_position)) {
+			if (_get_value_string('t', _temp_string, TALKIE_NAME_LEN, colon_position)) {
 				return strcmp(_temp_string, name) == 0;
 			}
 		}
