@@ -236,7 +236,7 @@ public:
 				{
 					for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count;) {
 						JsonMessage message_copy(message);
-						_downlinked_talkers[talker_i++]->_handleTransmission(message_copy, talker_match);
+						_downlinked_talkers[talker_i++]->handleTransmission(message_copy, talker_match);
 					}
 				}
 				break;
@@ -248,7 +248,7 @@ public:
 						uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
 						if (talker_channel == message_channel) {
 							JsonMessage message_copy(message);
-							_downlinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
+							_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 						}
 					}
 				}
@@ -267,7 +267,7 @@ public:
 					for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 						const char* talker_name = _downlinked_talkers[talker_i]->get_name();
 						if (strcmp(talker_name, message_to_name) == 0) {
-							_downlinked_talkers[talker_i]->_handleTransmission(message, talker_match);
+							_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
 							return;
 						}
 					}
@@ -340,12 +340,12 @@ public:
 							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 								if (_downlinked_talkers[talker_i] != &talker) {
 									JsonMessage message_copy(message);
-									_downlinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
+									_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 								}
 							}
 							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count;) {
 								JsonMessage message_copy(message);
-								_uplinked_talkers[talker_i++]->_handleTransmission(message_copy, talker_match);
+								_uplinked_talkers[talker_i++]->handleTransmission(message_copy, talker_match);
 							}
 						}
 						break;
@@ -358,7 +358,7 @@ public:
 									uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
 									if (talker_channel == message_channel) {
 										JsonMessage message_copy(message);
-										_downlinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
+										_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 									}
 								}
 							}
@@ -366,7 +366,7 @@ public:
 								uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
 								if (talker_channel == message_channel) {
 									JsonMessage message_copy(message);
-									_uplinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
+									_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 								}
 							}
 						}
@@ -380,7 +380,7 @@ public:
 								if (_downlinked_talkers[talker_i] != &talker) {
 									const char* talker_name = _downlinked_talkers[talker_i]->get_name();
 									if (strcmp(talker_name, message_to_name) == 0) {
-										_downlinked_talkers[talker_i]->_handleTransmission(message, talker_match);
+										_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
 										return true;
 									}
 								}
@@ -388,7 +388,7 @@ public:
 							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
 								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
 								if (strcmp(talker_name, message_to_name) == 0) {
-									_uplinked_talkers[talker_i]->_handleTransmission(message, talker_match);
+									_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
 									return true;
 								}
 							}
@@ -436,46 +436,7 @@ public:
 			break;
 			
 			case BroadcastValue::TALKIE_BC_SELF:
-			{
-				TalkerMatch talker_match = message.get_talker_match();
-
-				switch (talker_match) {
-
-					case TalkerMatch::TALKIE_MATCH_ANY:
-					{
-						talker._handleTransmission(message, talker_match);
-						return true;
-					}
-					break;
-					
-					case TalkerMatch::TALKIE_MATCH_BY_CHANNEL:
-					{
-						uint8_t message_channel = message.get_to_channel();
-						uint8_t talker_channel = talker.get_channel();
-						if (talker_channel == message_channel) {
-							talker._handleTransmission(message, talker_match);
-							return true;
-						}
-					}
-					break;
-					
-					case TalkerMatch::TALKIE_MATCH_BY_NAME:
-					{
-						char message_to_name[TALKIE_NAME_LEN];
-						strcpy(message_to_name, message.get_to_name());
-						
-						const char* talker_name = talker.get_name();
-						if (strcmp(talker_name, message_to_name) == 0) {
-							talker._handleTransmission(message, talker_match);
-							return true;
-						}
-					}
-					break;
-					
-					case TalkerMatch::TALKIE_MATCH_NONE: return true;
-					default: return false;
-				}
-			}
+				talker.handleTransmission(message, TalkerMatch::TALKIE_MATCH_BY_NAME);
 			break;
 			
 			case BroadcastValue::TALKIE_BC_NONE: return true;
@@ -533,11 +494,11 @@ public:
 					{
 						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count;) {
 							JsonMessage message_copy(message);
-							_downlinked_talkers[talker_i++]->_handleTransmission(message_copy, talker_match);
+							_downlinked_talkers[talker_i++]->handleTransmission(message_copy, talker_match);
 						}
 						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count;) {
 							JsonMessage message_copy(message);
-							_uplinked_talkers[talker_i++]->_handleTransmission(message_copy, talker_match);
+							_uplinked_talkers[talker_i++]->handleTransmission(message_copy, talker_match);
 						}
 					}
 					break;
@@ -549,14 +510,14 @@ public:
 							uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
 							if (talker_channel == message_channel) {
 								JsonMessage message_copy(message);
-								_downlinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
+								_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 							}
 						}
 						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
 							uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
 							if (talker_channel == message_channel) {
 								JsonMessage message_copy(message);
-								_uplinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
+								_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 							}
 						}
 					}
@@ -569,14 +530,14 @@ public:
 						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 							const char* talker_name = _downlinked_talkers[talker_i]->get_name();
 							if (strcmp(talker_name, message_to_name) == 0) {
-								_downlinked_talkers[talker_i]->_handleTransmission(message, talker_match);
+								_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
 								return;
 							}
 						}
 						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
 							const char* talker_name = _uplinked_talkers[talker_i]->get_name();
 							if (strcmp(talker_name, message_to_name) == 0) {
-								_uplinked_talkers[talker_i]->_handleTransmission(message, talker_match);
+								_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
 								return;
 							}
 						}
@@ -643,12 +604,12 @@ public:
 					{
 						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count;) {
 							JsonMessage message_copy(message);
-							_downlinked_talkers[talker_i++]->_handleTransmission(message_copy, talker_match);
+							_downlinked_talkers[talker_i++]->handleTransmission(message_copy, talker_match);
 						}
 						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
 							if (_uplinked_talkers[talker_i] != &talker) {
 								JsonMessage message_copy(message);
-								_uplinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
+								_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 							}
 						}
 					}
@@ -661,7 +622,7 @@ public:
 							uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
 							if (talker_channel == message_channel) {
 								JsonMessage message_copy(message);
-								_downlinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
+								_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 							}
 						}
 						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
@@ -669,7 +630,7 @@ public:
 								uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
 								if (talker_channel == message_channel) {
 									JsonMessage message_copy(message);
-									_uplinked_talkers[talker_i]->_handleTransmission(message_copy, talker_match);
+									_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 								}
 							}
 						}
@@ -683,7 +644,7 @@ public:
 						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 							const char* talker_name = _downlinked_talkers[talker_i]->get_name();
 							if (strcmp(talker_name, message_to_name) == 0) {
-								_downlinked_talkers[talker_i]->_handleTransmission(message, talker_match);
+								_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
 								return true;
 							}
 						}
@@ -691,7 +652,7 @@ public:
 							if (_uplinked_talkers[talker_i] != &talker) {
 								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
 								if (strcmp(talker_name, message_to_name) == 0) {
-									_uplinked_talkers[talker_i]->_handleTransmission(message, talker_match);
+									_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
 									return true;
 								}
 							}
@@ -729,7 +690,7 @@ public:
 
 					case TalkerMatch::TALKIE_MATCH_ANY:
 					{
-						talker._handleTransmission(message, talker_match);
+						talker.handleTransmission(message, talker_match);
 						return true;
 					}
 					break;
@@ -739,7 +700,7 @@ public:
 						uint8_t message_channel = message.get_to_channel();
 						uint8_t talker_channel = talker.get_channel();
 						if (talker_channel == message_channel) {
-							talker._handleTransmission(message, talker_match);
+							talker.handleTransmission(message, talker_match);
 							return true;
 						}
 					}
@@ -752,7 +713,7 @@ public:
 						
 						const char* talker_name = talker.get_name();
 						if (strcmp(talker_name, message_to_name) == 0) {
-							talker._handleTransmission(message, talker_match);
+							talker.handleTransmission(message, talker_match);
 							return true;
 						}
 					}

@@ -391,11 +391,24 @@ public:
      */
     void set_mute(bool muted) { _muted_calls = muted; }
 
-
+	
+    /**
+     * @brief Transmits the message directly to the Repeater as talker
+     * @param json_message The json message to be processed by the talker
+     * 
+     * @note This method sends directly to the Repeater as talker
+     */
 	bool transmitToRepeater(JsonMessage& json_message);
 	
-    
-    void _handleTransmission(JsonMessage& json_message, TalkerMatch talker_match) {
+
+    /**
+     * @brief Message handler of the talker, or, the talker input
+     * @param json_message The json message to be processed by the talker
+     * @param talker_match The type of matching to be considered (by_name is the default)
+     * 
+     * @note This method bypasses the Repeater by allowing direct access to the talker
+     */
+    void handleTransmission(JsonMessage& json_message, TalkerMatch talker_match = TalkerMatch::TALKIE_MATCH_BY_NAME) {
 
 		MessageValue message_value = json_message.get_message_value();
 
