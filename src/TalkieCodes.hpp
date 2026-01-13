@@ -71,7 +71,7 @@ struct TalkieCodes {
         TALKIE_LT_NONE,         ///< No special linkage (standalone)
         TALKIE_LT_DOWN_LINKED,  ///< Linked as a Local node (LOCAL and REMOTE messages)
         TALKIE_LT_UP_LINKED,    ///< Linked as a remote node associated to REMOTE messages
-        TALKIE_LT_UP_BRIDGED    ///< Up-bridged: Can send LOCAL broadcast messages too
+        TALKIE_LT_BRIDGED    	///< Bridged: Can send and receive LOCAL broadcast messages too
     };
 
 
