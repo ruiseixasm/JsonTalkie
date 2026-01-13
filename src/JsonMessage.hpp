@@ -844,6 +844,14 @@ public:
 	}
 
 
+	/** @brief Check if 'from' field is a string (name) */
+	bool has_from_name() const {
+		size_t colon_position = _get_colon_position('f');
+		return colon_position 
+			&& _get_value_type('f', colon_position) == ValueType::TALKIE_VT_STRING;
+	}
+
+
 	/** @brief Check if 'to' field exists */
 	bool has_to() const {
 		return _get_colon_position('t') > 0;
