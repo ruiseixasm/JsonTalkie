@@ -135,9 +135,9 @@ public:
 	bool downlinkMessage(const JsonMessage &message) const {
 		JsonTalker dummy_talker = JsonTalker("", "", nullptr);
 		JsonMessage message_copy(message);
-		if (!message_copy.has_from_name()) message_copy.set_from_name("");
-		if (!message_copy.has_identity()) message_copy.set_identity();
-		if (!message_copy.has_broadcast_value()) message_copy.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
+		if (!message.has_from_name()) message_copy.set_from_name("");
+		if (!message.has_identity()) message_copy.set_identity();
+		if (!message.has_broadcast_value()) message_copy.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
 		message_copy.set_no_reply();
 		return _talkerDownlink(dummy_talker, message_copy);
 	}
@@ -153,9 +153,9 @@ public:
 	bool uplinkMessage(const JsonMessage &message) const {
 		JsonTalker dummy_talker = JsonTalker("", "", nullptr);
 		JsonMessage message_copy(message);
-		if (!message_copy.has_from_name()) message_copy.set_from_name("");
-		if (!message_copy.has_identity()) message_copy.set_identity();
-		if (!message_copy.has_broadcast_value()) message_copy.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
+		if (!message.has_from_name()) message_copy.set_from_name("");
+		if (!message.has_identity()) message_copy.set_identity();
+		if (!message.has_broadcast_value()) message_copy.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
 		message_copy.set_no_reply();
 		return _talkerUplink(dummy_talker, message_copy);
 	}
