@@ -437,7 +437,10 @@ public:
 			break;
 			
 			case BroadcastValue::TALKIE_BC_SELF:
-				talker.handleTransmission(message, TalkerMatch::TALKIE_MATCH_BY_NAME);
+			{
+				TalkerMatch talker_match = message.get_talker_match();
+				talker.handleTransmission(message, talker_match);
+			}
 			break;
 			
 			case BroadcastValue::TALKIE_BC_NONE: return true;
@@ -684,7 +687,10 @@ public:
 			break;
 			
 			case BroadcastValue::TALKIE_BC_SELF:
-				talker.handleTransmission(message, TalkerMatch::TALKIE_MATCH_BY_NAME);
+			{
+				TalkerMatch talker_match = message.get_talker_match();
+				talker.handleTransmission(message, talker_match);
+			}
 			break;
 			
 			case BroadcastValue::TALKIE_BC_NONE: return true;
