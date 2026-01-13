@@ -155,6 +155,7 @@ public:
 		JsonMessage message_copy(message);
 		if (!message_copy.has_from_name()) message_copy.set_from_name("");
 		if (!message_copy.has_identity()) message_copy.set_identity();
+		if (!message_copy.has_broadcast_value()) message_copy.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
 		message_copy.set_no_reply();
 		return _talkerUplink(dummy_talker, message_copy);
 	}
