@@ -115,11 +115,6 @@ protected:
 		Serial.println(json_message._get_length());
 		#endif
 		
-		#ifdef BROADCASTSOCKET_DEBUG
-		Serial.print(F("handleTransmission4: Validated Checksum of "));
-		Serial.println(checksum);
-		#endif
-		
 		if (_max_delay_ms > 0) {
 
 			MessageValue message_code = json_message.get_message_value();
