@@ -66,7 +66,7 @@ JsonTalker* downlinked_talkers[] = { &nano, &uno };    // Only an array of point
 auto& ethernet_socket = BroadcastSocket_EtherCard::instance();
 BroadcastSocket* uplinked_sockets[] = { &ethernet_socket };	// list of pointers
 
-MessageRepeater message_repeater(
+const MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
 		downlinked_talkers, sizeof(downlinked_talkers)/sizeof(JsonTalker*)
 	);

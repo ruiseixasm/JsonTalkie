@@ -95,7 +95,6 @@ public:
 
 				case 1:
 					if (json_message.has_nth_value_number(0)) {
-						// *************** PARALLEL DEVELOPMENT WITH JSONMESSAGE (IN PROGRESS) ***************
 						_buzz_duration_ms = (uint16_t)json_message.get_nth_value_number(0);
 					} else {
 						json_message.set_nth_value_number(0, _buzz_duration_ms);
