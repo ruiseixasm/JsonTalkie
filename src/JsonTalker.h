@@ -404,11 +404,11 @@ public:
     /**
      * @brief Message handler of the talker, or, the talker input
      * @param json_message The json message to be processed by the talker
-     * @param talker_match The type of matching to be considered (by_name is the default)
+     * @param talker_match The type of matching to be considered (ANY is the default match)
      * 
      * @note This method bypasses the Repeater by allowing direct access to the talker
      */
-    void handleTransmission(JsonMessage& json_message, TalkerMatch talker_match = TalkerMatch::TALKIE_MATCH_BY_NAME) {
+    void handleTransmission(JsonMessage& json_message, TalkerMatch talker_match = TalkerMatch::TALKIE_MATCH_ANY) {
 
 		MessageValue message_value = json_message.get_message_value();
 
