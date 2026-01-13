@@ -286,16 +286,6 @@ public:
 
 
     /**
-     * @brief Sets the Link Type of the Talker directly
-     * @param link_type The Link Type with the Message Repeater
-     * 
-     * @note Only usefull if intended to be bridged (ex. UP_BRIDGED),
-	 *       where the `LOCAL` messages are also broadcasted
-     */
-	void setLinkType(LinkType link_type) { _link_type = link_type; }
-
-
-    /**
      * @brief Sets the maximum amount of delay a message can have before being dropped
      * @param max_delay_ms The maximum amount of delay in milliseconds
      * 

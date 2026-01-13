@@ -42,7 +42,7 @@ void setup() {
     Serial.println("\n\n=== Arduino with SPI STARTING ===");
 
     Serial.println("Step 1: Starting SPI...");
-	spi_socket.setLinkType(LinkType::TALKIE_LT_UP_BRIDGED);	// Makes sure it accepts LOCAL messages too
+	spi_socket.bridgeSocket();	// Makes sure it accepts LOCAL messages too
     Serial.println("SPI started successfully");
     delay(1000);
 
