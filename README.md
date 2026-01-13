@@ -419,6 +419,26 @@ the return time, so, in reality, it takes around half those values to reach the 
 Nevertheless, with the help of the spy, we can see that the SPI connections represents an increase of 3 milliseconds in latency (4 - 1).
 ### Talker as Caller
 So far the calls were made via Python command line with [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy), but a device can be a caller too.
+Must of the time the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) is used to configure Arduino talkers and not to act on themselves directly,
+like in this example, the talker *caller* is activated and then set with the current minutes. Then is up to the *caller* to call the *nano* talker
+and on the action *buzz*. This is done once as it follows.
+```
+>>> talk caller
+        [talk caller]              I'm a 60 minutes buzzer caller
+>>> list caller
+        [call caller 0|active]     Gets or set the active status
+        [call caller 1|minutes]    Gets or sets the actual minutes
+>>> call caller 0
+        [call caller 0]            roger           0
+>>> call caller 0 1
+        [call caller 0]            roger           1
+>>> call caller 1
+        [call caller 1]            roger           58
+>>> call caller 1 3
+        [call caller 1]            roger           3
+>>>
+```
+After this, the *caller* has its minutes synced with the actual minutes and will call the *buzz* of the *nano* each hour.
 In the example bellow, named *TalkieEthernet*, that you can find in the [examples](https://github.com/ruiseixasm/JsonTalkie/tree/main/examples) folder,
 it is used the manifesto *CallerManifesto*, that you can find in the [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) folder, is as follows.
 ```cpp
@@ -549,8 +569,20 @@ public:
 #endif // CALLER_MANIFESTO_HPP
 ```
 This manifesto calls the *nano* Talker to trigger the action *buzz*, this command is directly done between two Arduino boards
-without any computer evolvement. The *nano* talker is also in the [examples](https://github.com/ruiseixasm/JsonTalkie/tree/main/examples) folder
-in the example *TalkieEtherCard* and contains the manifesto *BlackManifesto* that can be found in the
+without any computer evolvement. The calling is done inside the `_loop` method as such:
+```cpp
+			if (_active_caller) {
+				JsonMessage call_buzzer;
+				call_buzzer.set_message_value(MessageValue::TALKIE_MSG_CALL);
+				call_buzzer.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
+				call_buzzer.set_to_name("nano");
+				call_buzzer.set_action_name("buzz");
+				talker.transmitToRepeater(call_buzzer);
+			}
+```
+
+The *nano* talker is also in the [examples](https://github.com/ruiseixasm/JsonTalkie/tree/main/examples) folder
+in the example *TalkieEtherCard* that contains the manifesto *BlackManifesto* that can also be found in the
 [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) folder and is as follows.
 ```cpp
 #ifndef BLACK_MANIFESTO_HPP
@@ -558,7 +590,7 @@ in the example *TalkieEtherCard* and contains the manifesto *BlackManifesto* tha
 
 #include <TalkerManifesto.hpp>
 
-#define BUZZ_PIN 3	// External BLACK pin
+#define BUZZ_PIN 3	// External BLACK BOX pin
 
 
 class BlackManifesto : public TalkerManifesto {
@@ -680,4 +712,7 @@ public:
 
 #endif // BLACK_MANIFESTO_HPP
 ```
+
+So, as expected, by being Walkie-Talkie alike, in JsonTalkie the communication is peer-to-peer and not necessarily centralized in a
+commander device or computer.
 
