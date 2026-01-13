@@ -230,7 +230,7 @@ public:
 		#endif
 
 		// To downlinked nodes (BRIDGED uplinks process LOCAL messages too)
-		if (broadcast == BroadcastValue::TALKIE_BC_REMOTE || (broadcast == BroadcastValue::TALKIE_BC_LOCAL && socket.getLinkType() == LinkType::TALKIE_LT_BRIDGED)) {
+		if (broadcast == BroadcastValue::TALKIE_BC_REMOTE || (broadcast == BroadcastValue::TALKIE_BC_LOCAL && socket.getLinkType() == LinkType::TALKIE_LT_UP_BRIDGED)) {
 			switch (talker_match) {
 
 				case TalkerMatch::TALKIE_MATCH_ANY:
@@ -289,7 +289,7 @@ public:
 			}
 			// The difference of being up_bridged vs being down_bridged is the ability to receive Talkers remote messages
 			for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
-				if (_uplinked_sockets[socket_j]->getLinkType() == LinkType::TALKIE_LT_BRIDGED) {
+				if (_uplinked_sockets[socket_j]->getLinkType() == LinkType::TALKIE_LT_UP_BRIDGED) {
 					// Sockets ONLY manipulate the checksum ('c')
 					_uplinked_sockets[socket_j]->_finishTransmission(message);
 				}
@@ -412,7 +412,7 @@ public:
 					}
 				}
 				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
-					if (_uplinked_sockets[socket_j]->getLinkType() == LinkType::TALKIE_LT_BRIDGED) {
+					if (_uplinked_sockets[socket_j]->getLinkType() == LinkType::TALKIE_LT_UP_BRIDGED) {
 						// Sockets ONLY manipulate the checksum ('c')
 						if (!_uplinked_sockets[socket_j]->_finishTransmission(message)) {
 							no_fails = false;
@@ -544,7 +544,7 @@ public:
 					}
 				}
 				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
-					if (_uplinked_sockets[socket_j]->getLinkType() == LinkType::TALKIE_LT_BRIDGED) {
+					if (_uplinked_sockets[socket_j]->getLinkType() == LinkType::TALKIE_LT_UP_BRIDGED) {
 						// Sockets ONLY manipulate the checksum ('c')
 						_uplinked_sockets[socket_j]->_finishTransmission(message);
 					}
@@ -662,7 +662,7 @@ public:
 					}
 				}
 				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
-					if (_uplinked_sockets[socket_j]->getLinkType() == LinkType::TALKIE_LT_BRIDGED) {
+					if (_uplinked_sockets[socket_j]->getLinkType() == LinkType::TALKIE_LT_UP_BRIDGED) {
 						// Sockets ONLY manipulate the checksum ('c')
 						if (!_uplinked_sockets[socket_j]->_finishTransmission(message)) {
 							no_fails = false;

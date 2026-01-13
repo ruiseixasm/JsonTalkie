@@ -335,7 +335,7 @@ both remote and local messages, like a bridge.
 
 The Repeater automatically sets the up linked sockets as up linked, so, in order to turn an up linked socket into a bridged one, you need to set it in the `setup` function like so:
 ```cpp
-    spi_socket.setLinkType(LinkType::TALKIE_LT_BRIDGED);  // Now accepts LOCAL messages too
+    spi_socket.setLinkType(LinkType::TALKIE_LT_UP_BRIDGED);  // Now accepts LOCAL messages too
 ```
 With the command `system` it's possible to get the board and the sockets associated to each Talker.
 ```
