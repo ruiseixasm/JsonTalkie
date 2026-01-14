@@ -421,10 +421,9 @@ public:
 			{
 				TalkerMatch talker_match = message.get_talker_match();
 				talker.handleTransmission(message, talker_match);
+				return true;
 			}
 			break;
-			
-			case BroadcastValue::TALKIE_BC_NONE: return true;
 			
 			default: break;
 		}
@@ -673,10 +672,10 @@ public:
 			{
 				TalkerMatch talker_match = message.get_talker_match();
 				talker.handleTransmission(message, talker_match);
+				return true;
 			}
 			break;
 			
-			case BroadcastValue::TALKIE_BC_NONE: return true;
 			default: break;
 		}
 		return false;
