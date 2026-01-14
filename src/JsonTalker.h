@@ -69,14 +69,12 @@ class MessageRepeater;
 class JsonTalker {
 public:
 	
-	struct LastCallMessage {
+	struct TransmittedMessage {
+		uint16_t identity;
 		JsonMessage message;
 		uint8_t retries;
-	};
-
-	struct LastEchoableMessage {
-		uint16_t identity;
 		MessageValue message_value;
+		bool active;
 	};
 
 	/**
@@ -101,8 +99,7 @@ private:
 	TalkerManifesto* _manifesto = nullptr;
     uint8_t _channel = 255;	// Channel 255 means NO channel response
     bool _muted_calls = false;
-	LastCallMessage _last_call_message;
-	LastEchoableMessage _last_echoable_message;
+	TransmittedMessage _transmitted_message;
 
 
 	/**
@@ -358,23 +355,13 @@ public:
 		return _message_repeater;
 	}
 
-	
-    /**
-     * @brief Get the last transmitted call message
-     * @return Returns LastCallMessage with the message id and value
-     * 
-     * @note This is used to pair the message id with its echo
-     */
-    const LastCallMessage& getTransmittedCallMessage() const { return _last_call_message; }
-
-
     /**
      * @brief Get the last transmitted non echo message
-     * @return Returns `LastEchoableMessage` with the message id and value
+     * @return Returns `TransmittedMessage` with the message id and value
      * 
      * @note This is used to pair the message id with its echo
      */
-    const LastEchoableMessage& getTransmittedEchoableMessage() const { return _last_echoable_message; }
+    const TransmittedMessage& getTransmittedMessage() const { return _transmitted_message; }
 
 
     // ============================================
@@ -657,26 +644,35 @@ public:
 					Serial.print(" | ");
 					Serial.print(message_id);
 					Serial.print(" | ");
-					Serial.println(_last_echoable_message.identity);
+					Serial.println(_transmitted_message.identity);
 					#endif
 
-					if (message_id == _last_echoable_message.identity) {
+					if (message_id == _transmitted_message.identity) {
 						_echo(json_message, talker_match);
 					}
 				}
 				break;
 			
 			case MessageValue::TALKIE_MSG_ERROR:
-				if (talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
+				if (_transmitted_message.active && _transmitted_message.retries < TALKIE_MAX_RETRIES &&
+					talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
+
 					ErrorValue error_value = json_message.get_error_value();
-					if (error_value == ErrorValue::TALKIE_ERR_CHECKSUM && _last_call_message.retries < TALKIE_MAX_RETRIES) {
-						char from_name[TALKIE_NAME_LEN];
-						if (json_message.get_from_name(from_name)) {
-							++_last_call_message.retries;
-							_last_call_message.message.set_to_name(from_name);
-							transmitToRepeater(_last_call_message.message);	// Retransmission
-							return;
+					switch (error_value) {
+
+						case ErrorValue::TALKIE_ERR_CHECKSUM:
+						{
+							char from_name[TALKIE_NAME_LEN];
+							if (json_message.get_from_name(from_name)) {
+								++_transmitted_message.retries;
+								_transmitted_message.message.set_to_name(from_name);
+								transmitToRepeater(_transmitted_message.message);	// Retransmission
+								return;
+							}
 						}
+						break;
+						
+						default: break;
 					}
 				}
 				_error(json_message, talker_match);
