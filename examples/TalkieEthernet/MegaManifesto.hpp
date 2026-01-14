@@ -106,6 +106,7 @@ public:
 			{
 				JsonMessage toggle_blue_on_off;
 				toggle_blue_on_off.set_message_value(MessageValue::TALKIE_MSG_CALL);
+				toggle_blue_on_off.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
 				toggle_blue_on_off.set_to_name("blue");
 				if (_blue_led_on++ % 2) {
 					toggle_blue_on_off.set_action_name("off");

@@ -709,7 +709,6 @@ public:
 		_remove('c', c_colon_position);
 		uint16_t checksum = _generateChecksum();
 		if (checksum != received_checksum) {
-			// Mark error message as noise and dispatch it to be processed by the respective Talker
 			set_message_value(MessageValue::TALKIE_MSG_NOISE);
 			set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
 			return false;
