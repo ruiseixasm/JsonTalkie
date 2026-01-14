@@ -48,7 +48,7 @@ using SystemValue 		= TalkieCodes::SystemValue;
 using RogerValue 		= TalkieCodes::RogerValue;
 using ErrorValue 		= TalkieCodes::ErrorValue;
 using ValueType 		= TalkieCodes::ValueType;
-using Original 			= JsonMessage::Original;
+using OriginalMessage 			= JsonMessage::OriginalMessage;
 
 
 class TalkerManifesto;
@@ -90,7 +90,7 @@ private:
     const char* _desc;      // Description of the Device
 	TalkerManifesto* _manifesto = nullptr;
     uint8_t _channel = 255;	// Channel 255 means NO channel response
-	Original _original_message = {0, MessageValue::TALKIE_MSG_NOISE};
+	OriginalMessage _original_message = {0, MessageValue::TALKIE_MSG_NOISE};
     bool _muted_calls = false;
 
 
@@ -355,11 +355,11 @@ public:
 	
     /**
      * @brief Get the last, non echo message (original)
-     * @return Returns Original with the message id and value
+     * @return Returns OriginalMessage with the message id and value
      * 
      * @note This is used to pair the message id with its echo
      */
-    const Original& get_original() const { return _original_message; }
+    const OriginalMessage& get_original() const { return _original_message; }
 
 
     // ============================================

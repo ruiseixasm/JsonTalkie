@@ -31,7 +31,7 @@ public:
 protected:
 
 	String _original_talker = "";
-	Original _original_message = {0, MessageValue::TALKIE_MSG_NOISE};
+	OriginalMessage _original_message = {0, MessageValue::TALKIE_MSG_NOISE};
 
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
@@ -148,7 +148,7 @@ public:
 		(void)talker_match;	// Silence unused parameter warning
 		
 		#ifdef SPY_MANIFESTO_DEBUG
-		Original original_message = talker.get_original();
+		OriginalMessage original_message = talker.get_original();
 		Serial.print(F("\t\t\tSpy::echo1: "));
 		json_message.write_to(Serial);
 		Serial.print(" | ");

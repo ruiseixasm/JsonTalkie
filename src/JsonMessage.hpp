@@ -78,7 +78,7 @@ class BroadcastSocket;
 class JsonMessage {
 public:
 
-	struct Original {
+	struct OriginalMessage {
 		uint16_t identity;
 		MessageValue message_value;
 	};
