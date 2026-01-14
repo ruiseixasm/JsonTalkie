@@ -474,6 +474,18 @@ public:
 
 
     /**
+     * @brief Default with mandatory parameters
+     * 
+     * Initializes with mandatory parameters
+     */
+	JsonMessage(BroadcastValue broadcast_value, MessageValue message_value) {
+		_reset();	// Initiate with the bare minimum
+		set_broadcast_value(broadcast_value);
+		set_message_value(message_value);
+	}
+
+
+    /**
      * @brief Constructor from buffer
      * @param buffer Source buffer containing JSON
      * @param length Length of buffer
