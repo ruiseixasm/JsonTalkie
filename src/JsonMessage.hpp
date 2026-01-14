@@ -718,7 +718,7 @@ public:
 		size_t i_colon_position = _get_colon_position('i');
 		if (i_colon_position) {
 			ValueType value_type = _get_value_type('i', i_colon_position);
-			if (value_type == ValueType::TALKIE_VT_STRING) {
+			if (value_type == ValueType::TALKIE_VT_INTEGER) {
 				uint32_t number_i = _get_value_number('i', i_colon_position);
 				return number_i <= 0xFFFF;	// 16-bits
 			}
