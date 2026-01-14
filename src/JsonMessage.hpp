@@ -48,10 +48,6 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // #define MESSAGE_DEBUG_TIMING
 
-#define TALKIE_BUFFER_SIZE 128	    ///< Default buffer size for JSON message
-#define TALKIE_NAME_LEN 16			///< Default maximum length for name fields
-#define TALKIE_MAX_LEN 64			///< Default maximum length for string fields
-
 
 using LinkType			= TalkieCodes::LinkType;
 using TalkerMatch 		= TalkieCodes::TalkerMatch;

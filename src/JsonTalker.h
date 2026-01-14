@@ -41,8 +41,6 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define JSON_TALKER_DEBUG_NEW
 
 
-#define TALKIE_MAX_RETRIES 3		///< The maximum amount of retries to transmit
-
 using LinkType			= TalkieCodes::LinkType;
 using TalkerMatch 		= TalkieCodes::TalkerMatch;
 using BroadcastValue 	= TalkieCodes::BroadcastValue;
