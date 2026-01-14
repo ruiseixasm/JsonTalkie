@@ -69,8 +69,8 @@ class JsonTalker {
 public:
 	
 	struct TransmittedMessage {
-		JsonMessage transmitted_message;
-		uint8_t retries = 0;
+		JsonMessage message;
+		uint8_t retries;
 	};
 
 	struct EchoableMessage {

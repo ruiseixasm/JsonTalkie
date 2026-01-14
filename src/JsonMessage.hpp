@@ -264,8 +264,8 @@ private:
 					return true;
 				}
 			}
+			buffer[0] = '\0';	// Safe code, no surprises
 		}
-		buffer[0] = '\0';	// Safe code, no surprises
 		return false;
 	}
 
