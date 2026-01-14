@@ -76,6 +76,7 @@ public:
 						json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
 						json_message.remove_identity();
 						if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_STRING) {
+							
 							json_message.set_to_name(json_message.get_nth_value_string(0));
 						} else if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_INTEGER) {
 							json_message.set_to_channel((uint8_t)json_message.get_nth_value_number(0));
