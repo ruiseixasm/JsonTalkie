@@ -952,7 +952,7 @@ public:
      * @param name Name to compare with
      * @return true if 'from' field exists and matches
      */
-	bool is_from(const char* name) const {
+	bool is_from_name(const char* name) const {
 		const char* from_name = get_from_name();
 		if (from_name) {
 			return strcmp(name, from_name) == 0;
