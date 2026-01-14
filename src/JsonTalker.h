@@ -671,7 +671,6 @@ public:
 										if (json_message.get_from_name(from_name)) {
 											_transmitted_message.message.set_to_name(from_name);
 											transmitToRepeater(_transmitted_message.message);	// Retransmission
-											return;
 										}
 									}
 									break;
@@ -679,8 +678,9 @@ public:
 									default: break;
 								}
 							}
+						} else {
+							_error(json_message, talker_match);
 						}
-						_error(json_message, talker_match);
 					}
 				}
 				break;
