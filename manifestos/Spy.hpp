@@ -30,7 +30,7 @@ public:
 
 protected:
 
-	String _original_talker = "";
+	char _original_talker[TALKIE_NAME_LEN];
 	OriginalMessage _original_message = {0, MessageValue::TALKIE_MSG_NOISE};
 
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
@@ -67,7 +67,7 @@ public:
 					{
 						ping = true;
 						// 1. Start by collecting info from message
-						_original_talker = json_message.get_from_name();
+						json_message.get_from_name(_original_talker);
 						_original_message.identity = json_message.get_identity();
 						_original_message.message_value = MessageValue::TALKIE_MSG_PING;	// It's is the emulated message (not CALL)
 						// 2. Repurpose it to be a LOCAL PING
@@ -92,7 +92,7 @@ public:
 					{
 						ping = true;
 						// 1. Start by collecting info from message
-						_original_talker = json_message.get_from_name();	// Explicit conversion
+						 json_message.get_from_name(_original_talker);
 						_original_message.identity = json_message.get_identity();
 						_original_message.message_value = MessageValue::TALKIE_MSG_PING;	// It's is the emulated message (not CALL)
 						// 2. Repurpose it to be a SELF PING
@@ -126,7 +126,7 @@ public:
 						json_message.remove_nth_value(0);
 						json_message.set_message_value(MessageValue::TALKIE_MSG_CALL);
 						// 2. Collect info from message
-						_original_talker = json_message.get_from_name();
+						json_message.get_from_name(_original_talker);
 						_original_message.identity = json_message.get_identity();
 						_original_message.message_value = MessageValue::TALKIE_MSG_CALL;	// It's is the emulated message (not CALL)
 						// 3. Repurpose message with new targets
@@ -160,10 +160,12 @@ public:
 		uint16_t message_time = json_message.get_timestamp();	// must have
 		uint16_t time_delay = actual_time - message_time;
 		json_message.set_nth_value_number(0, time_delay);
-		json_message.set_nth_value_string(1, json_message.get_from_name());
+		char from_name[TALKIE_NAME_LEN];
+		json_message.get_from_name(from_name);
+		json_message.set_nth_value_string(1, from_name);
 
 		// Prepares headers for the original REMOTE sender
-		json_message.set_to_name(_original_talker.c_str());
+		json_message.set_to_name(_original_talker);
 		json_message.set_from_name(talker.get_name());
 
 		// Emulates the REMOTE original call

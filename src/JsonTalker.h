@@ -72,7 +72,7 @@ public:
 		uint16_t identity;
 		MessageValue message_value;
 		uint8_t tires;
-		JsonMessage message;
+		char _json_payload[TALKIE_BUFFER_SIZE];
 	};
 
 	/**
@@ -438,7 +438,7 @@ public:
 						switch (value_type) {
 
 							case ValueType::TALKIE_VT_STRING:
-								index_found_i = _actionIndex(json_message.get_action_string());
+								index_found_i = _actionIndex(json_message.get_action_name());
 								break;
 							
 							case ValueType::TALKIE_VT_INTEGER:

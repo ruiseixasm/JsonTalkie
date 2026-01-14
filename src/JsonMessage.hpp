@@ -86,7 +86,6 @@ private:
 
 	char _json_payload[TALKIE_BUFFER_SIZE];			///< Internal JSON buffer
 	size_t _json_length = 0;						///< Current length of JSON string
-    mutable char _temp_string[TALKIE_MAX_LEN];		///< Temporary buffer for string operations
 
 
     // ============================================
@@ -908,8 +907,9 @@ public:
      * @return true if 'from' field exists and matches
      */
 	bool is_from_name(const char* name) const {
-		if (_get_value_string('f', _temp_string, TALKIE_NAME_LEN)) {
-			return strcmp(_temp_string, name) == 0;
+		char from_name[TALKIE_NAME_LEN];
+		if (_get_value_string('f', from_name, TALKIE_NAME_LEN)) {
+			return strcmp(from_name, name) == 0;
 		}
 		return false;
 	}
@@ -921,8 +921,9 @@ public:
      * @return true if 'to' field is string and matches
      */
 	bool is_to_name(const char* name) const {
-		if (_get_value_string('t', _temp_string, TALKIE_NAME_LEN)) {
-			return strcmp(_temp_string, name) == 0;
+		char to_name[TALKIE_NAME_LEN];
+		if (_get_value_string('t', to_name, TALKIE_NAME_LEN)) {
+			return strcmp(to_name, name) == 0;
 		}
 		return false;
 	}
@@ -965,8 +966,9 @@ public:
      * @return true if 'action' field is string and matches
      */
 	bool is_action_name(const char* name) const {
-		if (_get_value_string('a', _temp_string, TALKIE_NAME_LEN)) {
-			return strcmp(_temp_string, name) == 0;
+		char action_name[TALKIE_NAME_LEN];
+		if (_get_value_string('a', action_name, TALKIE_NAME_LEN)) {
+			return strcmp(action_name, name) == 0;
 		}
 		return false;
 	}
@@ -1063,20 +1065,6 @@ public:
 	
 
     /**
-     * @brief Get sender name
-     * @return Pointer to sender name string, or nullptr if not found
-     * 
-     * @warning Returned pointer is to internal buffer. Copy if needed.
-     */
-    char* get_from_name() const {
-        if (_get_value_string('f', _temp_string, TALKIE_NAME_LEN)) {
-            return _temp_string;  // safe C string
-        }
-        return nullptr;  // failed
-    }
-
-
-    /**
      * @brief Get target type
      * @return ValueType of 't' field
      */
@@ -1086,17 +1074,30 @@ public:
 
 
     /**
-     * @brief Get target name
-     * @return Pointer to target name, or nullptr if not a string
+     * @brief Get sender name
+     * @param name An array of at least TALKIE_NAME_LEN (16)
+     * @param size The size of TALKIE_NAME_LEN or more
+     * @return false if name non existent
      */
-    const char* get_to_name() const {
-		size_t colon_position = _get_colon_position('t');
-		if (colon_position && _get_value_type('t', colon_position) == ValueType::TALKIE_VT_STRING) {
-			if (_get_value_string('t', _temp_string, TALKIE_NAME_LEN, colon_position)) {
-				return _temp_string;
-			}
-		}
-        return nullptr;  // failed
+    bool get_from_name(char* name, size_t size = TALKIE_NAME_LEN) const {
+        if (size >= TALKIE_NAME_LEN && _get_value_string('f', name, TALKIE_NAME_LEN)) {
+            return true;  // safe C string
+        }
+        return false;  // failed
+    }
+
+
+    /**
+     * @brief Get sender name
+     * @param name An array of at least TALKIE_NAME_LEN (16)
+     * @param size The size of TALKIE_NAME_LEN or more
+     * @return false if name non existent
+     */
+    bool get_to_name(char* name, size_t size = TALKIE_NAME_LEN) const {
+        if (size >= TALKIE_NAME_LEN && _get_value_string('t', name, TALKIE_NAME_LEN)) {
+            return true;  // safe C string
+        }
+        return false;  // failed
     }
 	
 
@@ -1170,15 +1171,17 @@ public:
 
 
     /**
-     * @brief Get nth value as string
+     * @brief Get nth string
      * @param nth Index 0-9
-     * @return Pointer to string value, or nullptr if not string/invalid
+     * @param value_string An array of at least TALKIE_MAX_LEN (64)
+     * @param size The size of TALKIE_MAX_LEN or more
+     * @return false if nth string non existent
      */
-	char* get_nth_value_string(uint8_t nth) const {
-		if (nth < 10 && _get_value_string('0' + nth, _temp_string, TALKIE_MAX_LEN)) {
-			return _temp_string;  // safe C string
-		}
-		return nullptr;  // failed
+	char* get_nth_value_string(uint8_t nth, char* value_string, size_t size = TALKIE_MAX_LEN) const {
+        if (size >= TALKIE_MAX_LEN && _get_value_string('0' + nth, value_string, TALKIE_MAX_LEN)) {
+            return true;  // safe C string
+        }
+        return false;  // failed
 	}
 
 
@@ -1205,15 +1208,17 @@ public:
 
 
     /**
-     * @brief Get action as a string
-     * @return Pointer to action string, or nullptr if not string
+     * @brief Get action name
+     * @param name An array of at least TALKIE_NAME_LEN (16)
+     * @param size The size of TALKIE_NAME_LEN or more
+     * @return false if name non existent
      */
-	char* get_action_string() const {
-		if (_get_value_string('a', _temp_string, TALKIE_NAME_LEN)) {
-			return _temp_string;  // safe C string
-		}
-		return nullptr;  // failed
-	}
+    bool get_action_name(char* name, size_t size = TALKIE_NAME_LEN) const {
+        if (size >= TALKIE_NAME_LEN && _get_value_string('a', name, TALKIE_NAME_LEN)) {
+            return true;  // safe C string
+        }
+        return false;  // failed
+    }
 
 
     /**
