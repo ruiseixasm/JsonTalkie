@@ -263,10 +263,9 @@ private:
 					buffer[char_j] = '\0';	// Makes sure the termination char is added
 					return true;
 				}
-				buffer[0] = '\0';	// Clears all noisy fill if it fails
-				return false;
 			}
 		}
+		buffer[0] = '\0';	// Safe code, no surprises
 		return false;
 	}
 

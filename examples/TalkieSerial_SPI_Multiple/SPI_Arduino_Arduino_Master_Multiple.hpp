@@ -488,7 +488,7 @@ protected:
 						if (new_message._validate_json()) {
 							
 							if (new_message._process_checksum() && _names[_actual_ss_pin_i][0] == '\0') {
-								strcpy(_names[_actual_ss_pin_i], new_message.get_from_name());
+								new_message.get_from_name(_names[_actual_ss_pin_i]);
 								
 								#ifdef BROADCAST_SPI_DEBUG
 								Serial.print(F("\tcheckJsonMessage2: Saved actual named pin index i: "));
@@ -557,8 +557,8 @@ protected:
 			#ifdef ENABLE_DIRECT_ADDRESSING
 
 			bool as_reply = false;
-			const char* to_name = json_message.get_to_name();
-			if (to_name) {
+			char to_name[TALKIE_NAME_LEN];
+			if (json_message.get_to_name(to_name)) {
 
 				#ifdef BROADCAST_SPI_DEBUG
 				Serial.println(F("\t\t\t\t\tsend3: json_message TO is a String"));
