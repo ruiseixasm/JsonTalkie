@@ -69,6 +69,12 @@ class MessageRepeater;
 class JsonTalker {
 public:
 	
+	struct KnownTalker {
+		char name[TALKIE_NAME_LEN] = {'\0'};
+		BroadcastValue broadcast_value = BroadcastValue::TALKIE_BC_NONE;
+	};
+	
+
 	struct TransmittedMessage {
 		uint16_t identity;
 		JsonMessage message;
@@ -98,6 +104,7 @@ private:
 	TalkerManifesto* _manifesto = nullptr;
     uint8_t _channel = 255;	// Channel 255 means NO channel response
     bool _muted_calls = false;
+	KnownTalker _known_talker;
 	TransmittedMessage _transmitted_message;
 
 
@@ -411,6 +418,9 @@ public:
      */
     void handleTransmission(JsonMessage& json_message, TalkerMatch talker_match = TalkerMatch::TALKIE_MATCH_ANY) {
 
+		if (json_message.get_from_name(_kn))
+		BroadcastValue broadcast_value = json_message.get_broadcast_value();
+
 		MessageValue message_value = json_message.get_message_value();
 
 		#ifdef JSON_TALKER_DEBUG_NEW
@@ -686,6 +696,9 @@ public:
 			
 			case MessageValue::TALKIE_MSG_NOISE:
 				if (json_message.has_error() && json_message.has_identity() && json_message.has_broadcast_value() && json_message.has_from_name()) {
+
+					// size_t i_colon_position = _get_colon_position('i');
+					// ValueType value_type = _get_value_type('i', i_colon_position) == ValueType::TALKIE_VT_STRING;
 
 					char from_name[TALKIE_NAME_LEN];
 					if (json_message.get_from_name(from_name)) {

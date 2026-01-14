@@ -405,13 +405,14 @@ private:
      * @brief Set string value for a key
      * @param key Key to set
      * @param in_string String value (null-terminated)
+     * @param size makes sure it doesn't go beyond the in_string size - 1
      * @param colon_position Optional hint for colon position
      * @return true if successful, false if buffer too small or string empty
      */
-	bool _set_string(char key, const char* in_string, size_t colon_position = 4) {
+	bool _set_string(char key, const char* in_string, size_t size, size_t colon_position = 4) {
 		if (in_string) {
 			size_t length = 0;
-			for (size_t char_j = 0; in_string[char_j] != '\0' && char_j < TALKIE_BUFFER_SIZE; char_j++) {
+			for (size_t char_j = 0; in_string[char_j] != '\0' && char_j < TALKIE_BUFFER_SIZE && char_j < size; char_j++) {
 				length++;
 			}
 			// It can have empty strings too, so, a length can be 0!
@@ -1379,7 +1380,7 @@ public:
      * @return true if successful
      */
 	bool set_from_name(const char* name) {
-		return _set_string('f', name);
+		return _set_string('f', name, TALKIE_NAME_LEN);
 	}
 
 
@@ -1389,7 +1390,7 @@ public:
      * @return true if successful
      */
 	bool set_to_name(const char* name) {
-		return _set_string('t', name);
+		return _set_string('t', name, TALKIE_NAME_LEN);
 	}
 
 
@@ -1409,7 +1410,7 @@ public:
      * @return true if successful
      */
 	bool set_action_name(const char* name) {
-		return _set_string('a', name);
+		return _set_string('a', name, TALKIE_NAME_LEN);
 	}
 
 
@@ -1485,7 +1486,7 @@ public:
      */
 	bool set_nth_value_string(uint8_t nth, const char* in_string) {
 		if (nth < 10) {
-			return _set_string('0' + nth, in_string);
+			return _set_string('0' + nth, in_string, TALKIE_MAX_LEN);
 		}
 		return false;
 	}
