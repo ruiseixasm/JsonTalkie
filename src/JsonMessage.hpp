@@ -711,6 +711,23 @@ public:
 
 
     /**
+     * @brief Validates that identity is truly a number
+     * @return true if the message identity is a number and of 16-bits type
+     */
+	bool _validate_identity() {
+		size_t i_colon_position = _get_colon_position('i');
+		if (i_colon_position) {
+			ValueType value_type = _get_value_type('i', i_colon_position);
+			if (value_type == ValueType::TALKIE_VT_STRING) {
+				uint32_t number_i = _get_value_number('i', i_colon_position);
+				return number_i <= 0xFFFF;	// 16-bits
+			}
+		}
+		return false;
+	}
+
+
+    /**
      * @brief Checks if the checksum of the message matches the on in the respective field,
 	 *        if not, sets the message value as `NOISE`, so, it still shall be transmitted in order
 	 *        to be processed by the Talker and be returned as error to the original sender

@@ -33,7 +33,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define TALKIE_NAME_LEN 16			///< Default maximum length for name fields
 #define TALKIE_MAX_LEN 64			///< Default maximum length for string fields
 #define TALKIE_MAX_RETRIES 3		///< The maximum amount of retries to transmit
-#define TALKIE_MAX_TTL 500			///< The maximum time to live of the transmitted message
+#define TALKIE_MAX_TTL 100			///< The maximum time to live of the transmitted message
 
 
 /**
