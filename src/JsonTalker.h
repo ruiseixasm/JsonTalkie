@@ -677,7 +677,6 @@ public:
 									
 									default: break;
 								}
-							}
 						} else {
 							_error(json_message, talker_match);
 						}
