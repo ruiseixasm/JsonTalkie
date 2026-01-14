@@ -678,8 +678,7 @@ public:
 				break;
 			
 			case MessageValue::TALKIE_MSG_NOISE:
-				if ((talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME || talker_match == TalkerMatch::TALKIE_MATCH_BY_CHANNEL) &&
-					json_message.has_error() && json_message.has_identity() && json_message.has_broadcast_value() && json_message.has_from_name()) {
+				if (json_message.has_error() && json_message.has_identity() && json_message.has_broadcast_value() && json_message.has_from_name()) {
 
 					char from_name[TALKIE_NAME_LEN];
 					if (json_message.get_from_name(from_name)) {
