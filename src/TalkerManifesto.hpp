@@ -38,7 +38,7 @@ using SystemValue 		= TalkieCodes::SystemValue;
 using RogerValue 		= TalkieCodes::RogerValue;
 using ErrorValue 		= TalkieCodes::ErrorValue;
 using ValueType 		= TalkieCodes::ValueType;
-using OriginalMessage 	= JsonMessage::OriginalMessage;
+using OriginalMessage 	= JsonTalker::OriginalMessage;
 using Action 			= JsonTalker::Action;
 
 

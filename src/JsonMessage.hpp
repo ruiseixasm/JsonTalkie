@@ -78,12 +78,6 @@ class BroadcastSocket;
 class JsonMessage {
 public:
 
-	struct OriginalMessage {
-		uint16_t identity;
-		MessageValue message_value;
-	};
-
-
 	#ifdef MESSAGE_DEBUG_TIMING
 	unsigned long _reference_time = millis();
 	#endif

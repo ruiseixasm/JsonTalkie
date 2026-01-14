@@ -48,7 +48,6 @@ using SystemValue 		= TalkieCodes::SystemValue;
 using RogerValue 		= TalkieCodes::RogerValue;
 using ErrorValue 		= TalkieCodes::ErrorValue;
 using ValueType 		= TalkieCodes::ValueType;
-using OriginalMessage 	= JsonMessage::OriginalMessage;
 
 
 class TalkerManifesto;
@@ -69,6 +68,13 @@ class MessageRepeater;
 class JsonTalker {
 public:
 	
+	struct OriginalMessage {
+		uint16_t identity;
+		MessageValue message_value;
+		uint8_t tires;
+		JsonMessage message;
+	};
+
 	/**
 	 * @brief Represents an Action with a name and a description
 	 * 
@@ -90,8 +96,9 @@ private:
     const char* _desc;      // Description of the Device
 	TalkerManifesto* _manifesto = nullptr;
     uint8_t _channel = 255;	// Channel 255 means NO channel response
-	OriginalMessage _original_message = {0, MessageValue::TALKIE_MSG_NOISE};
     bool _muted_calls = false;
+	OriginalMessage _original_message = {0, MessageValue::TALKIE_MSG_NOISE};
+	uint8_t _retransmission_tries = 0;
 
 
 	/**
@@ -178,6 +185,7 @@ private:
 			if (message_value < MessageValue::TALKIE_MSG_ECHO) {
 				_original_message.identity = message_id;
 				_original_message.message_value = message_value;
+				_retransmission_tries = 0;
 			}
 			json_message.set_identity(message_id);
 		} else if (!json_message.has_identity()) { // Makes sure response messages have an "i" (identifier)
