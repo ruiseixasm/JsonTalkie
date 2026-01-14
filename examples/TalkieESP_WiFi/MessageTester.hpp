@@ -225,7 +225,9 @@ public:
 					from_match = true;
 				}
 				json_message.set_nth_value_string(0, from_name);
-				json_message.set_nth_value_string(1, test_json_message.get_from_name());
+				char test_from_name[TALKIE_NAME_LEN];
+				test_json_message.get_from_name(test_from_name);
+				json_message.set_nth_value_string(1, test_from_name);
 				return from_match;
 			}
 			break;

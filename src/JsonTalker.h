@@ -162,7 +162,7 @@ private:
 	bool _prepareMessage(JsonMessage& json_message) {
 
 		if (json_message.has_from()) {
-			if (strcmp(json_message.get_from_name(), _name) != 0) {
+			if (!json_message.is_from_name(_name)) {
 				// FROM is different from _name, must be swapped (replaces "f" with "t")
 				json_message.swap_from_with_to();
 				json_message.set_from_name(_name);

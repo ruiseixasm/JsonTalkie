@@ -664,6 +664,7 @@ public:
 
     void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
         (void)talker;		// Silence unused parameter warning
+		(void)talker_match;	// Silence unused parameter warning
 		
 		char temp_string[TALKIE_MAX_LEN];
 		json_message.get_from_name(temp_string, TALKIE_MAX_LEN);
@@ -690,11 +691,13 @@ public:
 
     void _error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
         (void)talker;		// Silence unused parameter warning
+		(void)talker_match;	// Silence unused parameter warning
 		
 		char temp_string[TALKIE_MAX_LEN];
 		json_message.get_from_name(temp_string, TALKIE_MAX_LEN);
 		Serial.print( temp_string );
         Serial.print(" - ");
+		
 		ValueType value_type = json_message.get_nth_value_type(0);
 		switch (value_type) {
 

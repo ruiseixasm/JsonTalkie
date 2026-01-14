@@ -30,7 +30,7 @@ public:
 
 protected:
 
-	String _original_talker = "";
+	char _original_talker[TALKIE_NAME_LEN];
 	OriginalMessage _original_message = {0, MessageValue::TALKIE_MSG_NOISE};
 
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
@@ -66,10 +66,12 @@ public:
 					case 0:
 					{
 						ping = true;
+
 						// 1. Start by collecting info from message
-						_original_talker = json_message.get_from_name();
+						json_message.get_from_name(_original_talker);
 						_original_message.identity = json_message.get_identity();
 						_original_message.message_value = MessageValue::TALKIE_MSG_PING;	// It's is the emulated message (not CALL)
+
 						// 2. Repurpose it to be a LOCAL PING
 						json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
 						json_message.remove_identity();
@@ -82,6 +84,7 @@ public:
 						}
 						json_message.remove_nth_value(0);
 						json_message.set_from_name(talker.get_name());	// Avoids the swapping
+
 						// 3. Sends the message LOCALLY
 						json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
 						// No need to transmit the message, the normal ROGER reply does that for us!
@@ -91,14 +94,17 @@ public:
 					case 1:
 					{
 						ping = true;
+
 						// 1. Start by collecting info from message
-						_original_talker = json_message.get_from_name();	// Explicit conversion
+						 json_message.get_from_name(_original_talker);
 						_original_message.identity = json_message.get_identity();
 						_original_message.message_value = MessageValue::TALKIE_MSG_PING;	// It's is the emulated message (not CALL)
+
 						// 2. Repurpose it to be a SELF PING
 						json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
 						json_message.remove_identity();	// Makes sure a new IDENTITY is set
 						json_message.set_from_name(talker.get_name());	// Avoids swapping
+
 						// 3. Sends the message to myself
 						json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_SELF);
 						// No need to transmit the message, the normal ROGER reply does that for us!
@@ -108,6 +114,7 @@ public:
 					case 2:
 					{
 						ping = true;
+
 						// 1. Start by setting the Action fields
 						if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_STRING) {
 							json_message.set_to_name(json_message.get_nth_value_string(0));
@@ -125,13 +132,16 @@ public:
 						}
 						json_message.remove_nth_value(0);
 						json_message.set_message_value(MessageValue::TALKIE_MSG_CALL);
+
 						// 2. Collect info from message
-						_original_talker = json_message.get_from_name();
+						json_message.get_from_name(_original_talker);
 						_original_message.identity = json_message.get_identity();
 						_original_message.message_value = MessageValue::TALKIE_MSG_CALL;	// It's is the emulated message (not CALL)
+
 						// 3. Repurpose message with new targets
 						json_message.remove_identity();
 						json_message.set_from_name(talker.get_name());	// Avoids the swapping
+
 						// 4. Sends the message LOCALLY
 						json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
 						// No need to transmit the message, the normal ROGER reply does that for us!
@@ -160,10 +170,12 @@ public:
 		uint16_t message_time = json_message.get_timestamp();	// must have
 		uint16_t time_delay = actual_time - message_time;
 		json_message.set_nth_value_number(0, time_delay);
-		json_message.set_nth_value_string(1, json_message.get_from_name());
+		char from_name[TALKIE_NAME_LEN];
+		json_message.get_from_name(from_name);
+		json_message.set_nth_value_string(1, from_name);
 
 		// Prepares headers for the original REMOTE sender
-		json_message.set_to_name(_original_talker.c_str());
+		json_message.set_to_name(_original_talker);
 		json_message.set_from_name(talker.get_name());
 
 		// Emulates the REMOTE original call
@@ -179,23 +191,29 @@ public:
     void _error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
 		(void)talker;		// Silence unused parameter warning
 		(void)talker_match;	// Silence unused parameter warning
+
+		char temp_string[TALKIE_MAX_LEN];
+		json_message.get_from_name(temp_string, TALKIE_MAX_LEN);
+		Serial.print( temp_string );
+        Serial.print(" - ");
 		
 		ValueType value_type = json_message.get_nth_value_type(0);
 		switch (value_type) {
 
 			case ValueType::TALKIE_VT_STRING:
-				Serial.println(json_message.get_nth_value_string(0));
-				break;
+				json_message.get_nth_value_string(0, temp_string, TALKIE_MAX_LEN);
+				Serial.println(temp_string);
+			break;
 			
 			case ValueType::TALKIE_VT_INTEGER:
 				Serial.println(json_message.get_nth_value_number(0));
-				break;
+			break;
 			
 			default:
-				Serial.println(F("Empty error received!"));
-				break;
+            	Serial.println(F("Empty echo received!"));
+			break;
 		}
-	}
+    }
 
 };
 
