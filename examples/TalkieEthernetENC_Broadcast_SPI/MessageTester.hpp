@@ -221,7 +221,7 @@ public:
 			{
 				bool from_match = false;
 				char from_name[] = "buzzer";
-				if (strcmp(test_json_message.get_from_name(), from_name) == 0) {
+				if (test_json_message.is_from_name(from_name)) {
 					from_match = true;
 				}
 				json_message.set_nth_value_string(0, from_name);

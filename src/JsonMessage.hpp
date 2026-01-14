@@ -747,45 +747,6 @@ public:
     // ============================================
 
     /**
-     * @brief Check if message is intended for this recipient
-     * @param name Recipient name
-     * @param channel Recipient channel
-     * @return true if message targets this name/channel or is broadcast
-     * 
-     * Rules:
-     * - If 't' field is string: match against name
-     * - If 't' field is number: match against channel
-     * - No 't' field: broadcast message (true for all)
-     */
-	bool for_me(const char* name, uint8_t channel) const {
-		size_t colon_position = _get_colon_position('t');
-		if (colon_position) {
-			ValueType value_type = _get_value_type('t', colon_position);
-			switch (value_type) {
-
-				case ValueType::TALKIE_VT_STRING:
-					{
-						char message_to[TALKIE_NAME_LEN] = {'\0'};
-						_get_value_string('t', message_to, colon_position);
-						return strcmp(message_to, name) == 0;
-					}
-				break;
-				
-				case ValueType::TALKIE_VT_INTEGER:
-					{
-						uint32_t number = _get_value_number('t', colon_position);
-						return number == channel;
-					}
-				break;
-				
-				default: break;
-			}
-		}
-		return true;	// Non target messages, without to(t), are considered broadcasted messages an for everyone
-	}
-
-
-    /**
      * @brief Compare with buffer content
      * @param buffer Buffer to compare with
      * @param length Length of buffer
@@ -985,6 +946,22 @@ public:
 		return colon_position 
 			&& _get_value_type('t', colon_position) == ValueType::TALKIE_VT_INTEGER
 			&& _get_value_number('t', colon_position) == channel;
+	}
+
+	
+    /**
+     * @brief Check if message is intended for this recipient
+     * @param name Recipient name
+     * @param channel Recipient channel
+     * @return true if message targets this name/channel or is broadcast
+     * 
+     * Rules:
+     * - If 't' field is string: match against name
+     * - If 't' field is number: match against channel
+     * - No 't' field: broadcast message (true for all)
+     */
+	bool is_for_me(const char* name, uint8_t channel) const {
+		return is_to_name(name) || is_to_channel(channel);
 	}
 
 
