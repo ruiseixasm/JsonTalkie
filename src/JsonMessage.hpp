@@ -988,6 +988,32 @@ public:
 	}
 
 
+    /**
+     * @brief Check if 'action' field matches the name
+     * @param name Action name to compare with
+     * @return true if 'action' field is string and matches
+     */
+	bool is_action_name(const char* name) const {
+		if (_get_value_string('a', _temp_string, TALKIE_NAME_LEN)) {
+			return strcmp(_temp_string, name) == 0;
+		}
+		return false;
+	}
+
+
+    /**
+     * @brief Check if 'action' field matches index
+     * @param index Channel number (0-254)
+     * @return true if 'action' field is number and matches
+     */
+	bool is_action_index(uint8_t index) const {
+		size_t colon_position = _get_colon_position('a');
+		return colon_position 
+			&& _get_value_type('a', colon_position) == ValueType::TALKIE_VT_INTEGER
+			&& _get_value_number('a', colon_position) == index;
+	}
+
+
     // ============================================
     // GETTERS - FIELD VALUES
     // ============================================
