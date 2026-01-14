@@ -67,8 +67,9 @@ protected:
 					if (new_message._validate_json()) {
 				
 						if (new_message._process_checksum()) {
-							strcpy(_from_name, new_message.get_from_name());
-							_from_ip = _udp->remoteIP();
+							if (new_message.get_from_name(_from_name)) {
+								_from_ip = _udp->remoteIP();
+							}
 						}
 		
 						#ifdef BROADCAST_ETHERNETENC_DEBUG
