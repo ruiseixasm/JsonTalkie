@@ -40,6 +40,9 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define JSON_TALKER_DEBUG
 // #define JSON_TALKER_DEBUG_NEW
 
+
+#define TALKIE_MAX_RETRIES 3		///< The maximum amount of retries to transmit
+
 using LinkType			= TalkieCodes::LinkType;
 using TalkerMatch 		= TalkieCodes::TalkerMatch;
 using BroadcastValue 	= TalkieCodes::BroadcastValue;
@@ -664,6 +667,23 @@ public:
 				break;
 			
 			case MessageValue::TALKIE_MSG_ERROR:
+				if (talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
+					ErrorValue error_value = json_message.get_error_value();
+					switch (error_value) {
+						case ErrorValue::TALKIE_ERR_CHECKSUM:
+							if (_transmitted_message.retries < TALKIE_MAX_RETRIES) {
+								char from_name[TALKIE_NAME_LEN];
+								if (json_message.get_from_name(from_name)) {
+									++_transmitted_message.retries;
+									_transmitted_message.message.set_to_name(from_name);
+									transmitToRepeater(_transmitted_message.message);	// Retransmission
+									return;
+								}
+							}
+
+						default: break;
+					}
+				}
 				_error(json_message, talker_match);
 				break;
 			
