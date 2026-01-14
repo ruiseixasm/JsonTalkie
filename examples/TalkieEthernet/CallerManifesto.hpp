@@ -115,11 +115,11 @@ public:
 				talker.transmitToRepeater(call_buzzer);
 			}
 			// The time needs to be updated regardless of the transmission above
-			_time_to_call = present_time + 60UL * 60 * 1000;	// 60 minutes
+			_time_to_call += 60UL * 60 * 1000;	// Add 60 minutes
 		}
 		if ((int32_t)(present_time - _time_to_live) >= 0) {
 			digitalWrite(LED_BUILTIN, LOW);
-			_time_to_live = present_time + 61UL * 60 * 1000;	// 61 minutes
+			_time_to_live = _time_to_call + 60 * 1000;	// Add 1 minute extra
 		}
 	}
 
@@ -130,7 +130,7 @@ public:
         (void)talker_match;	// Silence unused parameter warning
 
 		uint32_t present_time = millis();
-		_time_to_live = present_time + 61UL * 60 * 1000;	// 61 minutes
+		_time_to_live = _time_to_call + 60 * 1000;		// Add 1 minute extra
 		digitalWrite(LED_BUILTIN, HIGH);
     }
     
