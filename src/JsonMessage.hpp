@@ -953,9 +953,11 @@ public:
      * @return true if 'from' field exists and matches
      */
 	bool is_from_name(const char* name) const {
-		const char* from_name = get_from_name();
-		if (from_name) {
-			return strcmp(name, from_name) == 0;
+		size_t colon_position = _get_colon_position('f');
+		if (colon_position) {
+			if (_get_value_string('f', _temp_string, TALKIE_NAME_LEN, colon_position)) {
+				return strcmp(_temp_string, name) == 0;
+			}
 		}
 		return false;
 	}
@@ -969,7 +971,6 @@ public:
 	bool is_to_name(const char* name) const {
 		size_t colon_position = _get_colon_position('t');
 		if (colon_position) {
-			ValueType value_type = _get_value_type('t', colon_position);
 			if (_get_value_string('t', _temp_string, TALKIE_NAME_LEN, colon_position)) {
 				return strcmp(_temp_string, name) == 0;
 			}
