@@ -318,14 +318,14 @@ public:
 
 			case BroadcastValue::TALKIE_BC_REMOTE:		// To uplinked Sockets only
 			{
-				bool no_fails = true;
+				bool message_sent = false;
 				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
 					// Sockets ONLY manipulate the checksum ('c')
 					if (!_uplinked_sockets[socket_j]->_finishTransmission(message)) {
-						no_fails = false;
+						message_sent = true;
 					}
 				}
-				return no_fails;
+				return message_sent;
 			}
 			break;
 			
@@ -398,22 +398,22 @@ public:
 					case TalkerMatch::TALKIE_MATCH_NONE: return true;
 					default: return false;
 				}
-				bool no_fails = true;
+				bool message_sent = false;
 				for (uint8_t socket_j = 0; socket_j < _downlinked_sockets_count; ++socket_j) {
 					// Sockets ONLY manipulate the checksum ('c')
 					if (!_downlinked_sockets[socket_j]->_finishTransmission(message)) {
-						no_fails = false;
+						message_sent = true;
 					}
 				}
 				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
 					if (_uplinked_sockets[socket_j]->isBridged()) {
 						// Sockets ONLY manipulate the checksum ('c')
 						if (!_uplinked_sockets[socket_j]->_finishTransmission(message)) {
-							no_fails = false;
+							message_sent = true;
 						}
 					}
 				}
-				return no_fails;
+				return message_sent;
 			}
 			break;
 			
@@ -650,22 +650,22 @@ public:
 					case TalkerMatch::TALKIE_MATCH_NONE: return true;
 					default: return false;
 				}
-				bool no_fails = true;
+				bool message_sent = false;
 				for (uint8_t socket_j = 0; socket_j < _downlinked_sockets_count; ++socket_j) {
 					// Sockets ONLY manipulate the checksum ('c')
 					if (!_downlinked_sockets[socket_j]->_finishTransmission(message)) {
-						no_fails = false;
+						message_sent = true;
 					}
 				}
 				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
 					if (_uplinked_sockets[socket_j]->isBridged()) {
 						// Sockets ONLY manipulate the checksum ('c')
 						if (!_uplinked_sockets[socket_j]->_finishTransmission(message)) {
-							no_fails = false;
+							message_sent = true;
 						}
 					}
 				}
-				return no_fails;
+				return message_sent;
 			}
 			break;
 			
