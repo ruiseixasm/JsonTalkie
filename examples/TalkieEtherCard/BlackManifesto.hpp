@@ -113,7 +113,6 @@ public:
     void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
         (void)talker;		// Silence unused parameter warning
 		
-		// *************** PARALLEL DEVELOPMENT WITH JSONMESSAGE (DONE) ***************
 		Serial.print( json_message.get_from_name() );
         Serial.print(" - ");
 		ValueType value_type = json_message.get_nth_value_type(0);
@@ -137,7 +136,6 @@ public:
     void _error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
         (void)talker;		// Silence unused parameter warning
 		
-		// *************** PARALLEL DEVELOPMENT WITH JSONMESSAGE (DONE) ***************
 		Serial.print( json_message.get_from_name() );
         Serial.print(" - ");
 		ValueType value_type = json_message.get_nth_value_type(0);
