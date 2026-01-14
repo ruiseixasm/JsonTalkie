@@ -73,7 +73,6 @@ public:
 		uint16_t identity;
 		JsonMessage message;
 		uint8_t retries;
-		MessageValue message_value;
 		bool active;
 	};
 

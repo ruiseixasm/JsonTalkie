@@ -31,7 +31,7 @@ public:
 protected:
 
 	char _original_talker[TALKIE_NAME_LEN];
-	TransmittedMessage _transmitted_message = {0, MessageValue::TALKIE_MSG_NOISE};
+	uint16_t _transmitted_message_timestamp;
 
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
@@ -69,8 +69,7 @@ public:
 
 						// 1. Start by collecting info from message
 						json_message.get_from_name(_original_talker);
-						_transmitted_message.identity = json_message.get_identity();
-						_transmitted_message.message_value = MessageValue::TALKIE_MSG_PING;	// It's is the emulated message (not CALL)
+						_transmitted_message_timestamp = json_message.get_identity();
 
 						// 2. Repurpose it to be a LOCAL PING
 						json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
@@ -100,8 +99,7 @@ public:
 
 						// 1. Start by collecting info from message
 						 json_message.get_from_name(_original_talker);
-						_transmitted_message.identity = json_message.get_identity();
-						_transmitted_message.message_value = MessageValue::TALKIE_MSG_PING;	// It's is the emulated message (not CALL)
+						_transmitted_message_timestamp = json_message.get_identity();
 
 						// 2. Repurpose it to be a SELF PING
 						json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
@@ -144,8 +142,7 @@ public:
 
 						// 2. Collect info from message
 						json_message.get_from_name(_original_talker);
-						_transmitted_message.identity = json_message.get_identity();
-						_transmitted_message.message_value = MessageValue::TALKIE_MSG_CALL;	// It's is the emulated message (not CALL)
+						_transmitted_message_timestamp = json_message.get_identity();
 
 						// 3. Repurpose message with new targets
 						json_message.remove_identity();
@@ -171,7 +168,7 @@ public:
 		Serial.print(F("\t\t\tSpy::echo1: "));
 		json_message.write_to(Serial);
 		Serial.print(" | ");
-		Serial.println((int)original_message.message_value);
+		Serial.println((int)original_message.message.get_message_value());
 		#endif
 
 		// In condition to calculate the delay right away, no need to extra messages
@@ -188,7 +185,7 @@ public:
 		json_message.set_from_name(talker.get_name());
 
 		// Emulates the REMOTE original call
-		json_message.set_identity(_transmitted_message.identity);
+		json_message.set_identity(_transmitted_message_timestamp);
 
 		// It's already an ECHO message, it's because of that that entered here
 		// Finally answers to the REMOTE caller by repeating all other json fields
