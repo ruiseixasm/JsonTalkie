@@ -193,7 +193,7 @@ public:
 		(void)talker_match;	// Silence unused parameter warning
 
 		char temp_string[TALKIE_MAX_LEN];
-		json_message.get_from_name(temp_string, TALKIE_MAX_LEN);
+		json_message.get_from_name(temp_string);
 		Serial.print( temp_string );
         Serial.print(" - ");
 		
@@ -201,7 +201,7 @@ public:
 		switch (value_type) {
 
 			case ValueType::TALKIE_VT_STRING:
-				json_message.get_nth_value_string(0, temp_string, TALKIE_MAX_LEN);
+				json_message.get_nth_value_string(0, temp_string);
 				Serial.println(temp_string);
 			break;
 			
