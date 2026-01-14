@@ -76,8 +76,10 @@ public:
 						json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
 						json_message.remove_identity();
 						if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_STRING) {
-							
-							json_message.set_to_name(json_message.get_nth_value_string(0));
+							char value_name[TALKIE_NAME_LEN];
+							if (json_message.get_nth_value_string(0, value_name, TALKIE_NAME_LEN)) {
+								json_message.set_to_name(value_name);
+							}
 						} else if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_INTEGER) {
 							json_message.set_to_channel((uint8_t)json_message.get_nth_value_number(0));
 						} else {	// Removes the original TO
@@ -118,14 +120,20 @@ public:
 
 						// 1. Start by setting the Action fields
 						if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_STRING) {
-							json_message.set_to_name(json_message.get_nth_value_string(0));
+							char value_name[TALKIE_NAME_LEN];
+							if (json_message.get_nth_value_string(0, value_name, TALKIE_NAME_LEN)) {
+								json_message.set_to_name(value_name);
+							}
 						} else if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_INTEGER) {
 							json_message.set_to_channel((uint8_t)json_message.get_nth_value_number(0));
 						} else {
 							return false;
 						}
 						if (json_message.get_nth_value_type(1) == ValueType::TALKIE_VT_STRING) {
-							json_message.set_action_name(json_message.get_nth_value_string(1));
+							char action_name[TALKIE_NAME_LEN];
+							if (json_message.get_nth_value_string(1, action_name, TALKIE_NAME_LEN)) {
+								json_message.set_action_name(action_name);
+							}
 						} else if (json_message.get_nth_value_type(1) == ValueType::TALKIE_VT_INTEGER) {
 							json_message.set_action_index((uint8_t)json_message.get_nth_value_number(1));
 						} else {
