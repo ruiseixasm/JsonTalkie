@@ -263,12 +263,13 @@ public:
 				
 				{
 					char message_to_name[TALKIE_NAME_LEN];
-					strcpy(message_to_name, message.get_to_name());
-					for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
-						const char* talker_name = _downlinked_talkers[talker_i]->get_name();
-						if (strcmp(talker_name, message_to_name) == 0) {
-							_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
-							return;
+					if (message.get_to_name(message_to_name, TALKIE_NAME_LEN)) {
+						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+							const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+							if (strcmp(talker_name, message_to_name) == 0) {
+								_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
+								return;
+							}
 						}
 					}
 				}
@@ -373,21 +374,22 @@ public:
 					case TalkerMatch::TALKIE_MATCH_BY_NAME:
 					{
 						char message_to_name[TALKIE_NAME_LEN];
-						strcpy(message_to_name, message.get_to_name());
-						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
-							if (_downlinked_talkers[talker_i] != &talker) {
-								const char* talker_name = _downlinked_talkers[talker_i]->get_name();
-								if (strcmp(talker_name, message_to_name) == 0) {
-									_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
-									return true;
+						if (message.get_to_name(message_to_name, TALKIE_NAME_LEN)) {
+							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+								if (_downlinked_talkers[talker_i] != &talker) {
+									const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+									if (strcmp(talker_name, message_to_name) == 0) {
+										_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
+										return true;
+									}
 								}
 							}
-						}
-						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
-							const char* talker_name = _uplinked_talkers[talker_i]->get_name();
-							if (strcmp(talker_name, message_to_name) == 0) {
-								_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
-								return true;
+							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
+								if (strcmp(talker_name, message_to_name) == 0) {
+									_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
+									return true;
+								}
 							}
 						}
 					}
@@ -509,19 +511,20 @@ public:
 					case TalkerMatch::TALKIE_MATCH_BY_NAME:
 					{
 						char message_to_name[TALKIE_NAME_LEN];
-						strcpy(message_to_name, message.get_to_name());
-						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
-							const char* talker_name = _downlinked_talkers[talker_i]->get_name();
-							if (strcmp(talker_name, message_to_name) == 0) {
-								_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
-								return;
+						if (message.get_to_name(message_to_name, TALKIE_NAME_LEN)) {
+							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+								const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+								if (strcmp(talker_name, message_to_name) == 0) {
+									_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
+									return;
+								}
 							}
-						}
-						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
-							const char* talker_name = _uplinked_talkers[talker_i]->get_name();
-							if (strcmp(talker_name, message_to_name) == 0) {
-								_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
-								return;
+							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
+								if (strcmp(talker_name, message_to_name) == 0) {
+									_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
+									return;
+								}
 							}
 						}
 					}
@@ -623,20 +626,21 @@ public:
 					case TalkerMatch::TALKIE_MATCH_BY_NAME:
 					{
 						char message_to_name[TALKIE_NAME_LEN];
-						strcpy(message_to_name, message.get_to_name());
-						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
-							const char* talker_name = _downlinked_talkers[talker_i]->get_name();
-							if (strcmp(talker_name, message_to_name) == 0) {
-								_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
-								return true;
-							}
-						}
-						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
-							if (_uplinked_talkers[talker_i] != &talker) {
-								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
+						if (message.get_to_name(message_to_name, TALKIE_NAME_LEN)) {
+							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+								const char* talker_name = _downlinked_talkers[talker_i]->get_name();
 								if (strcmp(talker_name, message_to_name) == 0) {
-									_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
+									_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
 									return true;
+								}
+							}
+							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+								if (_uplinked_talkers[talker_i] != &talker) {
+									const char* talker_name = _uplinked_talkers[talker_i]->get_name();
+									if (strcmp(talker_name, message_to_name) == 0) {
+										_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
+										return true;
+									}
 								}
 							}
 						}

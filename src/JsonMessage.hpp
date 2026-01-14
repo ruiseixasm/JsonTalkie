@@ -1081,7 +1081,7 @@ public:
      */
     bool get_from_name(char* name, size_t size = TALKIE_NAME_LEN) const {
         if (size >= TALKIE_NAME_LEN && _get_value_string('f', name, TALKIE_NAME_LEN)) {
-            return true;  // safe C string
+            return true;
         }
         return false;  // failed
     }
@@ -1095,7 +1095,7 @@ public:
      */
     bool get_to_name(char* name, size_t size = TALKIE_NAME_LEN) const {
         if (size >= TALKIE_NAME_LEN && _get_value_string('t', name, TALKIE_NAME_LEN)) {
-            return true;  // safe C string
+            return true;
         }
         return false;  // failed
     }
@@ -1177,9 +1177,9 @@ public:
      * @param size The size of TALKIE_MAX_LEN or more
      * @return false if nth string non existent
      */
-	char* get_nth_value_string(uint8_t nth, char* value_string, size_t size = TALKIE_MAX_LEN) const {
+	bool get_nth_value_string(uint8_t nth, char* value_string, size_t size = TALKIE_MAX_LEN) const {
         if (size >= TALKIE_MAX_LEN && _get_value_string('0' + nth, value_string, TALKIE_MAX_LEN)) {
-            return true;  // safe C string
+            return true;
         }
         return false;  // failed
 	}
@@ -1215,7 +1215,7 @@ public:
      */
     bool get_action_name(char* name, size_t size = TALKIE_NAME_LEN) const {
         if (size >= TALKIE_NAME_LEN && _get_value_string('a', name, TALKIE_NAME_LEN)) {
-            return true;  // safe C string
+            return true;
         }
         return false;  // failed
     }

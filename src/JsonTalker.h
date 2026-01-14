@@ -438,7 +438,14 @@ public:
 						switch (value_type) {
 
 							case ValueType::TALKIE_VT_STRING:
-								index_found_i = _actionIndex(json_message.get_action_name());
+								{
+									char action_name[TALKIE_NAME_LEN];
+									if (json_message.get_action_name(action_name)) {
+										index_found_i = _actionIndex(action_name);
+									} else {
+										index_found_i = 255;
+									}
+								}
 								break;
 							
 							case ValueType::TALKIE_VT_INTEGER:
