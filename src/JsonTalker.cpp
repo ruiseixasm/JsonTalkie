@@ -42,8 +42,15 @@ bool JsonTalker::transmitToRepeater(JsonMessage& json_message) {
 		}
 	}
 	if (message_sent) {
-		_transmitted_message.message = json_message;
-		_transmitted_message.retries = 0;
+		MessageValue message_value = json_message.get_message_value();
+		if (message_value < MessageValue::TALKIE_MSG_ECHO) {
+			_transmitted_echoable_message.identity = json_message.get_identity();
+			_transmitted_echoable_message.message_value = message_value;
+			if (message_value == MessageValue::TALKIE_MSG_CALL) {
+				_transmitted_call_message.message = json_message;
+				_transmitted_call_message.retries = 0;
+			}
+		}
 	}
 	return message_sent;
 }

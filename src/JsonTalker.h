@@ -69,12 +69,12 @@ class MessageRepeater;
 class JsonTalker {
 public:
 	
-	struct TransmittedMessage {
+	struct TransmittedCallMessage {
 		JsonMessage message;
 		uint8_t retries;
 	};
 
-	struct EchoableMessage {
+	struct TransmittedEchoableMessage {
 		uint16_t identity;
 		MessageValue message_value;
 	};
@@ -101,9 +101,8 @@ private:
 	TalkerManifesto* _manifesto = nullptr;
     uint8_t _channel = 255;	// Channel 255 means NO channel response
     bool _muted_calls = false;
-	TransmittedMessage _transmitted_message;
-	EchoableMessage _echoable_message;
-	uint8_t _retransmission_tries = 0;
+	TransmittedCallMessage _transmitted_call_message;
+	TransmittedEchoableMessage _transmitted_echoable_message;
 
 
 	/**
@@ -186,13 +185,7 @@ private:
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
 
-			uint16_t message_id = (uint16_t)millis();
-			if (message_value < MessageValue::TALKIE_MSG_ECHO) {
-				_echoable_message.identity = message_id;
-				_echoable_message.message_value = message_value;
-				_retransmission_tries = 0;
-			}
-			json_message.set_identity(message_id);
+			json_message.set_identity();
 		} else if (!json_message.has_identity()) { // Makes sure response messages have an "i" (identifier)
 
 			#ifdef JSON_TALKER_DEBUG
@@ -368,11 +361,11 @@ public:
 	
     /**
      * @brief Get the last, non echo message (original)
-     * @return Returns EchoableMessage with the message id and value
+     * @return Returns TransmittedEchoableMessage with the message id and value
      * 
      * @note This is used to pair the message id with its echo
      */
-    const EchoableMessage& get_original() const { return _echoable_message; }
+    const TransmittedEchoableMessage& get_original() const { return _transmitted_echoable_message; }
 
 
     // ============================================
@@ -655,10 +648,10 @@ public:
 					Serial.print(" | ");
 					Serial.print(message_id);
 					Serial.print(" | ");
-					Serial.println(_echoable_message.identity);
+					Serial.println(_transmitted_echoable_message.identity);
 					#endif
 
-					if (message_id == _echoable_message.identity) {
+					if (message_id == _transmitted_echoable_message.identity) {
 						_echo(json_message, talker_match);
 					}
 				}
@@ -667,12 +660,12 @@ public:
 			case MessageValue::TALKIE_MSG_ERROR:
 				if (talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
 					ErrorValue error_value = json_message.get_error_value();
-					if (error_value == ErrorValue::TALKIE_ERR_CHECKSUM && _transmitted_message.retries < TALKIE_MAX_RETRIES) {
+					if (error_value == ErrorValue::TALKIE_ERR_CHECKSUM && _transmitted_call_message.retries < TALKIE_MAX_RETRIES) {
 						char from_name[TALKIE_NAME_LEN];
 						if (json_message.get_from_name(from_name)) {
-							++_transmitted_message.retries;
-							_transmitted_message.message.set_to_name(from_name);
-							transmitToRepeater(_transmitted_message.message);	// Retransmission
+							++_transmitted_call_message.retries;
+							_transmitted_call_message.message.set_to_name(from_name);
+							transmitToRepeater(_transmitted_call_message.message);	// Retransmission
 							return;
 						}
 					}

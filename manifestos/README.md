@@ -163,7 +163,7 @@ Here is an example of a Manifesto that processes the responses to its generated 
 		json_message.set_from_name(talker.get_name());
 
 		// Emulates the REMOTE original call
-		json_message.set_identity(_echoable_message.identity);
+		json_message.set_identity(_transmitted_echoable_message.identity);
 
 		// It's already an ECHO message, it's because of that that entered here
 		// Finally answers to the REMOTE caller by repeating all other json fields

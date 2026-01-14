@@ -112,8 +112,7 @@ public:
 				} else {
 					toggle_blue_on_off.set_action_name("on");
 				}
-                talker.transmitToRepeater(toggle_blue_on_off);
-                return true;
+                return talker.transmitToRepeater(toggle_blue_on_off);
 			}
             break;
 			
