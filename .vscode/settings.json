@@ -1,15 +1,16 @@
 {
     "cSpell.words": [
-        "baudrate",
-        "DGRAM",
-        "ETHERCARD",
-        "JSONTALKIE",
-        "microcontrollers",
-        "REUSEADDR",
-        "simpleaudio",
-        "soundaudio",
-        "Walkie"
-    ],
+		"baudrate",
+		"DGRAM",
+		"Echoable",
+		"ETHERCARD",
+		"JSONTALKIE",
+		"microcontrollers",
+		"REUSEADDR",
+		"simpleaudio",
+		"soundaudio",
+		"Walkie"
+	],
     "files.associations": {
         "*.txt": "cmake",
         "xlocale": "cpp",

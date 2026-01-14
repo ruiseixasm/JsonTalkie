@@ -68,11 +68,16 @@ class MessageRepeater;
 class JsonTalker {
 public:
 	
-	struct OriginalMessage {
+	JsonMessage _lastTransmittedMessage;
+
+	struct TransmittedMessage {
+		JsonMessage transmitted_message;
+		uint8_t retries = 0;
+	};
+
+	struct EchoableMessage {
 		uint16_t identity;
 		MessageValue message_value;
-		uint8_t tires;
-		char _json_payload[TALKIE_BUFFER_SIZE];
 	};
 
 	/**
@@ -97,7 +102,7 @@ private:
 	TalkerManifesto* _manifesto = nullptr;
     uint8_t _channel = 255;	// Channel 255 means NO channel response
     bool _muted_calls = false;
-	OriginalMessage _original_message = {0, MessageValue::TALKIE_MSG_NOISE};
+	EchoableMessage _original_message = {0, MessageValue::TALKIE_MSG_NOISE};
 	uint8_t _retransmission_tries = 0;
 
 
@@ -363,11 +368,11 @@ public:
 	
     /**
      * @brief Get the last, non echo message (original)
-     * @return Returns OriginalMessage with the message id and value
+     * @return Returns EchoableMessage with the message id and value
      * 
      * @note This is used to pair the message id with its echo
      */
-    const OriginalMessage& get_original() const { return _original_message; }
+    const EchoableMessage& get_original() const { return _original_message; }
 
 
     // ============================================
