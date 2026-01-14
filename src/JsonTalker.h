@@ -68,8 +68,6 @@ class MessageRepeater;
 class JsonTalker {
 public:
 	
-	JsonMessage _lastTransmittedMessage;
-
 	struct TransmittedMessage {
 		JsonMessage transmitted_message;
 		uint8_t retries = 0;
@@ -102,7 +100,8 @@ private:
 	TalkerManifesto* _manifesto = nullptr;
     uint8_t _channel = 255;	// Channel 255 means NO channel response
     bool _muted_calls = false;
-	EchoableMessage _original_message = {0, MessageValue::TALKIE_MSG_NOISE};
+	TransmittedMessage _transmitted_message;
+	EchoableMessage _echoable_message;
 	uint8_t _retransmission_tries = 0;
 
 
@@ -188,8 +187,8 @@ private:
 
 			uint16_t message_id = (uint16_t)millis();
 			if (message_value < MessageValue::TALKIE_MSG_ECHO) {
-				_original_message.identity = message_id;
-				_original_message.message_value = message_value;
+				_echoable_message.identity = message_id;
+				_echoable_message.message_value = message_value;
 				_retransmission_tries = 0;
 			}
 			json_message.set_identity(message_id);
@@ -372,7 +371,7 @@ public:
      * 
      * @note This is used to pair the message id with its echo
      */
-    const EchoableMessage& get_original() const { return _original_message; }
+    const EchoableMessage& get_original() const { return _echoable_message; }
 
 
     // ============================================
@@ -655,10 +654,10 @@ public:
 					Serial.print(" | ");
 					Serial.print(message_id);
 					Serial.print(" | ");
-					Serial.println(_original_message.identity);
+					Serial.println(_echoable_message.identity);
 					#endif
 
-					if (message_id == _original_message.identity) {
+					if (message_id == _echoable_message.identity) {
 						_echo(json_message, talker_match);
 					}
 				}
