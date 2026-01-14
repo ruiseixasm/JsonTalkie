@@ -38,7 +38,7 @@ using SystemValue 		= TalkieCodes::SystemValue;
 using RogerValue 		= TalkieCodes::RogerValue;
 using ErrorValue 		= TalkieCodes::ErrorValue;
 using ValueType 		= TalkieCodes::ValueType;
-using TransmittedEchoableMessage 	= JsonTalker::TransmittedEchoableMessage;
+using LastEchoableMessage 	= JsonTalker::LastEchoableMessage;
 using Action 			= JsonTalker::Action;
 
 

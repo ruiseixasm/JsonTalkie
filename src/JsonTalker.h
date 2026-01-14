@@ -69,12 +69,12 @@ class MessageRepeater;
 class JsonTalker {
 public:
 	
-	struct TransmittedCallMessage {
+	struct LastCallMessage {
 		JsonMessage message;
 		uint8_t retries;
 	};
 
-	struct TransmittedEchoableMessage {
+	struct LastEchoableMessage {
 		uint16_t identity;
 		MessageValue message_value;
 	};
@@ -101,8 +101,8 @@ private:
 	TalkerManifesto* _manifesto = nullptr;
     uint8_t _channel = 255;	// Channel 255 means NO channel response
     bool _muted_calls = false;
-	TransmittedCallMessage _transmitted_call_message;
-	TransmittedEchoableMessage _transmitted_echoable_message;
+	LastCallMessage _last_call_message;
+	LastEchoableMessage _last_echoable_message;
 
 
 	/**
@@ -360,12 +360,21 @@ public:
 
 	
     /**
-     * @brief Get the last, non echo message (original)
-     * @return Returns TransmittedEchoableMessage with the message id and value
+     * @brief Get the last transmitted call message
+     * @return Returns LastCallMessage with the message id and value
      * 
      * @note This is used to pair the message id with its echo
      */
-    const TransmittedEchoableMessage& get_original() const { return _transmitted_echoable_message; }
+    const LastCallMessage& getTransmittedCallMessage() const { return _last_call_message; }
+
+
+    /**
+     * @brief Get the last transmitted non echo message
+     * @return Returns `LastEchoableMessage` with the message id and value
+     * 
+     * @note This is used to pair the message id with its echo
+     */
+    const LastEchoableMessage& getTransmittedEchoableMessage() const { return _last_echoable_message; }
 
 
     // ============================================
@@ -648,10 +657,10 @@ public:
 					Serial.print(" | ");
 					Serial.print(message_id);
 					Serial.print(" | ");
-					Serial.println(_transmitted_echoable_message.identity);
+					Serial.println(_last_echoable_message.identity);
 					#endif
 
-					if (message_id == _transmitted_echoable_message.identity) {
+					if (message_id == _last_echoable_message.identity) {
 						_echo(json_message, talker_match);
 					}
 				}
@@ -660,12 +669,12 @@ public:
 			case MessageValue::TALKIE_MSG_ERROR:
 				if (talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
 					ErrorValue error_value = json_message.get_error_value();
-					if (error_value == ErrorValue::TALKIE_ERR_CHECKSUM && _transmitted_call_message.retries < TALKIE_MAX_RETRIES) {
+					if (error_value == ErrorValue::TALKIE_ERR_CHECKSUM && _last_call_message.retries < TALKIE_MAX_RETRIES) {
 						char from_name[TALKIE_NAME_LEN];
 						if (json_message.get_from_name(from_name)) {
-							++_transmitted_call_message.retries;
-							_transmitted_call_message.message.set_to_name(from_name);
-							transmitToRepeater(_transmitted_call_message.message);	// Retransmission
+							++_last_call_message.retries;
+							_last_call_message.message.set_to_name(from_name);
+							transmitToRepeater(_last_call_message.message);	// Retransmission
 							return;
 						}
 					}
