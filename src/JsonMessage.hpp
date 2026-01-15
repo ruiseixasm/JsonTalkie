@@ -776,8 +776,7 @@ public:
      * @return true if it had space to insert the checksum field
      */
 	bool _insert_checksum() {
-		// Starts by clearing any pre existent checksum (NO surprises or miss receives)
-		_remove('c');
+		_remove('c');	// Starts by clearing any pre existent checksum (NO surprises or miss receives)
 		uint16_t checksum = _generateChecksum();
 		return _set_number('c', checksum);
 	}
