@@ -1157,14 +1157,15 @@ public:
      */
 	TalkerMatch get_talker_match() const {
 		// Has to have a valid `from`, anonymous messages aren't acceptable
-		size_t from_position = _get_colon_position('f');
-		if (!from_position || _get_value_type('f', from_position) != ValueType::TALKIE_VT_STRING) {
+		if (_get_value_type('f') != ValueType::TALKIE_VT_STRING) {
 			return TalkerMatch::TALKIE_MATCH_FAIL;
 		}
 		size_t to_position = _get_colon_position('t');
 		if (to_position) {
+			
 			ValueType value_type = _get_value_type('t', to_position);
 			switch (value_type) {
+
 				case ValueType::TALKIE_VT_INTEGER:
 				{
 					uint8_t channel = _get_value_number('t', to_position);
@@ -1174,7 +1175,10 @@ public:
 						return TalkerMatch::TALKIE_MATCH_FAIL;
 					}
 				}
-				case ValueType::TALKIE_VT_STRING: return TalkerMatch::TALKIE_MATCH_BY_NAME;
+
+				case ValueType::TALKIE_VT_STRING:
+					return TalkerMatch::TALKIE_MATCH_BY_NAME;
+
 				default: break;
 			}
 		} else {
