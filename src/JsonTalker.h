@@ -699,7 +699,7 @@ public:
 						error_message.set_to_name( _known_talker.name );
 						error_message.set_message_value( MessageValue::TALKIE_MSG_ERROR );
 						error_message.set_error_value( json_message.get_error_value() );
-						// Absolute minimum available data
+						// Absolute minimum available data needed!
 						error_message.set_identity( json_message.get_identity() );
 						transmitToRepeater(error_message);
 
