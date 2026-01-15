@@ -73,7 +73,7 @@ public:
 		uint16_t identity;
 		JsonMessage message;
 		bool active;
-		uint8_t tries;
+		uint8_t retries;
 	};
 
 	/**
@@ -181,18 +181,13 @@ private:
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
 
-			uint16_t message_identity;
-			if (_transmitted_message.active &&
-				json_message.get_identity(&message_identity) &&
-				message_identity == _transmitted_message.identity) {
-
-				return true;	// It's a resend
-			}
+			if (&json_message == &_transmitted_message.message) return true;	// It's a resend
 
 			if (!json_message.set_identity()) return false;
 			_transmitted_message.identity = json_message.get_identity();
 			_transmitted_message.message = json_message;
 			_transmitted_message.active = true;
+			_transmitted_message.retries = 0;
 
 		} else if (!json_message.has_identity()) { // Makes sure response messages have an "i" (identifier)
 
@@ -654,9 +649,11 @@ public:
 							switch (error_value) {
 
 								case ErrorValue::TALKIE_ERR_CHECKSUM:
-									// Retransmits as is, then it gets a new id, avoiding other devices to call it repeatedly
-									// as is right now because it will be different afterwards (different id)
-									transmitToRepeater(_transmitted_message.message);
+									if (_transmitted_message.retries++ < TALKIE_MAX_RETRIES) {
+										// Retransmits as is, and because it represents the same id as _transmitted_message
+										// it won't update the _transmitted_message with a new message
+										transmitToRepeater(_transmitted_message.message);
+									}
 								break;
 								
 								default: break;

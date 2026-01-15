@@ -79,7 +79,6 @@ const char* JsonTalker::_manifesto_name() const {
 void JsonTalker::_loop() {
 	if (_transmitted_message.active && (uint16_t)millis() - _transmitted_message.identity > TALKIE_MAX_TTL) {
 		_transmitted_message.active = false;
-		_transmitted_message.tries = 0;
 	}
 	if (_manifesto) _manifesto->_loop(*this);
 }
