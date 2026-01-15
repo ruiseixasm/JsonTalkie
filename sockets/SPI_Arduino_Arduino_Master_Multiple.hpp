@@ -496,10 +496,9 @@ protected:
 
 
 	void _showMessage(const JsonMessage& json_message) override {
-        (void)json_message;	// Silence unused parameter warning
 
 		if (_names[_actual_ss_pin_i][0] == '\0') {
-			new_message.get_from_name(_names[_actual_ss_pin_i]);
+			json_message.get_from_name(_names[_actual_ss_pin_i]);
 			
 			#ifdef BROADCAST_SPI_DEBUG
 			Serial.print(F("\t_showMessage1: Saved actual named pin index i: "));
