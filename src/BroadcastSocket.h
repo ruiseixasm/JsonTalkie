@@ -126,10 +126,15 @@ protected:
 			return;
 		}
 
-		if (json_message.has_broadcast_value() && json_message.has_from_name()) {
+		if (json_message.has_broadcast_value() && json_message.has_from()) {
 			
-			json_message.get_from_name(_from_talker.name);
-			json_message.get_broadcast_value(&_from_talker.broadcast);
+			if (!(
+				json_message.get_from_name(_from_talker.name) &&
+				json_message.get_broadcast_value(&_from_talker.broadcast)
+			)) {
+
+				return;	// If fields exist they must be valid
+			}
 		}
 
 		_showMessage(json_message);
