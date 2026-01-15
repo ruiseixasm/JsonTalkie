@@ -187,7 +187,11 @@ private:
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
 
-			json_message.set_identity();
+			if (!json_message.set_identity()) return false;
+			_transmitted_message.identity = json_message.get_identity();
+			_transmitted_message.message = json_message;
+			_transmitted_message.active = true;
+
 		} else if (!json_message.has_identity()) { // Makes sure response messages have an "i" (identifier)
 
 			#ifdef JSON_TALKER_DEBUG
@@ -196,9 +200,11 @@ private:
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
 
-			json_message.set_message_value(MessageValue::TALKIE_MSG_ERROR);
-			json_message.set_identity();
-			json_message.set_nth_value_number(0, static_cast<uint32_t>(ErrorValue::TALKIE_ERR_IDENTITY));
+			if (!(
+				json_message.set_message_value(MessageValue::TALKIE_MSG_ERROR) &&
+				json_message.set_identity() &&
+				json_message.set_error_value(ErrorValue::TALKIE_ERR_IDENTITY)
+			)) return false;
 
 		} else {
 			
@@ -622,12 +628,14 @@ public:
 						uint16_t message_id = json_message.get_identity();
 
 						#ifdef JSON_TALKER_DEBUG_NEW
-						Serial.print(F("\t\thandleTransmission1: "));
+						Serial.print(F("\t\thandleTransmission2: "));
 						json_message.write_to(Serial);
 						Serial.print(" | ");
 						Serial.print(message_id);
 						Serial.print(" | ");
-						Serial.println(_transmitted_message.identity);
+						Serial.print(_transmitted_message.identity);
+						Serial.print(" | ");
+						Serial.println(_name);
 						#endif
 
 						if (message_id == _transmitted_message.identity) {
