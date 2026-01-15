@@ -78,11 +78,11 @@ protected:
     uint16_t _last_message_timestamp = 0;
     uint16_t _drops_count = 0;
 
-	struct ReceivedTalker {
+	struct FromTalker {
 		char name[TALKIE_NAME_LEN] = {'\0'};
 		BroadcastValue broadcast = BroadcastValue::TALKIE_BC_NONE;
 	};
-	ReceivedTalker _received_talker;
+	FromTalker _from_talker;
 	
 	
     // Constructor
@@ -112,8 +112,8 @@ protected:
     void _startTransmission(JsonMessage& json_message) {
 
 		if (json_message._validate_json() && json_message._process_checksum() &&
-			json_message.get_from_name(_received_talker.name) &&
-			json_message.get_broadcast_value(_received_talker.broadcast)) {
+			json_message.get_from_name(_from_talker.name) &&
+			json_message.get_broadcast_value(_from_talker.broadcast)) {
 
 			_showMessage(json_message);
 			

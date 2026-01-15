@@ -36,7 +36,6 @@ protected:
 	uint16_t _port = 5005;
 	WiFiUDP* _udp;
 	// Source Talker info
-	char _from_name[TALKIE_NAME_LEN] = {'\0'};
 	IPAddress _from_ip = IPAddress(255, 255, 255, 255);   // By default it's used the broadcast IP
     // ===== [SELF IP] cache our own IP =====
     IPAddress _local_ip;
@@ -84,29 +83,8 @@ protected:
 
 				int length = _udp->read(message_buffer, static_cast<size_t>(packetSize));
 				if (length == packetSize) {
-
-					new_message._set_length(length);
-					if (new_message._validate_json()) {
-				
-						if (new_message._process_checksum()) {
-							if (new_message.get_from_name(_from_name)) {
-								_from_ip = _udp->remoteIP();
-							}
-						}
-		
-						#ifdef BROADCAST_ESP_WIFI_DEBUG
-						Serial.print(F("\treceive1: "));
-						Serial.print(packetSize);
-						Serial.print(F("B from "));
-						Serial.print(_udp->remoteIP());
-						Serial.print(F(" to "));
-						Serial.print(_local_ip);
-						Serial.print(F(" -->      "));
-						Serial.println(message_buffer);
-						#endif
-						
-						_startTransmission(new_message);
-					}
+					
+					_startTransmission(new_message);
 				}
 			}
 		}
@@ -114,9 +92,11 @@ protected:
 
 
 	void _showMessage(const JsonMessage& json_message) override {
+        (void)json_message;	// Silence unused parameter warning
 
-		
+		_from_ip = _udp->remoteIP();
 	}
+
 
     bool _send(const JsonMessage& json_message) override {
 		
@@ -126,7 +106,7 @@ protected:
 
             #ifdef ENABLE_DIRECT_ADDRESSING
 
-			bool as_reply = json_message.is_to_name(_from_name);
+			bool as_reply = json_message.is_to_name(_from_talker.name);
 
 			#ifdef BROADCAST_ESP_WIFI_DEBUG_NEW
 			Serial.print(F("\t\t\t\t\tsend orgn: "));
