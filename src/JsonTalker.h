@@ -436,26 +436,15 @@ public:
 					json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
 					{
 						if (_manifesto) {
-							uint8_t index_found_i = 255;
-							ValueType value_type = json_message.get_action_type();
-							switch (value_type) {
+							uint8_t index_found_i = json_message.get_action_index();	// returns 255 if not found
 
-								case ValueType::TALKIE_VT_STRING:
-									{
-										char action_name[TALKIE_NAME_LEN];
-										if (json_message.get_action_name(action_name)) {
-											index_found_i = _actionIndex(action_name);
-										} else {
-											index_found_i = 255;
-										}
-									}
-									break;
-								
-								case ValueType::TALKIE_VT_INTEGER:
-									index_found_i = _actionIndex(json_message.get_action_index());
-									break;
-								
-								default: break;
+							if (index_found_i < 255) {
+								index_found_i = _actionIndex(index_found_i);
+							} else {
+								char action_name[TALKIE_NAME_LEN];
+								if (json_message.get_action_name(action_name)) {
+									index_found_i = _actionIndex(action_name);
+								}
 							}
 							if (index_found_i < 255) {
 

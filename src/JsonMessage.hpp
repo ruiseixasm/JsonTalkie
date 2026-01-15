@@ -1354,8 +1354,14 @@ public:
      * @brief Get action as a number
      * @return The action index
      */
-	uint32_t get_action_index() const {
-		return _get_value_number('a');
+	uint8_t get_action_index() const {
+		uint32_t index;
+		if (_get_value_number('a', &index)) {
+			if (index <= 0xFF) {
+				return (uint8_t)index;
+			}
+		}
+		return 255;
 	}
 
 
