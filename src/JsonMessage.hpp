@@ -813,12 +813,10 @@ public:
     /**
      * @brief Check if key exists
      * @param key Key to check
-     * @param colon_position Optional hint for search
      * @return true if key exists in JSON
      */
-	bool has_key(char key, size_t colon_position = 4) const {
-		size_t json_i = _get_colon_position(key, colon_position);
-		return json_i > 0;
+	bool has_key(char key) const {
+		return _get_colon_position(key) > 0;
 	}
 
 
@@ -848,9 +846,7 @@ public:
 
 	/** @brief Check if 'from' field is a string (name) */
 	bool has_from_name() const {
-		size_t colon_position = _get_colon_position('f');
-		return colon_position 
-			&& _get_value_type('f', colon_position) == ValueType::TALKIE_VT_STRING;
+		return _get_value_type('f') == ValueType::TALKIE_VT_STRING;
 	}
 
 
@@ -862,17 +858,13 @@ public:
 
 	/** @brief Check if 'to' field is a string (name) */
 	bool has_to_name() const {
-		size_t colon_position = _get_colon_position('t');
-		return colon_position 
-			&& _get_value_type('t', colon_position) == ValueType::TALKIE_VT_STRING;
+		return _get_value_type('t') == ValueType::TALKIE_VT_STRING;
 	}
 
 
 	/** @brief Check if 'to' field is a number (channel) */
 	bool has_to_channel() const {
-		size_t colon_position = _get_colon_position('t');
-		return colon_position 
-			&& _get_value_type('t', colon_position) == ValueType::TALKIE_VT_INTEGER;
+		return _get_value_type('t') == ValueType::TALKIE_VT_INTEGER;
 	}
 
 
