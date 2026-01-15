@@ -1136,12 +1136,12 @@ public:
 
     /**
      * @brief Get target channel
-     * @return Channel number (0-254)
+     * @return Channel number (0-255)
      */
 	uint8_t get_to_channel() const {
 		uint32_t channel;
-		if (_get_value_number('a', &channel)) {
-			if (channel <= 0xFF) {
+		if (_get_value_number('t', &channel)) {
+			if (channel < 255) {
 				return (uint8_t)channel;
 			}
 		}
@@ -1162,7 +1162,7 @@ public:
 		}
 		size_t to_position = _get_colon_position('t');
 		if (to_position) {
-			
+
 			ValueType value_type = _get_value_type('t', to_position);
 			switch (value_type) {
 
