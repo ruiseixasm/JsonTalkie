@@ -78,6 +78,12 @@ protected:
     uint16_t _last_message_timestamp = 0;
     uint16_t _drops_count = 0;
 
+	struct ReceivedTalker {
+		char name[TALKIE_NAME_LEN] = {'\0'};
+		BroadcastValue broadcast = BroadcastValue::TALKIE_BC_NONE;
+	};
+	ReceivedTalker _received_talker;
+	
 	
     // Constructor
     BroadcastSocket() {
