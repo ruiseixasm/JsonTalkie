@@ -1348,7 +1348,7 @@ public:
 	uint8_t get_action_index() const {
 		uint32_t index;
 		if (_get_value_number('a', &index)) {
-			if (index <= 0xFF) {
+			if (index < 255) {
 				return (uint8_t)index;
 			}
 		}
