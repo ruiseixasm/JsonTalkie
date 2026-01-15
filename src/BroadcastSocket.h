@@ -92,6 +92,10 @@ protected:
 	void _transmitToRepeater(JsonMessage& json_message);
 
 
+    /** @brief Allows the visualization of the message before transmission */
+	virtual void _showMessage(const JsonMessage& json_message) {}
+
+
     /**
      * @brief Starts the transmission of the data received
      * @param json_message A json message to be transmitted to the repeater
