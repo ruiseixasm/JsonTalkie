@@ -715,13 +715,13 @@ public:
 	bool _validate_json() {
 		
 		// Trim trailing newline and carriage return characters or any other that isn't '}'
-		while (_json_length > 26 
+		while (_json_length > 18
 			&& (_json_payload[_json_length - 1] != '}' || _json_payload[_json_length - 2] == '\\')) {
 			_json_length--;	// Note that literals add the '\0'!
 		}
 
-		// Minimum valid length: '{"m":0,"b":0,"i":0,"f":"n"}' = 27
-		if (_json_length < 27) {
+		// Minimum valid length: '{"m":0,"b":0,"i":0}' = 19
+		if (_json_length < 19) {
 			_reset();
 			return false;
 		}
