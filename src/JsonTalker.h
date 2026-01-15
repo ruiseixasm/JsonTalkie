@@ -667,7 +667,8 @@ public:
 					break;
 				
 				case MessageValue::TALKIE_MSG_NOISE:
-					if (json_message.has_error() && json_message._validate_identity()) {
+					uint16_t identity;
+					if (json_message.has_error() && json_message.get_identity(&identity)) {
 
 						JsonMessage error_message;
 						error_message.set_broadcast_value( _known_talker.broadcast );
@@ -675,7 +676,7 @@ public:
 						error_message.set_message_value( MessageValue::TALKIE_MSG_ERROR );
 						error_message.set_error_value( json_message.get_error_value() );
 						// Absolute minimum available data needed!
-						error_message.set_identity( json_message.get_identity() );
+						error_message.set_identity( identity );
 						transmitToRepeater(error_message);
 
 					} else {

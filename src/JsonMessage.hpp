@@ -1057,8 +1057,13 @@ public:
      * @param identity Pointer to a 16 bits number to get the identity
      * @return false if no valid number was found
      */
-	bool get_identity(uint8_t nth, uint32_t* identity) const {
-		return _get_value_number('i', identity);
+	bool get_identity(uint16_t* identity) const {
+		uint32_t json_number;
+		if (_get_value_number('i', &json_number) && json_number <= 0xFFFF) {
+			*identity = (uint16_t)json_number;
+			return true;
+		}
+		return false;
 	}
 
 
@@ -1072,12 +1077,12 @@ public:
 
 
     /**
-     * @brief Get timestamp number
+     * @brief Get timestamp number (alias for identity)
      * @param timestamp Pointer to a 16 bits number to get the timestamp
      * @return false if no valid number was found
      */
-	bool get_timestamp(uint8_t nth, uint32_t* timestamp) const {
-		return _get_value_number('i', timestamp);
+	bool get_timestamp(uint16_t* timestamp) const {
+		return get_identity(timestamp);
 	}
 
 
