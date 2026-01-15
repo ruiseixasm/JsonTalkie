@@ -462,53 +462,32 @@ protected:
 					if (length > 0) {
 						
 						new_message._set_length(length);
-						if (new_message._validate_json()) {
-							
-							if (new_message._process_checksum() && _names[_actual_ss_pin_i][0] == '\0') {
-								new_message.get_from_name(_names[_actual_ss_pin_i]);
-								
-								#ifdef BROADCAST_SPI_DEBUG
-								Serial.print(F("\tcheckJsonMessage2: Saved actual named pin index i: "));
-								Serial.println(_actual_ss_pin_i);
-								Serial.print(F("\tcheckJsonMessage4: Saved name: "));
-								Serial.println(_names[_actual_ss_pin_i]);
-								Serial.print(F("\tcheckJsonMessage5: Concerning actual pin: "));
-								Serial.println(_ss_pins[_actual_ss_pin_i]);
-								#endif
-
-							}
-					
-							#ifdef BROADCAST_SPI_DEBUG_TIMING
-							Serial.print("\n\treceive: ");
-							Serial.print(millis() - _reference_time);
-							#endif
-								
-							#ifdef BROADCAST_SPI_DEBUG
-							Serial.print(F("\treceive1: Received message: "));
-							Serial.write(message_buffer, length);
-							Serial.println();
-							Serial.print(F("\treceive2: Received length: "));
-							Serial.println(length);
-							Serial.print(F("\t\t"));
-							Serial.print(class_name());
-							Serial.print(F(" is triggering the talkers with the received message from the SS pin: "));
-							Serial.println(_ss_pins[ss_pin_i]);
-							#endif
-
-							_actual_ss_pin_i = ss_pin_i;
-							_startTransmission(new_message);
-							
-							#ifdef BROADCAST_SPI_DEBUG_TIMING
-							Serial.print(" | ");
-							Serial.print(millis() - _reference_time);
-							#endif
-
-						}
+						_actual_ss_pin_i = ss_pin_i;
+						_startTransmission(new_message);
 					}
 				}
 			}
 		}
     }
+
+
+	void _showMessage(const JsonMessage& json_message) override {
+        (void)json_message;	// Silence unused parameter warning
+
+		if (_names[_actual_ss_pin_i][0] == '\0') {
+			new_message.get_from_name(_names[_actual_ss_pin_i]);
+			
+			#ifdef BROADCAST_SPI_DEBUG
+			Serial.print(F("\t_showMessage1: Saved actual named pin index i: "));
+			Serial.println(_actual_ss_pin_i);
+			Serial.print(F("\t_showMessage2: Saved name: "));
+			Serial.println(_names[_actual_ss_pin_i]);
+			Serial.print(F("\t_showMessage3: Concerning actual pin: "));
+			Serial.println(_ss_pins[_actual_ss_pin_i]);
+			#endif
+
+		}
+	}
 
     
     // Socket processing is always Half-Duplex because there is just one buffer to receive and other to send
