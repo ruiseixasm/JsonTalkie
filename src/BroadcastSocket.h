@@ -99,7 +99,9 @@ protected:
 
 
     /** @brief Allows the visualization of the message before transmission */
-	virtual void _showMessage(const JsonMessage& json_message) {}
+	virtual void _showMessage(const JsonMessage& json_message) {
+        (void)json_message;	// Silence unused parameter warning
+	}
 
 
     /**

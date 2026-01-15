@@ -863,8 +863,7 @@ public:
      */
 	bool has_nth_value(uint8_t nth) const {
 		if (nth < 10) {
-			char value_key = '0' + nth;
-			return _get_colon_position(value_key) > 0;
+			return _get_colon_position('0' + nth) > 0;
 		}
 		return false;
 	}
@@ -877,7 +876,6 @@ public:
      */
 	bool has_nth_value_string(uint8_t nth) const {
 		if (nth < 10) {
-			char value_key = '0' + nth;
 			return _get_value_type('0' + nth) == ValueType::TALKIE_VT_STRING;
 		}
 		return false;
