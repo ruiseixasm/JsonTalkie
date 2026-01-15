@@ -117,9 +117,9 @@ protected:
 			uint16_t message_id;
 			if (json_message.get_identity(&message_id)) {
 				JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
+				error_message.set_to_name(_from_talker.name);
 				error_message.set_identity(message_id);
 				error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
-				error_message.set_to_name(_from_talker.name);
 				error_message.set_from_name("");	// Unamed
 				_finishTransmission(error_message);
 			}
@@ -180,11 +180,13 @@ protected:
 								Serial.println(remote_delay);
 								#endif
 								_drops_count++;
-
-								// Mark error message as noise and dispatch it to be processed by the respective Talker
-								json_message.set_message_value(MessageValue::TALKIE_MSG_NOISE);
-								json_message.set_error_value(ErrorValue::TALKIE_ERR_DELAY);
-								_transmitToRepeater(json_message);
+								
+								JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
+								error_message.set_to_name(_from_talker.name);
+								error_message.set_identity(json_message.get_identity());	// Already validated with checksum
+								error_message.set_error_value(ErrorValue::TALKIE_ERR_DELAY);
+								error_message.set_from_name("");	// Unamed
+								_finishTransmission(error_message);
 								return;
 							}
 						}
