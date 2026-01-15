@@ -119,7 +119,7 @@ public:
 		}
 		if ((int32_t)(present_time - _time_to_live) >= 0) {
 			digitalWrite(LED_BUILTIN, LOW);
-			_time_to_live = _time_to_call + 60 * 1000;	// Add 1 minute extra
+			_time_to_live = _time_to_call + 1UL * 60 * 1000;	// Add 1 minute extra
 		}
 	}
 
@@ -129,7 +129,7 @@ public:
         (void)json_message;	// Silence unused parameter warning
         (void)talker_match;	// Silence unused parameter warning
 
-		_time_to_live = _time_to_call + 60 * 1000;		// Add 1 minute extra
+		_time_to_live = _time_to_call + 1UL * 60 * 1000;		// Add 1 minute extra
 		digitalWrite(LED_BUILTIN, HIGH);
     }
     
