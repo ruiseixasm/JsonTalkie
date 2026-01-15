@@ -985,10 +985,11 @@ public:
      * @note Returns false for channel 255 (reserved)
      */
 	bool is_to_channel(uint8_t channel) const {
-		size_t colon_position = _get_colon_position('t');
-		return colon_position 
-			&& _get_value_type('t', colon_position) == ValueType::TALKIE_VT_INTEGER
-			&& _get_value_number('t', colon_position) == channel;
+		uint32_t to_channel;
+		if (_get_value_number('t', &to_channel) && to_channel < 255) {
+			return channel == (uint8_t)to_channel;
+		}
+		return false;
 	}
 
 	
@@ -1154,9 +1155,11 @@ public:
      * @return Channel number (0-254)
      */
 	uint8_t get_to_channel() const {
-		size_t colon_position = _get_colon_position('t');
-		if (colon_position && _get_value_type('t', colon_position) == ValueType::TALKIE_VT_INTEGER) {
-			return (uint8_t)_get_value_number('t', colon_position);
+		uint32_t channel;
+		if (_get_value_number('a', &channel)) {
+			if (channel <= 0xFF) {
+				return (uint8_t)channel;
+			}
 		}
 		return 255;	// Means, no chanel
 	}
@@ -1361,7 +1364,7 @@ public:
 				return (uint8_t)index;
 			}
 		}
-		return 255;
+		return 255;	// Means, no index
 	}
 
 
