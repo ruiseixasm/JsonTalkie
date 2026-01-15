@@ -126,7 +126,7 @@ protected:
 			return;
 		}
 
-		if (json_message.has_broadcast_value() && json_message.has_from()) {
+		if (json_message.has_from() && json_message.has_broadcast_value()) {
 			
 			if (!(
 				json_message.get_from_name(_from_talker.name) &&
