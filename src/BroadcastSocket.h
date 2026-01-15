@@ -111,12 +111,24 @@ protected:
      */
     void _startTransmission(JsonMessage& json_message) {
 
-		if (json_message._validate_json() && json_message._process_checksum() &&
-			json_message.get_from_name(_from_talker.name) &&
+		if (!json_message._validate_json()) return;
+
+		if (!json_message._process_checksum()) {
+			uint16_t message_id;
+			if (json_message.get_identity(&message_id)) {
+				JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
+				error_message.set_identity(message_id);
+				error_message.set_to_name(_from_talker.name);
+				_finishTransmission(error_message);
+			}
+			return;
+		}
+
+		_showMessage(json_message);
+			
+		if (json_message.get_from_name(_from_talker.name) &&
 			json_message.get_broadcast_value(&_from_talker.broadcast)) {
 
-			_showMessage(json_message);
-			
 			#ifdef MESSAGE_DEBUG_TIMING
 			Serial.print("\n\t");
 			Serial.print(class_name());
@@ -193,7 +205,6 @@ protected:
 			#endif
 			
 		}
-
     }
 
 	

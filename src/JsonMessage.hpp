@@ -744,13 +744,7 @@ public:
 		size_t c_colon_position = _get_colon_position('c');
 		uint16_t received_checksum = _get_value_number('c', c_colon_position);
 		_remove('c', c_colon_position);
-		uint16_t checksum = _generateChecksum();
-		if (checksum != received_checksum) {
-			set_message_value(MessageValue::TALKIE_MSG_NOISE);
-			set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
-			return false;
-		}
-		return true;
+		return _generateChecksum() == received_checksum;
 	}
 
 
