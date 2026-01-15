@@ -118,7 +118,9 @@ protected:
 			if (json_message.get_identity(&message_id)) {
 				JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
 				error_message.set_identity(message_id);
+				error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
 				error_message.set_to_name(_from_talker.name);
+				error_message.set_from_name("");	// Unamed
 				_finishTransmission(error_message);
 			}
 			return;
