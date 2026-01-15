@@ -61,8 +61,7 @@ protected:
 						Serial.print(millis() - _reference_time);
 						#endif
 
-						if (_json_message._append('}') && _json_message._validate_json()) {
-							_json_message._process_checksum();	// Has to validate and process the checksum
+						if (_json_message._append('}')) {
 							_startTransmission(_json_message);
 						}
 						return;
