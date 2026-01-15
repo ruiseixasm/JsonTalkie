@@ -111,7 +111,9 @@ protected:
      */
     void _startTransmission(JsonMessage& json_message) {
 
-		if (json_message._validate_json() && json_message._process_checksum()) {
+		if (json_message._validate_json() && json_message._process_checksum() &&
+			json_message.get_from_name(_received_talker.name) &&
+			json_message.get_broadcast_value(_received_talker.broadcast)) {
 
 			_showMessage(json_message);
 			

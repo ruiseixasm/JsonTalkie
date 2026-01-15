@@ -113,6 +113,11 @@ protected:
     }
 
 
+	void _showMessage(const JsonMessage& json_message) override {
+
+		
+	}
+
     bool _send(const JsonMessage& json_message) override {
 		
         if (_udp) {

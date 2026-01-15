@@ -1079,6 +1079,24 @@ public:
 
 
     /**
+     * @brief Get the broadcast_value
+     * @param broadcast_value Pointer to a BroadcastValue variable
+     * @return false if no valid BroadcastValue was found
+     */
+	bool get_broadcast_value(BroadcastValue* broadcast_value) const {
+		uint32_t json_number;
+		if (_get_value_number('b', &json_number)) {
+			*broadcast_value = static_cast<BroadcastValue>(json_number);
+			return true;
+		}
+		return false;
+
+
+		return static_cast<BroadcastValue>( _get_value_number('b') );
+	}
+
+
+    /**
      * @brief Get roger/acknowledgment type
      * @return RogerValue enum, or TALKIE_RGR_NIL if invalid
      */
