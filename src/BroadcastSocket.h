@@ -24,8 +24,8 @@ https://github.com/ruiseixasm/JsonTalkie
  *          All operations are performed on fixed-size buffers.
  * 
  * @author Rui Seixas Monteiro
- * @date Created: 2026-01-03
- * @version 1.0.0
+ * @date Created: 2026-01-15
+ * @version 2.0.0
  */
 
 

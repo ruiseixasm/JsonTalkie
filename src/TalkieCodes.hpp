@@ -18,8 +18,8 @@ https://github.com/ruiseixasm/JsonTalkie
  * @brief This sets the multiple codes associated to the json values.
  * 
  * @author Rui Seixas Monteiro
- * @date Created: 2026-01-06
- * @version 1.0.0
+ * @date Created: 2026-01-15
+ * @version 2.0.0
  */
 
 #ifndef TALKIE_CODES_HPP

@@ -19,8 +19,8 @@ https://github.com/ruiseixasm/JsonTalkie
  *        between Talkers and Sockets.
  * 
  * @author Rui Seixas Monteiro
- * @date Created: 2026-01-11
- * @version 1.1.0
+ * @date Created: 2026-01-15
+ * @version 2.0.0
  */
 
 #ifndef MESSAGE_REPEATER_HPP

@@ -26,8 +26,8 @@ https://github.com/ruiseixasm/JsonTalkie
  * @warning This class uses messages of the type JsonMessage.
  * 
  * @author Rui Seixas Monteiro
- * @date Created: 2026-01-11
- * @version 1.0.1
+ * @date Created: 2026-01-15
+ * @version 2.0.0
  */
 
 #ifndef JSON_TALKER_H

@@ -30,8 +30,8 @@ https://github.com/ruiseixasm/JsonTalkie
  * - Maximum string length: TALKIE_MAX_LEN (default: 64 bytes including null terminator)
  * 
  * @author Rui Seixas Monteiro
- * @date Created: 2026-01-01
- * @version 1.0.0
+ * @date Created: 2026-01-15
+ * @version 2.0.0
  */
 
 #ifndef JSON_MESSAGE_HPP
