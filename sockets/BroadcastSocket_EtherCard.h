@@ -33,7 +33,6 @@ private:
 	#ifdef ENABLE_DIRECT_ADDRESSING
 	// Source Talker info
     static uint8_t _source_ip[4];
-	char _from_name[TALKIE_NAME_LEN] = {'\0'};
     uint8_t _from_ip[4];
 	#endif
 
@@ -86,17 +85,18 @@ protected:
 			Serial.println();
 			#endif
 
-			if (_json_message._validate_json()) {
-				if (_json_message._process_checksum()) {
-					#ifdef ENABLE_DIRECT_ADDRESSING
-					strcpy(_from_name, _json_message.get_from_name());
-					memcpy(_from_ip, _source_ip, 4);
-					#endif
-				}
-				_startTransmission(_json_message);
-			}
+			_startTransmission(_json_message);
 		}
     }
+
+
+	#ifdef ENABLE_DIRECT_ADDRESSING
+	void _showMessage(const JsonMessage& json_message) override {
+        (void)json_message;	// Silence unused parameter warning
+
+		memcpy(_from_ip, _source_ip, 4);
+	}
+	#endif
 
 
     bool _send(const JsonMessage& json_message) override {
@@ -112,7 +112,7 @@ protected:
 		#endif
 
 		#ifdef ENABLE_DIRECT_ADDRESSING
-		if (json_message.is_to_name(_from_name)) {
+		if (json_message.is_to_name(_from_talker.name)) {
 			ether.sendUdp(message_buffer, message_length, _port, _from_ip, _port);
 		} else {
 			ether.sendUdp(message_buffer, message_length, _port, broadcastIp, _port);
