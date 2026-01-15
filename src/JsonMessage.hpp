@@ -1053,11 +1053,31 @@ public:
 
 
     /**
+     * @brief Get identity number
+     * @param identity Pointer to a 16 bits number to get the identity
+     * @return false if no valid number was found
+     */
+	bool get_identity(uint8_t nth, uint32_t* identity) const {
+		return _get_value_number('i', identity);
+	}
+
+
+    /**
      * @brief Get timestamp (alias for identity)
      * @return Timestamp value in milliseconds (0-65535)
      */
 	uint16_t get_timestamp() {
 		return get_identity();
+	}
+
+
+    /**
+     * @brief Get timestamp number
+     * @param timestamp Pointer to a 16 bits number to get the timestamp
+     * @return false if no valid number was found
+     */
+	bool get_timestamp(uint8_t nth, uint32_t* timestamp) const {
+		return _get_value_number('i', timestamp);
 	}
 
 
