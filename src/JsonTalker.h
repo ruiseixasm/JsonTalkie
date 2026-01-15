@@ -491,11 +491,10 @@ public:
 				
 				case MessageValue::TALKIE_MSG_CHANNEL:
 					json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
-					if (json_message.has_nth_value_number(0)) {
+					if (!json_message.get_nth_value_number(0, &_channel)) {
 
-						_channel = json_message.get_nth_value_number(0);
+						json_message.set_nth_value_number(0, _channel);
 					}
-					json_message.set_nth_value_number(0, _channel);
 					// In the end sends back the processed message (single message, one-to-one)
 					transmitToRepeater(json_message);
 					break;
@@ -541,19 +540,8 @@ public:
 								break;
 
 							case SystemValue::TALKIE_SYS_MUTE:
-								if (json_message.has_nth_value_number(0)) {
-									uint8_t mute = (uint8_t)json_message.get_nth_value_number(0);
-									if (mute) {
-										_muted_calls = true;
-									} else {
-										_muted_calls = false;
-									}
-								} else {
-									if (_muted_calls) {
-										json_message.set_nth_value_number(0, 1);
-									} else {
-										json_message.set_nth_value_number(0, 0);
-									}
+								if (!json_message.get_nth_value_boolean(0, &_muted_calls)) {
+									json_message.set_nth_value_number(0, (uint32_t)_muted_calls);
 								}
 								break;
 
@@ -575,30 +563,33 @@ public:
 								break;
 
 							case SystemValue::TALKIE_SYS_DELAY:
-								if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_INTEGER) {
-									uint8_t socket_index = (uint8_t)json_message.get_nth_value_number(0);
-									BroadcastSocket* socket = _getSocket(socket_index);
-									if (socket) {
-										if (json_message.get_nth_value_type(1) == ValueType::TALKIE_VT_INTEGER) {
-											socket->set_max_delay( (uint8_t)json_message.get_nth_value_number(1) );
+								{
+									uint8_t socket_index;
+									if (json_message.get_nth_value_number(0, &socket_index)) {
+										BroadcastSocket* socket = _getSocket(socket_index);
+										if (socket) {
+											uint8_t max_delay_ms;
+											if (json_message.get_nth_value_number(1, &max_delay_ms)) {
+												socket->set_max_delay(max_delay_ms);
+											} else {
+												json_message.set_nth_value_number(1, socket->get_max_delay());
+											}
 										} else {
-											json_message.set_nth_value_number(1, socket->get_max_delay());
+											json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
 										}
 									} else {
-										json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
-									}
-								} else {
-									uint8_t sockets_count = _socketsCount();
-									for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
-										const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
-										json_message.set_nth_value_number(0, socket_i);
-										json_message.set_nth_value_number(1, socket->get_max_delay());
-										transmitToRepeater(json_message);	// Many-to-One
-									}
-									if (!sockets_count) {
-										json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
-									} else {
-										return;	// All transmissions already done by the if condition above
+										uint8_t sockets_count = _socketsCount();
+										for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
+											const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
+											json_message.set_nth_value_number(0, socket_i);
+											json_message.set_nth_value_number(1, socket->get_max_delay());
+											transmitToRepeater(json_message);	// Many-to-One
+										}
+										if (!sockets_count) {
+											json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
+										} else {
+											return;	// All transmissions already done by the if condition above
+										}
 									}
 								}
 								break;

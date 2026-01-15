@@ -1295,6 +1295,37 @@ public:
 		return false;
 	}
 
+	
+    /**
+     * @brief Get nth value as boolean
+     * @param nth Index 0-9
+     * @return Boolean value, or false if not number/invalid
+     */
+	bool get_nth_value_boolean(uint8_t nth) const {
+		if (nth < 10) {
+			return _get_value_number('0' + nth) != 0;
+		}
+		return false;
+	}
+
+	
+    /**
+     * @brief Get nth value as number
+     * @param nth Index 0-9
+     * @param bool_number Pointer to a bool to get
+     * @return false if no valid boolean was found
+     */
+	bool get_nth_value_boolean(uint8_t nth, bool* boolean) const {
+		if (nth < 10) {
+			uint32_t json_number;
+			if (_get_value_number('0' + nth, &json_number) && json_number <= 1) {
+				*boolean = (bool)json_number;
+				return true;
+			}
+		}
+		return false;
+	}
+
 
     /**
      * @brief Get action field type
