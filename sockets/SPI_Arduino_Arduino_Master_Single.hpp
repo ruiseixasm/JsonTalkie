@@ -457,30 +457,7 @@ protected:
 			if (length > 0) {
 				
 				new_message._set_length(length);
-				if (new_message._validate_json()) {
-					
-					#ifdef BROADCAST_SPI_DEBUG_TIMING
-					Serial.print("\n\treceive: ");
-					Serial.print(millis() - _reference_time);
-					#endif
-						
-					#ifdef BROADCAST_SPI_DEBUG
-					Serial.print(F("\treceive1: Received message: "));
-					Serial.write(message_buffer, length);
-					Serial.println();
-					Serial.print(F("\treceive2: Received length: "));
-					Serial.println(length);
-					#endif
-
-					new_message._process_checksum();	// Required step
-					_startTransmission(new_message);
-					
-					#ifdef BROADCAST_SPI_DEBUG_TIMING
-					Serial.print(" | ");
-					Serial.print(millis() - _reference_time);
-					#endif
-
-				}
+				_startTransmission(new_message);
 			}
 		}
     }
