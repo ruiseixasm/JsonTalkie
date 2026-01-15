@@ -129,7 +129,6 @@ public:
         (void)json_message;	// Silence unused parameter warning
         (void)talker_match;	// Silence unused parameter warning
 
-		uint32_t present_time = millis();
 		_time_to_live = _time_to_call + 60 * 1000;		// Add 1 minute extra
 		digitalWrite(LED_BUILTIN, HIGH);
     }
