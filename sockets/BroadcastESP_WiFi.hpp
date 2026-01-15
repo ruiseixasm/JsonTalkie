@@ -52,7 +52,7 @@ protected:
 			int packetSize = _udp->parsePacket();
 			if (packetSize > 0) {
 				
-				// ===== [SELF IP] DROP self-sent packets =====
+				// ===== [SELF IP] DROP self-sent packets ===== | WiFi
 				if (_udp->remoteIP() == _local_ip) {
 					_udp->flush();   // discard payload
 					

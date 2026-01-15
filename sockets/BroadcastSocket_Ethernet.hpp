@@ -27,7 +27,6 @@ private:
     uint16_t _port = 5005;
     EthernetUDP* _udp = nullptr;
 	// Source Talker info
-	char _from_name[TALKIE_NAME_LEN] = {'\0'};
     IPAddress _from_ip = IPAddress(255, 255, 255, 255);   // By default it's used the broadcast IP
 
 
@@ -59,29 +58,18 @@ protected:
 				if (length == packetSize) {
 				
 					new_message._set_length(length);
-					if (new_message._validate_json()) {
-				
-						if (new_message._process_checksum()) {
-							if (new_message.get_from_name(_from_name)) {
-								_from_ip = _udp->remoteIP();
-							}
-						}
-		
-						#ifdef BROADCAST_ETHERNET_DEBUG
-						Serial.print(F("\treceive1: "));
-						Serial.print(packetSize);
-						Serial.print(F("B from "));
-						Serial.print(_udp->remoteIP());
-						Serial.print(F(" -->      "));
-						Serial.println(message_buffer);
-						#endif
-						
-						_startTransmission(new_message);
-					}
+					_startTransmission(new_message);
 				}
 			}
 		}
     }
+
+
+	void _showMessage(const JsonMessage& json_message) override {
+        (void)json_message;	// Silence unused parameter warning
+
+		_from_ip = _udp->remoteIP();
+	}
 
 
     bool _send(const JsonMessage& json_message) override {
@@ -91,7 +79,7 @@ protected:
 			IPAddress broadcastIP(255, 255, 255, 255);
 
 			#ifdef ENABLE_DIRECT_ADDRESSING
-			if (json_message.is_to_name(_from_name)) {
+			if (json_message.is_to_name(_from_talker.name)) {
 				if (!_udp->beginPacket(_from_ip, _port)) {
 					#ifdef BROADCAST_ETHERNET_DEBUG
 					Serial.println(F("Failed to begin packet"));
