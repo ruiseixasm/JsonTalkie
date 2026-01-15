@@ -108,7 +108,7 @@ protected:
 		#endif
 			
 		#ifdef BROADCASTSOCKET_DEBUG_NEW
-		Serial.print(F("\thandleTransmission1.1: "));
+		Serial.print(F("\t_startTransmission1.1: "));
 		json_message.write_to(Serial);
 		Serial.print(" | ");
 		Serial.println(json_message._get_length());
@@ -122,12 +122,12 @@ protected:
 				uint16_t message_timestamp = json_message.get_timestamp();
 
 				#ifdef BROADCASTSOCKET_DEBUG
-				Serial.print(F("handleTransmission6: Message code requires delay check: "));
+				Serial.print(F("_startTransmission2: Message code requires delay check: "));
 				Serial.println((int)message_code);
 				#endif
 
 				#ifdef BROADCASTSOCKET_DEBUG
-				Serial.print(F("handleTransmission3: Remote time: "));
+				Serial.print(F("_startTransmission3: Remote time: "));
 				Serial.println(message_timestamp);
 				#endif
 			
@@ -141,12 +141,12 @@ protected:
 						const uint16_t allowed_delay = static_cast<uint16_t>(_max_delay_ms);
 						const uint16_t local_delay = local_time - _last_local_time;
 						#ifdef BROADCASTSOCKET_DEBUG
-						Serial.print(F("handleTransmission7: Local delay: "));
+						Serial.print(F("_startTransmission4: Local delay: "));
 						Serial.println(local_delay);
 						#endif
 						if (remote_delay > allowed_delay || local_delay > allowed_delay) {
 							#ifdef BROADCASTSOCKET_DEBUG
-							Serial.print(F("handleTransmission8: Out of time package (remote delay): "));
+							Serial.print(F("_startTransmission5: Out of time package (remote delay): "));
 							Serial.println(remote_delay);
 							#endif
 							_drops_count++;
