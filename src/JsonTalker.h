@@ -73,6 +73,7 @@ public:
 		uint16_t identity;
 		JsonMessage message;
 		bool active;
+		uint8_t tries;
 	};
 
 	/**
@@ -179,6 +180,14 @@ private:
 			json_message.write_to(Serial);
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
+
+			uint16_t message_identity;
+			if (_transmitted_message.active &&
+				json_message.get_identity(&message_identity) &&
+				message_identity == _transmitted_message.identity) {
+
+				return true;	// It's a resend
+			}
 
 			if (!json_message.set_identity()) return false;
 			_transmitted_message.identity = json_message.get_identity();
