@@ -46,7 +46,6 @@ bool JsonTalker::transmitToRepeater(JsonMessage& json_message) {
 		if (message_value < MessageValue::TALKIE_MSG_ECHO) {
 			_transmitted_message.identity = json_message.get_identity();
 			_transmitted_message.message = json_message;
-			_transmitted_message.retries = 0;
 			_transmitted_message.active = true;
 		}
 	}

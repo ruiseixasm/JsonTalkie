@@ -78,7 +78,6 @@ public:
 	struct TransmittedMessage {
 		uint16_t identity;
 		JsonMessage message;
-		uint8_t retries;
 		bool active;
 	};
 
@@ -641,21 +640,16 @@ public:
 					{
 						// Makes sure it has the same id first (echo condition)
 						uint16_t message_id = json_message.get_identity();
-						if (_transmitted_message.active && message_id == _transmitted_message.identity && _transmitted_message.retries < TALKIE_MAX_RETRIES &&
+						if (_transmitted_message.active && message_id == _transmitted_message.identity &&
 							talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
 
 								ErrorValue error_value = json_message.get_error_value();
 								switch (error_value) {
 
 									case ErrorValue::TALKIE_ERR_CHECKSUM:
-									{
-										++_transmitted_message.retries;
-										char from_name[TALKIE_NAME_LEN];
-										if (json_message.get_from_name(from_name)) {
-											_transmitted_message.message.set_to_name(from_name);
-											transmitToRepeater(_transmitted_message.message);	// Retransmission
-										}
-									}
+										// Retransmits as is, then it gets a new id, avoiding other devices to call it repeatedly
+										// as is right now because it will be different afterwards (different id)
+										transmitToRepeater(_transmitted_message.message);
 									break;
 									
 									default: break;
