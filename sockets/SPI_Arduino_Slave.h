@@ -103,12 +103,8 @@ protected:
 				#endif
 				
 				_received_length = 0;	// Allows the device to receive more data
+				_startTransmission(new_message);
 				
-				if (new_message._validate_json()) {
-					new_message._process_checksum();	// Has to validate and process the checksum
-					BroadcastSocket::_startTransmission(new_message);
-				}
-
 			} else {
 				_received_length = 0;	// Discards the data regardless
 			}
