@@ -666,30 +666,27 @@ public:
 					{
 						// Makes sure it has the same id first (echo condition)
 						uint16_t message_id = json_message.get_identity();
-						if (message_id == _transmitted_message.identity) {
+						if (_transmitted_message.active && message_id == _transmitted_message.identity && _transmitted_message.retries < TALKIE_MAX_RETRIES &&
+							talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
 
-							if (_transmitted_message.active && _transmitted_message.retries < TALKIE_MAX_RETRIES &&
-								talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
+								ErrorValue error_value = json_message.get_error_value();
+								switch (error_value) {
 
-									ErrorValue error_value = json_message.get_error_value();
-									switch (error_value) {
-
-										case ErrorValue::TALKIE_ERR_CHECKSUM:
-										{
-											++_transmitted_message.retries;
-											char from_name[TALKIE_NAME_LEN];
-											if (json_message.get_from_name(from_name)) {
-												_transmitted_message.message.set_to_name(from_name);
-												transmitToRepeater(_transmitted_message.message);	// Retransmission
-											}
+									case ErrorValue::TALKIE_ERR_CHECKSUM:
+									{
+										++_transmitted_message.retries;
+										char from_name[TALKIE_NAME_LEN];
+										if (json_message.get_from_name(from_name)) {
+											_transmitted_message.message.set_to_name(from_name);
+											transmitToRepeater(_transmitted_message.message);	// Retransmission
 										}
-										break;
-										
-										default: break;
 									}
-							} else {
-								_error(json_message, talker_match);
-							}
+									break;
+									
+									default: break;
+								}
+						} else {
+							_error(json_message, talker_match);
 						}
 					}
 					break;
