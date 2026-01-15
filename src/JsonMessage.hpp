@@ -1643,6 +1643,8 @@ public:
      * 
      * @note Useful for creating replies. If 'to' doesn't exist,
      *       'from' becomes 'to' and 'from' is thus removed.
+	 * 
+     * @return true if it has both fields 'f' and 't' now swapped
      */
 	bool swap_from_with_to() {
 		size_t key_from_position = _get_key_position('f');
@@ -1651,10 +1653,10 @@ public:
 			if (key_to_position) {
 				_json_payload[key_from_position] = 't';
 				_json_payload[key_to_position] = 'f';
+				return true;	// Represents a real swap from 'from' with 'to'
 			} else {
 				_json_payload[key_from_position] = 't';
 			}
-			return true;
 		}
 		return false;
 	}

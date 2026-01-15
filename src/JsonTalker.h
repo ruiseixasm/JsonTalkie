@@ -164,8 +164,9 @@ private:
 		if (json_message.has_from()) {
 			if (!json_message.is_from_name(_name)) {
 				// FROM is different from _name, must be swapped (replaces "f" with "t")
-				json_message.swap_from_with_to();
-				json_message.set_from_name(_name);
+				if (!json_message.swap_from_with_to()) {	// It doesn't have 'to' to swap with
+					json_message.set_from_name(_name);
+				}
 			}
 		} else {
 			// FROM doesn't even exist (must have)
