@@ -40,8 +40,9 @@ private:
     static void staticCallback(uint16_t src_port, uint8_t* src_ip, uint16_t dst_port, 
                           const char* data, uint16_t length) {
 
-        (void)src_port; // Silence unused parameter warning
-        (void)dst_port; // Silence unused parameter warning
+        (void)src_port;	// Silence unused parameter warning
+        (void)src_ip;	// Silence unused parameter warning
+        (void)dst_port;	// Silence unused parameter warning
 
         // ===== [SELF IP] By design it doesn-t receive from SELF =====
 
