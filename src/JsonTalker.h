@@ -69,12 +69,6 @@ class MessageRepeater;
 class JsonTalker {
 public:
 	
-	struct KnownTalker {
-		char name[TALKIE_NAME_LEN] = {'\0'};
-		BroadcastValue broadcast = BroadcastValue::TALKIE_BC_NONE;
-	};
-	
-
 	struct TransmittedMessage {
 		uint16_t identity;
 		JsonMessage message;
@@ -103,7 +97,6 @@ private:
 	TalkerManifesto* _manifesto = nullptr;
     uint8_t _channel = 255;	// Channel 255 means NO channel response
     bool _muted_calls = false;
-	KnownTalker _known_talker;
 	TransmittedMessage _transmitted_message;
 
 
@@ -423,271 +416,253 @@ public:
      */
     void handleTransmission(JsonMessage& json_message, TalkerMatch talker_match = TalkerMatch::TALKIE_MATCH_ANY) {
 
-		_known_talker.broadcast = json_message.get_broadcast_value();
-		if (_known_talker.broadcast > BroadcastValue::TALKIE_BC_NONE && json_message.get_from_name(_known_talker.name)) {
+		MessageValue message_value = json_message.get_message_value();
 
-			MessageValue message_value = json_message.get_message_value();
+		#ifdef JSON_TALKER_DEBUG_NEW
+		Serial.print(F("\t\thandleTransmission1: "));
+		json_message.write_to(Serial);
+		Serial.print(" | ");
+		Serial.println(static_cast<int>( message_value ));
+		#endif
 
-			#ifdef JSON_TALKER_DEBUG_NEW
-			Serial.print(F("\t\thandleTransmission1: "));
-			json_message.write_to(Serial);
-			Serial.print(" | ");
-			Serial.println(static_cast<int>( message_value ));
-			#endif
+		switch (message_value) {
 
-			switch (message_value) {
+			case MessageValue::TALKIE_MSG_CALL:
+				json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
+				{
+					if (_manifesto) {
+						uint8_t index_found_i = json_message.get_action_index();	// returns 255 if not found
 
-				case MessageValue::TALKIE_MSG_CALL:
-					json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
-					{
-						if (_manifesto) {
-							uint8_t index_found_i = json_message.get_action_index();	// returns 255 if not found
-
-							if (index_found_i < 255) {
-								index_found_i = _actionIndex(index_found_i);
-							} else {
-								char action_name[TALKIE_NAME_LEN];
-								if (json_message.get_action_name(action_name)) {
-									index_found_i = _actionIndex(action_name);
-								}
+						if (index_found_i < 255) {
+							index_found_i = _actionIndex(index_found_i);
+						} else {
+							char action_name[TALKIE_NAME_LEN];
+							if (json_message.get_action_name(action_name)) {
+								index_found_i = _actionIndex(action_name);
 							}
-							if (index_found_i < 255) {
+						}
+						if (index_found_i < 255) {
 
-								#ifdef JSON_TALKER_DEBUG
-								Serial.print(F("\tRUN found at "));
-								Serial.print(index_found_i);
-								Serial.println(F(", now being processed..."));
-								#endif
+							#ifdef JSON_TALKER_DEBUG
+							Serial.print(F("\tRUN found at "));
+							Serial.print(index_found_i);
+							Serial.println(F(", now being processed..."));
+							#endif
 
-								// ROGER should be implicit for CALL to spare json string size for more data index value nth
-								if (!_actionByIndex(index_found_i, json_message, talker_match)) {
-									json_message.set_roger_value(RogerValue::TALKIE_RGR_NEGATIVE);
-								}
-							} else {
-								json_message.set_roger_value(RogerValue::TALKIE_RGR_SAY_AGAIN);
+							// ROGER should be implicit for CALL to spare json string size for more data index value nth
+							if (!_actionByIndex(index_found_i, json_message, talker_match)) {
+								json_message.set_roger_value(RogerValue::TALKIE_RGR_NEGATIVE);
 							}
 						} else {
-							json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
-						}
-						// In the end sends back the processed message (single message, one-to-one)
-						if (!(_muted_calls || json_message.is_no_reply())) {
-							transmitToRepeater(json_message);
-						}
-					}
-					break;
-				
-				case MessageValue::TALKIE_MSG_TALK:
-					json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
-					json_message.set_nth_value_string(0, _desc);
-					// In the end sends back the processed message (single message, one-to-one)
-					transmitToRepeater(json_message);
-					break;
-				
-				case MessageValue::TALKIE_MSG_CHANNEL:
-					json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
-					if (!json_message.get_nth_value_number(0, &_channel)) {
-
-						json_message.set_nth_value_number(0, _channel);
-					}
-					// In the end sends back the processed message (single message, one-to-one)
-					transmitToRepeater(json_message);
-					break;
-				
-				case MessageValue::TALKIE_MSG_PING:
-					json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
-					// Talker name already set in FROM (ready to transmit)
-					transmitToRepeater(json_message);
-					break;
-				
-				case MessageValue::TALKIE_MSG_LIST:
-					json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
-					if (_manifesto) {
-						uint8_t total_actions = _actionsCount();	// This makes the access safe
-						const Action* actions = _getActionsArray();
-						for (uint8_t action_i = 0; action_i < total_actions; ++action_i) {
-							json_message.remove_all_nth_values();	// Makes sure there is space for each new action
-							json_message.set_nth_value_number(0, action_i);
-							json_message.set_nth_value_string(1, actions[action_i].name);
-							json_message.set_nth_value_string(2, actions[action_i].desc);
-							transmitToRepeater(json_message);	// Many-to-One
-						}
-						if (!total_actions) {
-							json_message.set_roger_value(RogerValue::TALKIE_RGR_NIL);
-							transmitToRepeater(json_message);	// One-to-One
+							json_message.set_roger_value(RogerValue::TALKIE_RGR_SAY_AGAIN);
 						}
 					} else {
 						json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
-						transmitToRepeater(json_message);		// One-to-One
 					}
-					break;
-				
-				case MessageValue::TALKIE_MSG_SYSTEM:
-					json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
-					if (json_message.has_system()) {
-
-						SystemValue system_value = json_message.get_system_value();
-
-						switch (system_value) {
-
-							case SystemValue::TALKIE_SYS_BOARD:
-								json_message.set_nth_value_string(0, _board_description());
-								break;
-
-							case SystemValue::TALKIE_SYS_MUTE:
-								if (!json_message.get_nth_value_boolean(0, &_muted_calls)) {
-									json_message.set_nth_value_number(0, (uint32_t)_muted_calls);
-								}
-								break;
-
-							case SystemValue::TALKIE_SYS_DROPS:
-								{
-									uint8_t sockets_count = _socketsCount();
-									for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
-										const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
-										json_message.set_nth_value_number(0, socket_i);
-										json_message.set_nth_value_number(1, socket->get_drops_count());
-										transmitToRepeater(json_message);	// Many-to-One
-									}
-									if (!sockets_count) {
-										json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
-									} else {
-										return;	// All transmissions already done by the if condition above
-									}
-								}
-								break;
-
-							case SystemValue::TALKIE_SYS_DELAY:
-								{
-									uint8_t socket_index;
-									if (json_message.get_nth_value_number(0, &socket_index)) {
-										BroadcastSocket* socket = _getSocket(socket_index);
-										if (socket) {
-											uint8_t max_delay_ms;
-											if (json_message.get_nth_value_number(1, &max_delay_ms)) {
-												socket->set_max_delay(max_delay_ms);
-											} else {
-												json_message.set_nth_value_number(1, socket->get_max_delay());
-											}
-										} else {
-											json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
-										}
-									} else {
-										uint8_t sockets_count = _socketsCount();
-										for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
-											const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
-											json_message.set_nth_value_number(0, socket_i);
-											json_message.set_nth_value_number(1, socket->get_max_delay());
-											transmitToRepeater(json_message);	// Many-to-One
-										}
-										if (!sockets_count) {
-											json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
-										} else {
-											return;	// All transmissions already done by the if condition above
-										}
-									}
-								}
-								break;
-
-							case SystemValue::TALKIE_SYS_SOCKET:
-								{
-									uint8_t sockets_count = _socketsCount();
-									for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
-										const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
-										json_message.set_nth_value_number(0, socket_i);
-										json_message.set_nth_value_string(1, socket->class_name());
-										transmitToRepeater(json_message);	// Many-to-One
-									}
-									if (!sockets_count) {
-										json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
-									} else {
-										return;	// All transmissions already done by the if condition above
-									}
-								}
-								break;
-
-							case SystemValue::TALKIE_SYS_MANIFESTO:
-								if (_manifesto) {
-									json_message.set_nth_value_string(0, _manifesto_name());
-								} else {
-									json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
-								}
-								break;
-
-							default: break;
-						}
-
-						// In the end sends back the processed message (single message, one-to-one)
+					// In the end sends back the processed message (single message, one-to-one)
+					if (!(_muted_calls || json_message.is_no_reply())) {
 						transmitToRepeater(json_message);
 					}
-					break;
-				
-				case MessageValue::TALKIE_MSG_ECHO:
-					if (_manifesto && talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
+				}
+				break;
+			
+			case MessageValue::TALKIE_MSG_TALK:
+				json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
+				json_message.set_nth_value_string(0, _desc);
+				// In the end sends back the processed message (single message, one-to-one)
+				transmitToRepeater(json_message);
+				break;
+			
+			case MessageValue::TALKIE_MSG_CHANNEL:
+				json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
+				if (!json_message.get_nth_value_number(0, &_channel)) {
 
-						// Makes sure it has the same id first (echo condition)
-						uint16_t message_id = json_message.get_identity();
-
-						#ifdef JSON_TALKER_DEBUG_NEW
-						Serial.print(F("\t\thandleTransmission2: "));
-						json_message.write_to(Serial);
-						Serial.print(" | ");
-						Serial.print(message_id);
-						Serial.print(" | ");
-						Serial.print(_transmitted_message.identity);
-						Serial.print(" | ");
-						Serial.println(_name);
-						#endif
-
-						if (message_id == _transmitted_message.identity) {
-							_echo(json_message, talker_match);
-						}
+					json_message.set_nth_value_number(0, _channel);
+				}
+				// In the end sends back the processed message (single message, one-to-one)
+				transmitToRepeater(json_message);
+				break;
+			
+			case MessageValue::TALKIE_MSG_PING:
+				json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
+				// Talker name already set in FROM (ready to transmit)
+				transmitToRepeater(json_message);
+				break;
+			
+			case MessageValue::TALKIE_MSG_LIST:
+				json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
+				if (_manifesto) {
+					uint8_t total_actions = _actionsCount();	// This makes the access safe
+					const Action* actions = _getActionsArray();
+					for (uint8_t action_i = 0; action_i < total_actions; ++action_i) {
+						json_message.remove_all_nth_values();	// Makes sure there is space for each new action
+						json_message.set_nth_value_number(0, action_i);
+						json_message.set_nth_value_string(1, actions[action_i].name);
+						json_message.set_nth_value_string(2, actions[action_i].desc);
+						transmitToRepeater(json_message);	// Many-to-One
 					}
-					break;
-				
-				case MessageValue::TALKIE_MSG_ERROR:
-					{
-						// Makes sure it has the same id first (echo condition)
-						uint16_t message_id = json_message.get_identity();
-						if (_transmitted_message.active && message_id == _transmitted_message.identity &&
-							talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
+					if (!total_actions) {
+						json_message.set_roger_value(RogerValue::TALKIE_RGR_NIL);
+						transmitToRepeater(json_message);	// One-to-One
+					}
+				} else {
+					json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
+					transmitToRepeater(json_message);		// One-to-One
+				}
+				break;
+			
+			case MessageValue::TALKIE_MSG_SYSTEM:
+				json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
+				if (json_message.has_system()) {
 
-								ErrorValue error_value = json_message.get_error_value();
-								switch (error_value) {
+					SystemValue system_value = json_message.get_system_value();
 
-									case ErrorValue::TALKIE_ERR_CHECKSUM:
-										// Retransmits as is, then it gets a new id, avoiding other devices to call it repeatedly
-										// as is right now because it will be different afterwards (different id)
-										transmitToRepeater(_transmitted_message.message);
-									break;
-									
-									default: break;
+					switch (system_value) {
+
+						case SystemValue::TALKIE_SYS_BOARD:
+							json_message.set_nth_value_string(0, _board_description());
+							break;
+
+						case SystemValue::TALKIE_SYS_MUTE:
+							if (!json_message.get_nth_value_boolean(0, &_muted_calls)) {
+								json_message.set_nth_value_number(0, (uint32_t)_muted_calls);
+							}
+							break;
+
+						case SystemValue::TALKIE_SYS_DROPS:
+							{
+								uint8_t sockets_count = _socketsCount();
+								for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
+									const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
+									json_message.set_nth_value_number(0, socket_i);
+									json_message.set_nth_value_number(1, socket->get_drops_count());
+									transmitToRepeater(json_message);	// Many-to-One
 								}
-						} else {
-							_error(json_message, talker_match);
-						}
+								if (!sockets_count) {
+									json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
+								} else {
+									return;	// All transmissions already done by the if condition above
+								}
+							}
+							break;
+
+						case SystemValue::TALKIE_SYS_DELAY:
+							{
+								uint8_t socket_index;
+								if (json_message.get_nth_value_number(0, &socket_index)) {
+									BroadcastSocket* socket = _getSocket(socket_index);
+									if (socket) {
+										uint8_t max_delay_ms;
+										if (json_message.get_nth_value_number(1, &max_delay_ms)) {
+											socket->set_max_delay(max_delay_ms);
+										} else {
+											json_message.set_nth_value_number(1, socket->get_max_delay());
+										}
+									} else {
+										json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
+									}
+								} else {
+									uint8_t sockets_count = _socketsCount();
+									for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
+										const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
+										json_message.set_nth_value_number(0, socket_i);
+										json_message.set_nth_value_number(1, socket->get_max_delay());
+										transmitToRepeater(json_message);	// Many-to-One
+									}
+									if (!sockets_count) {
+										json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
+									} else {
+										return;	// All transmissions already done by the if condition above
+									}
+								}
+							}
+							break;
+
+						case SystemValue::TALKIE_SYS_SOCKET:
+							{
+								uint8_t sockets_count = _socketsCount();
+								for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
+									const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
+									json_message.set_nth_value_number(0, socket_i);
+									json_message.set_nth_value_string(1, socket->class_name());
+									transmitToRepeater(json_message);	// Many-to-One
+								}
+								if (!sockets_count) {
+									json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
+								} else {
+									return;	// All transmissions already done by the if condition above
+								}
+							}
+							break;
+
+						case SystemValue::TALKIE_SYS_MANIFESTO:
+							if (_manifesto) {
+								json_message.set_nth_value_string(0, _manifesto_name());
+							} else {
+								json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
+							}
+							break;
+
+						default: break;
 					}
-					break;
-				
-				case MessageValue::TALKIE_MSG_NOISE:
-					uint16_t identity;
-					if (json_message.has_error() && json_message.get_identity(&identity)) {
 
-						JsonMessage error_message;
-						error_message.set_broadcast_value( _known_talker.broadcast );
-						error_message.set_to_name( _known_talker.name );
-						error_message.set_message_value( MessageValue::TALKIE_MSG_ERROR );
-						error_message.set_error_value( json_message.get_error_value() );
-						// Absolute minimum available data needed!
-						error_message.set_identity( identity );
-						transmitToRepeater(error_message);
+					// In the end sends back the processed message (single message, one-to-one)
+					transmitToRepeater(json_message);
+				}
+				break;
+			
+			case MessageValue::TALKIE_MSG_ECHO:
+				if (_manifesto && talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
 
+					// Makes sure it has the same id first (echo condition)
+					uint16_t message_id = json_message.get_identity();
+
+					#ifdef JSON_TALKER_DEBUG_NEW
+					Serial.print(F("\t\thandleTransmission2: "));
+					json_message.write_to(Serial);
+					Serial.print(" | ");
+					Serial.print(message_id);
+					Serial.print(" | ");
+					Serial.print(_transmitted_message.identity);
+					Serial.print(" | ");
+					Serial.println(_name);
+					#endif
+
+					if (message_id == _transmitted_message.identity) {
+						_echo(json_message, talker_match);
+					}
+				}
+				break;
+			
+			case MessageValue::TALKIE_MSG_ERROR:
+				{
+					// Makes sure it has the same id first (echo condition)
+					uint16_t message_id = json_message.get_identity();
+					if (_transmitted_message.active && message_id == _transmitted_message.identity &&
+						talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
+
+							ErrorValue error_value = json_message.get_error_value();
+							switch (error_value) {
+
+								case ErrorValue::TALKIE_ERR_CHECKSUM:
+									// Retransmits as is, then it gets a new id, avoiding other devices to call it repeatedly
+									// as is right now because it will be different afterwards (different id)
+									transmitToRepeater(_transmitted_message.message);
+								break;
+								
+								default: break;
+							}
 					} else {
-						_noise(json_message, talker_match);
+						_error(json_message, talker_match);
 					}
-					break;
-				
-				default: break;
-			}
+				}
+				break;
+			
+			case MessageValue::TALKIE_MSG_NOISE:
+				_noise(json_message, talker_match);
+				break;
+			
+			default: break;
 		}
     }
 
