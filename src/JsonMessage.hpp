@@ -740,7 +740,7 @@ public:
 	 *        to be processed by the Talker and be returned as error to the original sender
      * @return true if it has a valid checksum
      */
-	bool _process_checksum() {
+	bool _validate_checksum() {
 		size_t c_colon_position = _get_colon_position('c');
 		uint16_t received_checksum = _get_value_number('c', c_colon_position);
 		_remove('c', c_colon_position);

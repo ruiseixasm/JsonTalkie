@@ -106,14 +106,14 @@ protected:
      * @brief Starts the transmission of the data received
      * @param json_message A json message to be transmitted to the repeater
 	 * 
-     * @note Before calling this method, the `JsonMessage` methods `_validate_json` and `_process_checksum`
+     * @note Before calling this method, the `JsonMessage` methods `_validate_json` and `_validate_checksum`
 	 *       shall be called first
      */
     void _startTransmission(JsonMessage& json_message) {
 
 		if (!json_message._validate_json()) return;
 
-		if (!json_message._process_checksum()) {
+		if (!json_message._validate_checksum()) {
 			uint16_t message_id;
 			if (json_message.get_identity(&message_id)) {
 				JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);

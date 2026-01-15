@@ -11,7 +11,7 @@ You can always implement your own socket, by extending the `BroadcastSocket` cla
 	bool _send(const JsonMessage& json_message) override {}
 ```
 The methods above should follow these basic rules:
-- In the `_receive` method you must create a `JsonMessage` and write on it or deserialize on it the data received, on that `new_message` you shall always call the methods `_validate_json` and `_process_checksum`. After that, it should be called the method `_startTransmission` to process the received data. See example bellow for details;
+- In the `_receive` method you must create a `JsonMessage` and write on it or deserialize on it the data received, on that `new_message` you shall always call the methods `_validate_json` and `_validate_checksum`. After that, it should be called the method `_startTransmission` to process the received data. See example bellow for details;
 - In the `_send` method you must read from the `json_message` buffer with the help of the methods `_read_buffer` and `_get_length`.
 ### Example
 Here is an example of such implementation for the Serial protocol:
@@ -50,7 +50,7 @@ protected:
 						_reading_serial = false;
 
 						if (_json_message._append('}') && _json_message._validate_json()) {
-							_json_message._process_checksum();	// Has to validate and process the checksum
+							_json_message._validate_checksum();	// Has to validate and process the checksum
 							_startTransmission(_json_message);
 						}
 						return;
