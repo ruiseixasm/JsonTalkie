@@ -285,6 +285,30 @@ private:
 	}
 
 
+	/**
+     * @brief Extract numeric value for a key
+     * @param key Single character key
+     * @param number Pointer to a 32 bits number to get
+     * @param colon_position Optional hint for colon position
+     * @return false if no valid `uint32_t` number was found
+     */
+	bool _get_value_number(char key, uint32_t* number, size_t colon_position = 4) const {
+		uint32_t json_number = 0;
+		size_t json_i = _get_value_position(key, colon_position);
+		if (json_i) {
+			while (json_i < _json_length && !(_json_payload[json_i] > '9' || _json_payload[json_i] < '0')) {
+				json_number *= 10;
+				json_number += _json_payload[json_i++] - '0';
+			}
+			if (_json_payload[json_i] == ',' || _json_payload[json_i] == '}') {
+				*number = json_number;
+				return true;
+			}
+		}
+		return false;
+	}
+
+
     // ============================================
     // MEMBER METHODS (Modification utilities)
     // ============================================
@@ -1219,6 +1243,56 @@ public:
 			return _get_value_number('0' + nth);
 		}
 		return 0;
+	}
+
+
+    /**
+     * @brief Get nth value as number
+     * @param nth Index 0-9
+     * @param number Pointer to a 32 bits number to get
+     * @return false if no valid number was found
+     */
+	bool get_nth_value_number(uint8_t nth, uint32_t* number) const {
+		if (nth < 10) {
+			return _get_value_number('0' + nth, number);
+		}
+		return false;
+	}
+
+
+    /**
+     * @brief Get nth value as number
+     * @param nth Index 0-9
+     * @param number Pointer to a 16 bits number to get
+     * @return false if no valid number was found
+     */
+	bool get_nth_value_number(uint8_t nth, uint16_t* number) const {
+		if (nth < 10) {
+			uint32_t json_number;
+			if (_get_value_number('0' + nth, &json_number) && json_number <= 0xFFFF) {
+				*number = (uint16_t)json_number;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	
+    /**
+     * @brief Get nth value as number
+     * @param nth Index 0-9
+     * @param number Pointer to a 8 bits number to get
+     * @return false if no valid number was found
+     */
+	bool get_nth_value_number(uint8_t nth, uint8_t* number) const {
+		if (nth < 10) {
+			uint32_t json_number;
+			if (_get_value_number('0' + nth, &json_number) && json_number <= 0xFF) {
+				*number = (uint8_t)json_number;
+				return true;
+			}
+		}
+		return false;
 	}
 
 

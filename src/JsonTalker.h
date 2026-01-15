@@ -493,11 +493,6 @@ public:
 					json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
 					if (json_message.has_nth_value_number(0)) {
 
-						#ifdef JSON_TALKER_DEBUG
-						Serial.print(F("\tChannel B value is an <uint8_t>: "));
-						Serial.println(json_message.get_nth_value_number(0));
-						#endif
-
 						_channel = json_message.get_nth_value_number(0);
 					}
 					json_message.set_nth_value_number(0, _channel);
