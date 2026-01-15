@@ -910,10 +910,7 @@ public:
 	bool has_nth_value_string(uint8_t nth) const {
 		if (nth < 10) {
 			char value_key = '0' + nth;
-			size_t colon_position = _get_colon_position(value_key);
-			if (colon_position) {
-				return _get_value_type(value_key, colon_position) == ValueType::TALKIE_VT_STRING;
-			}
+			return _get_value_type('0' + nth) == ValueType::TALKIE_VT_STRING;
 		}
 		return false;
 	}
@@ -926,11 +923,7 @@ public:
      */
 	bool has_nth_value_number(uint8_t nth) const {
 		if (nth < 10) {
-			char value_key = '0' + nth;
-			size_t colon_position = _get_colon_position(value_key);
-			if (colon_position) {
-				return _get_value_type(value_key, colon_position) == ValueType::TALKIE_VT_INTEGER;
-			}
+			return _get_value_type('0' + nth) == ValueType::TALKIE_VT_INTEGER;
 		}
 		return false;
 	}
