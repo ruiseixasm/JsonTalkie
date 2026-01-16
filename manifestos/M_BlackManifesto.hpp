@@ -104,8 +104,7 @@ public:
 					return true;
 				break;
 
-				// case 2:
-				// 	return _buzz_duration_ms;
+				default: break;
 			}
 		}
 		return false;

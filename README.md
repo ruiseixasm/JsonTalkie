@@ -490,6 +490,8 @@ it is used the manifesto *M_CallerManifesto*, that you can find in the [manifest
 class M_CallerManifesto : public TalkerManifesto {
 public:
 
+	// The Manifesto class name string shouldn't be greater than 32 chars
+	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
     const char* class_description() const override { return "CallerManifesto"; }
 
     M_CallerManifesto() : TalkerManifesto() {
@@ -583,11 +585,11 @@ public:
 				talker.transmitToRepeater(call_buzzer);
 			}
 			// The time needs to be updated regardless of the transmission above
-			_time_to_call = present_time + 60UL * 60 * 1000;	// 60 minutes
+			_time_to_call += 60UL * 60 * 1000;			// Add 60 minutes
 		}
 		if ((int32_t)(present_time - _time_to_live) >= 0) {
 			digitalWrite(LED_BUILTIN, LOW);
-			_time_to_live = present_time + 61UL * 60 * 1000;	// 61 minutes
+			_time_to_live = _time_to_call + 1UL * 60 * 1000;	// Add 1 minute extra
 		}
 	}
 
@@ -597,7 +599,7 @@ public:
         (void)json_message;	// Silence unused parameter warning
         (void)talker_match;	// Silence unused parameter warning
 
-		_time_to_live = present_time + 61UL * 60 * 1000;	// 61 minutes
+		_time_to_live = _time_to_call + 1UL * 60 * 1000;		// Add 1 minute extra
 		digitalWrite(LED_BUILTIN, HIGH);
     }
     
@@ -634,6 +636,8 @@ in the example *TalkieEtherCard* that contains the manifesto *M_BlackManifesto* 
 class M_BlackManifesto : public TalkerManifesto {
 public:
 
+	// The Manifesto class name string shouldn't be greater than 32 chars
+	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
     const char* class_description() const override { return "BlackManifesto"; }
 
     M_BlackManifesto() : TalkerManifesto() {}	// Constructor
@@ -672,7 +676,7 @@ public:
     // Index-based operations (simplified examples)
     bool _actionByIndex(uint8_t index, JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
         (void)talker;		// Silence unused parameter warning
-        (void)json_message;	// Silence unused parameter warning
+    	(void)talker_match;	// Silence unused parameter warning
 
 		if (index < _actionsCount()) {
 			// Actual implementation would do something based on index
@@ -682,6 +686,7 @@ public:
 				{
 					digitalWrite(BUZZ_PIN, HIGH);
 					_buzz_start = (uint16_t)millis();
+
 					return true;
 				}
 				break;
@@ -694,6 +699,8 @@ public:
 					}
 					return true;
 				break;
+
+				default: break;
 			}
 		}
 		return false;
@@ -701,18 +708,19 @@ public:
     
 
     void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
-        (void)talker;		// Silence unused parameter warning
+		(void)talker;		// Silence unused parameter warning
 		(void)talker_match;	// Silence unused parameter warning
-		
+
 		char temp_string[TALKIE_MAX_LEN];
-		json_message.get_from_name(temp_string, TALKIE_MAX_LEN);
+		json_message.get_from_name(temp_string);
 		Serial.print( temp_string );
         Serial.print(" - ");
+		
 		ValueType value_type = json_message.get_nth_value_type(0);
 		switch (value_type) {
 
 			case ValueType::TALKIE_VT_STRING:
-				json_message.get_nth_value_string(0, temp_string, TALKIE_MAX_LEN);
+				json_message.get_nth_value_string(0, temp_string);
 				Serial.println(temp_string);
 			break;
 			
@@ -728,11 +736,11 @@ public:
 
 
     void _error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
-        (void)talker;		// Silence unused parameter warning
+		(void)talker;		// Silence unused parameter warning
 		(void)talker_match;	// Silence unused parameter warning
-		
+
 		char temp_string[TALKIE_MAX_LEN];
-		json_message.get_from_name(temp_string, TALKIE_MAX_LEN);
+		json_message.get_from_name(temp_string);
 		Serial.print( temp_string );
         Serial.print(" - ");
 		
@@ -740,7 +748,7 @@ public:
 		switch (value_type) {
 
 			case ValueType::TALKIE_VT_STRING:
-				json_message.get_nth_value_string(0, temp_string, TALKIE_MAX_LEN);
+				json_message.get_nth_value_string(0, temp_string);
 				Serial.println(temp_string);
 			break;
 			
