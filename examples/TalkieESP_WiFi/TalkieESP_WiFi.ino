@@ -24,7 +24,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include "S_BroadcastESP_WiFi.hpp"
 #include "M_Spy.hpp"
 #include "M_BlueManifesto.hpp"
-#include "MessageTester.hpp"
+#include "M_MessageTester.hpp"
 #include "M_EspManifesto.hpp"
 
 const char ssid[] = "wifiName";
@@ -48,7 +48,7 @@ JsonTalker l_blue = JsonTalker(l_blue_name, l_blue_desc, &blue_manifesto);
 // Sockless Talker (JsonMessage tester)
 const char t_tester_name[] = "test2";
 const char t_tester_desc[] = "I test the JsonMessage class";
-MessageTester message_tester;
+M_MessageTester message_tester;
 JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
 
 // Sockless Talker (JsonMessage tester)

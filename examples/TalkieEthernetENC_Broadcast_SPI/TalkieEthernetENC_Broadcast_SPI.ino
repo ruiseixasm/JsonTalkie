@@ -26,7 +26,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include "S_SPI_ESP_Arduino_Master.hpp"
 #include "M_Spy.hpp"
 #include "M_LedManifesto.hpp"
-#include "MessageTester.hpp"
+#include "M_MessageTester.hpp"
 
 
 // TALKERS 
@@ -46,7 +46,7 @@ JsonTalker l_led = JsonTalker(l_led_name, l_led_desc, &led_manifesto);
 // Sockless Talker (JsonMessage tester)
 const char t_tester_name[] = "test";
 const char t_tester_desc[] = "I test the JsonMessage class";
-MessageTester message_tester;
+M_MessageTester message_tester;
 JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
 
 
