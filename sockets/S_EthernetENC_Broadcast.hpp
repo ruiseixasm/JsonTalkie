@@ -11,38 +11,33 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#ifndef BROADCAST_ESP_WIFI_HPP
-#define BROADCAST_ESP_WIFI_HPP
+#ifndef ETHERNETENC_BROADCAST_HPP
+#define ETHERNETENC_BROADCAST_HPP
 
 
 #include <BroadcastSocket.h>
-#if defined(ESP8266)
-#include <ESP8266WiFi.h>
-#else
-#include <WiFi.h>
-#endif
-#include <WiFiUdp.h>
+#include <S_EthernetENC_Broadcast.h>	// Go to: https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
+#include <EthernetENC_BroadcastUdp.h>
 
 
-// #define BROADCAST_ESP_WIFI_DEBUG
-// #define BROADCAST_ESP_WIFI_DEBUG_NEW
+
+// #define BROADCAST_ETHERNETENC_DEBUG
+// #define BROADCAST_ETHERNETENC_DEBUG_NEW
 
 #define ENABLE_DIRECT_ADDRESSING
 
 
-class BroadcastESP_WiFi : public BroadcastSocket {
+class S_EthernetENC_Broadcast : public BroadcastSocket {
 protected:
 
-	uint16_t _port = 5005;
-	WiFiUDP* _udp;
+    uint16_t _port = 5005;
+    EthernetENC_BroadcastUDP* _udp = nullptr;
 	// Source Talker info
-	IPAddress _from_ip = IPAddress(255, 255, 255, 255);   // By default it's used the broadcast IP
-    // ===== [SELF IP] cache our own IP =====
-    IPAddress _local_ip;
+    IPAddress _from_ip = IPAddress(255, 255, 255, 255);   // By default it's used the broadcast IP
 
-
+	
     // Constructor
-    BroadcastESP_WiFi() : BroadcastSocket() {}
+    S_EthernetENC_Broadcast() : BroadcastSocket() {}
 
 
     void _receive() override {
@@ -52,35 +47,13 @@ protected:
 			int packetSize = _udp->parsePacket();
 			if (packetSize > 0) {
 				
-				// ===== [SELF IP] DROP self-sent packets ===== | WiFi
-				if (_udp->remoteIP() == _local_ip) {
-					
-					#if defined(ESP8266)
-					_udp->flush();   // discard payload
-					#else
-					_udp->clear();   // discard payload
-					#endif
+        		// ===== [SELF IP] By design it doesn-t receive from SELF =====
 
-					#ifdef BROADCAST_ESP_WIFI_DEBUG
-					Serial.println(F("\treceive1: Dropped packet for being sent from this socket"));
-					Serial.print(F("\t\tRemote IP: "));
-					Serial.println(_udp->remoteIP());
-					Serial.print(F("\t\tLocal IP:  "));
-					Serial.println(_local_ip);
-					#endif
-					
-					return;
-				} else {
-					
-					#ifdef BROADCAST_ESP_WIFI_DEBUG
-					Serial.println(F("\treceive1: Packet NOT sent from this socket"));
-					Serial.print(F("\t\tRemote IP: "));
-					Serial.println(_udp->remoteIP());
-					Serial.print(F("\t\tLocal IP:  "));
-					Serial.println(_local_ip);
-					#endif
-					
-				}
+				#ifdef BROADCAST_ETHERNETENC_DEBUG
+				Serial.println(F("\treceive1: Packet NOT sent from this socket"));
+				Serial.print(F("\t\tRemote IP: "));
+				Serial.println(_udp->remoteIP());
+				#endif
 
 				JsonMessage new_message;
 				char* message_buffer = new_message._write_buffer((size_t)packetSize);
@@ -88,7 +61,8 @@ protected:
 
 				int length = _udp->read(message_buffer, static_cast<size_t>(packetSize));
 				if (length == packetSize) {
-					
+
+					new_message._set_length(length);
 					_startTransmission(new_message);
 				}
 			}
@@ -113,7 +87,7 @@ protected:
 
 			bool as_reply = json_message.is_to_name(_from_talker.name);
 
-			#ifdef BROADCAST_ESP_WIFI_DEBUG_NEW
+			#ifdef BROADCAST_ETHERNETENC_DEBUG_NEW
 			Serial.print(F("\t\t\t\t\tsend orgn: "));
 			json_message.write_to(Serial);
 			Serial.println();
@@ -131,13 +105,13 @@ protected:
 			#endif
 
             if (!_udp->beginPacket(as_reply ? _from_ip : broadcastIP, _port)) {
-                #ifdef BROADCAST_ESP_WIFI_DEBUG
+                #ifdef BROADCAST_ETHERNETENC_DEBUG
                 Serial.println(F("\tFailed to begin packet"));
                 #endif
                 return false;
             } else {
 				
-				#ifdef BROADCAST_ESP_WIFI_DEBUG
+				#ifdef BROADCAST_ETHERNETENC_DEBUG
 				if (as_reply && _from_ip != broadcastIP) {
 
 					Serial.print(F("\tsend1: --> Directly sent to the  "));
@@ -153,13 +127,13 @@ protected:
 			}
             #else
             if (!_udp->beginPacket(broadcastIP, _port)) {
-                #ifdef BROADCAST_ESP_WIFI_DEBUG
+                #ifdef BROADCAST_ETHERNETENC_DEBUG
                 Serial.println(F("\tFailed to begin packet"));
                 #endif
                 return false;
             } else {
 									
-				#ifdef BROADCAST_ESP_WIFI_DEBUG
+				#ifdef BROADCAST_ETHERNETENC_DEBUG
 				Serial.print(F("\tsend1: --> Broadcast sent to the 255.255.255.255 address --> "));
 				#endif
 
@@ -173,13 +147,13 @@ protected:
             (void)bytesSent; // Silence unused variable warning
 
             if (!_udp->endPacket()) {
-                #ifdef BROADCAST_ESP_WIFI_DEBUG
+                #ifdef BROADCAST_ETHERNETENC_DEBUG
                 Serial.println(F("\n\t\tERROR: Failed to end packet"));
                 #endif
                 return false;
             }
 
-            #ifdef BROADCAST_ESP_WIFI_DEBUG
+            #ifdef BROADCAST_ETHERNETENC_DEBUG
             Serial.write(
 				json_message._read_buffer(),
 				json_message._get_length()
@@ -196,24 +170,22 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static BroadcastESP_WiFi& instance() {
-        static BroadcastESP_WiFi instance;
+    static S_EthernetENC_Broadcast& instance() {
+        static S_EthernetENC_Broadcast instance;
         return instance;
     }
 
 	// The Socket class name string shouldn't be greater than 25 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*15) = 25
-    const char* class_description() const override { return "BroadcastESP_WiFi"; }
+    const char* class_description() const override { return "S_EthernetENC_Broadcast"; }
 
 
     void set_port(uint16_t port) { _port = port; }
-    void set_udp(WiFiUDP* udp) {
+    void set_udp(EthernetENC_BroadcastUDP* udp) {
         
-        // ===== [SELF IP] store local IP for self-filtering =====
-        _local_ip = WiFi.localIP();
         _udp = udp;
     }
 
 };
 
-#endif // BROADCAST_ESP_WIFI_HPP
+#endif // ETHERNETENC_BROADCAST_HPP

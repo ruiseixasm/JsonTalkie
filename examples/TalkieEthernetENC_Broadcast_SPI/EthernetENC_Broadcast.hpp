@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 #include <BroadcastSocket.h>
-#include <EthernetENC_Broadcast.h>	// Go to: https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
+#include <S_EthernetENC_Broadcast.h>	// Go to: https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
 #include <EthernetENC_BroadcastUdp.h>
 
 
@@ -27,7 +27,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define ENABLE_DIRECT_ADDRESSING
 
 
-class EthernetENC_Broadcast : public BroadcastSocket {
+class S_EthernetENC_Broadcast : public BroadcastSocket {
 protected:
 
     uint16_t _port = 5005;
@@ -37,7 +37,7 @@ protected:
 
 	
     // Constructor
-    EthernetENC_Broadcast() : BroadcastSocket() {}
+    S_EthernetENC_Broadcast() : BroadcastSocket() {}
 
 
     void _receive() override {
@@ -170,12 +170,12 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static EthernetENC_Broadcast& instance() {
-        static EthernetENC_Broadcast instance;
+    static S_EthernetENC_Broadcast& instance() {
+        static S_EthernetENC_Broadcast instance;
         return instance;
     }
 
-    const char* class_description() const override { return "EthernetENC_Broadcast"; }
+    const char* class_description() const override { return "S_EthernetENC_Broadcast"; }
 
 
     void set_port(uint16_t port) { _port = port; }

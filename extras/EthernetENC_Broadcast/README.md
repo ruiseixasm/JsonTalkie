@@ -1,4 +1,4 @@
-# EthernetENC_Broadcast
+# S_EthernetENC_Broadcast
 
 A fork of EthernetENC library with **broadcast UDP support** for ENC28J60 Ethernet boards.
 
@@ -17,7 +17,7 @@ Replace in your sketch:
 ```
 With:
 ```cpp
-#include <EthernetENC_Broadcast.h>	// This version
+#include <S_EthernetENC_Broadcast.h>	// This version
 ```
 UDP sockets will now accept broadcast packets by default.
 ## Compatibility

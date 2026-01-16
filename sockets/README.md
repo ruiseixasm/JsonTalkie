@@ -21,15 +21,15 @@ Here is an example of such implementation for the Serial protocol:
 
 #include <BroadcastSocket.h>
 
-class SocketSerial : public BroadcastSocket {
+class S_SocketSerial : public BroadcastSocket {
 public:
 
-    const char* class_description() const override { return "SocketSerial"; }
+    const char* class_description() const override { return "S_SocketSerial"; }
 
 protected:
 
     // Singleton accessor
-    SocketSerial() : BroadcastSocket() {}
+    S_SocketSerial() : BroadcastSocket() {}
 
 	JsonMessage _json_message;
 	bool _reading_serial = false;
@@ -81,9 +81,9 @@ protected:
 
 public:
     // Move ONLY the singleton instance method to subclass
-    static SocketSerial& instance() {
+    static S_SocketSerial& instance() {
 
-        static SocketSerial instance;
+        static S_SocketSerial instance;
         return instance;
     }
 
@@ -92,7 +92,7 @@ public:
 #endif // SOCKET_SERIAL_HPP
 ```
 ## Ethernet
-### BroadcastSocket_EtherCard
+### S_BroadcastSocket_EtherCard
 #### Description
 Lightweight socket intended to be used with low memory boards like the Uno and the Nano, for the ethernet module `ENC28J60`.
 This library has the limitation of not being able to send *unicast* messages, all its responses are in *broadcast* mode, so, one
@@ -124,13 +124,13 @@ used via Wi-Fi if replies are critical. Must be noted however, that this huge la
 meaning that the received unicast message by the Uno board has the usual small latency.
 #### Dependencies
 This Socket depends on the [library EtherCard](https://github.com/njh/EtherCard) that you can instal directly from the Arduino IDE.
-### EthernetENC_Broadcast
+### S_EthernetENC_Broadcast
 #### Description
 This is the best library to be used with the module `ENC28J60`, it requires more memory so it shall be used with an
 Arduino Mega or any other with similar amount of memory or more.
 
 One of it's problems is that relies in a change done to the original library, as it's one that doesn't respond to broadcasted UDP packets
-out of the box. To do so, you can pick up the already changed one [here](https://github.com/ruiseixasm/EthernetENC_Broadcast),
+out of the box. To do so, you can pick up the already changed one [here](https://github.com/ruiseixasm/S_EthernetENC_Broadcast),
 or you can tweak the original yourself, by changing these lines in the file `Enc28J60Network.cpp`.
 
 Comment the existing lines and add the new one as bellow:
@@ -143,7 +143,7 @@ Comment the existing lines and add the new one as bellow:
 ```
 After these changes the library will start to receive broadcasted UDP messages too.
 For more details check the data sheet of the chip [ENC28J60](https://ww1.microchip.com/downloads/en/devicedoc/39662a.pdf).
-Contrary to the socket implementation `BroadcastSocket_EtherCard` described above, this socket does *unicast*, so,
+Contrary to the socket implementation `S_BroadcastSocket_EtherCard` described above, this socket does *unicast*, so,
 it can be used via Wi-Fi too without the latency referred above, 4 instead of 106 milliseconds.
 ```
 >>> talk spy
@@ -154,8 +154,8 @@ it can be used via Wi-Fi too without the latency referred above, 4 instead of 10
 ```
 #### Dependencies
 This library is the adaptation of the EthernetENC library that allows the needed broadcast via UDP. You need to download the zip from
-the [EthernetENC_Broadcast repository](https://github.com/ruiseixasm/EthernetENC_Broadcast) as zip and then unzip it in the *libraries* Arduino folder.
-### BroadcastSocket_Ethernet
+the [S_EthernetENC_Broadcast repository](https://github.com/ruiseixasm/S_EthernetENC_Broadcast) as zip and then unzip it in the *libraries* Arduino folder.
+### S_BroadcastSocket_Ethernet
 #### Description
 This socket is intended to be used with the original [Arduino Ethernet board](https://docs.arduino.cc/retired/shields/arduino-ethernet-shield-without-poe-module/),
 or other that has the chip `W5500` or `W5100`. Take note that depending on the board, the pins may vary, so read the
@@ -167,7 +167,7 @@ pin 10 is used to select the W5100 and pin 4 for the SD card. These pins cannot 
 On the Mega, the hardware SS pin, 53, is not used to select either the W5100 or the SD card,
 but it must be kept as an output or the SPI interface won't work.
 ```
-Contrary to the socket implementation `BroadcastSocket_EtherCard` described above, this socket does *unicast*, so,
+Contrary to the socket implementation `S_BroadcastSocket_EtherCard` described above, this socket does *unicast*, so,
 it can be used via Wi-Fi too without the latency referred above, 6 instead of 106 milliseconds.
 ```
 >>> talk mega
@@ -179,11 +179,11 @@ it can be used via Wi-Fi too without the latency referred above, 6 instead of 10
 #### Dependencies
 This Socket depends on the [Ethernet library](https://github.com/arduino-libraries/Ethernet), so, you need to install it with the Arduino IDE.
 ## WiFi
-### BroadcastESP_WiFi
+### S_BroadcastESP_WiFi
 #### Description
 This socket is intended to be used with the boards ESP8266 or ESP32 that come with WiFi out of the box.
 
-Contrary to the socket implementation `BroadcastSocket_EtherCard` described above, this socket does *unicast*, so,
+Contrary to the socket implementation `S_BroadcastSocket_EtherCard` described above, this socket does *unicast*, so,
 it can be used via Wi-Fi too without the latency referred above, 3 instead of 106 milliseconds.
 ```
 >>> talk blue
@@ -202,30 +202,30 @@ SPI is among the most difficult protocols to implement, mainly in the Slave side
 are done per byte and also they take their time, around, 12us. So, a message of 90 bytes long will take around 1 millisecond to be transmitted, this means that,
 it is best to target the talkers by name (unicast) than by channel (broadcast) to avoid repeating a single message among multiple Slave sockets.
 ### ESP32 Master
-#### SPI_ESP_Arduino_Master
+#### S_SPI_ESP_Arduino_Master
 #### Description
 This Socket allows the communication centered in a single ESP32 master board to many Arduino slave boards.
 #### Dependencies
 This uses the already installed SPI Arduino library.
 ### Arduino Master
-#### SPI_Arduino_Arduino_Master_Multiple
+#### S_SPI_Arduino_Arduino_Master_Multiple
 #### Description
 This Socket allows the communication centered in a single Arduino master board to many Arduino slave boards.
 #### Dependencies
 This uses the already installed SPI Arduino library.
-#### SPI_Arduino_Arduino_Master_Single
+#### S_SPI_Arduino_Arduino_Master_Single
 #### Description
 This Socket allows the communication centered in a single Arduino master board to another single Arduino slave board.
 #### Dependencies
 This uses the already installed SPI Arduino library.
 ### Arduino Slave
-#### SPI_Arduino_Slave
+#### S_SPI_Arduino_Slave
 #### Description
 This Socket is targeted to Arduino boards intended to be used as SPI Slaves.
 #### Dependencies
 This uses the already installed SPI Arduino library.
 ## Serial
-### SocketSerial
+### S_SocketSerial
 #### Description
 This is the simplest Socket of all, and it's not a Broadcast Socket at all, given that the Serial protocol is one-to-one, so, it's main purpose is just that, for one board to communicate with other, ideal for local communication in the same platform.
 

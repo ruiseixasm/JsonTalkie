@@ -50,7 +50,7 @@ A lightweight library for Arduino communication and control using JSON messages 
 >>> system nano board
         [system nano board]        Arduino Uno/Nano (ATmega328P)
 >>> system nano socket
-        [system nano socket]       0       BroadcastSocket_EtherCard
+        [system nano socket]       0       S_BroadcastSocket_EtherCard
 >>> system nano manifesto
         [system nano manifesto]    BlackManifesto
 >>> list test
@@ -230,7 +230,7 @@ This example is useful to illustrate how easy it is to include this library for 
 ### The .ino sketch for a Serial socket (115200)
 ```cpp
 #include <JsonTalkie.hpp>
-#include "SocketSerial.hpp"
+#include "S_SocketSerial.hpp"
 #include "SerialManifesto.hpp"
 
 
@@ -240,7 +240,7 @@ SerialManifesto serial_manifesto;
 JsonTalker talker = JsonTalker(talker_name, talker_desc, &serial_manifesto);
 
 // Singleton requires the & (to get a reference variable)
-auto& serial_socket = SocketSerial::instance();
+auto& serial_socket = S_SocketSerial::instance();
 
 // SETTING THE REPEATER
 BroadcastSocket* uplinked_sockets[] = { &serial_socket };
@@ -351,9 +351,9 @@ With the command `system` it's possible to get the board and the sockets associa
 	[system green board] 	   Arduino Uno/Nano (ATmega328P)
 >>> system blue socket
 	[system blue socket] 	   0	   Changed_EthernetENC
-	[system blue socket] 	   1	   SPI_ESP_Arduino_Master
+	[system blue socket] 	   1	   S_SPI_ESP_Arduino_Master
 >>> system green socket
-	[system green socket]	   0	   SPI_Arduino_Slave
+	[system green socket]	   0	   S_SPI_Arduino_Slave
 >>>
 ```
 Note that you can have more than two boards, given that the SPI protocol allows more than a single

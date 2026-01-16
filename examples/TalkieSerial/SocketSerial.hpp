@@ -20,10 +20,10 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define SOCKET_SERIAL_DEBUG
 // #define SOCKET_SERIAL_DEBUG_TIMING
 
-class SocketSerial : public BroadcastSocket {
+class S_SocketSerial : public BroadcastSocket {
 public:
 
-    const char* class_description() const override { return "SocketSerial"; }
+    const char* class_description() const override { return "S_SocketSerial"; }
 
 	#ifdef SOCKET_SERIAL_DEBUG_TIMING
 	unsigned long _reference_time = millis();
@@ -33,7 +33,7 @@ public:
 protected:
 
     // Singleton accessor
-    SocketSerial() : BroadcastSocket() {}
+    S_SocketSerial() : BroadcastSocket() {}
 
 	JsonMessage _json_message;
 	bool _reading_serial = false;
@@ -104,9 +104,9 @@ protected:
 
 public:
     // Move ONLY the singleton instance method to subclass
-    static SocketSerial& instance() {
+    static S_SocketSerial& instance() {
 
-        static SocketSerial instance;
+        static S_SocketSerial instance;
         return instance;
     }
 

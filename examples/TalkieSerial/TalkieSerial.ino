@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #include <JsonTalkie.hpp>
 #include "SerialManifesto.hpp"
-#include "SocketSerial.hpp"
+#include "S_SocketSerial.hpp"
 
 
 const char talker_name[] = "serial";
@@ -24,7 +24,7 @@ SerialManifesto serial_manifesto;
 JsonTalker talker = JsonTalker(talker_name, talker_desc, &serial_manifesto);
 
 // Singleton requires the & (to get a reference variable)
-auto& serial_socket = SocketSerial::instance();
+auto& serial_socket = S_SocketSerial::instance();
 
 // SETTING THE REPEATER
 BroadcastSocket* uplinked_sockets[] = { &serial_socket };

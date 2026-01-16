@@ -22,7 +22,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define ENABLE_DIRECT_ADDRESSING
 
 
-class BroadcastSocket_Ethernet : public BroadcastSocket {
+class S_BroadcastSocket_Ethernet : public BroadcastSocket {
 private:
     uint16_t _port = 5005;
     EthernetUDP* _udp = nullptr;
@@ -32,7 +32,7 @@ private:
 
 protected:
     // Constructor
-    BroadcastSocket_Ethernet() : BroadcastSocket() {}
+    S_BroadcastSocket_Ethernet() : BroadcastSocket() {}
 
 
     void _receive() override {
@@ -132,14 +132,14 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static BroadcastSocket_Ethernet& instance() {
-        static BroadcastSocket_Ethernet instance;
+    static S_BroadcastSocket_Ethernet& instance() {
+        static S_BroadcastSocket_Ethernet instance;
         return instance;
     }
 
 	// The Socket class name string shouldn't be greater than 25 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*15) = 25
-    const char* class_description() const override { return "BroadcastSocket_Ethernet"; }
+    const char* class_description() const override { return "S_BroadcastSocket_Ethernet"; }
 
 
     void set_port(uint16_t port) { _port = port; }

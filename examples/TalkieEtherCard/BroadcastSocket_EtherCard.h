@@ -22,7 +22,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define ENABLE_DIRECT_ADDRESSING
 
 
-class BroadcastSocket_EtherCard : public BroadcastSocket {
+class S_BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
 
 	static JsonMessage _json_message;
@@ -69,7 +69,7 @@ private:
 
 protected:
     // Constructor
-    BroadcastSocket_EtherCard() : BroadcastSocket() {
+    S_BroadcastSocket_EtherCard() : BroadcastSocket() {
 		
 		ether.udpServerListenOnPort(staticCallback, _port);
 	}
@@ -129,12 +129,12 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static BroadcastSocket_EtherCard& instance() {
-        static BroadcastSocket_EtherCard instance;
+    static S_BroadcastSocket_EtherCard& instance() {
+        static S_BroadcastSocket_EtherCard instance;
         return instance;
     }
 
-    const char* class_description() const override { return "BroadcastSocket_EtherCard"; }
+    const char* class_description() const override { return "S_BroadcastSocket_EtherCard"; }
 
 };
 

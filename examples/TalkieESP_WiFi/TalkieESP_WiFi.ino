@@ -21,7 +21,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #endif
 
 #include <JsonTalkie.hpp>
-#include "BroadcastESP_WiFi.hpp"
+#include "S_BroadcastESP_WiFi.hpp"
 #include "Spy.hpp"
 #include "BlueManifesto.hpp"
 #include "MessageTester.hpp"
@@ -61,7 +61,7 @@ JsonTalker t_esp = JsonTalker(t_esp_name, t_esp_desc, &caller_esp);
 // SOCKETS
 
 // Singleton requires the & (to get a reference variable)
-auto& ethernet_socket = BroadcastESP_WiFi::instance();
+auto& ethernet_socket = S_BroadcastESP_WiFi::instance();
 
 
 // SETTING THE REPEATER

@@ -30,7 +30,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define ENABLE_DIRECT_ADDRESSING
 
 
-class BroadcastESP_WiFi : public BroadcastSocket {
+class S_BroadcastESP_WiFi : public BroadcastSocket {
 protected:
 
 	uint16_t _port = 5005;
@@ -42,7 +42,7 @@ protected:
 
 
     // Constructor
-    BroadcastESP_WiFi() : BroadcastSocket() {}
+    S_BroadcastESP_WiFi() : BroadcastSocket() {}
 
 
     void _receive() override {
@@ -196,12 +196,12 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static BroadcastESP_WiFi& instance() {
-        static BroadcastESP_WiFi instance;
+    static S_BroadcastESP_WiFi& instance() {
+        static S_BroadcastESP_WiFi instance;
         return instance;
     }
 
-    const char* class_description() const override { return "BroadcastESP_WiFi"; }
+    const char* class_description() const override { return "S_BroadcastESP_WiFi"; }
 
 
     void set_port(uint16_t port) { _port = port; }

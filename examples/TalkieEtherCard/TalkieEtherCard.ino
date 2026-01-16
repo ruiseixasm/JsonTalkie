@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 #include <JsonTalkie.hpp>
-#include "BroadcastSocket_EtherCard.h"
+#include "S_BroadcastSocket_EtherCard.h"
 #include "BlackManifesto.hpp"
 
 
@@ -63,7 +63,7 @@ const char uno_desc[] = "Arduino Uno";
 JsonTalker uno = JsonTalker(uno_name, uno_desc);
 JsonTalker* downlinked_talkers[] = { &nano, &uno };    // Only an array of pointers preserves polymorphism!!
 // Singleton requires the & (to get a reference variable)
-auto& ethernet_socket = BroadcastSocket_EtherCard::instance();
+auto& ethernet_socket = S_BroadcastSocket_EtherCard::instance();
 BroadcastSocket* uplinked_sockets[] = { &ethernet_socket };	// list of pointers
 
 const MessageRepeater message_repeater(
