@@ -16,7 +16,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #include <JsonTalkie.hpp>
 #include "S_BroadcastSocket_EtherCard.h"
-#include "BlackManifesto.hpp"
+#include "M_BlackManifesto.hpp"
 
 
 // Adjust the Ethercard buffer size to the absolutely minimum needed
@@ -56,7 +56,7 @@ uint8_t mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x02};
 
 const char nano_name[] = "nano";
 const char nano_desc[] = "Arduino Nano";
-BlackManifesto black_manifesto;
+M_BlackManifesto black_manifesto;
 JsonTalker nano = JsonTalker(nano_name, nano_desc, &black_manifesto);
 const char uno_name[] = "uno";
 const char uno_desc[] = "Arduino Uno";

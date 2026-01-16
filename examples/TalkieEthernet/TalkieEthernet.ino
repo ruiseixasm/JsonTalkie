@@ -18,17 +18,17 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #include <JsonTalkie.hpp>
 #include "S_BroadcastSocket_Ethernet.hpp"
-#include "MegaManifesto.hpp"
-#include "CallerManifesto.hpp"
+#include "M_MegaManifesto.hpp"
+#include "M_CallerManifesto.hpp"
 
 const char mega_name[] = "mega";
 const char mega_desc[] = "I'm a Mega talker";
-MegaManifesto mega_manifesto;
+M_MegaManifesto mega_manifesto;
 JsonTalker mega = JsonTalker(mega_name, mega_desc, &mega_manifesto);
 
 const char caller_name[] = "caller";
 const char caller_desc[] = "I'm a 60 minutes buzzer caller";
-CallerManifesto caller_manifesto;
+M_CallerManifesto caller_manifesto;
 JsonTalker caller = JsonTalker(caller_name, caller_desc, &caller_manifesto);
 
 

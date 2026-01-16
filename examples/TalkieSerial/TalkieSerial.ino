@@ -14,13 +14,13 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 #include <JsonTalkie.hpp>
-#include "SerialManifesto.hpp"
+#include "M_SerialManifesto.hpp"
 #include "S_SocketSerial.hpp"
 
 
 const char talker_name[] = "serial";
 const char talker_desc[] = "I'm a serial talker";
-SerialManifesto serial_manifesto;
+M_SerialManifesto serial_manifesto;
 JsonTalker talker = JsonTalker(talker_name, talker_desc, &serial_manifesto);
 
 // Singleton requires the & (to get a reference variable)

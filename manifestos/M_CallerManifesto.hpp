@@ -19,12 +19,14 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define CALLER_MANIFESTO_DEBUG
 
 
-class CallerManifesto : public TalkerManifesto {
+class M_CallerManifesto : public TalkerManifesto {
 public:
 
-    const char* class_description() const override { return "CallerManifesto"; }
+	// The Manifesto class name string shouldn't be greater than 32 chars
+	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
+    const char* class_description() const override { return "M_CallerManifesto"; }
 
-    CallerManifesto() : TalkerManifesto() {
+    M_CallerManifesto() : TalkerManifesto() {
 		pinMode(LED_BUILTIN, OUTPUT);
 		digitalWrite(LED_BUILTIN, LOW); // Start with LED off
 	}	// Constructor

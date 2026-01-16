@@ -19,15 +19,15 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define SPY_MANIFESTO_DEBUG
 
 
-class Spy : public TalkerManifesto {
+class M_Spy : public TalkerManifesto {
 public:
 
 	// The Manifesto class name string shouldn't be greater than 32 chars
 	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
-    const char* class_description() const override { return "Spy"; }
+    const char* class_description() const override { return "M_Spy"; }
 
 	// Constructor
-    Spy() : TalkerManifesto() {}
+    M_Spy() : TalkerManifesto() {}
 
 
 protected:

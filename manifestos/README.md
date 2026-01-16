@@ -7,7 +7,7 @@ You can see many examples of manifestos right in [this same folder](https://gith
 You can create many Manifestos to different scenarios by extending the `TalkerManifesto` class.
 To do so, you must override, at least, the following methods:
 ```cpp
-	const char* class_description() const override { return "LedManifesto"; }
+	const char* class_description() const override { return "M_LedManifesto"; }
 	const Action* _getActionsArray() const override { return calls; }
     uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
 ```
@@ -32,17 +32,17 @@ Here is a bare minimum example of such implementation that controls a Blue LED:
 
 #include <TalkerManifesto.hpp>
 
-class BlueManifesto : public TalkerManifesto {
+class M_BlueManifesto : public TalkerManifesto {
 public:
 
-    const char* class_description() const override { return "BlueManifesto"; }
+    const char* class_description() const override { return "M_BlueManifesto"; }
 
-    BlueManifesto(uint8_t led_pin) : TalkerManifesto(), _led_pin(led_pin)
+    M_BlueManifesto(uint8_t led_pin) : TalkerManifesto(), _led_pin(led_pin)
 	{
 		pinMode(_led_pin, OUTPUT);
 	}	// Constructor
 
-    ~BlueManifesto()
+    ~M_BlueManifesto()
 	{	// ~TalkerManifesto() called automatically here
 		digitalWrite(_led_pin, LOW);
 		pinMode(_led_pin, INPUT);

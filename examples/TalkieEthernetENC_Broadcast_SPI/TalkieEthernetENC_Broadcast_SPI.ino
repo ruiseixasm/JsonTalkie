@@ -24,23 +24,23 @@ https://github.com/ruiseixasm/JsonTalkie
 // ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
 #include "S_EthernetENC_Broadcast.hpp"
 #include "S_SPI_ESP_Arduino_Master.hpp"
-#include "Spy.hpp"
-#include "LedManifesto.hpp"
+#include "M_Spy.hpp"
+#include "M_LedManifesto.hpp"
 #include "MessageTester.hpp"
 
 
 // TALKERS 
 // Ethernet Socket Repeater
-// Spy Talker (being sockless devoids it of answering direct remote calls, and that also works, but differently)
+// M_Spy Talker (being sockless devoids it of answering direct remote calls, and that also works, but differently)
 const char t_spy_name[] = "spy";
-const char t_spy_desc[] = "I'm a Spy and I spy the talkers' pings";
-Spy spy_manifesto;
+const char t_spy_desc[] = "I'm a M_Spy and I spy the talkers' pings";
+M_Spy spy_manifesto;
 JsonTalker t_spy = JsonTalker(t_spy_name, t_spy_desc, &spy_manifesto);
 
 // Sockless Talker (led)
 const char l_led_name[] = "blue";
 const char l_led_desc[] = "I turn led Blue on and off";
-LedManifesto led_manifesto(LED_BUILTIN);
+M_LedManifesto led_manifesto(LED_BUILTIN);
 JsonTalker l_led = JsonTalker(l_led_name, l_led_desc, &led_manifesto);
 
 // Sockless Talker (JsonMessage tester)

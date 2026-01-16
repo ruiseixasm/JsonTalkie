@@ -147,7 +147,7 @@ Contrary to the socket implementation `S_BroadcastSocket_EtherCard` described ab
 it can be used via Wi-Fi too without the latency referred above, 4 instead of 106 milliseconds.
 ```
 >>> talk spy
-	[talk spy]           	   I'm a Spy and I spy the talkers' pings
+	[talk spy]           	   I'm a M_Spy and I spy the talkers' pings
 >>> ping spy
 	[ping spy]           	   4
 >>>

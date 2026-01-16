@@ -11,22 +11,23 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#ifndef BUZZER_MANIFESTO_HPP
-#define BUZZER_MANIFESTO_HPP
+#ifndef MULTIPLE_MANIFESTO_HPP
+#define MULTIPLE_MANIFESTO_HPP
 
 #include <TalkerManifesto.hpp>
-
-// #define BUZZER_MANIFESTO_DEBUG
 
 #define BUZZ_PIN 2	// External BUZZER pin
 
 
-class BuzzerManifesto : public TalkerManifesto {
+class M_MultipleManifesto : public TalkerManifesto {
 public:
 
-    const char* class_description() const override { return "BuzzerManifesto"; }
+	// The Manifesto class name string shouldn't be greater than 32 chars
+	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
+    const char* class_description() const override { return "M_MultipleManifesto"; }
 
-    BuzzerManifesto() : TalkerManifesto() {}	// Constructor
+    M_MultipleManifesto() : TalkerManifesto() {}	// Constructor
+
 
 protected:
 
@@ -36,12 +37,12 @@ protected:
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
     Action calls[2] = {
-		{"buzz", "Buzz for a while"},
-		{"ms", "Gets and sets the buzzing duration"}
+		{"buzz", "Buzz a little"},
+		{"ms", "For how long"}
     };
     
 public:
-
+    
     const Action* _getActionsArray() const override { return calls; }
 
     // Size methods
@@ -108,63 +109,7 @@ public:
 		return false;
 	}
     
-
-    void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
-		(void)talker;		// Silence unused parameter warning
-		(void)talker_match;	// Silence unused parameter warning
-
-		char temp_string[TALKIE_MAX_LEN];
-		json_message.get_from_name(temp_string);
-		Serial.print( temp_string );
-        Serial.print(" - ");
-		
-		ValueType value_type = json_message.get_nth_value_type(0);
-		switch (value_type) {
-
-			case ValueType::TALKIE_VT_STRING:
-				json_message.get_nth_value_string(0, temp_string);
-				Serial.println(temp_string);
-			break;
-			
-			case ValueType::TALKIE_VT_INTEGER:
-				Serial.println(json_message.get_nth_value_number(0));
-			break;
-			
-			default:
-            	Serial.println(F("Empty echo received!"));
-			break;
-		}
-    }
-
-
-    void _error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
-		(void)talker;		// Silence unused parameter warning
-		(void)talker_match;	// Silence unused parameter warning
-
-		char temp_string[TALKIE_MAX_LEN];
-		json_message.get_from_name(temp_string);
-		Serial.print( temp_string );
-        Serial.print(" - ");
-		
-		ValueType value_type = json_message.get_nth_value_type(0);
-		switch (value_type) {
-
-			case ValueType::TALKIE_VT_STRING:
-				json_message.get_nth_value_string(0, temp_string);
-				Serial.println(temp_string);
-			break;
-			
-			case ValueType::TALKIE_VT_INTEGER:
-				Serial.println(json_message.get_nth_value_number(0));
-			break;
-			
-			default:
-            	Serial.println(F("Empty echo received!"));
-			break;
-		}
-    }
-
 };
 
 
-#endif // BUZZER_MANIFESTO_HPP
+#endif // MULTIPLE_MANIFESTO_HPP

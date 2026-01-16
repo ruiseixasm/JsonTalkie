@@ -19,12 +19,12 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <JsonTalkie.hpp>
 // ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
 #include "S_EthernetENC_Broadcast.hpp"
-#include "MegaManifesto.hpp"
+#include "M_MegaManifesto.hpp"
 
 
 const char mega_name[] = "mega";
 const char mega_desc[] = "I'm a Mega talker";
-MegaManifesto mega_manifesto;
+M_MegaManifesto mega_manifesto;
 JsonTalker mega = JsonTalker(mega_name, mega_desc, &mega_manifesto);
 
 JsonTalker* downlinked_talkers[] = { &mega };    // Only an array of pointers preserves polymorphism!!

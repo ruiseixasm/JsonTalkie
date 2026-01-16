@@ -21,12 +21,14 @@ https://github.com/ruiseixasm/JsonTalkie
 #define BUZZ_PIN 3	// External BLACK BOX pin
 
 
-class BlackManifesto : public TalkerManifesto {
+class M_BlackManifesto : public TalkerManifesto {
 public:
 
-    const char* class_description() const override { return "BlackManifesto"; }
+	// The Manifesto class name string shouldn't be greater than 32 chars
+	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
+    const char* class_description() const override { return "M_BlackManifesto"; }
 
-    BlackManifesto() : TalkerManifesto() {}	// Constructor
+    M_BlackManifesto() : TalkerManifesto() {}	// Constructor
 
 
 protected:

@@ -11,22 +11,22 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#ifndef CALLER_MANIFESTO_HPP
-#define CALLER_MANIFESTO_HPP
+#ifndef ESP_MANIFESTO_HPP
+#define ESP_MANIFESTO_HPP
 
 #include <TalkerManifesto.hpp>
 
-// #define CALLER_MANIFESTO_DEBUG
+// #define ESP_MANIFESTO_DEBUG
 
 
-class CallerManifesto : public TalkerManifesto {
+class M_EspManifesto : public TalkerManifesto {
 public:
 
 	// The Manifesto class name string shouldn't be greater than 32 chars
 	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
-    const char* class_description() const override { return "CallerManifesto"; }
+    const char* class_description() const override { return "M_EspManifesto"; }
 
-    CallerManifesto() : TalkerManifesto() {
+    M_EspManifesto() : TalkerManifesto() {
 		pinMode(LED_BUILTIN, OUTPUT);
 		digitalWrite(LED_BUILTIN, LOW); // Start with LED off
 	}	// Constructor
@@ -112,7 +112,7 @@ public:
 				JsonMessage call_buzzer;
 				call_buzzer.set_message_value(MessageValue::TALKIE_MSG_CALL);
 				call_buzzer.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
-				call_buzzer.set_to_name("nano");
+				call_buzzer.set_to_name("buzzer");
 				call_buzzer.set_action_name("buzz");
 				talker.transmitToRepeater(call_buzzer);
 			}
@@ -138,4 +138,4 @@ public:
 };
 
 
-#endif // CALLER_MANIFESTO_HPP
+#endif // ESP_MANIFESTO_HPP

@@ -25,13 +25,13 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 #include <JsonTalkie.hpp>
-#include "GreenManifesto.hpp"
+#include "M_GreenManifesto.hpp"
 #include "S_SPI_Arduino_Slave.h"
 
 
 const char talker_name[] = "green";
 const char talker_desc[] = "I'm a green talker";
-GreenManifesto green_manifesto;
+M_GreenManifesto green_manifesto;
 JsonTalker talker = JsonTalker(talker_name, talker_desc, &green_manifesto);
 
 // Singleton requires the & (to get a reference variable)

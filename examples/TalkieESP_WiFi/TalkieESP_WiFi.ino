@@ -22,10 +22,10 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #include <JsonTalkie.hpp>
 #include "S_BroadcastESP_WiFi.hpp"
-#include "Spy.hpp"
-#include "BlueManifesto.hpp"
+#include "M_Spy.hpp"
+#include "M_BlueManifesto.hpp"
 #include "MessageTester.hpp"
-#include "EspManifesto.hpp"
+#include "M_EspManifesto.hpp"
 
 const char ssid[] = "wifiName";
 const char password[] = "wifiPassword";
@@ -33,16 +33,16 @@ const char password[] = "wifiPassword";
 
 // TALKERS 
 // Ethernet Socket Repeater
-// Spy Talker (being sockless devoids it of answering direct remote calls, and that also works, but differently)
+// M_Spy Talker (being sockless devoids it of answering direct remote calls, and that also works, but differently)
 const char t_spy_name[] = "spy2";
 const char t_spy_desc[] = "I'm a Spy and I spy the talkers' pings";
-Spy spy_manifesto;
+M_Spy spy_manifesto;
 JsonTalker t_spy = JsonTalker(t_spy_name, t_spy_desc, &spy_manifesto);
 
 // Sockless Talker (blue led)
 const char l_blue_name[] = "blue2";
 const char l_blue_desc[] = "I turn led Blue on and off";
-BlueManifesto blue_manifesto(2);
+M_BlueManifesto blue_manifesto(2);
 JsonTalker l_blue = JsonTalker(l_blue_name, l_blue_desc, &blue_manifesto);
 
 // Sockless Talker (JsonMessage tester)
@@ -54,7 +54,7 @@ JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
 // Sockless Talker (JsonMessage tester)
 const char t_esp_name[] = "esp";
 const char t_esp_desc[] = "I call on and off on the buzzer";
-EspManifesto caller_esp;
+M_EspManifesto caller_esp;
 JsonTalker t_esp = JsonTalker(t_esp_name, t_esp_desc, &caller_esp);
 
 

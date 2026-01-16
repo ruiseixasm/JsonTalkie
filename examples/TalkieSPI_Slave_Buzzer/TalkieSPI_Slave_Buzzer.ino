@@ -14,13 +14,13 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 #include <JsonTalkie.hpp>
-#include "BuzzerManifesto.hpp"
+#include "M_BuzzerManifesto.hpp"
 #include "S_SPI_Arduino_Slave.h"
 
 
 const char talker_name[] = "buzzer";
 const char talker_desc[] = "I'm a buzzer that buzzes";
-BuzzerManifesto talker_manifesto;
+M_BuzzerManifesto talker_manifesto;
 JsonTalker talker = JsonTalker(talker_name, talker_desc, &talker_manifesto);
 
 // Singleton requires the & (to get a reference variable)

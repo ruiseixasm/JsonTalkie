@@ -52,7 +52,7 @@ A lightweight library for Arduino communication and control using JSON messages 
 >>> system nano socket
         [system nano socket]       0       S_BroadcastSocket_EtherCard
 >>> system nano manifesto
-        [system nano manifesto]    BlackManifesto
+        [system nano manifesto]    M_BlackManifesto
 >>> list test
         [call test 0|all]          Tests all methods
         [call test 1|deserialize]          Test deserialize (fill up)
@@ -195,7 +195,7 @@ Action calls[3] = {
 ```
 Besides the calls, a Manifesto implementation should also have these mandatory methods:
 ```cpp
-const char* class_description() const override { return "BlueManifesto"; }
+const char* class_description() const override { return "M_BlueManifesto"; }
 const Action* _getActionsArray() const override { return calls; }
 uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
 ```
@@ -231,12 +231,12 @@ This example is useful to illustrate how easy it is to include this library for 
 ```cpp
 #include <JsonTalkie.hpp>
 #include "S_SocketSerial.hpp"
-#include "SerialManifesto.hpp"
+#include "M_SerialManifesto.hpp"
 
 
 const char talker_name[] = "serial";
 const char talker_desc[] = "I'm a serial talker";
-SerialManifesto serial_manifesto;
+M_SerialManifesto serial_manifesto;
 JsonTalker talker = JsonTalker(talker_name, talker_desc, &serial_manifesto);
 
 // Singleton requires the & (to get a reference variable)
@@ -440,7 +440,7 @@ and on the action *buzz*. This is done once as it follows.
 ```
 After this, the *caller* has its minutes synced with the actual minutes and will call the *buzz* of the *nano* each hour.
 In the example bellow, named *TalkieEthernet*, that you can find in the [examples](https://github.com/ruiseixasm/JsonTalkie/tree/main/examples) folder,
-it is used the manifesto *CallerManifesto*, that you can find in the [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) folder, is as follows.
+it is used the manifesto *M_CallerManifesto*, that you can find in the [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) folder, is as follows.
 ```cpp
 #ifndef CALLER_MANIFESTO_HPP
 #define CALLER_MANIFESTO_HPP
@@ -448,12 +448,12 @@ it is used the manifesto *CallerManifesto*, that you can find in the [manifestos
 #include <TalkerManifesto.hpp>
 
 
-class CallerManifesto : public TalkerManifesto {
+class M_CallerManifesto : public TalkerManifesto {
 public:
 
-    const char* class_description() const override { return "CallerManifesto"; }
+    const char* class_description() const override { return "M_CallerManifesto"; }
 
-    CallerManifesto() : TalkerManifesto() {
+    M_CallerManifesto() : TalkerManifesto() {
 		pinMode(LED_BUILTIN, OUTPUT);
 		digitalWrite(LED_BUILTIN, LOW); // Start with LED off
 	}	// Constructor
@@ -581,7 +581,7 @@ without any computer evolvement. The calling is done inside the `_loop` method a
 ```
 
 The *nano* talker is also in the [examples](https://github.com/ruiseixasm/JsonTalkie/tree/main/examples) folder
-in the example *TalkieEtherCard* that contains the manifesto *BlackManifesto* that can also be found in the
+in the example *TalkieEtherCard* that contains the manifesto *M_BlackManifesto* that can also be found in the
 [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) folder and is as follows.
 ```cpp
 #ifndef BLACK_MANIFESTO_HPP
@@ -592,12 +592,12 @@ in the example *TalkieEtherCard* that contains the manifesto *BlackManifesto* th
 #define BUZZ_PIN 3	// External BLACK BOX pin
 
 
-class BlackManifesto : public TalkerManifesto {
+class M_BlackManifesto : public TalkerManifesto {
 public:
 
-    const char* class_description() const override { return "BlackManifesto"; }
+    const char* class_description() const override { return "M_BlackManifesto"; }
 
-    BlackManifesto() : TalkerManifesto() {}	// Constructor
+    M_BlackManifesto() : TalkerManifesto() {}	// Constructor
 
 
 protected:
