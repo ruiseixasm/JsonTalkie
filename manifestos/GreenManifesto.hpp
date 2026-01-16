@@ -114,7 +114,7 @@ public:
                 break;
 				
             case 3:
-				json_message.set_nth_value_number(_bpm_10);
+				json_message.set_nth_value_number(0, _bpm_10);
 				return true;
 
             case 4:

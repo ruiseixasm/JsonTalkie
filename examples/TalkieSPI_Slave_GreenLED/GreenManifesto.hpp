@@ -41,7 +41,7 @@ protected:
     uint16_t _total_calls = 0;
 	uint8_t _blue_led_on = 0;
 
-	
+
 public:
     
     const Action* _getActionsArray() const override { return calls; }
@@ -114,7 +114,7 @@ public:
                 break;
 				
             case 3:
-				json_message.set_nth_value_number(_bpm_10);
+				json_message.set_nth_value_number(0, _bpm_10);
 				return true;
 
             case 4:
