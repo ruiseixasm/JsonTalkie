@@ -76,6 +76,7 @@ protected:
     bool _control_timing = false;
     unsigned long _last_local_time = 0;	// millis() compatible
     uint16_t _last_message_timestamp = 0;
+    uint16_t _errors_count = 0;
     uint16_t _drops_count = 0;
 
 	struct FromTalker {
@@ -116,6 +117,7 @@ protected:
 		if (!json_message._validate_json()) return;
 
 		if (!json_message._validate_checksum()) {
+			_errors_count++;
 			uint16_t message_id;
 			if (json_message.get_identity(&message_id)) {
 				JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
@@ -293,6 +295,13 @@ public:
     uint8_t get_max_delay() const { return _max_delay_ms; }
 
 
+    /**
+     * @brief Get the total amount of errors in transmission
+     * @return Returns the number of failed transmissions, wrong checksum
+     */
+    uint16_t get_errors_count() const { return _errors_count; }
+
+	
     /**
      * @brief Get the total amount of call messages already dropped
      * @return Returns the number of dropped call messages

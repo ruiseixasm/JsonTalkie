@@ -551,6 +551,23 @@ public:
 							}
 							break;
 
+						case SystemValue::TALKIE_SYS_ERRORS:
+							{
+								uint8_t sockets_count = _socketsCount();
+								for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
+									const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
+									json_message.set_nth_value_number(0, socket_i);
+									json_message.set_nth_value_number(1, socket->get_errors_count());
+									transmitToRepeater(json_message);	// Many-to-One
+								}
+								if (!sockets_count) {
+									json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
+								} else {
+									return;	// All transmissions already done by the if condition above
+								}
+							}
+							break;
+
 						case SystemValue::TALKIE_SYS_DROPS:
 							{
 								uint8_t sockets_count = _socketsCount();
