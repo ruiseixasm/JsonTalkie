@@ -25,7 +25,7 @@ using MessageValue = TalkieCodes::MessageValue;
 class M_MessageTester : public TalkerManifesto {
 public:
 
-	// The Manifesto class name string shouldn't be greater than 32 chars
+	// The Manifesto class description shouldn't be greater than 32 chars
 	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
     const char* class_description() const override { return "M_MessageTester"; }
 

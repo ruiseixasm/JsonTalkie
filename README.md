@@ -490,7 +490,7 @@ it is used the manifesto *M_CallerManifesto*, that you can find in the [manifest
 class M_CallerManifesto : public TalkerManifesto {
 public:
 
-	// The Manifesto class name string shouldn't be greater than 32 chars
+	// The Manifesto class description shouldn't be greater than 32 chars
 	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
     const char* class_description() const override { return "CallerManifesto"; }
 
@@ -636,7 +636,7 @@ in the example *TalkieEtherCard* that contains the manifesto *M_BlackManifesto* 
 class M_BlackManifesto : public TalkerManifesto {
 public:
 
-	// The Manifesto class name string shouldn't be greater than 32 chars
+	// The Manifesto class description shouldn't be greater than 32 chars
 	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
     const char* class_description() const override { return "BlackManifesto"; }
 
