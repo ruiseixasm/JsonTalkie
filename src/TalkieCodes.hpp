@@ -140,12 +140,13 @@ struct TalkieCodes {
     enum SystemValue : uint8_t {
         TALKIE_SYS_UNDEFINED, ///< Unspecified system request
         TALKIE_SYS_BOARD,     ///< Board/system information request
-        TALKIE_SYS_MUTE,      ///< Returns or sets the mute mode
-        TALKIE_SYS_ERRORS,    ///< Packet loss due to bad checksum (corruption)
-        TALKIE_SYS_DROPS,     ///< Packet loss due to out of time
-        TALKIE_SYS_DELAY,     ///< Network delay configuration
-        TALKIE_SYS_SOCKETS,   ///< List Socket class names
         TALKIE_SYS_MANIFESTO  ///< Show the Manifesto class name
+        TALKIE_SYS_SOCKETS,   ///< List Socket class names
+        TALKIE_SYS_MUTE,      ///< Returns or sets the mute mode
+        TALKIE_SYS_DELAY,     ///< Network delay configuration
+        TALKIE_SYS_MISSES,    ///< Packet loss due to bad checksum (corruption)
+        TALKIE_SYS_DROPS,     ///< Packet loss due to out of time
+        TALKIE_SYS_FAILS,     ///< Packet failed to be sent
     };
 
 

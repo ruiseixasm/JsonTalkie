@@ -551,13 +551,13 @@ public:
 							}
 							break;
 
-						case SystemValue::TALKIE_SYS_ERRORS:
+						case SystemValue::TALKIE_SYS_MISSES:
 							{
 								uint8_t sockets_count = _socketsCount();
 								for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
 									const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
 									json_message.set_nth_value_number(0, socket_i);
-									json_message.set_nth_value_number(1, socket->get_errors_count());
+									json_message.set_nth_value_number(1, socket->get_misses_count());
 									transmitToRepeater(json_message);	// Many-to-One
 								}
 								if (!sockets_count) {

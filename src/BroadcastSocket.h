@@ -76,7 +76,7 @@ protected:
     bool _control_timing = false;
     unsigned long _last_local_time = 0;	// millis() compatible
     uint16_t _last_message_timestamp = 0;
-    uint16_t _errors_count = 0;
+    uint16_t _misses_count = 0;
     uint16_t _drops_count = 0;
 
 	struct FromTalker {
@@ -126,7 +126,7 @@ protected:
 				// Error messages can be anonymous messages without "from_name"
 				_finishTransmission(error_message);
 			}
-			++_errors_count;
+			++_misses_count;
 			return;
 		}
 
@@ -299,7 +299,7 @@ public:
      * @brief Get the total amount of errors in transmission
      * @return Returns the number of failed transmissions, wrong checksum
      */
-    uint16_t get_errors_count() const { return _errors_count; }
+    uint16_t get_misses_count() const { return _misses_count; }
 
 	
     /**
