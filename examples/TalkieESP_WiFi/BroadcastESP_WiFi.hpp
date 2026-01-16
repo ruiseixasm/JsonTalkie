@@ -54,8 +54,13 @@ protected:
 				
 				// ===== [SELF IP] DROP self-sent packets ===== | WiFi
 				if (_udp->remoteIP() == _local_ip) {
-					_udp->flush();   // discard payload
 					
+					#if defined(ESP8266)
+					_udp->flush();   // discard payload
+					#else
+					_udp->clear();   // discard payload
+					#endif
+
 					#ifdef BROADCAST_ESP_WIFI_DEBUG
 					Serial.println(F("\treceive1: Dropped packet for being sent from this socket"));
 					Serial.print(F("\t\tRemote IP: "));
