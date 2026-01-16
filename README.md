@@ -178,7 +178,7 @@ sent to remote and local Talkers in one go.
 These are the attributes of a Talker:
 - **name** - The name by which a Talker is identified in the network and targeted with
 - **description** - A brief description of the Talker returned in response to the `talk` command
-- **channel** - A channel in order to be simultaneously target among other talkers
+- **channel** - A channel in order to multiple Talkers be simultaneously targeted among others
 - **manifesto** - The Talker manifesto that sets all its Actions in detail
 ```
 >>> channel
@@ -186,9 +186,30 @@ These are the attributes of a Talker:
         [channel test]             255
         [channel blue]             255
         [channel green]            255
-
+>>> channel blue 1
+        [channel blue]             1
+>>> channel green 1
+        [channel green]            1
+>>> channel
+        [channel spy]              255
+        [channel test]             255
+        [channel blue]             1
+        [channel green]            1
+>>> list 1
+        [call blue 0|on]           Turns led ON
+        [call blue 1|off]          Turns led OFF
+        [call blue 2|actions]      Returns the number of triggered Actions
+        [call green 0|on]          Turns led ON
+        [call green 1|off]         Turns led OFF
+        [call green 2|bpm_10]      Sets the Tempo in BPM x 10
+        [call green 3|bpm_10]      Gets the Tempo in BPM x 10
+        [call green 4|toggle]      Toggles 'blue' talker's led on and off
+>>> call 1 on
+        [call blue on]             roger
+        [call green on]            roger
+>>>
 ```
-
+Note: The default channel `255` it's a deaf channel, meaning, no Talker is targeted with it.
 ### Manifesto interface
 In the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) you can find further description and some manifesto examples for diverse type of actions and Talker methods processing, like echo and error.
 
@@ -219,13 +240,20 @@ These are the member variables of the `BroadcastSocket`:
 ```cpp
 	MessageRepeater* _message_repeater = nullptr;
 	LinkType _link_type = LinkType::TALKIE_LT_NONE;
-
-    // Pointer PRESERVE the polymorphism while objects don't!
+	bool _bridged = false;	///< Bridged: Can send and receive LOCAL broadcast messages too
     uint8_t _max_delay_ms = 5;
     bool _control_timing = false;
-    uint16_t _last_local_time = 0;
+    unsigned long _last_local_time = 0;	// millis() compatible
     uint16_t _last_message_timestamp = 0;
+    uint16_t _misses_count = 0;
     uint16_t _drops_count = 0;
+    uint16_t _fails_count = 0;
+
+	struct FromTalker {
+		char name[TALKIE_NAME_LEN] = {'\0'};
+		BroadcastValue broadcast = BroadcastValue::TALKIE_BC_NONE;
+	};
+	FromTalker _from_talker;
 ```
 And these are the methods which definition in the socket implementation is mandatory:
 ```cpp
@@ -240,8 +268,8 @@ This example is useful to illustrate how easy it is to include this library for 
 ### The .ino sketch for a Serial socket (115200)
 ```cpp
 #include <JsonTalkie.hpp>
-#include "S_SocketSerial.hpp"
 #include "M_SerialManifesto.hpp"
+#include "S_SocketSerial.hpp"
 
 
 const char talker_name[] = "serial";
@@ -255,7 +283,7 @@ auto& serial_socket = S_SocketSerial::instance();
 // SETTING THE REPEATER
 BroadcastSocket* uplinked_sockets[] = { &serial_socket };
 JsonTalker* downlinked_talkers[] = { &talker };
-MessageRepeater message_repeater(
+const MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
 		downlinked_talkers, sizeof(downlinked_talkers)/sizeof(JsonTalker*)
 	);
@@ -297,20 +325,19 @@ python talk.py --socket SERIAL --port COM5
 Then you can just type commands
 ```
 >>> talk
-        [talk serial]              I'm a serial talker
+    [talk serial]              I'm a serial talker
 >>> list serial
-        [call serial 0|on]         Turns led ON
-        [call serial 1|off]        Turns led OFF
+    [call serial 0|on]         Turns led ON
+    [call serial 1|off]        Turns led OFF
 >>> ping serial
-        [ping serial]              15
+    [ping serial]              15
 >>> call serial on
-        [call serial on]           roger
+    [call serial on]           roger
 >>> call serial off
-        [call serial off]          roger
+    [call serial off]          roger
 >>> call serial off
-        [call serial off]          negative        Already Off!
+    [call serial off]          negative        Already Off!
 >>>
-        Exiting...
 ```
 ## Use Cases
 Besides the simple examples shown above, there are other interesting use cases that are important to consider.
@@ -356,18 +383,20 @@ With the command `system` it's possible to get the board and the sockets associa
 	[talk green]         	   I'm a green talker
 	[talk buzzer]        	   I'm a buzzer that buzzes
 >>> system blue board
-	[system blue board]  	   ESP32 (Rev: 100)
+	[system blue board]  	   ESP32 (Rev 100) (ID 00002E334DFD714D)
 >>> system green board
 	[system green board] 	   Arduino Uno/Nano (ATmega328P)
->>> system blue socket
-	[system blue socket] 	   0	   Changed_EthernetENC
-	[system blue socket] 	   1	   S_SPI_ESP_Arduino_Master
->>> system green socket
-	[system green socket]	   0	   S_SPI_Arduino_Slave
+>>> system blue sockets
+	[system blue sockets]      0       EthernetENC_Broadcast           10
+	[system blue sockets]      1       SPI_ESP_Arduino_Master          20
+>>> system green sockets
+    [system green sockets]     0       SPI_Arduino_Slave       11
 >>>
 ```
-Note that you can have more than two boards, given that the SPI protocol allows more than a single
+Note1: You can have more than two boards in the same *platform*, given that the SPI protocol allows more than a single
 connection.
+Note2: The number after the Socket description has two algorisms, the first one is the link type, 1 for *up_linked*, and the
+seconds one is for the *bridged* condition, where 1 means bridged.
 ### Unit testing
 One difficulty in dealing with embedded development, is the ability of testing and debugging single methods,
 this can be easily accomplished with the JsonTalkie. You can create a Manifesto that does just that.
