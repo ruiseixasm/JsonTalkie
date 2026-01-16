@@ -617,7 +617,7 @@ public:
 							}
 							break;
 
-						case SystemValue::TALKIE_SYS_SOCKET:
+						case SystemValue::TALKIE_SYS_SOCKETS:
 							{
 								uint8_t sockets_count = _socketsCount();
 								for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
