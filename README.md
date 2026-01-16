@@ -4,7 +4,7 @@ A lightweight library for Arduino communication and control using JSON messages 
 
 ## Features
 
-- Bi-directional Walkie-Talkie based communication between Arduino and Python
+- Bi-directional Walkie-Talkie based communication between Arduino devices and/or Python [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy)
 - Simple command/response pattern with "Walkie-talkie" style interaction
 - Talker configuration with a Manifesto for self-describing capabilities
 - Automatic command discovery and documentation
@@ -133,15 +133,14 @@ Local messages aren't send to uplinked Sockets, except if they are up bridged.
 
 ### System Value
 This messages are exclusive to the system.
-- **undefined** - Unspecified system request
-- **board** - Board/system information request
-- **mute** - Returns or sets the mute mode
-- **drops** - Packet loss statistics
-- **delay** - Network delay configuration
-- **socket** - List Socket class names
 - **manifesto** - Show the Manifesto class name
-
-The `mute` setting is exclusive to the `call` commands in order to reduce network overhead.
+- **board** - Board/system information request
+- **sockets** - List Socket class names
+- **mute** - Returns or sets the mute mode to the `call` messages
+- **delay** - Maximum delay acceptable to a `call` message before being dropped
+- **misses** - Packets received that had a bad checksum, corrupted messages
+- **drops** - Packets received that are `call` messages and arrived later than the configured maximum delay
+- **fails** - Packets which Socket failed to send
 
 ### Repeater Rules
 The `MessageRepeater` routes the messages accordingly to its source and message value, the source
@@ -154,7 +153,7 @@ nodes.
 1. All `none` messages are dropped and thus NOT sent to any node (0 to 0).
 
 In total there are the following 5 types of nodes:
-1. `up_linked` Sockets;
+1. `up_linked` Sockets (not bridged);
 1. `up_bridged` Sockets;
 1. `down_linked` Sockets;
 1. `down_linked` Talkers;
@@ -165,11 +164,14 @@ The rules above result in the following exclusions of message transmission:
 - A Talker being `up_linked` means that it can NOT handle or transmit `remote` messages.
 
 The setting of an `up_linked` Socket into an `up_bridged` one is useful for the situation where the
-transmissions are done in the same platform considered local and thus it shall
+transmissions are done in the same platform considered as local and thus it shall
 bridge all `local` messages too.
 
 The placement of a Talker as `up_linked` is intended to keep all its transmissions as local,
 thus invisible to all remote Talkers.
+
+Note: A message can be either `remote` or `local`, so, there is no broadcast value where a message can be
+sent to remote and local Talkers in one go.
 
 ## The Talker and its Manifesto
 ### Talker
@@ -178,6 +180,14 @@ These are the attributes of a Talker:
 - **description** - A brief description of the Talker returned in response to the `talk` command
 - **channel** - A channel in order to be simultaneously target among other talkers
 - **manifesto** - The Talker manifesto that sets all its Actions in detail
+```
+>>> channel
+        [channel spy]              255
+        [channel test]             255
+        [channel blue]             255
+        [channel green]            255
+
+```
 
 ### Manifesto interface
 In the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) you can find further description and some manifesto examples for diverse type of actions and Talker methods processing, like echo and error.

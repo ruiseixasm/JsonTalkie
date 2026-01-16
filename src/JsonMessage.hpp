@@ -1653,7 +1653,10 @@ public:
 			if (key_to_position) {
 				_json_payload[key_from_position] = 't';
 				_json_payload[key_to_position] = 'f';
-				return true;	// Represents a real swap from 'from' with 'to'
+				// checks if this too isn't a channel '"t":"..."'
+				char to_string_quote = _json_payload[key_to_position + 3];
+				// Represents a real swap from 'from' with 'to' (string) if true
+				return to_string_quote == '"';	// It's a name and not a channel ('"t":123')
 			} else {
 				_json_payload[key_from_position] = 't';
 			}
