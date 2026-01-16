@@ -504,9 +504,9 @@ protected:
 
 			#ifdef BROADCAST_SPI_DEBUG
 			Serial.print(F("\t\t\t\t\tsend1: Sent message: "));
-			Serial.write(json_message._read_buffer(), _sending_length);
+			Serial.write(json_message._read_buffer(), json_message._get_length());
 			Serial.print(F("\n\t\t\t\t\tsend2: Sent length: "));
-			Serial.println(_sending_length);
+			Serial.println(json_message._get_length());
 			#endif
 			
 			#ifdef ENABLE_DIRECT_ADDRESSING

@@ -478,10 +478,10 @@ protected:
 
 			#ifdef BROADCAST_SPI_DEBUG
 			Serial.print(F("\t\t\t\t\tsend1: Sent message: "));
-			Serial.write(_sending_buffer, _sending_length);
+			Serial.write(_sending_buffer, json_message._get_length());
 			Serial.println();
 			Serial.print(F("\t\t\t\t\tsend2: Sent length: "));
-			Serial.println(_sending_length);
+			Serial.println(json_message._get_length());
 			#endif
 			
 			const char* message_buffer = json_message._read_buffer();

@@ -127,7 +127,7 @@ protected:
 				json_message._get_length()
 			);
 			Serial.print(" | ");
-			Serial.println(_sending_length);
+			Serial.println(json_message._get_length());
 			#endif
 
             if (!_udp->beginPacket(as_reply ? _from_ip : broadcastIP, _port)) {
