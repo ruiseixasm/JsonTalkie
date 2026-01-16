@@ -97,10 +97,10 @@ const char* JsonTalker::_manifesto_name() const {
 
 
 void JsonTalker::_loop() {
-	if (_trace_message.active && (uint16_t)millis() - _trace_message.identity > TALKIE_MAX_TTL) {
+	if (_trace_message.active && (uint16_t)millis() - _trace_message.identity > TALKIE_TRACE_TTL) {
 		_trace_message.active = false;
 	}
-	if (_recovery_message.active && (uint16_t)millis() - _recovery_message.identity > TALKIE_MAX_TTL) {
+	if (_recovery_message.active && (uint16_t)millis() - _recovery_message.identity > TALKIE_RECOVERY_TTL) {
 		_recovery_message.active = false;
 	}
 	if (_manifesto) _manifesto->_loop(*this);

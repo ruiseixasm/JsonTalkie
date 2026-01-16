@@ -32,8 +32,9 @@ https://github.com/ruiseixasm/JsonTalkie
 #define TALKIE_BUFFER_SIZE 128	    ///< Default buffer size for JSON message
 #define TALKIE_NAME_LEN 16			///< Default maximum length for name fields
 #define TALKIE_MAX_LEN 64			///< Default maximum length for string fields
-#define TALKIE_MAX_TTL 100			///< The maximum time to live of the transmitted message
 #define TALKIE_MAX_RETRIES 3		///< The maximum amount of retires for a not received message (checksum error)
+#define TALKIE_TRACE_TTL 200		///< The maximum time to live of the traceable message
+#define TALKIE_RECOVERY_TTL 100		///< The maximum time to live of the recoverable message
 
 
 /**
