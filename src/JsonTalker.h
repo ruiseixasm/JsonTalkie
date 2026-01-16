@@ -183,13 +183,13 @@ private:
 		MessageValue message_value = json_message.get_message_value();
 		if (message_value < MessageValue::TALKIE_MSG_ECHO) {
 
+			if (&json_message == &_recovery_message.message) return true;	// It's a resend
+
 			#ifdef JSON_TALKER_DEBUG
-			Serial.print(F("socketSend1: Setting a new identifier (i) for :"));
+			Serial.print(F("\t\t\t\t_prepareMessage1: Setting a new identifier (i) for :"));
 			json_message.write_to(Serial);
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
-
-			if (&json_message == &_recovery_message.message) return true;	// It's a resend
 
 			if (!json_message.set_identity()) return false;
 			_trace_message.identity = json_message.get_identity();
@@ -640,7 +640,7 @@ public:
 					uint16_t echo_message_id = json_message.get_identity();
 
 					#ifdef JSON_TALKER_DEBUG_NEW
-					Serial.print(F("\t\thandleTransmission2: "));
+					Serial.print(F("\t\thandleTransmission2 (echo): "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
 					Serial.print(echo_message_id);
@@ -660,6 +660,18 @@ public:
 				{
 					// Makes sure it has the same id first (error match condition)
 					uint16_t error_message_id = json_message.get_identity();
+					
+					#ifdef JSON_TALKER_DEBUG_NEW
+					Serial.print(F("\t\t\thandleTransmission2 (error): "));
+					json_message.write_to(Serial);
+					Serial.print(" | ");
+					Serial.print(error_message_id);
+					Serial.print(" | ");
+					Serial.print(_recovery_message.identity);
+					Serial.print(" | ");
+					Serial.println(_recovery_message.retries);
+					#endif
+
 					if (_recovery_message.active && error_message_id == _recovery_message.identity &&
 						talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
 

@@ -52,7 +52,7 @@ bool JsonTalker::transmitToRepeater(JsonMessage& json_message) {
 	Serial.println(sent_by_socket);  // 1 means true, 0 means false
 	#endif
 
-	if (sent_by_socket) {
+	if (sent_by_socket && &json_message != &_recovery_message.message) {
 		MessageValue message_value = json_message.get_message_value();
 		if (message_value < MessageValue::TALKIE_MSG_ECHO) {
 			_recovery_message.identity = json_message.get_identity();
