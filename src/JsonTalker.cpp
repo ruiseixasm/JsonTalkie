@@ -49,7 +49,7 @@ bool JsonTalker::transmitToRepeater(JsonMessage& json_message) {
 	
 	#ifdef JSON_TALKER_DEBUG_NEW
 	Serial.print("\t\t\t\tSent by Socket: ");
-	Serial.println(sent_by_socket);  // optional: just to add a newline after the JSON
+	Serial.println(sent_by_socket);  // 1 means true, 0 means false
 	#endif
 
 	if (sent_by_socket) {
