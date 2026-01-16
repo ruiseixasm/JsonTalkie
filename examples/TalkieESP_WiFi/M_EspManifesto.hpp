@@ -27,8 +27,6 @@ public:
     const char* class_description() const override { return "EspManifesto"; }
 
     M_EspManifesto() : TalkerManifesto() {
-		pinMode(LED_BUILTIN, OUTPUT);
-		digitalWrite(LED_BUILTIN, LOW); // Start with LED off
 	}	// Constructor
 
 
