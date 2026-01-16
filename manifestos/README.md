@@ -34,9 +34,12 @@ Here is a bare minimum example of such implementation that controls a Blue LED:
 
 #include <TalkerManifesto.hpp>
 
+
 class M_BlueManifesto : public TalkerManifesto {
 public:
 
+	// The Manifesto class description shouldn't be greater than 32 chars
+	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
     const char* class_description() const override { return "BlueManifesto"; }
 
     M_BlueManifesto(uint8_t led_pin) : TalkerManifesto(), _led_pin(led_pin)
@@ -116,7 +119,7 @@ public:
 		}
 		return false;
 	}
-
+    
 };
 
 
@@ -148,24 +151,24 @@ by the Talker Manifesto, and thus, is able to process the respective responses, 
 
 Here is an example of a Manifesto that processes the responses to its generated pings.
 ```cpp
-	void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) {
+    void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
 		(void)talker_match;	// Silence unused parameter warning
-
-		Original original_message = talker.getRecoveryMessage();
 		
 		// In condition to calculate the delay right away, no need to extra messages
 		uint16_t actual_time = static_cast<uint16_t>(millis());
 		uint16_t message_time = json_message.get_timestamp();	// must have
 		uint16_t time_delay = actual_time - message_time;
 		json_message.set_nth_value_number(0, time_delay);
-		json_message.set_nth_value_string(1, json_message.get_from_name());
+		char from_name[TALKIE_NAME_LEN];
+		json_message.get_from_name(from_name);
+		json_message.set_nth_value_string(1, from_name);
 
 		// Prepares headers for the original REMOTE sender
-		json_message.set_to_name(_original_talker.c_str());
+		json_message.set_to_name(_original_talker);
 		json_message.set_from_name(talker.get_name());
 
 		// Emulates the REMOTE original call
-		json_message.set_identity(_trace_message.identity);
+		json_message.set_identity(_trace_message_timestamp);
 
 		// It's already an ECHO message, it's because of that that entered here
 		// Finally answers to the REMOTE caller by repeating all other json fields
@@ -177,26 +180,32 @@ Here is an example of a Manifesto that processes the responses to its generated 
 The `_error` method can be used for report the errors returned by other Talkers,
 in this example the Talker Manifesto results in the printing of those errors received.
 ```cpp
-	void _error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) {
+    void _error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
 		(void)talker;		// Silence unused parameter warning
 		(void)talker_match;	// Silence unused parameter warning
 
+		char temp_string[TALKIE_MAX_LEN];
+		json_message.get_from_name(temp_string);
+		Serial.print( temp_string );
+        Serial.print(" - ");
+		
 		ValueType value_type = json_message.get_nth_value_type(0);
 		switch (value_type) {
 
 			case ValueType::TALKIE_VT_STRING:
-				Serial.println(json_message.get_nth_value_string(0));
-				break;
+				json_message.get_nth_value_string(0, temp_string);
+				Serial.println(temp_string);
+			break;
 			
 			case ValueType::TALKIE_VT_INTEGER:
 				Serial.println(json_message.get_nth_value_number(0));
-				break;
+			break;
 			
 			default:
-				Serial.println(F("Empty error received!"));
-				break;
+            	Serial.println(F("Empty echo received!"));
+			break;
 		}
-	}
+    }
 ```
 ### _noise
 The `_noise` as it implies processes messages that lost their usual meaning, this is, their usual meaning was
@@ -211,6 +220,8 @@ This is an example that just prints the first value of the 'noisy' message.
 		(void)talker;		// Silence unused parameter warning
 		(void)talker_match;	// Silence unused parameter warning
 
-		Serial.println(json_message.get_nth_value_string(0));
+		char temp_string[TALKIE_MAX_LEN];
+		json_message.get_nth_value_string(0, temp_string);
+		Serial.println(temp_string);
 	}
 ```
