@@ -28,18 +28,20 @@ public:
 
 protected:
 
-    bool _is_led_on = false;  // keep track of state yourself, by default it's off
-    uint16_t _bpm_10 = 1200;
-    uint16_t _total_calls = 0;
-
-
-    Action calls[4] = {
+    Action calls[5] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
 		{"bpm_10", "Sets the Tempo in BPM x 10"},
-		{"bpm_10", "Gets the Tempo in BPM x 10"}
+		{"bpm_10", "Gets the Tempo in BPM x 10"},
+		{"toggle", "Toggles 'blue' talker's led on and off"}
     };
     
+    bool _is_led_on = false;  // keep track of state yourself, by default it's off
+    uint16_t _bpm_10 = 1200;
+    uint16_t _total_calls = 0;
+	uint8_t _blue_led_on = 0;
+
+	
 public:
     
     const Action* _getActionsArray() const override { return calls; }
@@ -111,8 +113,24 @@ public:
                 return true;
                 break;
 				
-            // case 3:
-			// 	return _bpm_10;
+            case 3:
+				json_message.set_nth_value_number(_bpm_10);
+				return true;
+
+            case 4:
+			{
+				JsonMessage toggle_blue_on_off(BroadcastValue::TALKIE_BC_REMOTE, MessageValue::TALKIE_MSG_CALL);
+				toggle_blue_on_off.set_to_name("blue");
+				if (_blue_led_on++ % 2) {
+					toggle_blue_on_off.set_action_name("off");
+				} else {
+					toggle_blue_on_off.set_action_name("on");
+				}
+                return talker.transmitToRepeater(toggle_blue_on_off);
+			}
+            break;
+			
+			default: break;
 		}
 		return false;
 	}
