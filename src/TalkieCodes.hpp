@@ -77,8 +77,8 @@ struct TalkieCodes {
      */
     enum LinkType : uint8_t {
         TALKIE_LT_NONE,         ///< No special linkage (standalone)
-        TALKIE_LT_UP_LINKED    	///< Linked as a remote node associated to REMOTE messages
-        TALKIE_LT_DOWN_LINKED,  ///< Linked as a Local node (LOCAL and REMOTE messages)
+        TALKIE_LT_UP_LINKED,    ///< Linked as a remote node associated to REMOTE messages
+        TALKIE_LT_DOWN_LINKED   ///< Linked as a Local node (LOCAL and REMOTE messages)
     };
 
 
