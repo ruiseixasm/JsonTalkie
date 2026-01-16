@@ -117,7 +117,6 @@ protected:
 		if (!json_message._validate_json()) return;
 
 		if (!json_message._validate_checksum()) {
-			_errors_count++;
 			uint16_t message_id;
 			if (json_message.get_identity(&message_id)) {
 				JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
@@ -127,6 +126,7 @@ protected:
 				// Error messages can be anonymous messages without "from_name"
 				_finishTransmission(error_message);
 			}
+			++_errors_count;
 			return;
 		}
 
@@ -192,7 +192,6 @@ protected:
 							Serial.print(F("_startTransmission5: Out of time package (remote delay): "));
 							Serial.println(remote_delay);
 							#endif
-							_drops_count++;
 							
 							JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
 							error_message.set_to_name(_from_talker.name);
@@ -200,6 +199,7 @@ protected:
 							error_message.set_error_value(ErrorValue::TALKIE_ERR_DELAY);
 							// Error messages can be anonymous messages without "from_name"
 							_finishTransmission(error_message);
+							++_drops_count;
 							return;
 						}
 					}
