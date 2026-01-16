@@ -127,7 +127,7 @@ private:
 			
 		#elif defined(ESP8266)
 			static char buffer[50];
-			snprintf(buffer, sizeof(buffer), "ESP8266 (Chip ID %u)", ESP.getChipId());
+			snprintf(buffer, sizeof(buffer), "ESP8266 (ID %u)", ESP.getChipId());
 			return buffer;
 			
 		// Typical description 'ESP32 (Rev 100) (ID 00002C088DBF714A)' <-- 37 chars
