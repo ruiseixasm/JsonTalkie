@@ -89,7 +89,18 @@ protected:
 				int length = _udp->read(message_buffer, static_cast<size_t>(packetSize));
 				if (length == packetSize) {
 					
+					new_message._set_length(length);
 					_startTransmission(new_message);
+				} else {
+					
+					#ifdef BROADCAST_ESP_WIFI_DEBUG
+					Serial.println(F("\treceive1: Packet size miss match!"));
+					Serial.print(F("\t\tlength: "));
+					Serial.println(length);
+					Serial.print(F("\t\tpacketSize:  "));
+					Serial.println(packetSize);
+					#endif
+					
 				}
 			}
 		}
