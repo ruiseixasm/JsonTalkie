@@ -17,7 +17,7 @@ Replace in your sketch:
 ```
 With:
 ```cpp
-#include <S_EthernetENC_Broadcast.h>	// This version
+#include <EthernetENC_Broadcast.h>	// This version
 ```
 UDP sockets will now accept broadcast packets by default.
 ## Compatibility
