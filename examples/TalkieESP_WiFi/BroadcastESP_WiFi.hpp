@@ -201,7 +201,7 @@ public:
         return instance;
     }
 
-    const char* class_name() const override { return "BroadcastESP_WiFi"; }
+    const char* class_description() const override { return "BroadcastESP_WiFi"; }
 
 
     void set_port(uint16_t port) { _port = port; }

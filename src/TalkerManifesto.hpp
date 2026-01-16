@@ -56,7 +56,7 @@ class TalkerManifesto {
 public:
 
 	/** @brief A getter for the class name to be returned for the `system` command */
-    virtual const char* class_name() const = 0;
+    virtual const char* class_description() const = 0;
 
     TalkerManifesto(const TalkerManifesto&) = delete;
     TalkerManifesto& operator=(const TalkerManifesto&) = delete;

@@ -195,7 +195,7 @@ Action calls[3] = {
 ```
 Besides the calls, a Manifesto implementation should also have these mandatory methods:
 ```cpp
-const char* class_name() const override { return "BlueManifesto"; }
+const char* class_description() const override { return "BlueManifesto"; }
 const Action* _getActionsArray() const override { return calls; }
 uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
 ```
@@ -219,7 +219,7 @@ These are the member variables of the `BroadcastSocket`:
 ```
 And these are the methods which definition in the socket implementation is mandatory:
 ```cpp
-virtual const char* class_name() const = 0;
+virtual const char* class_description() const = 0;
 virtual void _receive() = 0;
 virtual bool _send(const JsonMessage& json_message) = 0;
 ```
@@ -451,7 +451,7 @@ it is used the manifesto *CallerManifesto*, that you can find in the [manifestos
 class CallerManifesto : public TalkerManifesto {
 public:
 
-    const char* class_name() const override { return "CallerManifesto"; }
+    const char* class_description() const override { return "CallerManifesto"; }
 
     CallerManifesto() : TalkerManifesto() {
 		pinMode(LED_BUILTIN, OUTPUT);
@@ -595,7 +595,7 @@ in the example *TalkieEtherCard* that contains the manifesto *BlackManifesto* th
 class BlackManifesto : public TalkerManifesto {
 public:
 
-    const char* class_name() const override { return "BlackManifesto"; }
+    const char* class_description() const override { return "BlackManifesto"; }
 
     BlackManifesto() : TalkerManifesto() {}	// Constructor
 

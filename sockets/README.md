@@ -6,7 +6,7 @@ You can see many examples of sockets right in [this same folder](https://github.
 ## Implementation
 You can always implement your own socket, by extending the `BroadcastSocket` class. To do so, you must override the following methods:
 ```cpp
-	const char* class_name() const override { return "YourSocketName"; }
+	const char* class_description() const override { return "YourSocketName"; }
 	void _receive() override {}
 	bool _send(const JsonMessage& json_message) override {}
 ```
@@ -24,7 +24,7 @@ Here is an example of such implementation for the Serial protocol:
 class SocketSerial : public BroadcastSocket {
 public:
 
-    const char* class_name() const override { return "SocketSerial"; }
+    const char* class_description() const override { return "SocketSerial"; }
 
 protected:
 

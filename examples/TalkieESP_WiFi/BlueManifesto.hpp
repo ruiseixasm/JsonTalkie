@@ -22,7 +22,7 @@ https://github.com/ruiseixasm/JsonTalkie
 class BlueManifesto : public TalkerManifesto {
 public:
 
-    const char* class_name() const override { return "BlueManifesto"; }
+    const char* class_description() const override { return "BlueManifesto"; }
 
     BlueManifesto(uint8_t led_pin) : TalkerManifesto(), _led_pin(led_pin)
 	{

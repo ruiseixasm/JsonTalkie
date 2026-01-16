@@ -27,7 +27,7 @@ https://github.com/ruiseixasm/JsonTalkie
 class SPI_Arduino_Slave : public BroadcastSocket {
 public:
 
-    const char* class_name() const override { return "SPI_Arduino_Slave"; }
+    const char* class_description() const override { return "SPI_Arduino_Slave"; }
 
     enum StatusByte : uint8_t {
         TALKIE_SB_ACK		= 0xF0, // Acknowledge

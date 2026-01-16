@@ -90,7 +90,7 @@ BroadcastSocket* JsonTalker::_getSocket(uint8_t socket_index) {
 
 const char* JsonTalker::_manifesto_name() const {
 	if (_manifesto) {
-		return _manifesto->class_name();
+		return _manifesto->class_description();
 	}
 	return nullptr;
 }

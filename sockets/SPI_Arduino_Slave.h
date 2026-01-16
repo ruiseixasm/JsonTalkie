@@ -29,7 +29,7 @@ public:
 
 	// The Socket class name string shouldn't be greater than 25 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*15) = 25
-    const char* class_name() const override { return "SPI_Arduino_Slave"; }
+    const char* class_description() const override { return "SPI_Arduino_Slave"; }
 
     enum StatusByte : uint8_t {
         TALKIE_SB_ACK		= 0xF0, // Acknowledge

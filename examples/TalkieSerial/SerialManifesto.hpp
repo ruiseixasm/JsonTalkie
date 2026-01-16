@@ -22,7 +22,7 @@ https://github.com/ruiseixasm/JsonTalkie
 class SerialManifesto : public TalkerManifesto {
 public:
 
-    const char* class_name() const override { return "SerialManifesto"; }
+    const char* class_description() const override { return "SerialManifesto"; }
 
     SerialManifesto() : TalkerManifesto() {}	// Constructor
 

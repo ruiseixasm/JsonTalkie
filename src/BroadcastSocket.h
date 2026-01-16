@@ -59,7 +59,7 @@ class MessageRepeater;
  * @brief An Interface to be implemented as a Socket to receive and send `JsonMessage` content
  * 
  * The implementation of this class requires de definition of the methods, `_receive`,
- * `_send` and `class_name`. After receiving data, the method `_startTransmission`
+ * `_send` and `class_description`. After receiving data, the method `_startTransmission`
  * shall be called.
  * 
  * @note Find `BroadcastSocket` implementation in https://github.com/ruiseixasm/JsonTalkie/tree/main/src/sockets.
@@ -147,7 +147,7 @@ protected:
 
 		#ifdef MESSAGE_DEBUG_TIMING
 		Serial.print("\n\t");
-		Serial.print(class_name());
+		Serial.print(class_description());
 		Serial.print(": ");
 		#endif
 			
@@ -253,7 +253,7 @@ public:
 
 	
 	/** @brief A getter for the class name to be returned for the `system` command */
-    virtual const char* class_name() const = 0;
+    virtual const char* class_description() const = 0;
 
 	
 	/**

@@ -22,7 +22,7 @@ https://github.com/ruiseixasm/JsonTalkie
 class Spy : public TalkerManifesto {
 public:
 
-    const char* class_name() const override { return "Spy"; }
+    const char* class_description() const override { return "Spy"; }
 
 	// Constructor
     Spy() : TalkerManifesto() {}

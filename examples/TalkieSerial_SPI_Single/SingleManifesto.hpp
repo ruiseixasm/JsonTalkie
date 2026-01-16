@@ -22,7 +22,7 @@ https://github.com/ruiseixasm/JsonTalkie
 class SingleManifesto : public TalkerManifesto {
 public:
 
-    const char* class_name() const override { return "SingleManifesto"; }
+    const char* class_description() const override { return "SingleManifesto"; }
 
     SingleManifesto() : TalkerManifesto() {}	// Constructor
 

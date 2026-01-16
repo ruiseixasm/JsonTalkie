@@ -25,7 +25,7 @@ using MessageValue = TalkieCodes::MessageValue;
 class MessageTester : public TalkerManifesto {
 public:
 
-    const char* class_name() const override { return "MessageTester"; }
+    const char* class_description() const override { return "MessageTester"; }
 
     MessageTester() : TalkerManifesto()
 	{

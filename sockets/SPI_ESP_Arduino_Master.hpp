@@ -614,7 +614,7 @@ protected:
 
 		#ifdef BROADCAST_SPI_DEBUG
 		if (_initiated) {
-			Serial.print(class_name());
+			Serial.print(class_description());
 			Serial.println(": initiate1: Socket initiated!");
 
 			Serial.print(F("\tinitiate2: Total SS pins connected: "));
@@ -646,7 +646,7 @@ public:
 
 	// The Socket class name string shouldn't be greater than 25 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*15) = 25
-    const char* class_name() const override { return "SPI_ESP_Arduino_Master"; }
+    const char* class_description() const override { return "SPI_ESP_Arduino_Master"; }
 
 
     virtual void begin(SPIClass* spi_instance) {

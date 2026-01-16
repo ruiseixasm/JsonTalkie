@@ -134,7 +134,7 @@ public:
         return instance;
     }
 
-    const char* class_name() const override { return "BroadcastSocket_EtherCard"; }
+    const char* class_description() const override { return "BroadcastSocket_EtherCard"; }
 
 };
 

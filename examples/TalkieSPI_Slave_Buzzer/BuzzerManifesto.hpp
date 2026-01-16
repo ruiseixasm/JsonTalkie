@@ -24,7 +24,7 @@ https://github.com/ruiseixasm/JsonTalkie
 class BuzzerManifesto : public TalkerManifesto {
 public:
 
-    const char* class_name() const override { return "BuzzerManifesto"; }
+    const char* class_description() const override { return "BuzzerManifesto"; }
 
     BuzzerManifesto() : TalkerManifesto() {}	// Constructor
 

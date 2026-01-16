@@ -137,7 +137,7 @@ public:
         return instance;
     }
 
-    const char* class_name() const override { return "BroadcastSocket_Ethernet"; }
+    const char* class_description() const override { return "BroadcastSocket_Ethernet"; }
 
 
     void set_port(uint16_t port) { _port = port; }

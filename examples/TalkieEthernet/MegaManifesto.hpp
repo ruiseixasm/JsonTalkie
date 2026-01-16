@@ -22,7 +22,7 @@ https://github.com/ruiseixasm/JsonTalkie
 class MegaManifesto : public TalkerManifesto {
 public:
 
-    const char* class_name() const override { return "MegaManifesto"; }
+    const char* class_description() const override { return "MegaManifesto"; }
 
     MegaManifesto() : TalkerManifesto() {}	// Constructor
 

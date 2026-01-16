@@ -23,7 +23,7 @@ https://github.com/ruiseixasm/JsonTalkie
 class SocketSerial : public BroadcastSocket {
 public:
 
-    const char* class_name() const override { return "SocketSerial"; }
+    const char* class_description() const override { return "SocketSerial"; }
 
 	#ifdef SOCKET_SERIAL_DEBUG_TIMING
 	unsigned long _reference_time = millis();
@@ -79,7 +79,7 @@ protected:
 
 				#ifdef SOCKET_SERIAL_DEBUG_TIMING
 				Serial.print("\n");
-				Serial.print(class_name());
+				Serial.print(class_description());
 				Serial.print(": ");
 				#endif
 

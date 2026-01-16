@@ -113,6 +113,9 @@ private:
      */
 	static const char* _board_description() {
 		
+		// The Board description string shouldn't be greater than 38 chars
+		// {"m":7,"f":"","s":2,"b":1,"t":"","i":60019,"0":"","c":13557} <-- 128 - (60 + 2*15) = 38
+
 		#ifdef __AVR__
 			#if (RAMEND - RAMSTART + 1) == 2048
 				return "Arduino Uno/Nano (ATmega328P)";
@@ -124,14 +127,15 @@ private:
 			
 		#elif defined(ESP8266)
 			static char buffer[50];
-			snprintf(buffer, sizeof(buffer), "ESP8266 (Chip ID: %u)", ESP.getChipId());
+			snprintf(buffer, sizeof(buffer), "ESP8266 (Chip ID %u)", ESP.getChipId());
 			return buffer;
 			
+		// Typical description 'ESP32 (Rev 100) (ID 00002C088DBF714A)' <-- 37 chars
 		#elif defined(ESP32)
 			static char buffer[TALKIE_MAX_LEN];
     		uint64_t chipId = ESP.getEfuseMac();
 			snprintf(buffer, sizeof(buffer),
-				"ESP32 (Rev: %d) (Chip ID: %08lX%08lX)",
+				"ESP32 (Rev %d) (ID %08lX%08lX)",
              	ESP.getChipRevision(),
 				(uint32_t)(chipId >> 32),  // Upper 32 bits
 				(uint32_t)chipId);         // Lower 32 bits
@@ -560,7 +564,7 @@ public:
 								for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
 									const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
 									json_message.set_nth_value_number(0, socket_i);
-									json_message.set_nth_value_string(1, socket->class_name());
+									json_message.set_nth_value_string(1, socket->class_description());
 									uint32_t link_pair = (uint32_t)socket->getLinkType() * 10 + (uint32_t)socket->isBridged();
 									json_message.set_nth_value_number(2, link_pair);
 									transmitToRepeater(json_message);	// Many-to-One

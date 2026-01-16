@@ -618,7 +618,7 @@ public:
         return instance;
     }
 
-    const char* class_name() const override { return "SPI_Arduino_Arduino_Master_Multiple"; }
+    const char* class_description() const override { return "SPI_Arduino_Arduino_Master_Multiple"; }
 
 };
 
