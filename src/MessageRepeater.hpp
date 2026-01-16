@@ -300,6 +300,7 @@ public:
      * @brief Transmits to the Repeater uplink a json message
      * @param talker The talker that is calling the method
      * @param message A json message to be transmitted
+     * @return true if successfully sent via Socket
 	 * 
      * @note This is intended to be called internally and not by the user code.
      */
@@ -318,14 +319,14 @@ public:
 
 			case BroadcastValue::TALKIE_BC_REMOTE:		// To uplinked Sockets only
 			{
-				bool message_sent = false;
+				bool sent_by_socket = false;
 				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
 					// Sockets ONLY manipulate the checksum ('c')
 					if (_uplinked_sockets[socket_j]->_finishTransmission(message)) {
-						message_sent = true;
+						sent_by_socket = true;
 					}
 				}
-				return message_sent;
+				return sent_by_socket;
 			}
 			break;
 			
@@ -380,7 +381,7 @@ public:
 									const char* talker_name = _downlinked_talkers[talker_i]->get_name();
 									if (strcmp(talker_name, message_to_name) == 0) {
 										_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
-										return true;
+										return false;	// Not sent via Socket
 									}
 								}
 							}
@@ -388,32 +389,31 @@ public:
 								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
 								if (strcmp(talker_name, message_to_name) == 0) {
 									_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
-									return true;
+									return false;		// Not sent via Socket
 								}
 							}
 						}
 					}
 					break;
 					
-					case TalkerMatch::TALKIE_MATCH_NONE: return true;
 					default: return false;
 				}
-				bool message_sent = false;
+				bool sent_by_socket = false;
 				for (uint8_t socket_j = 0; socket_j < _downlinked_sockets_count; ++socket_j) {
 					// Sockets ONLY manipulate the checksum ('c')
 					if (_downlinked_sockets[socket_j]->_finishTransmission(message)) {
-						message_sent = true;
+						sent_by_socket = true;
 					}
 				}
 				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
 					if (_uplinked_sockets[socket_j]->isBridged()) {
 						// Sockets ONLY manipulate the checksum ('c')
 						if (_uplinked_sockets[socket_j]->_finishTransmission(message)) {
-							message_sent = true;
+							sent_by_socket = true;
 						}
 					}
 				}
-				return message_sent;
+				return sent_by_socket;
 			}
 			break;
 			
@@ -421,7 +421,7 @@ public:
 			{
 				TalkerMatch talker_match = message.get_talker_match();
 				talker.handleTransmission(message, talker_match);
-				return true;
+				return false;	// Not sent via Socket
 			}
 			break;
 			
@@ -630,7 +630,7 @@ public:
 								const char* talker_name = _downlinked_talkers[talker_i]->get_name();
 								if (strcmp(talker_name, message_to_name) == 0) {
 									_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
-									return true;
+									return false;		// Not sent via Socket
 								}
 							}
 							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
@@ -638,7 +638,7 @@ public:
 									const char* talker_name = _uplinked_talkers[talker_i]->get_name();
 									if (strcmp(talker_name, message_to_name) == 0) {
 										_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
-										return true;
+										return false;	// Not sent via Socket
 									}
 								}
 							}
@@ -646,25 +646,24 @@ public:
 					}
 					break;
 					
-					case TalkerMatch::TALKIE_MATCH_NONE: return true;
 					default: return false;
 				}
-				bool message_sent = false;
+				bool sent_by_socket = false;
 				for (uint8_t socket_j = 0; socket_j < _downlinked_sockets_count; ++socket_j) {
 					// Sockets ONLY manipulate the checksum ('c')
 					if (_downlinked_sockets[socket_j]->_finishTransmission(message)) {
-						message_sent = true;
+						sent_by_socket = true;
 					}
 				}
 				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
 					if (_uplinked_sockets[socket_j]->isBridged()) {
 						// Sockets ONLY manipulate the checksum ('c')
 						if (_uplinked_sockets[socket_j]->_finishTransmission(message)) {
-							message_sent = true;
+							sent_by_socket = true;
 						}
 					}
 				}
-				return message_sent;
+				return sent_by_socket;
 			}
 			break;
 			
@@ -672,7 +671,7 @@ public:
 			{
 				TalkerMatch talker_match = message.get_talker_match();
 				talker.handleTransmission(message, talker_match);
-				return true;
+				return false;	// Not sent via Socket
 			}
 			break;
 			

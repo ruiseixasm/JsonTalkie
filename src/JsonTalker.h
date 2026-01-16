@@ -422,6 +422,7 @@ public:
     /**
      * @brief Transmits the message directly to the Repeater as talker
      * @param json_message The json message to be processed by the talker
+     * @return true if successfully sent via Socket
      * 
      * @note This method sends directly to the Repeater as talker
      */

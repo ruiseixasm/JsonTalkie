@@ -31,22 +31,22 @@ bool JsonTalker::transmitToRepeater(JsonMessage& json_message) {
 	Serial.println();  // optional: just to add a newline after the JSON
 	#endif
 
-	bool message_sent = false;
+	bool sent_by_socket = false;
 	if (_message_repeater && _prepareMessage(json_message)) {
 		switch (_link_type) {
 
 			case LinkType::TALKIE_LT_UP_LINKED:
-				message_sent = _message_repeater->_talkerDownlink(*this, json_message);
+				sent_by_socket = _message_repeater->_talkerDownlink(*this, json_message);
 				break;
 				
 			case LinkType::TALKIE_LT_DOWN_LINKED:
-				message_sent = _message_repeater->_talkerUplink(*this, json_message);
+				sent_by_socket = _message_repeater->_talkerUplink(*this, json_message);
 				break;
 
 			default: break;
 		}
 	}
-	if (message_sent) {
+	if (sent_by_socket) {
 		MessageValue message_value = json_message.get_message_value();
 		if (message_value < MessageValue::TALKIE_MSG_ECHO) {
 			_recovery_message.identity = json_message.get_identity();
@@ -55,7 +55,7 @@ bool JsonTalker::transmitToRepeater(JsonMessage& json_message) {
 			_recovery_message.retries = 0;
 		}
 	}
-	return message_sent;
+	return sent_by_socket;
 }
 
 
