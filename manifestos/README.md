@@ -149,7 +149,7 @@ Here is an example of a Manifesto that processes the responses to its generated 
 	void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) {
 		(void)talker_match;	// Silence unused parameter warning
 
-		Original original_message = talker.getTransmittedMessage();
+		Original original_message = talker.getRecoveryMessage();
 		
 		// In condition to calculate the delay right away, no need to extra messages
 		uint16_t actual_time = static_cast<uint16_t>(millis());
@@ -163,7 +163,7 @@ Here is an example of a Manifesto that processes the responses to its generated 
 		json_message.set_from_name(talker.get_name());
 
 		// Emulates the REMOTE original call
-		json_message.set_identity(_transmitted_message.identity);
+		json_message.set_identity(_trace_message.identity);
 
 		// It's already an ECHO message, it's because of that that entered here
 		// Finally answers to the REMOTE caller by repeating all other json fields

@@ -31,7 +31,7 @@ public:
 protected:
 
 	char _original_talker[TALKIE_NAME_LEN];
-	uint16_t _transmitted_message_timestamp;
+	uint16_t _trace_message_timestamp;
 
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
@@ -69,7 +69,7 @@ public:
 
 						// 1. Start by collecting info from message
 						json_message.get_from_name(_original_talker);
-						_transmitted_message_timestamp = json_message.get_identity();
+						_trace_message_timestamp = json_message.get_identity();
 
 						// 2. Repurpose it to be a LOCAL PING
 						json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
@@ -99,7 +99,7 @@ public:
 
 						// 1. Start by collecting info from message
 						 json_message.get_from_name(_original_talker);
-						_transmitted_message_timestamp = json_message.get_identity();
+						_trace_message_timestamp = json_message.get_identity();
 
 						// 2. Repurpose it to be a SELF PING
 						json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
@@ -142,7 +142,7 @@ public:
 
 						// 2. Collect info from message
 						json_message.get_from_name(_original_talker);
-						_transmitted_message_timestamp = json_message.get_identity();
+						_trace_message_timestamp = json_message.get_identity();
 
 						// 3. Repurpose message with new targets
 						json_message.remove_identity();
@@ -164,7 +164,7 @@ public:
 		(void)talker_match;	// Silence unused parameter warning
 		
 		#ifdef SPY_MANIFESTO_DEBUG
-		TransmittedMessage original_message = talker.getTransmittedMessage();
+		RecoveryMessage original_message = talker.getRecoveryMessage();
 		Serial.print(F("\t\t\tSpy::echo1: "));
 		json_message.write_to(Serial);
 		Serial.print(" | ");
@@ -185,7 +185,7 @@ public:
 		json_message.set_from_name(talker.get_name());
 
 		// Emulates the REMOTE original call
-		json_message.set_identity(_transmitted_message_timestamp);
+		json_message.set_identity(_trace_message_timestamp);
 
 		// It's already an ECHO message, it's because of that that entered here
 		// Finally answers to the REMOTE caller by repeating all other json fields

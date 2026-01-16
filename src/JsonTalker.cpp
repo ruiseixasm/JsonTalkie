@@ -46,6 +46,12 @@ bool JsonTalker::transmitToRepeater(JsonMessage& json_message) {
 			default: break;
 		}
 	}
+	if (message_sent) {
+		_recovery_message.identity = json_message.get_identity();
+		_recovery_message.message = json_message;
+		_recovery_message.active = true;
+		_recovery_message.retries = 0;
+	}
 	return message_sent;
 }
 
@@ -82,8 +88,11 @@ const char* JsonTalker::_manifesto_name() const {
 
 
 void JsonTalker::_loop() {
-	if (_transmitted_message.active && (uint16_t)millis() - _transmitted_message.identity > TALKIE_MAX_TTL) {
-		_transmitted_message.active = false;
+	if (_trace_message.active && (uint16_t)millis() - _trace_message.identity > TALKIE_MAX_TTL) {
+		_trace_message.active = false;
+	}
+	if (_recovery_message.active && (uint16_t)millis() - _recovery_message.identity > TALKIE_MAX_TTL) {
+		_recovery_message.active = false;
 	}
 	if (_manifesto) _manifesto->_loop(*this);
 }

@@ -69,7 +69,13 @@ class MessageRepeater;
 class JsonTalker {
 public:
 	
-	struct TransmittedMessage {
+	struct TraceMessage {
+		uint16_t identity;
+		MessageValue message_value;
+		bool active;
+	};
+
+	struct RecoveryMessage {
 		uint16_t identity;
 		JsonMessage message;
 		bool active;
@@ -98,7 +104,8 @@ private:
 	TalkerManifesto* _manifesto = nullptr;
     uint8_t _channel = 255;	// Channel 255 means NO channel response
     bool _muted_calls = false;
-	TransmittedMessage _transmitted_message;
+	TraceMessage _trace_message;
+	RecoveryMessage _recovery_message;
 
 
 	/**
@@ -124,7 +131,7 @@ private:
 			static char buffer[TALKIE_MAX_LEN];
     		uint64_t chipId = ESP.getEfuseMac();
 			snprintf(buffer, sizeof(buffer),
-				"ESP32 (Rev: %d) (Chip ID: %08X%08X)",
+				"ESP32 (Rev: %d) (Chip ID: %08lX%08lX)",
              	ESP.getChipRevision(),
 				(uint32_t)(chipId >> 32),  // Upper 32 bits
 				(uint32_t)chipId);         // Lower 32 bits
@@ -182,13 +189,12 @@ private:
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
 
-			if (&json_message == &_transmitted_message.message) return true;	// It's a resend
+			if (&json_message == &_recovery_message.message) return true;	// It's a resend
 
 			if (!json_message.set_identity()) return false;
-			_transmitted_message.identity = json_message.get_identity();
-			_transmitted_message.message = json_message;
-			_transmitted_message.active = true;
-			_transmitted_message.retries = 0;
+			_trace_message.identity = json_message.get_identity();
+			_trace_message.message_value = json_message.get_message_value();
+			_trace_message.active = true;
 
 		} else if (!json_message.has_identity()) { // Makes sure response messages have an "i" (identifier)
 
@@ -364,13 +370,23 @@ public:
 		return _message_repeater;
 	}
 
+
     /**
      * @brief Get the last transmitted non echo message
-     * @return Returns `TransmittedMessage` with the message id and value
+     * @return Returns `TraceMessage` with the message id and value
      * 
      * @note This is used to pair the message id with its echo
      */
-    const TransmittedMessage& getTransmittedMessage() const { return _transmitted_message; }
+    const TraceMessage& getTraceMessage() const { return _trace_message; }
+
+
+    /**
+     * @brief Get the last transmitted message to a socket
+     * @return Returns `RecoveryMessage` with the message id and value
+     * 
+     * @note This is used to pair the message id with its error
+     */
+    const RecoveryMessage& getRecoveryMessage() const { return _recovery_message; }
 
 
     // ============================================
@@ -619,21 +635,21 @@ public:
 			case MessageValue::TALKIE_MSG_ECHO:
 				if (_manifesto && talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
 
-					// Makes sure it has the same id first (echo condition)
-					uint16_t message_id = json_message.get_identity();
+					// Makes sure it has the same id first (echo match condition)
+					uint16_t echo_message_id = json_message.get_identity();
 
 					#ifdef JSON_TALKER_DEBUG_NEW
 					Serial.print(F("\t\thandleTransmission2: "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
-					Serial.print(message_id);
+					Serial.print(echo_message_id);
 					Serial.print(" | ");
-					Serial.print(_transmitted_message.identity);
+					Serial.print(_trace_message.identity);
 					Serial.print(" | ");
 					Serial.println(_name);
 					#endif
 
-					if (message_id == _transmitted_message.identity) {
+					if (echo_message_id == _trace_message.identity) {
 						_echo(json_message, talker_match);
 					}
 				}
@@ -641,19 +657,19 @@ public:
 			
 			case MessageValue::TALKIE_MSG_ERROR:
 				{
-					// Makes sure it has the same id first (echo condition)
-					uint16_t message_id = json_message.get_identity();
-					if (_transmitted_message.active && message_id == _transmitted_message.identity &&
+					// Makes sure it has the same id first (error match condition)
+					uint16_t error_message_id = json_message.get_identity();
+					if (_recovery_message.active && error_message_id == _recovery_message.identity &&
 						talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
 
 							ErrorValue error_value = json_message.get_error_value();
 							switch (error_value) {
 
 								case ErrorValue::TALKIE_ERR_CHECKSUM:
-									if (_transmitted_message.retries++ < TALKIE_MAX_RETRIES) {
-										// Retransmits as is, and because it represents the same id as _transmitted_message
-										// it won't update the _transmitted_message with a new message
-										transmitToRepeater(_transmitted_message.message);
+									if (_recovery_message.retries++ < TALKIE_MAX_RETRIES) {
+										// Retransmits as is, and because it represents the same id as _recovery_message
+										// it won't update the _recovery_message with a new message
+										transmitToRepeater(_recovery_message.message);
 									}
 								break;
 								
