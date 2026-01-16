@@ -25,7 +25,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include "M_Spy.hpp"
 #include "M_BlueManifesto.hpp"
 #include "M_MessageTester.hpp"
-#include "M_EspManifesto.hpp"
+#include "M_Esp66Manifesto.hpp"
 
 const char ssid[] = "wifiName";
 const char password[] = "wifiPassword";
@@ -54,7 +54,7 @@ JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
 // Talker (JsonMessage tester)
 const char t_esp_name[] = "esp";
 const char t_esp_desc[] = "I call on and off on the buzzer";
-M_EspManifesto caller_esp;
+M_Esp66Manifesto caller_esp;
 JsonTalker t_esp = JsonTalker(t_esp_name, t_esp_desc, &caller_esp);
 
 

@@ -19,22 +19,23 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define ESP_MANIFESTO_DEBUG
 
 
-class M_EspManifesto : public TalkerManifesto {
+class M_Esp66Manifesto : public TalkerManifesto {
 public:
 
 	// The Manifesto class name string shouldn't be greater than 32 chars
 	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
-    const char* class_description() const override { return "EspManifesto"; }
+    const char* class_description() const override { return "Esp66Manifesto"; }
 
-    M_EspManifesto() : TalkerManifesto() {
+    M_Esp66Manifesto() : TalkerManifesto() {
 	}	// Constructor
 
 
 protected:
 
 	bool _active_caller = false;
-	uint32_t _time_to_call = 0;
-	uint32_t _time_to_live = 0;
+	// Avoids the initial triggering
+	uint32_t _time_to_call = 60UL * 60 * 1000;
+	uint32_t _time_to_live = 61UL * 60 * 1000;
 
     Action calls[2] = {
 		{"active", "Gets or sets the active status"},
@@ -118,7 +119,7 @@ public:
 			_time_to_call += 60UL * 60 * 1000;			// Add 60 minutes
 		}
 		if ((int32_t)(present_time - _time_to_live) >= 0) {
-			digitalWrite(LED_BUILTIN, LOW);
+			digitalWrite(LED_BUILTIN, HIGH);	// In ESP8266 HIGH is LOW and LOW is HIGH
 			_time_to_live = _time_to_call + 1UL * 60 * 1000;	// Add 1 minute extra
 		}
 	}
@@ -130,7 +131,7 @@ public:
         (void)talker_match;	// Silence unused parameter warning
 
 		_time_to_live = _time_to_call + 1UL * 60 * 1000;		// Add 1 minute extra
-		digitalWrite(LED_BUILTIN, HIGH);
+		digitalWrite(LED_BUILTIN, LOW);	// In ESP8266 HIGH is LOW and LOW is HIGH
     }
     
 };
