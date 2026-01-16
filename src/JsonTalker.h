@@ -186,7 +186,7 @@ private:
 			if (&json_message == &_recovery_message.message) return true;	// It's a resend
 
 			#ifdef JSON_TALKER_DEBUG
-			Serial.print(F("\t\t\t\t_prepareMessage1: Setting a new identifier (i) for :"));
+			Serial.print(F("\t\t\t\t_prepareMessage1.1: Setting a new identifier (i) for :"));
 			json_message.write_to(Serial);
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
@@ -199,7 +199,7 @@ private:
 		} else if (!json_message.has_identity()) { // Makes sure response messages have an "i" (identifier)
 
 			#ifdef JSON_TALKER_DEBUG
-			Serial.print(F("socketSend1: Response message with a wrong or without an identifier, now being set (i): "));
+			Serial.print(F("\t\t\t\t_prepareMessage1.2: Response message with a wrong or without an identifier, now being set (i): "));
 			json_message.write_to(Serial);
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
@@ -213,7 +213,7 @@ private:
 		} else {
 			
 			#ifdef JSON_TALKER_DEBUG
-			Serial.print(F("socketSend1: Keeping the same identifier (i): "));
+			Serial.print(F("\t\t\t\t_prepareMessage1.3: Keeping the same identifier (i): "));
 			json_message.write_to(Serial);
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
