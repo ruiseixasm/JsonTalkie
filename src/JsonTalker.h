@@ -560,7 +560,7 @@ public:
 									const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
 									json_message.set_nth_value_number(0, socket_i);
 									json_message.set_nth_value_string(1, socket->class_name());
-									uint31_t link_pair = (uint32_t)socket->getLinkType() * 10 + (uint32_t)socket->isBridged();
+									uint32_t link_pair = (uint32_t)socket->getLinkType() * 10 + (uint32_t)socket->isBridged();
 									json_message.set_nth_value_number(2, link_pair);
 									transmitToRepeater(json_message);	// Many-to-One
 								}
