@@ -31,7 +31,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // TALKERS 
 // Ethernet Socket Repeater
-// M_Spy Talker (being sockless devoids it of answering direct remote calls, and that also works, but differently)
+// M_Spy Talker
 const char t_spy_name[] = "spy";
 const char t_spy_desc[] = "I'm a M_Spy and I spy the talkers' pings";
 M_Spy spy_manifesto;
