@@ -54,8 +54,8 @@ JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
 // Sockless Talker (JsonMessage tester)
 const char t_esp_name[] = "esp";
 const char t_esp_desc[] = "I call on and off on the buzzer";
-MessageTester message_esp;
-JsonTalker t_esp = JsonTalker(t_esp_name, t_esp_desc, &message_esp);
+EspManifesto caller_esp;
+JsonTalker t_esp = JsonTalker(t_esp_name, t_esp_desc, &caller_esp);
 
 
 // SOCKETS
