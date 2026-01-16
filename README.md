@@ -32,49 +32,48 @@ A lightweight library for Arduino communication and control using JSON messages 
 ### Typical usage
 ```
 >>> talk
-        [talk spy]                 I'm a Spy and I spy the talkers' pings
-        [talk test]                I test the JsonMessage class
-        [talk blue]                I turn led Blue on and off
-        [talk nano]                Arduino Nano
-        [talk mega]                I'm a Mega talker
-        [talk uno]                 Arduino Uno
-        [talk green]               I'm a green talker
-        [talk buzzer]              I'm a buzzer that buzzes
+    [talk spy]                 I'm a Spy and I spy the talkers' pings
+    [talk test]                I test the JsonMessage class
+    [talk blue]                I turn led Blue on and off
+    [talk nano]                Arduino Nano
+    [talk mega]                I'm a Mega talker
+    [talk uno]                 Arduino Uno
+    [talk green]               I'm a green talker
+    [talk buzzer]              I'm a buzzer that buzzes
 >>> list nano
-        [call nano 0|buzz]         Buzz for a while
-        [call nano 1|ms]           Gets and sets the buzzing duration
+    [call nano 0|buzz]         Buzz for a while
+    [call nano 1|ms]           Gets and sets the buzzing duration
 >>> call nano 0
-        [call nano 0]              roger
+    [call nano 0]              roger
 >>> ping nano
-        [ping nano]                3
+    [ping nano]                3
 >>> system nano board
-        [system nano board]        Arduino Uno/Nano (ATmega328P)
->>> system nano socket
-        [system nano socket]       0       S_BroadcastSocket_EtherCard
+    [system nano board]        Arduino Uno/Nano (ATmega328P)
+>>> system nano sockets
+    [system nano sockets]      0       BroadcastSocket_EtherCard       10
 >>> system nano manifesto
-        [system nano manifesto]    M_BlackManifesto
+    [system nano manifesto]    BlackManifesto          2
 >>> list test
-        [call test 0|all]          Tests all methods
-        [call test 1|deserialize]          Test deserialize (fill up)
-        [call test 2|compare]      Test if it's the same
-        [call test 3|has]          Test if it finds the given char
-        [call test 4|has_not]      Test if DOESN't find the given char
-        [call test 5|length]       Test it has the right length
-        [call test 6|type]         Test the type of value
-        [call test 7|validate]     Validate message fields
-        [call test 8|identity]     Extract the message identity
-        [call test 9|value]        Checks if it has a value 0
-        [call test 10|message]     Gets the message number
-        [call test 11|from]        Gets the from name string
-        [call test 12|remove]      Removes a given field
-        [call test 13|set]         Sets a given field
-        [call test 14|edge]        Tests edge cases
-        [call test 15|copy]        Tests the copy constructor
-        [call test 16|string]      Checks if it has a value 0 as string
+    [call test 0|all]          Tests all methods
+    [call test 1|deserialize]          Test deserialize (fill up)
+    [call test 2|compare]      Test if it's the same
+    [call test 3|has]          Test if it finds the given char
+    [call test 4|has_not]      Test if DOESN't find the given char
+    [call test 5|length]       Test it has the right length
+    [call test 6|type]         Test the type of value
+    [call test 7|validate]     Validate message fields
+    [call test 8|identity]     Extract the message identity
+    [call test 9|value]        Checks if it has a value 0
+    [call test 10|message]     Gets the message number
+    [call test 11|from]        Gets the from name string
+    [call test 12|remove]      Removes a given field
+    [call test 13|set]         Sets a given field
+    [call test 14|edge]        Tests edge cases
+    [call test 15|copy]        Tests the copy constructor
+    [call test 16|string]      Checks if it has a value 0 as string
 >>> call test 0
-        [call test 0]              roger
->>> exit
-	Exiting...
+    [call test 0]              roger
+>>>
 ```
 
 ## JsonTalkie architecture
@@ -182,31 +181,31 @@ These are the attributes of a Talker:
 - **manifesto** - The Talker manifesto that sets all its Actions in detail
 ```
 >>> channel
-        [channel spy]              255
-        [channel test]             255
-        [channel blue]             255
-        [channel green]            255
+    [channel spy]              255
+    [channel test]             255
+    [channel blue]             255
+    [channel green]            255
 >>> channel blue 1
-        [channel blue]             1
+    [channel blue]             1
 >>> channel green 1
-        [channel green]            1
+    [channel green]            1
 >>> channel
-        [channel spy]              255
-        [channel test]             255
-        [channel blue]             1
-        [channel green]            1
+    [channel spy]              255
+    [channel test]             255
+    [channel blue]             1
+    [channel green]            1
 >>> list 1
-        [call blue 0|on]           Turns led ON
-        [call blue 1|off]          Turns led OFF
-        [call blue 2|actions]      Returns the number of triggered Actions
-        [call green 0|on]          Turns led ON
-        [call green 1|off]         Turns led OFF
-        [call green 2|bpm_10]      Sets the Tempo in BPM x 10
-        [call green 3|bpm_10]      Gets the Tempo in BPM x 10
-        [call green 4|toggle]      Toggles 'blue' talker's led on and off
+    [call blue 0|on]           Turns led ON
+    [call blue 1|off]          Turns led OFF
+    [call blue 2|actions]      Returns the number of triggered Actions
+    [call green 0|on]          Turns led ON
+    [call green 1|off]         Turns led OFF
+    [call green 2|bpm_10]      Sets the Tempo in BPM x 10
+    [call green 3|bpm_10]      Gets the Tempo in BPM x 10
+    [call green 4|toggle]      Toggles 'blue' talker's led on and off
 >>> call 1 on
-        [call blue on]             roger
-        [call green on]            roger
+    [call blue on]             roger
+    [call green on]            roger
 >>>
 ```
 Note: The default channel `255` is a deaf channel, meaning, no Talker listens on it.
@@ -463,18 +462,18 @@ like in this example, the talker *caller* is activated and then set with the cur
 and on the action *buzz*. This is done once as it follows.
 ```
 >>> talk caller
-        [talk caller]              I'm a 60 minutes buzzer caller
+    [talk caller]              I'm a 60 minutes buzzer caller
 >>> list caller
-        [call caller 0|active]     Gets or sets the active status
-        [call caller 1|minutes]    Gets or sets the actual minutes
+    [call caller 0|active]     Gets or sets the active status
+    [call caller 1|minutes]    Gets or sets the actual minutes
 >>> call caller 0
-        [call caller 0]            roger           0
+    [call caller 0]            roger           0
 >>> call caller 0 1
-        [call caller 0]            roger           1
+    [call caller 0]            roger           1
 >>> call caller 1
-        [call caller 1]            roger           58
+    [call caller 1]            roger           58
 >>> call caller 1 3
-        [call caller 1]            roger           3
+    [call caller 1]            roger           3
 >>>
 ```
 After this, the *caller* has its minutes synced with the actual minutes and will call the *buzz* of the *nano* each hour.
