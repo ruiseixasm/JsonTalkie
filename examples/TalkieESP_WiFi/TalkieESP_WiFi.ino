@@ -39,19 +39,19 @@ const char t_spy_desc[] = "I'm a Spy and I spy the talkers' pings";
 M_Spy spy_manifesto;
 JsonTalker t_spy = JsonTalker(t_spy_name, t_spy_desc, &spy_manifesto);
 
-// Sockless Talker (blue led)
+// Talker (blue led)
 const char l_blue_name[] = "blue2";
 const char l_blue_desc[] = "I turn led Blue on and off";
 M_BlueManifesto blue_manifesto(2);
 JsonTalker l_blue = JsonTalker(l_blue_name, l_blue_desc, &blue_manifesto);
 
-// Sockless Talker (JsonMessage tester)
+// Talker (JsonMessage tester)
 const char t_tester_name[] = "test2";
 const char t_tester_desc[] = "I test the JsonMessage class";
 M_MessageTester message_tester;
 JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
 
-// Sockless Talker (JsonMessage tester)
+// Talker (JsonMessage tester)
 const char t_esp_name[] = "esp";
 const char t_esp_desc[] = "I call on and off on the buzzer";
 M_EspManifesto caller_esp;
