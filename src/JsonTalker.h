@@ -541,47 +541,38 @@ public:
 
 					switch (system_value) {
 
+						case SystemValue::TALKIE_SYS_MANIFESTO:
+							if (_manifesto) {
+								json_message.set_nth_value_string(0, _manifesto_name());
+							} else {
+								json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
+							}
+							break;
+
 						case SystemValue::TALKIE_SYS_BOARD:
 							json_message.set_nth_value_string(0, _board_description());
+							break;
+
+						case SystemValue::TALKIE_SYS_SOCKETS:
+							{
+								uint8_t sockets_count = _socketsCount();
+								for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
+									const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
+									json_message.set_nth_value_number(0, socket_i);
+									json_message.set_nth_value_string(1, socket->class_name());
+									transmitToRepeater(json_message);	// Many-to-One
+								}
+								if (!sockets_count) {
+									json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
+								} else {
+									return;	// All transmissions already done by the if condition above
+								}
+							}
 							break;
 
 						case SystemValue::TALKIE_SYS_MUTE:
 							if (!json_message.get_nth_value_boolean(0, &_muted_calls)) {
 								json_message.set_nth_value_number(0, (uint32_t)_muted_calls);
-							}
-							break;
-
-						case SystemValue::TALKIE_SYS_MISSES:
-							{
-								uint8_t sockets_count = _socketsCount();
-								for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
-									const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
-									json_message.set_nth_value_number(0, socket_i);
-									json_message.set_nth_value_number(1, socket->get_misses_count());
-									transmitToRepeater(json_message);	// Many-to-One
-								}
-								if (!sockets_count) {
-									json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
-								} else {
-									return;	// All transmissions already done by the if condition above
-								}
-							}
-							break;
-
-						case SystemValue::TALKIE_SYS_DROPS:
-							{
-								uint8_t sockets_count = _socketsCount();
-								for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
-									const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
-									json_message.set_nth_value_number(0, socket_i);
-									json_message.set_nth_value_number(1, socket->get_drops_count());
-									transmitToRepeater(json_message);	// Many-to-One
-								}
-								if (!sockets_count) {
-									json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
-								} else {
-									return;	// All transmissions already done by the if condition above
-								}
 							}
 							break;
 
@@ -617,13 +608,30 @@ public:
 							}
 							break;
 
-						case SystemValue::TALKIE_SYS_SOCKETS:
+						case SystemValue::TALKIE_SYS_MISSES:
+						case SystemValue::TALKIE_SYS_DROPS:
+						case SystemValue::TALKIE_SYS_FAILS:
 							{
 								uint8_t sockets_count = _socketsCount();
 								for (uint8_t socket_i = 0; socket_i < sockets_count; ++socket_i) {
 									const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
 									json_message.set_nth_value_number(0, socket_i);
-									json_message.set_nth_value_string(1, socket->class_name());
+									switch (system_value) {
+
+										case SystemValue::TALKIE_SYS_MISSES:
+											json_message.set_nth_value_number(1, socket->get_misses_count());
+										break;
+									
+										case SystemValue::TALKIE_SYS_DROPS:
+											json_message.set_nth_value_number(1, socket->get_drops_count());
+										break;
+									
+										case SystemValue::TALKIE_SYS_FAILS:
+											json_message.set_nth_value_number(1, socket->get_fails_count());
+										break;
+									
+										default: break;
+									}
 									transmitToRepeater(json_message);	// Many-to-One
 								}
 								if (!sockets_count) {
@@ -631,14 +639,6 @@ public:
 								} else {
 									return;	// All transmissions already done by the if condition above
 								}
-							}
-							break;
-
-						case SystemValue::TALKIE_SYS_MANIFESTO:
-							if (_manifesto) {
-								json_message.set_nth_value_string(0, _manifesto_name());
-							} else {
-								json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
 							}
 							break;
 

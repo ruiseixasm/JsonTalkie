@@ -78,6 +78,7 @@ protected:
     uint16_t _last_message_timestamp = 0;
     uint16_t _misses_count = 0;
     uint16_t _drops_count = 0;
+    uint16_t _fails_count = 0;
 
 	struct FromTalker {
 		char name[TALKIE_NAME_LEN] = {'\0'};
@@ -310,6 +311,13 @@ public:
 
 	
     /**
+     * @brief Get the total amount of sending messages fails
+     * @return Returns the number of failures in sending messages
+     */
+    uint16_t get_fails_count() const { return _fails_count; }
+
+	
+    /**
      * @brief Get the the bridged configuration of the Socket
      * @return true if bridged and false if unbridged
      */
@@ -392,6 +400,10 @@ public:
 			Serial.print(" | ");
 			Serial.print(millis() - json_message._reference_time);
 			#endif
+
+			if (!message_sent) {
+				++_fails_count;
+			}
 		}
 		return message_sent;
     }

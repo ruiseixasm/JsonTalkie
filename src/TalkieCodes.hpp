@@ -39,11 +39,8 @@ https://github.com/ruiseixasm/JsonTalkie
 /**
  * @struct TalkieCodes
  * @brief Centralized enumeration repository for the Talker communication system
- * 
- * This struct contains all enumerated types used througrm -rf ~/.config/Code/User/workspaceStorage/*
-rm -rf ~/.config/Code/CachedData/*
-rm -rf ~/.config/Code/Cache/*
-rm -rf ~/.config/Code/Backups/*hout the Talkie protocol,
+
+ * This struct contains all enumerated types used throughout the Talkie protocol,
  * providing type safety and clear intent for communication operations.
  * By default an inexistent key returns 0 as number, so, any first key bellow is
  * considered the respective default key value.
@@ -142,14 +139,14 @@ struct TalkieCodes {
      */
     enum SystemValue : uint8_t {
         TALKIE_SYS_UNDEFINED, ///< Unspecified system request
-        TALKIE_SYS_MANIFESTO  ///< Show the Manifesto class name
+        TALKIE_SYS_MANIFESTO, ///< Show the Manifesto class name
         TALKIE_SYS_BOARD,     ///< Board/system information request
         TALKIE_SYS_SOCKETS,   ///< List Socket class names
         TALKIE_SYS_MUTE,      ///< Returns or sets the mute mode
         TALKIE_SYS_DELAY,     ///< Network delay configuration
         TALKIE_SYS_MISSES,    ///< Packet loss due to bad checksum (corruption)
         TALKIE_SYS_DROPS,     ///< Packet loss due to out of time
-        TALKIE_SYS_FAILS,     ///< Packet failed to be sent
+        TALKIE_SYS_FAILS      ///< Packet failed to be sent
     };
 
 
