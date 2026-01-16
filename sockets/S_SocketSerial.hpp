@@ -25,7 +25,7 @@ public:
 
 	// The Socket class name string shouldn't be greater than 25 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*15) = 25
-    const char* class_description() const override { return "S_SocketSerial"; }
+    const char* class_description() const override { return "SocketSerial"; }
 
 	#ifdef SOCKET_SERIAL_DEBUG_TIMING
 	unsigned long _reference_time = millis();

@@ -24,7 +24,7 @@ Here is an example of such implementation for the Serial protocol:
 class S_SocketSerial : public BroadcastSocket {
 public:
 
-    const char* class_description() const override { return "S_SocketSerial"; }
+    const char* class_description() const override { return "SocketSerial"; }
 
 protected:
 

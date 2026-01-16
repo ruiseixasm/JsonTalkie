@@ -195,7 +195,7 @@ Action calls[3] = {
 ```
 Besides the calls, a Manifesto implementation should also have these mandatory methods:
 ```cpp
-const char* class_description() const override { return "M_BlueManifesto"; }
+const char* class_description() const override { return "BlueManifesto"; }
 const Action* _getActionsArray() const override { return calls; }
 uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
 ```
@@ -451,7 +451,7 @@ it is used the manifesto *M_CallerManifesto*, that you can find in the [manifest
 class M_CallerManifesto : public TalkerManifesto {
 public:
 
-    const char* class_description() const override { return "M_CallerManifesto"; }
+    const char* class_description() const override { return "CallerManifesto"; }
 
     M_CallerManifesto() : TalkerManifesto() {
 		pinMode(LED_BUILTIN, OUTPUT);
@@ -595,7 +595,7 @@ in the example *TalkieEtherCard* that contains the manifesto *M_BlackManifesto* 
 class M_BlackManifesto : public TalkerManifesto {
 public:
 
-    const char* class_description() const override { return "M_BlackManifesto"; }
+    const char* class_description() const override { return "BlackManifesto"; }
 
     M_BlackManifesto() : TalkerManifesto() {}	// Constructor
 
