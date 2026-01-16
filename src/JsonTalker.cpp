@@ -47,10 +47,13 @@ bool JsonTalker::transmitToRepeater(JsonMessage& json_message) {
 		}
 	}
 	if (message_sent) {
-		_recovery_message.identity = json_message.get_identity();
-		_recovery_message.message = json_message;
-		_recovery_message.active = true;
-		_recovery_message.retries = 0;
+		MessageValue message_value = json_message.get_message_value();
+		if (message_value < MessageValue::TALKIE_MSG_ECHO) {
+			_recovery_message.identity = json_message.get_identity();
+			_recovery_message.message = json_message;
+			_recovery_message.active = true;
+			_recovery_message.retries = 0;
+		}
 	}
 	return message_sent;
 }
