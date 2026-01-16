@@ -21,10 +21,18 @@ Here is an example of such implementation for the Serial protocol:
 
 #include <BroadcastSocket.h>
 
+
 class S_SocketSerial : public BroadcastSocket {
 public:
 
+	// The Socket class name string shouldn't be greater than 25 chars
+	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*15) = 25
     const char* class_description() const override { return "SocketSerial"; }
+
+	#ifdef SOCKET_SERIAL_DEBUG_TIMING
+	unsigned long _reference_time = millis();
+	#endif
+
 
 protected:
 
@@ -49,8 +57,7 @@ protected:
 
 						_reading_serial = false;
 
-						if (_json_message._append('}') && _json_message._validate_json()) {
-							_json_message._validate_checksum();	// Has to validate and process the checksum
+						if (_json_message._append('}')) {
 							_startTransmission(_json_message);
 						}
 						return;
@@ -65,6 +72,7 @@ protected:
 				
 				_json_message._set_length(0);
 				_reading_serial = true;
+
 				_json_message._append('{');
 			}
 		}
@@ -154,7 +162,7 @@ it can be used via Wi-Fi too without the latency referred above, 4 instead of 10
 ```
 #### Dependencies
 This library is the adaptation of the EthernetENC library that allows the needed broadcast via UDP. You need to download the zip from
-the [S_EthernetENC_Broadcast repository](https://github.com/ruiseixasm/S_EthernetENC_Broadcast) as zip and then unzip it in the *libraries* Arduino folder.
+the [EthernetENC_Broadcast repository](https://github.com/ruiseixasm/EthernetENC_Broadcast) as zip and then unzip it in the *libraries* Arduino folder.
 ### S_BroadcastSocket_Ethernet
 #### Description
 This socket is intended to be used with the original [Arduino Ethernet board](https://docs.arduino.cc/retired/shields/arduino-ethernet-shield-without-poe-module/),
