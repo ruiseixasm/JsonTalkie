@@ -25,6 +25,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include "Spy.hpp"
 #include "BlueManifesto.hpp"
 #include "MessageTester.hpp"
+#include "EspManifesto.hpp"
 
 const char ssid[] = "wifiName";
 const char password[] = "wifiPassword";
@@ -50,6 +51,12 @@ const char t_tester_desc[] = "I test the JsonMessage class";
 MessageTester message_tester;
 JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
 
+// Sockless Talker (JsonMessage tester)
+const char t_esp_name[] = "esp";
+const char t_esp_desc[] = "I call on and off on the buzzer";
+MessageTester message_esp;
+JsonTalker t_esp = JsonTalker(t_esp_name, t_esp_desc, &message_esp);
+
 
 // SOCKETS
 
@@ -59,7 +66,7 @@ auto& ethernet_socket = BroadcastESP_WiFi::instance();
 
 // SETTING THE REPEATER
 BroadcastSocket* uplinked_sockets[] = { &ethernet_socket };
-JsonTalker* downlinked_talkers[] = { &t_spy, &t_tester, &l_blue };
+JsonTalker* downlinked_talkers[] = { &t_spy, &t_tester, &l_blue, &t_esp };
 const MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
 		downlinked_talkers, sizeof(downlinked_talkers)/sizeof(JsonTalker*)
