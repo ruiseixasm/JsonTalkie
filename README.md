@@ -209,7 +209,7 @@ These are the attributes of a Talker:
         [call green on]            roger
 >>>
 ```
-Note: The default channel `255` it's a deaf channel, meaning, no Talker is targeted with it.
+Note: The default channel `255` is a deaf channel, meaning, no Talker listens on it.
 ### Manifesto interface
 In the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) you can find further description and some manifesto examples for diverse type of actions and Talker methods processing, like echo and error.
 
