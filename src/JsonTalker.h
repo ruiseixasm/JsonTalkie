@@ -544,6 +544,7 @@ public:
 						case SystemValue::TALKIE_SYS_MANIFESTO:
 							if (_manifesto) {
 								json_message.set_nth_value_string(0, _manifesto_name());
+								json_message.set_nth_value_number(1, (uint32_t)getLinkType());
 							} else {
 								json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
 							}
