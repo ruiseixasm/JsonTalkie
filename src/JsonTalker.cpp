@@ -46,6 +46,12 @@ bool JsonTalker::transmitToRepeater(JsonMessage& json_message) {
 			default: break;
 		}
 	}
+	
+	#ifdef JSON_TALKER_DEBUG_NEW
+	Serial.print("\t\t\t\tSent by Socket" );
+	Serial.println(sent_by_socket);  // optional: just to add a newline after the JSON
+	#endif
+
 	if (sent_by_socket) {
 		MessageValue message_value = json_message.get_message_value();
 		if (message_value < MessageValue::TALKIE_MSG_ECHO) {
