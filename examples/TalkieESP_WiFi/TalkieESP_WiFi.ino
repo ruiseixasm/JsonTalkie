@@ -1,24 +1,18 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    TalkieESP_WiFi.ino
+ * @author  Rui Seixas Monteiro
+ * @brief   An WiFi Socket where many Manifestos are used.
+ *
+ * This sketch demonstrates how you can remotely turn on and off the board led.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie
+ * 
+ * Hardware:
+ * - An ESP8266, ESP8285 or ESP32 board with a built-in LED (LED_BUILTIN)
+ *
+ * Created: 2026-01-15
+ */
 
-// To upload a sketch to an ESP32, when the "......." appears press the button BOOT for a while
-
-// LED_BUILTIN is already defined by ESP32 platform
-// Typically GPIO2 for most ESP32 boards
-#ifndef LED_BUILTIN
-  #define LED_BUILTIN 2  // Fallback definition if not already defined
-#endif
 
 #include <JsonTalkie.hpp>
 #include "S_BroadcastESP_WiFi.hpp"
@@ -27,8 +21,14 @@ https://github.com/ruiseixasm/JsonTalkie
 #include "M_MessageTester.hpp"
 #include "M_Esp66Manifesto.hpp"
 
+
 const char ssid[] = "wifiName";
 const char password[] = "wifiPassword";
+
+
+#ifndef LED_BUILTIN
+  #define LED_BUILTIN 2  // Fallback definition if not already defined
+#endif
 
 
 // TALKERS 

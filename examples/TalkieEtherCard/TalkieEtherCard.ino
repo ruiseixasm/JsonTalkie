@@ -1,22 +1,27 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
-// #include <avr/pgmspace.h>
+/**
+ * @file    TalkieEtherCard.ino
+ * @author  Rui Seixas Monteiro
+ * @brief   A very light script able to work in low memory Arduino boards.
+ *
+ * This sketch demonstrates how you can remotely trigger a buzzer and configure
+ * it's duration in milliseconds remotely too.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie
+ * 
+ * Hardware:
+ * - Any Arduino board with a buzzer on pin 3 (you may change it bellow)
+ *
+ * Created: 2026-01-15
+ */
 
 
 #include <JsonTalkie.hpp>
 #include "S_BroadcastSocket_EtherCard.h"
 #include "M_BlackManifesto.hpp"
+
+
+// Buzzer pin
+#define buzzer_pin 3
 
 
 // Adjust the Ethercard buffer size to the absolutely minimum needed
@@ -71,10 +76,6 @@ const MessageRepeater message_repeater(
 		downlinked_talkers, sizeof(downlinked_talkers)/sizeof(JsonTalker*)
 	);
 
-
-
-// Buzzer pin
-#define buzzer_pin 3
 
 void setup() {
     // Serial is a singleton class (can be began multiple times)
