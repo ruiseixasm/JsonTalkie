@@ -1611,11 +1611,16 @@ public:
 	}
 
 
+	// The Manifesto class description shouldn't be greater than 54 chars
+	// {"m":7,"b":1,"i":58485,"f":"","t":"","0":"","c":11266} <-- 128 - (54 + 2*10) = 54
+
     /**
      * @brief Set nth value as string
      * @param nth Index 0-9
      * @param in_string String value
      * @return true if successful
+	 * 
+	 * @note a string can't be bigger than TALKIE_MAX_LEN
      */
 	bool set_nth_value_string(uint8_t nth, const char* in_string) {
 		if (nth < 10) {
