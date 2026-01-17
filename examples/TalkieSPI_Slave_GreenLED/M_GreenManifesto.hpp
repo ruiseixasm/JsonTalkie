@@ -35,7 +35,7 @@ protected:
 		{"off", "Turns led OFF"},
 		{"bpm_10", "Sets the Tempo in BPM x 10"},
 		{"bpm_10", "Gets the Tempo in BPM x 10"},
-		{"toggle", "Toggles 'blue' talker's led on and off"}
+		{"toggle", "Toggles 'blue' led on and off"}
     };
     
     bool _is_led_on = false;  // keep track of state yourself, by default it's off

@@ -214,7 +214,7 @@ These are the attributes of a Talker:
     [call green 1|off]         Turns led OFF
     [call green 2|bpm_10]      Sets the Tempo in BPM x 10
     [call green 3|bpm_10]      Gets the Tempo in BPM x 10
-    [call green 4|toggle]      Toggles 'blue' talker's led on and off
+    [call green 4|toggle]      Toggles 'blue' led on and off
 >>> call 1 on
     [call blue on]             roger
     [call green on]            roger

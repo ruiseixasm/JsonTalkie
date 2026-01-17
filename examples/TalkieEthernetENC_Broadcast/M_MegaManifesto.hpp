@@ -34,7 +34,7 @@ protected:
     Action calls[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
-		{"toggle", "Toggles 'blue' talker's led on and off"}
+		{"toggle", "Toggles 'blue' led on and off"}
     };
     
     bool _is_led_on = false;  // keep track of state yourself, by default it's off
