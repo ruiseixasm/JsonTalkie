@@ -145,9 +145,7 @@ struct TalkieCodes {
         TALKIE_SYS_SOCKETS,   ///< List Socket class names
         TALKIE_SYS_MUTE,      ///< Returns or sets the mute mode
         TALKIE_SYS_DELAY,     ///< Network delay configuration
-        TALKIE_SYS_MISSES,    ///< Packet loss due to bad checksum (corruption)
-        TALKIE_SYS_DROPS,     ///< Packet loss due to out of time
-        TALKIE_SYS_FAILS      ///< Packet failed to be sent
+        TALKIE_SYS_ERRORS     ///< Represents all Socket errors, misses, drops and fails
     };
 
 
