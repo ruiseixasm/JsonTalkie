@@ -140,6 +140,7 @@ protected:
 				json_message.get_broadcast_value(&_from_talker.broadcast)
 			)) {
 
+				++_invalids_count;
 				return;	// If fields exist they must be valid
 			}
 		}

@@ -467,7 +467,7 @@ public:
 							index_found_i = _actionIndex(index_found_i);
 						} else {
 							char action_name[TALKIE_NAME_LEN];
-							if (json_message.get_action_name(action_name)) {
+							if (json_message.get_action_name(action_name, TALKIE_NAME_LEN)) {
 								index_found_i = _actionIndex(action_name);
 							}
 						}

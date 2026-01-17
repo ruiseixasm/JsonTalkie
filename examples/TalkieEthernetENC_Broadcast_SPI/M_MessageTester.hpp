@@ -40,7 +40,7 @@ public:
 
 protected:
 
-    Action calls[17] = {
+    Action calls[18] = {
 		{"all", "Tests all methods"},
 		{"parse_json", "Test deserialize (fill up)"},
 		{"compare", "Test if it's the same"},
@@ -57,7 +57,8 @@ protected:
 		{"edge", "Tests edge cases"},
 		{"copy", "Tests the copy constructor"},
 		{"string", "Has a value 0 as string"},
-		{"oversized", "Tries to set an oversized name"}
+		{"oversized", "Tries to set an oversized name"},
+		{"invalid", "Tries to get an oversized name"}
     };
     
 public:
@@ -338,7 +339,17 @@ public:
 			}
 			break;
 				
+			case 17:
+			{
+				const char oversized_name[] = "{\"m\":7,\"b\":0,\"f\":\"01234567890\",\"i\":13825,\"t\":\"01234567890\"}";
+				JsonMessage oversized_json_message;
+				oversized_json_message.deserialize_buffer(oversized_name, sizeof(oversized_name) - 1);
+				char from_name[TALKIE_NAME_LEN];
+				return !oversized_json_message.get_from_name(0, from_name, TALKIE_NAME_LEN);
+			}
+			break;
 
+			
             default: return false;
 		}
 		return false;

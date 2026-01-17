@@ -1131,13 +1131,10 @@ public:
      * @brief Get sender name
      * @param name An array of at least TALKIE_NAME_LEN (16)
      * @param size The size of TALKIE_NAME_LEN or more
-     * @return false if name non existent
+     * @return false if name is non existent or non conformant to TALKIE_NAME_LEN
      */
     bool get_from_name(char* name, size_t size = TALKIE_NAME_LEN) const {
-        if (_get_value_string('f', name, size)) {
-            return true;
-        }
-        return false;  // failed
+        return _get_value_string('f', name, size > TALKIE_NAME_LEN ? TALKIE_NAME_LEN : size);
     }
 
 
@@ -1145,13 +1142,10 @@ public:
      * @brief Get sender name
      * @param name An array of at least TALKIE_NAME_LEN (16)
      * @param size The size of TALKIE_NAME_LEN or more
-     * @return false if name non existent
+     * @return false if name is non existent or non conformant to TALKIE_NAME_LEN
      */
     bool get_to_name(char* name, size_t size = TALKIE_NAME_LEN) const {
-        if (_get_value_string('t', name, size)) {
-            return true;
-        }
-        return false;  // failed
+        return _get_value_string('t', name, size > TALKIE_NAME_LEN ? TALKIE_NAME_LEN : size);
     }
 	
 
@@ -1348,13 +1342,10 @@ public:
      * @brief Get action name
      * @param name An array of at least TALKIE_NAME_LEN (16)
      * @param size The size of TALKIE_NAME_LEN or more
-     * @return false if name non existent
+     * @return false if name is non existent or non conformant to TALKIE_NAME_LEN
      */
     bool get_action_name(char* name, size_t size = TALKIE_NAME_LEN) const {
-        if (_get_value_string('a', name, size)) {
-            return true;
-        }
-        return false;  // failed
+        return _get_value_string('a', name, size > TALKIE_NAME_LEN ? TALKIE_NAME_LEN : size);
     }
 
 
