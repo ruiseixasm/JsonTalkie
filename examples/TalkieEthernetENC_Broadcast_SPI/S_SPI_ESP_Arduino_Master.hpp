@@ -644,8 +644,8 @@ public:
         return instance;
     }
 
-	// The Socket class description shouldn't be greater than 25 chars
-	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*15) = 25
+	// The Socket class description shouldn't be greater than 35 chars
+	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*10) = 35
     const char* class_description() const override { return "SPI_ESP_Arduino_Master"; }
 
 

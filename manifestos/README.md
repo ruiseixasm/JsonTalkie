@@ -7,8 +7,8 @@ You can see many examples of manifestos right in [this same folder](https://gith
 You can create many Manifestos to different scenarios by extending the `TalkerManifesto` class.
 To do so, you must override, at least, the following methods:
 ```cpp
-	// The Manifesto class description shouldn't be greater than 32 chars
-	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
+	// The Manifesto class description shouldn't be greater than 42 chars
+	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*10) = 42
 	const char* class_description() const override { return "LedManifesto"; }
 	const Action* _getActionsArray() const override { return calls; }
     uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
@@ -38,8 +38,8 @@ Here is a bare minimum example of such implementation that controls a Blue LED:
 class M_BlueManifesto : public TalkerManifesto {
 public:
 
-	// The Manifesto class description shouldn't be greater than 32 chars
-	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*15) = 32
+	// The Manifesto class description shouldn't be greater than 42 chars
+	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*10) = 42
     const char* class_description() const override { return "BlueManifesto"; }
 
     M_BlueManifesto(uint8_t led_pin) : TalkerManifesto(), _led_pin(led_pin)
