@@ -121,7 +121,7 @@ protected:
 
 		if (!json_message._validate_checksum()) {
 			uint16_t message_id;
-			if (json_message.get_identity(&message_id)) {
+			if (json_message.get_identity(&message_id) && _from_talker.name[0] != '\0') {	// a valid from_talker name
 				JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
 				error_message.set_to_name(_from_talker.name);
 				error_message.set_identity(message_id);
@@ -197,12 +197,14 @@ protected:
 							Serial.println(remote_delay);
 							#endif
 							
-							JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
-							error_message.set_to_name(_from_talker.name);
-							error_message.set_identity(json_message.get_identity());	// Already validated with checksum
-							error_message.set_error_value(ErrorValue::TALKIE_ERR_DELAY);
-							// Error messages can be anonymous messages without "from_name"
-							_finishTransmission(error_message);
+							if (_from_talker.name[0] != '\0') {	// a valid from_talker name
+								JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
+								error_message.set_to_name(_from_talker.name);
+								error_message.set_identity(json_message.get_identity());	// Already validated with checksum
+								error_message.set_error_value(ErrorValue::TALKIE_ERR_DELAY);
+								// Error messages can be anonymous messages without "from_name"
+								_finishTransmission(error_message);
+							}
 							++_drops_count;
 							return;
 						}
