@@ -74,6 +74,7 @@ protected:
     bool _control_timing = false;
     unsigned long _last_local_time = 0;	// millis() compatible
     uint16_t _last_message_timestamp = 0;
+    uint16_t _invalids_count = 0;
     uint16_t _misses_count = 0;
     uint16_t _drops_count = 0;
     uint16_t _fails_count = 0;
@@ -114,8 +115,7 @@ protected:
     void _startTransmission(JsonMessage& json_message) {
 
 		if (!json_message._validate_json()) {
-			
-			++_misses_count;	// Still counts as a miss
+			++_invalids_count;
 			return;
 		}
 
@@ -299,7 +299,14 @@ public:
 
 
     /**
-     * @brief Get the total amount of errors in transmission
+     * @brief Get the total amount of invalids in transmission
+     * @return Returns the number of failed transmissions due to not having a valid json formatting
+     */
+    uint16_t get_invalids_count() const { return _invalids_count; }
+
+	
+    /**
+     * @brief Get the total amount of misses in transmission
      * @return Returns the number of failed transmissions, wrong checksum
      */
     uint16_t get_misses_count() const { return _misses_count; }

@@ -624,10 +624,11 @@ public:
 									
 									json_message.set_nth_value_number(0, socket_i);
 									const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
-									// {"m":7,"s":6,"b":1,"i":12345,"f":"","t":"","0":255,"1":12345,"2":12345,"3":12345,"c":12345} <-- 128 - (91 + 2*15) = 7 (>= 0 OK!)
-									json_message.set_nth_value_number(1, socket->get_misses_count());
-									json_message.set_nth_value_number(2, socket->get_drops_count());
-									json_message.set_nth_value_number(3, socket->get_fails_count());
+									// {"m":7,"s":6,"b":1,"i":12345,"f":"","t":"","0":255,"1":12345,"2":12345,"3":12345,"4":12345,"c":12345} <-- 128 - (101 + 2*10) = 7 (>= 0 OK!)
+									json_message.set_nth_value_number(1, socket->get_invalids_count());
+									json_message.set_nth_value_number(2, socket->get_misses_count());
+									json_message.set_nth_value_number(3, socket->get_drops_count());
+									json_message.set_nth_value_number(4, socket->get_fails_count());
 					
 									transmitToRepeater(json_message);	// Many-to-One
 								}
