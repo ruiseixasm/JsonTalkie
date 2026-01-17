@@ -214,10 +214,6 @@ private:
 				json_message.set_error_value(ErrorValue::TALKIE_ERR_IDENTITY)
 			)) return false;
 
-		} else if (message_value == MessageValue::TALKIE_MSG_ECHO) {
-
-			return !json_message.is_no_reply();
-
 		} else {
 			
 			#ifdef JSON_TALKER_DEBUG
@@ -226,6 +222,7 @@ private:
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
 
+			return !json_message.is_no_reply();	// No replies applies to errors and echoes
 		}
 		return true;
 	}
