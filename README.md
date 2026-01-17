@@ -80,15 +80,16 @@ A lightweight library for Arduino communication and control using JSON messages 
 The json message has a maximum size of **128 bytes**, so, definitions like names and descriptions must be limited in size too,
 or miss transmission may occur. This way, the following maximum sizes must be respected to avoid miss transmissions.
 ### Names
-- **Talker** - The Talker `name` can't in any circumstance be more than **10 chars**.
-- **Action** - The Action `name` can't in any circumstance be more than **10 chars**.
+- **Talker** - The Talker `name` can't be in any circumstance more than **10 chars**.
+- **Action** - The Action `name` can't be in any circumstance more than **10 chars**.
 ### Descriptions
-- **Talker** - The Talker `description` *together* with its `name` can't be more than **54 chars**.
-- **Action** - The Action `description` *together* with its `name` can't be more than **40 chars**.
-- **Socket** - The description of the `BroadcastSocket` implementation can't be more than **35 chars**.
-- **Action** - The description of the `TalkerManifesto` implementation can't be more than **42 chars**.
-- **other** - Any other `description` can't in any circumstance be more than **54 chars**, however being less than that doesn't guarantee
-by itself transmission, by other words, avoid big sized descriptions in `nth` transmitted strings.
+- **Talker** - The Talker `description` *together* with its `name` shouldn't be more than **54 chars**.
+- **Action** - The Action `description` *together* with its `name` shouldn't be more than **40 chars**.
+- **Socket** - The description of the `BroadcastSocket` implementation shouldn't be more than **35 chars**.
+- **Action** - The description of the `TalkerManifesto` implementation shouldn't be more than **42 chars**.
+- **any** - Any `description` can't be in any circumstance more than **54 chars**, however, in `nth` transmitted strings,
+being less than that doesn't guarantee transmission by itself , in other words, avoid big sized descriptions
+in `nth` transmitted strings.
 
 ## JsonTalkie architecture
 The center class is the `MessageRepeater` class, this class routes the JsonMessage between Uplinked
