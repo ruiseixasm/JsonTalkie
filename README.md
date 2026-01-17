@@ -76,11 +76,24 @@ A lightweight library for Arduino communication and control using JSON messages 
 >>>
 ```
 
+## Maximum sizes
+The json message has a maximum size of **128 bytes**, so, definitions like names and descriptions must be limited in size too,
+or miss transmission may occur. This way, the following maximum sizes must be respected to avoid miss transmissions.
+### Names
+- **Talker** - The Talker and Action `name` can't in any circumstance be more than **10 chars**.
+- **Action** - The Talker and Action `name` can't in any circumstance be more than **10 chars**.
+### Descriptions
+- **Talker** - The Talker `description` *together* with its `name` can't be more than **54 chars**.
+- **Action** - The Action `description` *together* with its `name` can't be more than **40 chars**.
+- **Socket** - The description of the `BroadcastSocket` implementation can't be more than **35 chars**.
+- **Action** - The description of the `TalkerManifesto` implementation can't be more than **42 chars**.
+- **other** - Any other `description` can't in any circumstance be more than **54 chars**, however being less than that doesn't guarantee
+by itself transmission, by other words, avoid big sized descriptions in `nth` transmitted strings.
+
 ## JsonTalkie architecture
-## Description
 The center class is the `MessageRepeater` class, this class routes the JsonMessage between Uplinked
 Talkers and Sockets and Downlinked Talkers and Sockets.
-## Repeater diagram
+### Repeater diagram
 ![The Repeater](repeater.png)
 
 The Repeater works in similar fashion as an HAM radio repeater on the top of a mountain, with a clear distinction of Uplinked and Downlinked communications, where the Uplinked nodes are considered remote nodes and the downlinked nodes are considered local nodes.
@@ -98,7 +111,7 @@ The Repeater works in similar fashion as an HAM radio repeater on the top of a m
 +---------------------------+  +---------------------------+
 ```
 
-## Talker diagram
+### Talker diagram
 ```
 +--------+
 | Talker |
@@ -108,20 +121,6 @@ The Repeater works in similar fashion as an HAM radio repeater on the top of a m
      | Manifesto |
      +-----------+
 ```
-## Maximum sizes
-The json message has a maximum size of **128 bytes**, so, definitions like names and descriptions must be limited in size too,
-or miss transmission may occur. This way, the following maximum sizes must be respected to avoid miss transmissions.
-### Names
-**Talker** - The Talker and Action `name` can't in any circumstance be more than **10 chars**.
-**Action** - The Talker and Action `name` can't in any circumstance be more than **10 chars**.
-### Descriptions
-**Talker** - The Talker `description` *together* with its `name` can't be more than **54 chars**.
-**Action** - The Action `description` *together* with its `name` can't be more than **40 chars**.
-**Socket** - The description of the `BroadcastSocket` implementation can't be more than **35 chars**.
-**Action** - The description of the `TalkerManifesto` implementation can't be more than **42 chars**.
-**other** - Any other `description` can't in any circumstance be more than **54 chars**, however being less than that doesn't guarantee
-by itself transmission, by other words, avoid big sized descriptions in `nth` transmitted strings.
-
 ## Message protocol
 The extensive list of all Values is in the structure `TalkieCodes`.
 ### Message Value
