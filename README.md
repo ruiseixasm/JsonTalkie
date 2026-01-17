@@ -209,7 +209,7 @@ These are the attributes of a Talker:
 >>> list 1
     [call blue 0|on]           Turns led ON
     [call blue 1|off]          Turns led OFF
-    [call blue 2|actions]      Returns the number of triggered Actions
+    [call blue 2|actions]      Total of triggered Actions
     [call green 0|on]          Turns led ON
     [call green 1|off]         Turns led OFF
     [call green 2|bpm_10]      Sets the Tempo in BPM x 10
@@ -232,7 +232,7 @@ An example of a calls array:
 Action calls[3] = {
 	{"on", "Turns led ON"},
 	{"off", "Turns led OFF"},
-	{"actions", "Returns the number of triggered Actions"}
+	{"actions", "Total of triggered Actions"}
 };
 ```
 Besides the calls, a Manifesto implementation should also have these mandatory methods:

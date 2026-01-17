@@ -19,7 +19,7 @@ that depending on the number of the actions, it shall follow the following struc
     Action calls[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
-		{"actions", "Returns the number of triggered Actions"}
+		{"actions", "Total of triggered Actions"}
     };
 ```
 This structure is a list of `Action` objects with a name and a description of the respective `Action`.
@@ -63,7 +63,7 @@ protected:
     Action calls[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
-		{"actions", "Returns the number of triggered Actions"}
+		{"actions", "Total of triggered Actions"}
     };
     
 public:

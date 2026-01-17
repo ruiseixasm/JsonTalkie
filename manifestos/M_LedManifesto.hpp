@@ -47,7 +47,7 @@ protected:
     Action calls[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
-		{"actions", "Returns the number of triggered Actions"}
+		{"actions", "Total of triggered Actions"}
     };
     
 public:
