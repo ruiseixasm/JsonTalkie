@@ -40,7 +40,7 @@ public:
 
 protected:
 
-    Action calls[16] = {
+    Action calls[17] = {
 		{"all", "Tests all methods"},
 		{"parse_json", "Test deserialize (fill up)"},
 		{"compare", "Test if it's the same"},
@@ -56,7 +56,8 @@ protected:
 		{"set", "Sets a given field"},
 		{"edge", "Tests edge cases"},
 		{"copy", "Tests the copy constructor"},
-		{"string", "Has a value 0 as string"}
+		{"string", "Has a value 0 as string"},
+		{"oversized", "Tries to set an oversized name"}
     };
     
 public:
@@ -327,6 +328,13 @@ public:
 			case 15:
 			{
 				return test_json_message.has_nth_value_string(0);
+			}
+			break;
+				
+			case 16:
+			{
+				const char oversized_name[] = "01234567890";	// 11 sized + '\0'
+				return !json_message.set_nth_value_string(0, oversized_name, TALKIE_NAME_LEN);	// Has to fail
 			}
 			break;
 				

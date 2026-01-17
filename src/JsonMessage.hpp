@@ -435,49 +435,52 @@ private:
      */
 	bool _set_string(char key, const char* in_string, size_t size, size_t colon_position = 4) {
 		if (in_string) {
-			size_t length = 0;
+			size_t string_length = 0;
 			for (size_t char_j = 0; in_string[char_j] != '\0' && char_j < TALKIE_BUFFER_SIZE && char_j < size; char_j++) {
-				length++;
+				string_length++;
 			}
-			// It can have empty strings too, so, a length can be 0!
-			colon_position = _get_colon_position(key, colon_position);
-			if (colon_position) _remove(key, colon_position);
-			// the usual key + 4 plus + 2 for both '"' and the + 1 due to the heading ',' needed to be added
-			size_t new_length = _json_length + length + 1 + 4 + 2;
-			if (new_length > TALKIE_BUFFER_SIZE) {
-				return false;
-			}
-			// Sets the key json data
-			char json_key[] = ",\"k\":";
-			json_key[2] = key;
-			// length to position requires - 1 and + 5 for the key (at '}' position + 5)
-			size_t setting_position = _json_length - 1 + 5;
-			if (_json_length > 2) {
-				for (size_t char_j = 0; char_j < 5; char_j++) {
-					_json_payload[_json_length - 1 + char_j] = json_key[char_j];
+			// Can't go beyond the in_string size without '\0' char (last char must be present BUT not counted thus the '<')
+			if (string_length < size) {
+				// It can have empty strings too, so, a string_length can be 0!
+				colon_position = _get_colon_position(key, colon_position);
+				if (colon_position) _remove(key, colon_position);
+				// the usual key + 4 plus + 2 for both '"' and the + 1 due to the heading ',' needed to be added
+				size_t new_length = _json_length + string_length + 1 + 4 + 2;
+				if (new_length > TALKIE_BUFFER_SIZE) {
+					return false;
 				}
-			} else if (_json_length == 2) {	// Edge case of '{}'
-				new_length--;	// Has to remove the extra ',' considered above
-				setting_position--;
-				for (size_t char_j = 1; char_j < 5; char_j++) {
-					_json_payload[_json_length - 1 + char_j - 1] = json_key[char_j];
+				// Sets the key json data
+				char json_key[] = ",\"k\":";
+				json_key[2] = key;
+				// string_length to position requires - 1 and + 5 for the key (at '}' position + 5)
+				size_t setting_position = _json_length - 1 + 5;
+				if (_json_length > 2) {
+					for (size_t char_j = 0; char_j < 5; char_j++) {
+						_json_payload[_json_length - 1 + char_j] = json_key[char_j];
+					}
+				} else if (_json_length == 2) {	// Edge case of '{}'
+					new_length--;	// Has to remove the extra ',' considered above
+					setting_position--;
+					for (size_t char_j = 1; char_j < 5; char_j++) {
+						_json_payload[_json_length - 1 + char_j - 1] = json_key[char_j];
+					}
+				} else {
+					_reset();	// Something very wrong, needs to be reset
+					return false;
 				}
-			} else {
-				_reset();	// Something very wrong, needs to be reset
-				return false;
+				// Adds the first char '"'
+				_json_payload[setting_position++] = '"';
+				// To be added, it has to be from right to left
+				for (size_t char_j = 0; char_j < string_length; char_j++) {
+					_json_payload[setting_position++] = in_string[char_j];
+				}
+				// Adds the second char '"'
+				_json_payload[setting_position++] = '"';
+				// Finally writes the last char '}'
+				_json_payload[setting_position++] = '}';
+				_json_length = new_length;
+				return true;
 			}
-			// Adds the first char '"'
-			_json_payload[setting_position++] = '"';
-			// To be added, it has to be from right to left
-			for (size_t char_j = 0; char_j < length; char_j++) {
-				_json_payload[setting_position++] = in_string[char_j];
-			}
-			// Adds the second char '"'
-			_json_payload[setting_position++] = '"';
-			// Finally writes the last char '}'
-			_json_payload[setting_position++] = '}';
-			_json_length = new_length;
-			return true;
 		}
 		return false;
 	}
@@ -1622,9 +1625,9 @@ public:
 	 * 
 	 * @note a string can't be bigger than TALKIE_MAX_LEN
      */
-	bool set_nth_value_string(uint8_t nth, const char* in_string) {
+	bool set_nth_value_string(uint8_t nth, const char* in_string, size_t size = TALKIE_MAX_LEN) {
 		if (nth < 10) {
-			return _set_string('0' + nth, in_string, TALKIE_MAX_LEN);
+			return _set_string('0' + nth, in_string, size);
 		}
 		return false;
 	}

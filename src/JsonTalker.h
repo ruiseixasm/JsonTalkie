@@ -176,12 +176,12 @@ private:
 			if (!json_message.is_from_name(_name)) {
 				// FROM is different from _name, must be swapped (replaces "f" with "t")
 				if (!json_message.swap_from_with_to()) {	// It doesn't have 'to' to swap with
-					json_message.set_from_name(_name);
+					return json_message.set_from_name(_name);
 				}
 			}
 		} else {
 			// FROM doesn't even exist (must have)
-			json_message.set_from_name(_name);
+			return json_message.set_from_name(_name);
 		}
 
 		MessageValue message_value = json_message.get_message_value();
@@ -496,7 +496,7 @@ public:
 			
 			case MessageValue::TALKIE_MSG_TALK:
 				json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
-				json_message.set_nth_value_string(0, _desc);
+				json_message.set_nth_value_string(0, _desc, TALKIE_MAX_LEN);
 				// In the end sends back the processed message (single message, one-to-one)
 				transmitToRepeater(json_message);
 				break;
@@ -525,9 +525,12 @@ public:
 					for (uint8_t action_i = 0; action_i < total_actions; ++action_i) {
 						json_message.remove_all_nth_values();	// Makes sure there is space for each new action
 						json_message.set_nth_value_number(0, action_i);
-						json_message.set_nth_value_string(1, actions[action_i].name);
-						json_message.set_nth_value_string(2, actions[action_i].desc);
-						transmitToRepeater(json_message);	// Many-to-One
+						
+						if (json_message.set_nth_value_string(1, actions[action_i].name, TALKIE_NAME_LEN) &&
+							json_message.set_nth_value_string(2, actions[action_i].desc, TALKIE_MAX_LEN)) {
+
+							transmitToRepeater(json_message);	// Many-to-One
+						}
 					}
 					if (!total_actions) {
 						json_message.set_roger_value(RogerValue::TALKIE_RGR_NIL);
