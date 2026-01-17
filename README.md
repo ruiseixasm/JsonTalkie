@@ -406,6 +406,7 @@ With the command `system` it's possible to get the board and the sockets associa
 ```
 Note1: You can have more than two boards in the same *platform*, given that the SPI protocol allows more than a single
 connection.
+
 Note2: The number after the Socket description has two algorisms, the first one is the link type, 1 for *up_linked*, and the
 seconds one is for the *bridged* condition, where 1 means bridged.
 ### Unit testing
