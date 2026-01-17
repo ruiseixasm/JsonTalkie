@@ -113,7 +113,11 @@ protected:
      */
     void _startTransmission(JsonMessage& json_message) {
 
-		if (!json_message._validate_json()) return;
+		if (!json_message._validate_json()) {
+			
+			++_misses_count;	// Still counts as a miss
+			return;
+		}
 
 		if (!json_message._validate_checksum()) {
 			uint16_t message_id;
