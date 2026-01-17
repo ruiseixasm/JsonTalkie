@@ -42,10 +42,10 @@ protected:
 
     Action calls[16] = {
 		{"all", "Tests all methods"},
-		{"deserialize", "Test deserialize (fill up)"},
+		{"parse_json", "Test deserialize (fill up)"},
 		{"compare", "Test if it's the same"},
 		{"has", "Test if it finds the given char"},
-		{"has_not", "Test if DOESN't find the given char"},
+		{"has_not", "Try to find a given char"},
 		{"length", "Test it has the right length"},
 		{"type", "Test the type of value"},
 		{"identity", "Extract the message identity"},

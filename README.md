@@ -55,10 +55,10 @@ A lightweight library for Arduino communication and control using JSON messages 
     [system nano manifesto]    BlackManifesto          2
 >>> list test
     [call test 0|all]          Tests all methods
-    [call test 1|deserialize]          Test deserialize (fill up)
+    [call test 1|parse_json]          Test deserialize (fill up)
     [call test 2|compare]      Test if it's the same
     [call test 3|has]          Test if it finds the given char
-    [call test 4|has_not]      Test if DOESN't find the given char
+    [call test 4|has_not]      Try to find a given char
     [call test 5|length]       Test it has the right length
     [call test 6|type]         Test the type of value
     [call test 7|validate]     Validate message fields
@@ -418,10 +418,10 @@ Bellow is an example of a series of unit tests done to the class `JsonMessage` d
 	[talk test]          	   I test the JsonMessage class
 >>> list test
 	[call test 0|all]    	   Tests all methods
-	[call test 1|deserialize]	   Test deserialize (fill up)
+	[call test 1|parse_json]	   Test deserialize (fill up)
 	[call test 2|compare]	   Test if it's the same
 	[call test 3|has]    	   Test if it finds the given char
-	[call test 4|has_not]	   Test if DOESN't find the given char
+	[call test 4|has_not]	   Try to find a given char
 	[call test 5|length] 	   Test it has the right length
 	[call test 6|type]   	   Test the type of value
 	[call test 7|identity]	   Extract the message identity
