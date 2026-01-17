@@ -38,7 +38,7 @@ protected:
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
     Action calls[3] = {
-		{"ping", "I ping every talker, also by name or channel"},
+		{"ping", "Ping talkers by name or channel"},
 		{"ping_self", "I can even ping myself"},
 		{"call", "Able to do [<talker> <action>]"}
     };

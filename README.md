@@ -449,7 +449,7 @@ to do a call from inside the board's Talker itself. This is the case of the *spy
 >>> talk spy
 	[talk spy]           	   I'm a Spy and I spy the talkers' pings
 >>> list spy
-	[call spy 0|ping]    	   I ping every talker, also by name or channel
+	[call spy 0|ping]    	   Ping talkers by name or channel
 	[call spy 1|ping_self]	   I can even ping myself
 	[call spy 2|call]    	   Able to do [<talker> <action>]
 >>> call spy 0 blue
