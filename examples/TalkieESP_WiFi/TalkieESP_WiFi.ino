@@ -32,7 +32,11 @@ const char password[] = "wifiPassword";
 
 
 // TALKERS 
-// Ethernet Socket Repeater
+
+// The Talker pair name and description shouldn't be greater than 54 chars
+// {"m":7,"b":1,"i":20972,"f":"","t":"","0":"","c":13173} <-- 128 - (54 + 2*10) = 54
+
+
 // M_Spy Talker
 const char t_spy_name[] = "spy2";
 const char t_spy_desc[] = "I'm a Spy and I spy the talkers' pings";
