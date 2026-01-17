@@ -214,6 +214,10 @@ private:
 				json_message.set_error_value(ErrorValue::TALKIE_ERR_IDENTITY)
 			)) return false;
 
+		} else if (message_value == MessageValue::TALKIE_MSG_ECHO) {
+
+			return !json_message.is_no_reply();
+
 		} else {
 			
 			#ifdef JSON_TALKER_DEBUG
@@ -486,9 +490,7 @@ public:
 						json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
 					}
 					// In the end sends back the processed message (single message, one-to-one)
-					if (!(_muted_calls || json_message.is_no_reply())) {
-						transmitToRepeater(json_message);
-					}
+					if (!_muted_calls) transmitToRepeater(json_message);
 				}
 				break;
 			
