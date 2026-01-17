@@ -1129,7 +1129,7 @@ public:
 
     /**
      * @brief Get sender name
-     * @param name An array of at least TALKIE_NAME_LEN (16)
+     * @param name An array of at least TALKIE_NAME_LEN
      * @param size The size of TALKIE_NAME_LEN or more
      * @return false if name is non existent or non conformant to TALKIE_NAME_LEN
      */
@@ -1140,7 +1140,7 @@ public:
 
     /**
      * @brief Get sender name
-     * @param name An array of at least TALKIE_NAME_LEN (16)
+     * @param name An array of at least TALKIE_NAME_LEN
      * @param size The size of TALKIE_NAME_LEN or more
      * @return false if name is non existent or non conformant to TALKIE_NAME_LEN
      */
@@ -1340,7 +1340,7 @@ public:
 
     /**
      * @brief Get action name
-     * @param name An array of at least TALKIE_NAME_LEN (16)
+     * @param name An array of at least TALKIE_NAME_LEN
      * @param size The size of TALKIE_NAME_LEN or more
      * @return false if name is non existent or non conformant to TALKIE_NAME_LEN
      */
