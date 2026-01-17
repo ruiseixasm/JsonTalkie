@@ -56,7 +56,7 @@ protected:
 		{"set", "Sets a given field"},
 		{"edge", "Tests edge cases"},
 		{"copy", "Tests the copy constructor"},
-		{"string", "Checks if it has a value 0 as string"}
+		{"string", "Has a value 0 as string"}
     };
     
 public:

@@ -70,7 +70,7 @@ A lightweight library for Arduino communication and control using JSON messages 
     [call test 13|set]         Sets a given field
     [call test 14|edge]        Tests edge cases
     [call test 15|copy]        Tests the copy constructor
-    [call test 16|string]      Checks if it has a value 0 as string
+    [call test 16|string]      Has a value 0 as string
 >>> call test 0
     [call test 0]              roger
 >>>
@@ -432,7 +432,7 @@ Bellow is an example of a series of unit tests done to the class `JsonMessage` d
 	[call test 12|set]   	   Sets a given field
 	[call test 13|edge]  	   Tests edge cases
 	[call test 14|copy]  	   Tests the copy constructor
-	[call test 15|string]	   Checks if it has a value 0 as string
+	[call test 15|string]	   Has a value 0 as string
 >>> call test edge
 	[call test edge]     	   roger
 >>> call test 0
