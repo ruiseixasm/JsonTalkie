@@ -345,11 +345,11 @@ public:
 				JsonMessage oversized_json_message;
 				oversized_json_message.deserialize_buffer(oversized_name, sizeof(oversized_name) - 1);
 				char from_name[TALKIE_NAME_LEN];
-				return !oversized_json_message.get_from_name(0, from_name, TALKIE_NAME_LEN);
+				return !oversized_json_message.get_from_name(from_name, TALKIE_NAME_LEN);
 			}
 			break;
 
-			
+
             default: return false;
 		}
 		return false;
