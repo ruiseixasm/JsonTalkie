@@ -1178,14 +1178,7 @@ public:
 			switch (value_type) {
 
 				case ValueType::TALKIE_VT_INTEGER:
-				{
-					uint8_t channel = _get_value_number('t', to_position);
-					if (channel < 255) {
-						return TalkerMatch::TALKIE_MATCH_BY_CHANNEL;
-					} else {	// 255 is a NO response channel
-						return TalkerMatch::TALKIE_MATCH_FAIL;
-					}
-				}
+					return TalkerMatch::TALKIE_MATCH_BY_CHANNEL;
 
 				case ValueType::TALKIE_VT_STRING:
 					return TalkerMatch::TALKIE_MATCH_BY_NAME;

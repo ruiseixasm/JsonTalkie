@@ -242,12 +242,16 @@ public:
 				case TalkerMatch::TALKIE_MATCH_BY_CHANNEL:
 				{
 					uint8_t message_channel = message.get_to_channel();
-					for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
-						uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
-						if (talker_channel == message_channel) {
-							JsonMessage message_copy(message);
-							_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+					if (message_channel < 255) {
+						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+							uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
+							if (talker_channel == message_channel) {
+								JsonMessage message_copy(message);
+								_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+							}
 						}
+					} else {
+						return;	// It's a deaf channel
 					}
 				}
 				break;
@@ -269,6 +273,8 @@ public:
 								return;
 							}
 						}
+					} else {
+						return;	// To name not valid, greater size than TALKIE_NAME_LEN
 					}
 				}
 				break;
@@ -351,21 +357,25 @@ public:
 					case TalkerMatch::TALKIE_MATCH_BY_CHANNEL:
 					{
 						uint8_t message_channel = message.get_to_channel();
-						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
-							if (_downlinked_talkers[talker_i] != &talker) {
-								uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
-								if (talker_channel == message_channel) {
-									JsonMessage message_copy(message);
-									_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+						if (message_channel < 255) {
+							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+								if (_downlinked_talkers[talker_i] != &talker) {
+									uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
+									if (talker_channel == message_channel) {
+										JsonMessage message_copy(message);
+										_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+									}
 								}
 							}
-						}
-						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
-							uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
-							if (talker_channel == message_channel) {
-								JsonMessage message_copy(message);
-								_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+								uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
+								if (talker_channel == message_channel) {
+									JsonMessage message_copy(message);
+									_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+								}
 							}
+						} else {
+							return false;	// It's a deaf channel
 						}
 					}
 					break;
@@ -390,6 +400,8 @@ public:
 									return false;		// Not sent via Socket
 								}
 							}
+						} else {
+							return false;	// To name not valid, greater size than TALKIE_NAME_LEN
 						}
 					}
 					break;
@@ -488,19 +500,23 @@ public:
 					case TalkerMatch::TALKIE_MATCH_BY_CHANNEL:
 					{
 						uint8_t message_channel = message.get_to_channel();
-						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
-							uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
-							if (talker_channel == message_channel) {
-								JsonMessage message_copy(message);
-								_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+						if (message_channel < 255) {
+							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+								uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
+								if (talker_channel == message_channel) {
+									JsonMessage message_copy(message);
+									_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+								}
 							}
-						}
-						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
-							uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
-							if (talker_channel == message_channel) {
-								JsonMessage message_copy(message);
-								_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+								uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
+								if (talker_channel == message_channel) {
+									JsonMessage message_copy(message);
+									_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+								}
 							}
+						} else {
+							return;	// It's a deaf channel
 						}
 					}
 					break;
@@ -523,6 +539,8 @@ public:
 									return;
 								}
 							}
+						} else {
+							return;	// To name not valid, greater size than TALKIE_NAME_LEN
 						}
 					}
 					break;
@@ -601,21 +619,25 @@ public:
 					case TalkerMatch::TALKIE_MATCH_BY_CHANNEL:
 					{
 						uint8_t message_channel = message.get_to_channel();
-						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
-							uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
-							if (talker_channel == message_channel) {
-								JsonMessage message_copy(message);
-								_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
-							}
-						}
-						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
-							if (_uplinked_talkers[talker_i] != &talker) {
-								uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
+						if (message_channel < 255) {
+							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+								uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
 								if (talker_channel == message_channel) {
 									JsonMessage message_copy(message);
-									_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+									_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 								}
 							}
+							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+								if (_uplinked_talkers[talker_i] != &talker) {
+									uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
+									if (talker_channel == message_channel) {
+										JsonMessage message_copy(message);
+										_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+									}
+								}
+							}
+						} else {
+							return false;	// It's a deaf channel
 						}
 					}
 					break;
@@ -640,6 +662,8 @@ public:
 									}
 								}
 							}
+						} else {
+							return false;	// To name not valid, greater size than TALKIE_NAME_LEN
 						}
 					}
 					break;
