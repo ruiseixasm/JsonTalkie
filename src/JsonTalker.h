@@ -200,6 +200,10 @@ private:
 			_trace_message.message_value = json_message.get_message_value();
 			_trace_message.active = true;
 
+		} else if (json_message.is_no_reply()) {
+
+			return false;	// No replies applies to errors and echoes
+
 		} else if (!json_message.has_identity()) { // Makes sure response messages have an "i" (identifier)
 
 			#ifdef JSON_TALKER_DEBUG
@@ -222,7 +226,6 @@ private:
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
 
-			return !json_message.is_no_reply();	// No replies applies to errors and echoes
 		}
 		return true;
 	}
