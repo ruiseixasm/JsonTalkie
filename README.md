@@ -55,7 +55,7 @@ A lightweight library for Arduino communication and control using JSON messages 
     [system nano manifesto]    BlackManifesto          2
 >>> list test
     [call test 0|all]          Tests all methods
-    [call test 1|parse_json]          Test deserialize (fill up)
+    [call test 1|parse_json]   Test deserialize (fill up)
     [call test 2|compare]      Test if it's the same
     [call test 3|has]          Test if it finds the given char
     [call test 4|has_not]      Try to find a given char
