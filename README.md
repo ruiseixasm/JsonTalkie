@@ -63,6 +63,7 @@ You may include more than one Manifesto or Socket, like so:
 #include "M_MessageTester.hpp"
 #include "M_Esp66Manifesto.hpp"
 ```
+You may find Manifesto examples in the [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) folder too.
 ### Create the Talkers and initiate the Repeater
 After the includes above you have to create the needed list of instantiations and pass them as pointer to the Repeater, like so:
 ```cpp
