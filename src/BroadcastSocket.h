@@ -158,7 +158,7 @@ protected:
 			}
 		}
 
-		if (json_message.has_broadcast_value()) {	// Mandatory field
+		if (json_message.has_broadcast_value() && json_message.has_identity()) {	// Mandatory fields
 			if (json_message.has_from()) {
 				// From a Talker
 				if (!(
