@@ -172,6 +172,9 @@ private:
      */
 	bool _prepareMessage(JsonMessage& json_message) {
 
+		// It's a Recovery message, already prepared
+		if (&json_message == &_recovery_message.message) return true;	// It's a resend
+
 		if (json_message.has_from()) {
 			if (!json_message.is_from_name(_name)) {
 				// FROM is different from _name, must be swapped (replaces "f" with "t")
@@ -187,8 +190,6 @@ private:
 
 		MessageValue message_value = json_message.get_message_value();
 		if (message_value < MessageValue::TALKIE_MSG_ECHO) {
-
-			if (&json_message == &_recovery_message.message) return true;	// It's a resend
 
 			#ifdef JSON_TALKER_DEBUG
 			Serial.print(F("\t\t\t\t_prepareMessage1.1: Setting a new identifier (i) for :"));
