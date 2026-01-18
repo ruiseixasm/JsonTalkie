@@ -162,6 +162,7 @@ protected:
 			// Processes the Recovery message
 			if (_recovery_message.active && message_id == _recovery_message.identity) {
 				json_message.replace_key('M', 'm');	// Removes the tag in order to be processed
+				_recovery_message.active = false;	// Ends the recovering process
 			} else {
 				return;	// It's not intended to this Socket
 			}
