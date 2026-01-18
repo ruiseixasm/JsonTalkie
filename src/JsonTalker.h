@@ -676,7 +676,7 @@ public:
 									if (_recovery_message.retries++ < TALKIE_MAX_RETRIES) {
 										// Retransmits as is, and because it represents the same id as _recovery_message
 										// it won't update the _recovery_message with this same message
-										_recovery_message.message.replace_key('f', 'R');	// Tags it as a Recovery message
+										_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message
 										transmitToRepeater(_recovery_message.message);
 									}
 								break;

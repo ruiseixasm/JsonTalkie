@@ -154,12 +154,12 @@ protected:
 		}
 
 		// At this point the message has its integrity guaranteed
-		if (json_message.has_key('R')) {	// It's a Recovery message
+		if (json_message.has_key('M')) {	// It's a Recovery message
 			
 			uint16_t message_id = json_message.get_identity();
 			// Processes the Recovery message
 			if (_recovery_message.active && message_id == _recovery_message.identity) {
-				json_message.replace_key('R', 'f');	// Move along to be processed
+				json_message.replace_key('M', 'm');	// Removes the tag in order to be processed
 			} else {
 				return;	// It's not intended to this Socket
 			}
