@@ -112,6 +112,10 @@ void loop() {
 }
 ```
 
+## Examples
+You can select JsonTalkie example by going to `File > Examples > JsonTalkie` and select any of them for more details.
+All these examples may be fount in the folder [Examples](https://github.com/ruiseixasm/JsonTalkie/tree/main/examples).
+
 ## Python Command Line
 ### JsonTalkiePy repository with command line as Talker
    - Talker in [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy)
