@@ -33,6 +33,7 @@ https://github.com/ruiseixasm/JsonTalkie
 class S_BroadcastESP_WiFi : public BroadcastSocket {
 protected:
 
+	IPAddress _my_ip;
 	uint16_t _port = 5005;
 	WiFiUDP* _udp;
 	// Source Talker info
@@ -48,6 +49,16 @@ protected:
     void _receive() override {
 
         if (_udp) {
+
+			if (WiFi.localIP() != _my_ip) {
+				_my_ip = WiFi.localIP();
+				JsonMessage noise_message(BroadcastValue::TALKIE_BC_REMOTE, MessageValue::TALKIE_MSG_NOISE);
+				noise_message.set_identity();
+				noise_message.set_no_reply();
+				// Sends noise to everybody else. Noise will trigger a reset of the kept ips on other sockets
+				_finishTransmission(noise_message);
+			}
+
 			// Receive packets
 			int packetSize = _udp->parsePacket();
 			if (packetSize > 0) {
