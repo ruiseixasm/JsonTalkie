@@ -16,7 +16,6 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 JsonMessage S_BroadcastSocket_EtherCard::_json_message;
-char* S_BroadcastSocket_EtherCard::_ptr_received_buffer = nullptr;
 
 size_t S_BroadcastSocket_EtherCard::_data_length = 0;
 #ifdef ENABLE_DIRECT_ADDRESSING

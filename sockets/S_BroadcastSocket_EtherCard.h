@@ -26,7 +26,7 @@ class S_BroadcastSocket_EtherCard : public BroadcastSocket {
 private:
 
 	static JsonMessage _json_message;
-    static char* _ptr_received_buffer;
+	uint8_t _my_ip[4];
     uint16_t _port = 5005;
     static size_t _data_length;
 	
@@ -76,6 +76,18 @@ protected:
 
 
     void _receive() override {
+
+		if (memcmp(Ethernet::myip, _my_ip, 4) != 0) {
+			memcpy(myip, Ethernet::myip, 4);
+
+			// build broadcast message
+			JsonMessage noise_message(BroadcastValue::TALKIE_BC_REMOTE, MessageValue::TALKIE_MSG_NOISE);
+			noise_message.set_identity();
+			noise_message.set_no_reply();
+
+			_finishTransmission(noise_message);
+		}
+
 		_data_length = 0;	// Makes sure this is only called once per message received (it's the Ethernet reading that sets it)
 		ether.packetLoop(ether.packetReceive());	// Updates the _data_length variable
 		if (_data_length) {
