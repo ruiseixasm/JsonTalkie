@@ -147,8 +147,10 @@ protected:
 					_recovery_message.identity = message_id;
 					_recovery_message.received_time = (uint16_t)millis();
 					_recovery_message.active = true;
+					++_misses_count;	// Still recoverable
+				} else {
+					++_invalids_count;	// Non recoverable
 				}
-				++_misses_count;
 				return;
 			}
 		}
@@ -176,7 +178,6 @@ protected:
 					// Makes sure corrupt data isn't used
 					_from_talker.name[0] = '\0';
 					_from_talker.broadcast = BroadcastValue::TALKIE_BC_NONE;
-					++_invalids_count;
 					return;	// If fields exist they must be valid
 				}
 			// From a Socket
@@ -186,9 +187,6 @@ protected:
 				_from_talker.broadcast = BroadcastValue::TALKIE_BC_NONE;
 				return;	// It came from a Socket, no need to lose more time
 			}
-		} else {
-			++_invalids_count;
-			return;
 		}
 
 		_showMessage(json_message);
