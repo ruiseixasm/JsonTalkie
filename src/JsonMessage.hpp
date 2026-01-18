@@ -502,15 +502,18 @@ public:
 
 
     /**
-     * @brief Default with mandatory parameters
+     * @brief Constructor from parameters
+     * @param broadcast_value The BroadcastValue of the message
+     * @param message_value The MessageValue of the message
+     * @param with_identity If true auto sets identity (default is false)
      * 
      * Initializes with mandatory parameters
      */
-	JsonMessage(BroadcastValue broadcast_value, MessageValue message_value) {
+	JsonMessage(BroadcastValue broadcast_value, MessageValue message_value, bool with_identity = false) {
 		_reset();	// Initiate with the bare minimum
 		set_broadcast_value(broadcast_value);
 		set_message_value(message_value);
-		set_identity();	// A new message should have an identity
+		if (with_identity) set_identity();
 	}
 
 
