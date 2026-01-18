@@ -106,7 +106,7 @@ protected:
 
 
     /**
-     * @brief Starts the transmission of the data received
+     * @brief Starts the transmission of the message received
      * @param json_message A json message to be transmitted to the repeater
      * @param validate Enables or disables the message validation, usefull if you wan't to do
 	 *                 the validation in the Socket implementation instead

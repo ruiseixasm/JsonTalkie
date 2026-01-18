@@ -1,6 +1,6 @@
 # JsonTalkie - Walkie-Talkie based Communication for Arduino
 
-A lightweight library for Arduino communication and control using JSON messages over network sockets, with Python companion scripts for host computer interaction.
+A lightweight library for Arduino (IoT devices) communication and control using JSON messages over network sockets, with Python companion scripts for host computer interaction.
 
 ## Features
 
@@ -9,6 +9,17 @@ A lightweight library for Arduino communication and control using JSON messages 
 - Talker configuration with a Manifesto for self-describing capabilities
 - Automatic command discovery and documentation
 - Support for multiple devices on the same network
+
+## Comparison with MQTT
+- The immediate difference is that JsonTalkie is lighter, you can easily use JsonTalkie in an Arduino Nano or Uno with low memory
+- Contrary to the MQTT, JsonTalkie doesn't require any broker or server, devices truly communicate directly
+- MQTT is limited to the TCP/IP protocol while JsonTalkie can be used with any communication protocol, like SPI and Serial
+- MQTT "cloud" logic is complex in its setup while JsonTalkie is just a matter of including this library and associate it with the needed Manifesto
+- MQTT is aimed to long distance communication, like the Internet, JsonTalkie is aimed to short distance communication, like a LAN
+- On the other hand, JsonTalkie is mainly aimed to speed and low latency, so, the transmission is limitedly guaranteed and very
+dependent on the robustness of the `BroadcastSocket` implementation
+- MQTT is safer because it implements encryption out of the box, however, JsonTalkie can have the same level of security via `BroadcastSocket` implementation or a VPN
+- JsonTalkie requires that the Socket being used is able to send in broadcast or emulates the broadcast to all Devices, while the MQTT centers the communication in a Broker
 
 ## Installation
 
