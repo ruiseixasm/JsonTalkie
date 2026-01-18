@@ -510,6 +510,7 @@ public:
 		_reset();	// Initiate with the bare minimum
 		set_broadcast_value(broadcast_value);
 		set_message_value(message_value);
+		set_identity();	// A new message should have an identity
 	}
 
 

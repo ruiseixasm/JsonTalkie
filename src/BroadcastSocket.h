@@ -160,7 +160,7 @@ protected:
 
 		if (json_message.has_broadcast_value()) {	// Mandatory field
 			if (json_message.has_from()) {
-				
+				// From a Talker
 				if (!(
 					json_message.get_from_name(_from_talker.name) &&
 					json_message.get_broadcast_value(&_from_talker.broadcast)
@@ -171,11 +171,12 @@ protected:
 					++_invalids_count;
 					return;	// If fields exist they must be valid
 				}
-				
+			// From a Socket
 			} else if (json_message.is_noise()) {	// Reset name keeping
 				// Resets the from talker data
 				_from_talker.name[0] = '\0';
 				_from_talker.broadcast = BroadcastValue::TALKIE_BC_NONE;
+				return;	// It came from a Socket, no need to lose more time
 			}
 		} else {
 			++_invalids_count;
