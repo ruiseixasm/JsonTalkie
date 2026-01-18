@@ -108,11 +108,13 @@ protected:
     /**
      * @brief Starts the transmission of the data received
      * @param json_message A json message to be transmitted to the repeater
+     * @param validate Enables or disables the method validation, usefull if you wan't to do
+	 *                 the validation in the Socket implementation instead
 	 * 
      * @note Before calling this method, the `JsonMessage` methods `_validate_json` and `_validate_checksum`
 	 *       shall be called first
      */
-    void _startTransmission(JsonMessage& json_message) {
+    void _startTransmission(JsonMessage& json_message, bool validate = true) {
 		
 		#ifdef MESSAGE_DEBUG_TIMING
 		Serial.print("\n\t");
@@ -120,7 +122,8 @@ protected:
 		Serial.print(": ");
 		#endif
 			
-		{	// Validate message and it's integrity
+		if (validate) {	// Validate message and it's integrity
+
 			size_t received_length = json_message._get_length();
 			if (!json_message._validate_json()) {
 				// Tries to extract a valid id nevertheless
@@ -141,39 +144,39 @@ protected:
 				++_invalids_count;
 				return;
 			}
-		}
 
 
-		if (!json_message._validate_checksum()) {
-			uint16_t message_id;
-			if (json_message.get_identity(&message_id) && _from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {	// a valid from_talker name
-				JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
-				error_message.set_to_name(_from_talker.name);
-				error_message.set_identity(message_id);
-				error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
-				// Error messages can be anonymous messages without "from_name"
-				_finishTransmission(error_message);
-			}
-			++_misses_count;
-			return;
-		}
-
-		if (json_message.has_broadcast_value()) {	// Mandatory field
-			if (json_message.has_from()) {
-				
-				if (!(
-					json_message.get_from_name(_from_talker.name) &&
-					json_message.get_broadcast_value(&_from_talker.broadcast)
-				)) {
-					// Makes sure corrupt data isn't used
-					_from_talker.broadcast = BroadcastValue::TALKIE_BC_NONE;
-					++_invalids_count;
-					return;	// If fields exist they must be valid
+			if (!json_message._validate_checksum()) {
+				uint16_t message_id;
+				if (json_message.get_identity(&message_id) && _from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {	// a valid from_talker name
+					JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
+					error_message.set_to_name(_from_talker.name);
+					error_message.set_identity(message_id);
+					error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
+					// Error messages can be anonymous messages without "from_name"
+					_finishTransmission(error_message);
 				}
+				++_misses_count;
+				return;
 			}
-		} else {
-			++_invalids_count;
-			return;
+
+			if (json_message.has_broadcast_value()) {	// Mandatory field
+				if (json_message.has_from()) {
+					
+					if (!(
+						json_message.get_from_name(_from_talker.name) &&
+						json_message.get_broadcast_value(&_from_talker.broadcast)
+					)) {
+						// Makes sure corrupt data isn't used
+						_from_talker.broadcast = BroadcastValue::TALKIE_BC_NONE;
+						++_invalids_count;
+						return;	// If fields exist they must be valid
+					}
+				}
+			} else {
+				++_invalids_count;
+				return;
+			}
 		}
 
 		_showMessage(json_message);
