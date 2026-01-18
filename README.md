@@ -16,7 +16,8 @@ It was created to address the practical limitations of MQTT on small microcontro
 make traditional MQTT implementations unsuitable or unreliable.
 
 Instead of relying on a centralized broker and TCP connections, JsonTalkie uses a decentralized, broadcast-oriented model that can operate over multiple transport layers,
-including UDP, SPI, Serial, and other protocols. This makes it particularly well suited for Arduino Uno, Arduino Nano, ATmega-based boards, and similar devices operating on local networks.
+including UDP, SPI, Serial, and other protocols. This makes it an excellent alternative to MQTT and particularly well suited for Arduino Uno, Arduino Nano,
+ATmega-based boards, and similar devices operating on local networks.
 
 The following points highlight the key architectural and practical differences between JsonTalkie and MQTT:
 - The immediate difference is that JsonTalkie is lighter, you can easily use JsonTalkie in an Arduino Nano or Uno with low memory.
