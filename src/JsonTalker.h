@@ -175,13 +175,14 @@ private:
 		if (json_message.has_from()) {
 			if (!json_message.is_from_name(_name)) {
 				// FROM is different from _name, must be swapped (replaces "f" with "t")
-				if (!json_message.swap_from_with_to()) {	// It doesn't have 'to' to swap with
-					return json_message.set_from_name(_name);
+				if (!json_message.swap_from_with_to()) {
+					
+					if (!json_message.set_from_name(_name)) return false;	// Unable to set FROM (must have)
 				}
 			}
-		} else {
-			// FROM doesn't even exist (must have)
-			return json_message.set_from_name(_name);
+		} else if (!json_message.set_from_name(_name)) {
+			
+			return false;	// Unable to set FROM (must have)
 		}
 
 		MessageValue message_value = json_message.get_message_value();
