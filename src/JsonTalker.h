@@ -200,8 +200,21 @@ private:
 			_trace_message.identity = json_message.get_identity();
 			_trace_message.message_value = json_message.get_message_value();
 			_trace_message.active = true;
+
+		} else if (json_message.is_no_reply()) {
+
+			return false;	// No replies applies to errors and echoes
+
+		} else {
+			
+			#ifdef JSON_TALKER_DEBUG
+			Serial.print(F("\t\t\t\t_prepareMessage1.3: Keeping the same identifier (i): "));
+			json_message.write_to(Serial);
+			Serial.println();  // optional: just to add a newline after the JSON
+			#endif
+
 		}
-		return !json_message.is_no_reply();
+		return true;
 	}
 
 
