@@ -110,9 +110,6 @@ protected:
      * @param json_message A json message to be transmitted to the repeater
      * @param validate Enables or disables the message validation, usefull if you wan't to do
 	 *                 the validation in the Socket implementation instead
-	 * 
-     * @note Before calling this method, the `JsonMessage` methods `_validate_json` and `_validate_checksum`
-	 *       shall be called first
      */
     void _startTransmission(JsonMessage& json_message, bool validate = true) {
 		
