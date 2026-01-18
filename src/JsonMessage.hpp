@@ -1183,7 +1183,6 @@ public:
      * Determines if message is for specific name, channel, broadcast, or invalid.
      */
 	TalkerMatch get_talker_match() const {
-		if (!has_identity()) return TalkerMatch::TALKIE_MATCH_FAIL;
 		size_t to_position = _get_colon_position('t');
 		if (to_position) {
 
