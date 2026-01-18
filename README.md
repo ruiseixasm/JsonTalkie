@@ -57,6 +57,7 @@ You may include more than one Manifesto or Socket, like so:
 ```cpp
 #include <JsonTalkie.hpp>
 #include "S_BroadcastESP_WiFi.hpp"
+#include "S_SPI_ESP_Arduino_Master.hpp"
 #include "M_Spy.hpp"
 #include "M_BlueManifesto.hpp"
 #include "M_MessageTester.hpp"
