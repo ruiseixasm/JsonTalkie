@@ -44,6 +44,73 @@ dependent on the robustness of the `BroadcastSocket` implementation.
    - Extract to your Arduino libraries folder
    - Restart Arduino IDE
 
+## Usage
+### Include the needed Manifesto and Socket files
+To use it you only have to create a **Manifesto** and include it in a Sketch. You also need a **Socket**, you can pick one in the folder
+[sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets), and place the respective socket file side-by-side with your sketch, like so:
+```cpp
+#include <JsonTalkie.hpp>
+#include "M_BuzzerManifesto.hpp"
+#include "S_SPI_Arduino_Slave.h"
+```
+You may include more than one Manifesto or Socket, like so:
+```cpp
+#include <JsonTalkie.hpp>
+#include "S_BroadcastESP_WiFi.hpp"
+#include "M_Spy.hpp"
+#include "M_BlueManifesto.hpp"
+#include "M_MessageTester.hpp"
+#include "M_Esp66Manifesto.hpp"
+```
+### Create the Talkers and initiate the Repeater
+After the includes above you have to create the needed list of instantiations and pass them as pointer to the Repeater, like so:
+```cpp
+// TALKERS
+// M_Spy Talker
+const char t_spy_name[] = "spy";
+const char t_spy_desc[] = "I'm a M_Spy and I spy the talkers' pings";
+M_Spy spy_manifesto;
+JsonTalker t_spy = JsonTalker(t_spy_name, t_spy_desc, &spy_manifesto);
+
+// Talker (led)
+const char l_led_name[] = "blue";
+const char l_led_desc[] = "I turn led Blue on and off";
+M_LedManifesto led_manifesto(LED_BUILTIN);
+JsonTalker l_led = JsonTalker(l_led_name, l_led_desc, &led_manifesto);
+
+// Talker (JsonMessage tester)
+const char t_tester_name[] = "test";
+const char t_tester_desc[] = "I test the JsonMessage class";
+M_MessageTester message_tester;
+JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
+
+
+// SOCKETS
+// Singleton requires the & (to get a reference variable)
+auto& ethernet_socket = S_EthernetENC_Broadcast::instance();
+int spi_pins[] = {4, 16};
+auto& spi_socket = S_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
+
+
+// SETTING THE REPEATER
+BroadcastSocket* uplinked_sockets[] = { &ethernet_socket };
+JsonTalker* downlinked_talkers[] = { &t_spy, &t_tester, &l_led };
+BroadcastSocket* downlinked_sockets[] = { &spi_socket };
+const MessageRepeater message_repeater(
+		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
+		downlinked_talkers, sizeof(downlinked_talkers)/sizeof(JsonTalker*),
+		downlinked_sockets, sizeof(downlinked_sockets)/sizeof(BroadcastSocket*)
+	);
+```
+### Keep the Repeater looping
+Finally keep calling the Repeater `loop` method, like so:
+```cpp
+void loop() {
+    Ethernet.maintain();		// Maintain DHCP lease (important for long-running applications)
+	message_repeater.loop();	// Keep calling the Repeater
+}
+```
+
 ## Python Command Line
 ### JsonTalkiePy repository with command line as Talker
    - Talker in [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy)
