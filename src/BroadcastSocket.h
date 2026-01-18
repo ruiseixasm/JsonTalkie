@@ -108,10 +108,10 @@ protected:
     /**
      * @brief Starts the transmission of the message received
      * @param json_message A json message to be transmitted to the repeater
-     * @param validate Enables or disables the message validation, usefull if you wan't to do
-	 *                 the validation in the Socket implementation instead
+     * @param check_integrity Enables or disables the message integrity checking,
+	 *        usefull if you wan't to do it in the Socket implementation instead
      */
-    void _startTransmission(JsonMessage& json_message, bool validate = true) {
+    void _startTransmission(JsonMessage& json_message, bool check_integrity = true) {
 		
 		#ifdef MESSAGE_DEBUG_TIMING
 		Serial.print("\n\t");
@@ -119,7 +119,7 @@ protected:
 		Serial.print(": ");
 		#endif
 			
-		if (validate) {	// Validate message and it's integrity
+		if (check_integrity) {	// Validate message integrity
 
 			size_t received_length = json_message._get_length();
 			if (!json_message._validate_json()) {
@@ -156,24 +156,30 @@ protected:
 				++_misses_count;
 				return;
 			}
+		}
 
-			if (json_message.has_broadcast_value()) {	// Mandatory field
-				if (json_message.has_from()) {
-					
-					if (!(
-						json_message.get_from_name(_from_talker.name) &&
-						json_message.get_broadcast_value(&_from_talker.broadcast)
-					)) {
-						// Makes sure corrupt data isn't used
-						_from_talker.broadcast = BroadcastValue::TALKIE_BC_NONE;
-						++_invalids_count;
-						return;	// If fields exist they must be valid
-					}
+		if (json_message.has_broadcast_value()) {	// Mandatory field
+			if (json_message.has_from()) {
+				
+				if (!(
+					json_message.get_from_name(_from_talker.name) &&
+					json_message.get_broadcast_value(&_from_talker.broadcast)
+				)) {
+					// Makes sure corrupt data isn't used
+					_from_talker.name[0] = '\0';
+					_from_talker.broadcast = BroadcastValue::TALKIE_BC_NONE;
+					++_invalids_count;
+					return;	// If fields exist they must be valid
 				}
-			} else {
-				++_invalids_count;
-				return;
+				
+			} else if (json_message.is_noise()) {	// Reset name keeping
+				// Resets the from talker data
+				_from_talker.name[0] = '\0';
+				_from_talker.broadcast = BroadcastValue::TALKIE_BC_NONE;
 			}
+		} else {
+			++_invalids_count;
+			return;
 		}
 
 		_showMessage(json_message);

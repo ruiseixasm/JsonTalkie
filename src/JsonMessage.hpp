@@ -897,16 +897,6 @@ public:
 		return false;
 	}
 
-
-    /**
-     * @brief Get if it's not to be replied
-     * @return true if it's not to be replied with echo
-     */
-	bool is_no_reply() const {
-		return _get_colon_position('n') > 0;
-	}
-
-
     // ============================================
     // FIELD VALUE CHECKS
     // ============================================
@@ -995,6 +985,24 @@ public:
 		return colon_position 
 			&& _get_value_type('a', colon_position) == ValueType::TALKIE_VT_INTEGER
 			&& _get_value_number('a', colon_position) == index;
+	}
+
+
+    /**
+     * @brief Get if it's not to be replied
+     * @return true if it's not to be replied with echo
+     */
+	bool is_no_reply() const {
+		return _get_colon_position('n') > 0;
+	}
+
+
+    /**
+     * @brief Checks if it's noise
+     * @return true if the message is noise
+     */
+	bool is_noise() const {
+		return get_message_value() == MessageValue::TALKIE_MSG_NOISE;
 	}
 
 
