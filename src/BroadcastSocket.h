@@ -129,7 +129,7 @@ protected:
 
 			size_t received_length = json_message._get_length();
 			if (!json_message._validate_json()) {
-				// Resets its initial size in order to be processed next, as error
+				// Resets its initial length in order to be processed next, as error (checksum fail)
 				json_message._set_length(received_length);
 			}
 
