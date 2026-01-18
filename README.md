@@ -11,6 +11,14 @@ A lightweight library for Arduino (IoT devices) communication and control using 
 - Support for multiple devices on the same network.
 
 ## Comparison with MQTT
+JsonTalkie is a lightweight messaging framework designed for direct peer-to-peer communication in resource-constrained embedded systems.
+It was created to address the practical limitations of MQTT on small microcontrollers, where TCP/IP stacks, brokers, and dynamic memory usage
+make traditional MQTT implementations unsuitable or unreliable.
+
+Instead of relying on a centralized broker and TCP connections, JsonTalkie uses a decentralized, broadcast-oriented model that can operate over multiple transport layers,
+including UDP, SPI, Serial, and other protocols. This makes it particularly well suited for Arduino Uno, Arduino Nano, ATmega-based boards, and similar devices operating on local networks.
+
+The following points highlight the key architectural and practical differences between JsonTalkie and MQTT:
 - The immediate difference is that JsonTalkie is lighter, you can easily use JsonTalkie in an Arduino Nano or Uno with low memory.
 - Contrary to the MQTT, JsonTalkie doesn't require any broker or server, devices truly communicate directly.
 - MQTT is limited to the TCP/IP protocol while JsonTalkie can be used with any communication protocol, like SPI and Serial.
