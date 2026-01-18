@@ -1672,7 +1672,7 @@ public:
      * @return true if it was able to replace the key
      */
 	bool replace_key(char old_key, char new_key) {
-		size_t key_position = _get_key_position('old_key');
+		size_t key_position = _get_key_position(old_key);
 		if (key_position) {
 			_json_payload[key_position] = new_key;
 			return true;
