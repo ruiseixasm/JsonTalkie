@@ -74,7 +74,7 @@ protected:
     bool _control_timing = false;
     unsigned long _last_local_time = 0;	// millis() compatible
     uint16_t _last_message_timestamp = 0;
-    uint16_t _invalids_count = 0;
+    uint16_t _lost_count = 0;
     uint16_t _misses_count = 0;
     uint16_t _drops_count = 0;
     uint16_t _fails_count = 0;
@@ -149,7 +149,7 @@ protected:
 					_recovery_message.active = true;
 					++_misses_count;	// Still recoverable
 				} else {
-					++_invalids_count;	// Non recoverable
+					++_lost_count;	// Non recoverable
 				}
 				return;
 			}
@@ -342,15 +342,19 @@ public:
 
 
     /**
-     * @brief Get the total amount of invalids in transmission
-     * @return Returns the number of failed transmissions due to not having a valid json formatting
+     * @brief Get the total amount of lost messages in transmission
+     * @return Returns the number of failed transmissions due to not having a valid message identity
+     * 
+     * @note A lost message is a received message that is corrupted and unrecoverable by missing an id
      */
-    uint16_t get_invalids_count() const { return _invalids_count; }
+    uint16_t get_lost_count() const { return _lost_count; }
 
 	
     /**
      * @brief Get the total amount of misses in transmission
      * @return Returns the number of failed transmissions, wrong checksum
+     * 
+     * @note A missed message is a received message that is corrupted but still has an id (recoverable)
      */
     uint16_t get_misses_count() const { return _misses_count; }
 
@@ -358,6 +362,8 @@ public:
     /**
      * @brief Get the total amount of call messages already dropped
      * @return Returns the number of dropped call messages
+     * 
+     * @note A dropped message is a received message that was received after the acceptable `max_delay`
      */
     uint16_t get_drops_count() const { return _drops_count; }
 
@@ -365,6 +371,8 @@ public:
     /**
      * @brief Get the total amount of sending messages fails
      * @return Returns the number of failures in sending messages
+     * 
+     * @note A failed message is a message that failed to be sent
      */
     uint16_t get_fails_count() const { return _fails_count; }
 
