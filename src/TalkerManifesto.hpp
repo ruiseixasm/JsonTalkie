@@ -154,9 +154,10 @@ public:
 	 * 
 	 * This method is intended to process the echoes from the talker sent messages.
      */
-    virtual void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) {
+    virtual void _echo(JsonTalker& talker, JsonMessage& json_message, MessageValue message_value, TalkerMatch talker_match) {
         (void)talker;		// Silence unused parameter warning
         (void)json_message;	// Silence unused parameter warning
+        (void)message_value;	// Silence unused parameter warning
         (void)talker_match;	// Silence unused parameter warning
     }
 

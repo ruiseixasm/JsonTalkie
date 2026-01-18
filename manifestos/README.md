@@ -151,8 +151,9 @@ by the Talker Manifesto, and thus, is able to process the respective responses, 
 
 Here is an example of a Manifesto that processes the responses to its generated pings.
 ```cpp
-    void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
+    void _echo(JsonTalker& talker, JsonMessage& json_message, MessageValue message_value, TalkerMatch talker_match) override {
 		(void)talker_match;	// Silence unused parameter warning
+        (void)message_value;	// Silence unused parameter warning
 		
 		// In condition to calculate the delay right away, no need to extra messages
 		uint16_t actual_time = static_cast<uint16_t>(millis());

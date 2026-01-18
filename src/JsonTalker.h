@@ -273,7 +273,7 @@ private:
 	 * 
 	 * This method is intended to process the echoes from the talker sent messages.
      */
-	void _echo(JsonMessage& json_message, TalkerMatch talker_match);
+	void _echo(JsonMessage& json_message, MessageValue message_value, TalkerMatch talker_match);
 
 
     /**
@@ -645,7 +645,7 @@ public:
 					#endif
 
 					if (echo_message_id == _trace_message.identity) {
-						_echo(json_message, talker_match);
+						_echo(json_message, _trace_message.message_value, talker_match);
 					}
 				}
 				break;

@@ -162,8 +162,9 @@ public:
 	}
 
 
-    void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
+    void _echo(JsonTalker& talker, JsonMessage& json_message, MessageValue message_value, TalkerMatch talker_match) override {
 		(void)talker_match;	// Silence unused parameter warning
+        (void)message_value;	// Silence unused parameter warning
 		
 		#ifdef SPY_MANIFESTO_DEBUG
 		RecoveryMessage original_message = talker.getRecoveryMessage();

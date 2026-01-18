@@ -700,9 +700,10 @@ public:
 	}
 
 
-	void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
+	void _echo(JsonTalker& talker, JsonMessage& json_message, MessageValue message_value, TalkerMatch talker_match) override {
         (void)talker;		// Silence unused parameter warning
         (void)json_message;	// Silence unused parameter warning
+        (void)message_value;	// Silence unused parameter warning
         (void)talker_match;	// Silence unused parameter warning
 
 		_time_to_live = _time_to_call + 1UL * 60 * 1000;		// Add 1 minute extra
@@ -813,8 +814,9 @@ public:
 	}
     
 
-    void _echo(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
+    void _echo(JsonTalker& talker, JsonMessage& json_message, MessageValue message_value, TalkerMatch talker_match) override {
 		(void)talker;		// Silence unused parameter warning
+        (void)message_value;	// Silence unused parameter warning
 		(void)talker_match;	// Silence unused parameter warning
 
 		char temp_string[TALKIE_MAX_LEN];
