@@ -72,14 +72,7 @@ public:
 	struct TraceMessage {
 		uint16_t identity;
 		MessageValue message_value;
-		bool active;
-	};
-
-	struct RecoveryMessage {
-		uint16_t identity;
-		JsonMessage message;
-		bool active;
-		uint8_t retries;
+		bool active = false;
 	};
 
 	/**
@@ -96,6 +89,13 @@ public:
 	
 private:
     
+	struct RecoveryMessage {
+		uint16_t identity;
+		JsonMessage message;
+		bool active = false;
+		uint8_t retries;
+	};
+
 	MessageRepeater* _message_repeater = nullptr;
 	LinkType _link_type = LinkType::TALKIE_LT_NONE;
 
@@ -372,15 +372,6 @@ public:
     const TraceMessage& getTraceMessage() const { return _trace_message; }
 
 
-    /**
-     * @brief Get the last transmitted message to a socket
-     * @return Returns `RecoveryMessage` with the message id and value
-     * 
-     * @note This is used to pair the message id with its error
-     */
-    const RecoveryMessage& getRecoveryMessage() const { return _recovery_message; }
-
-
     // ============================================
     // SETTERS - FIELD MODIFICATION
     // ============================================
@@ -612,8 +603,8 @@ public:
 									json_message.set_nth_value_number(0, socket_i);
 									const BroadcastSocket* socket = _getSocket(socket_i);	// Safe sockets_count already
 									// {"m":7,"s":6,"b":1,"i":12345,"f":"","t":"","0":255,"1":12345,"2":12345,"3":12345,"4":12345,"c":12345} <-- 128 - (101 + 2*10) = 7 (>= 0 OK!)
-									json_message.set_nth_value_number(1, socket->get_invalids_count());
-									json_message.set_nth_value_number(2, socket->get_misses_count());
+									json_message.set_nth_value_number(1, socket->get_misses_count());
+									json_message.set_nth_value_number(2, socket->get_invalids_count());
 									json_message.set_nth_value_number(3, socket->get_drops_count());
 									json_message.set_nth_value_number(4, socket->get_fails_count());
 					
@@ -683,7 +674,8 @@ public:
 								case ErrorValue::TALKIE_ERR_CHECKSUM:
 									if (_recovery_message.retries++ < TALKIE_MAX_RETRIES) {
 										// Retransmits as is, and because it represents the same id as _recovery_message
-										// it won't update the _recovery_message with a new message
+										// it won't update the _recovery_message with this same message
+										_recovery_message.message.replace_key('f', 'R');	// Tags it as a Recovery message
 										transmitToRepeater(_recovery_message.message);
 									}
 								break;

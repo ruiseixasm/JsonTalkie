@@ -1641,12 +1641,10 @@ public:
 
     /**
      * @brief Swap 'from' and 'to' fields
-     * @return true if 'from' field exists
+     * @return true only if it had both fields 'f' and 't' swapped
      * 
      * @note Useful for creating replies. If 'to' doesn't exist,
      *       'from' becomes 'to' and 'from' is thus removed.
-	 * 
-     * @return true only if it had both fields 'f' and 't' swapped
      */
 	bool swap_from_with_to() {
 		size_t key_from_position = _get_key_position('f');
@@ -1662,6 +1660,22 @@ public:
 			} else {
 				_json_payload[key_from_position] = 't';
 			}
+		}
+		return false;
+	}
+
+
+    /**
+     * @brief Replaces a key with a different key
+     * @param old_key Old key to be replaced
+     * @param new_key New key to be inplace of the replaced key
+     * @return true if it was able to replace the key
+     */
+	bool replace_key(char old_key, char new_key) {
+		size_t key_position = _get_key_position('old_key');
+		if (key_position) {
+			_json_payload[key_position] = new_key;
+			return true;
 		}
 		return false;
 	}

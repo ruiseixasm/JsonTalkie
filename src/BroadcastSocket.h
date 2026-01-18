@@ -85,6 +85,12 @@ protected:
 	};
 	FromTalker _from_talker;
 	
+	struct RecoveryMessage {
+		uint16_t identity;
+		uint16_t received_time;
+		bool active = false;
+	};
+	RecoveryMessage _recovery_message;
 	
     // Constructor
     BroadcastSocket() {
@@ -123,23 +129,8 @@ protected:
 
 			size_t received_length = json_message._get_length();
 			if (!json_message._validate_json()) {
-				// Tries to extract a valid id nevertheless
+				// Resets its initial size in order to be processed next, as error
 				json_message._set_length(received_length);
-				uint16_t message_id;
-				if (json_message.get_identity(&message_id)) {
-					if (_from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {
-						JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
-						error_message.set_to_name(_from_talker.name);
-						error_message.set_identity(message_id);
-						error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
-						// Error messages can be anonymous messages without "from_name"
-						_finishTransmission(error_message);
-					}
-					++_misses_count;
-					return;
-				}
-				++_invalids_count;
-				return;
 			}
 
 
@@ -152,11 +143,28 @@ protected:
 					error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
 					// Error messages can be anonymous messages without "from_name"
 					_finishTransmission(error_message);
+					// Keeps the window opened
+					_recovery_message.identity = message_id;
+					_recovery_message.received_time = (uint16_t)millis();
+					_recovery_message.active = true;
 				}
 				++_misses_count;
 				return;
 			}
 		}
+
+		// At this point the message has its integrity guaranteed
+		if (json_message.has_key('R')) {	// It's a Recovery message
+			
+			uint16_t message_id = json_message.get_identity();
+			// Processes the Recovery message
+			if (_recovery_message.active && message_id == _recovery_message.identity) {
+				json_message.replace_key('R', 'f');	// Move along to be processed
+			} else {
+				return;	// It's not intended to this Socket
+			}
+		}
+
 
 		if (json_message.has_broadcast_value()) {	// Mandatory field
 			if (json_message.has_from()) {
@@ -304,6 +312,9 @@ public:
         if (_control_timing && millis() - _last_local_time > MAX_NETWORK_PACKET_LIFETIME_MS) {
             _control_timing = false;
         }
+		if (_recovery_message.active && (uint16_t)millis() - _recovery_message.received_time > TALKIE_RECOVERY_TTL) {
+			_recovery_message.active = false;
+		}
         _receive();
     }
 
