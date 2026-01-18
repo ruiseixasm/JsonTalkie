@@ -205,20 +205,6 @@ private:
 
 			return false;	// No replies applies to errors and echoes
 
-		} else if (!json_message.has_identity()) { // Makes sure response messages have an "i" (identifier)
-
-			#ifdef JSON_TALKER_DEBUG
-			Serial.print(F("\t\t\t\t_prepareMessage1.2: Response message with a wrong or without an identifier, now being set (i): "));
-			json_message.write_to(Serial);
-			Serial.println();  // optional: just to add a newline after the JSON
-			#endif
-
-			if (!(
-				json_message.set_message_value(MessageValue::TALKIE_MSG_ERROR) &&
-				json_message.set_identity() &&
-				json_message.set_error_value(ErrorValue::TALKIE_ERR_IDENTITY)
-			)) return false;
-
 		} else {
 			
 			#ifdef JSON_TALKER_DEBUG
