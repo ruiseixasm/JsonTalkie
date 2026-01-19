@@ -250,7 +250,7 @@ private:
 	bool _get_value_string(char key, char* buffer, size_t size, size_t colon_position = 4) const {
 		if (buffer && size) {
 			size_t json_i = _get_value_position(key, colon_position);
-			if (json_i && _json_payload[json_i++] == '"' && buffer && size) {	// Safe code, makes sure it's a string
+			if (json_i && _json_payload[json_i++] == '"') {	// Safe code, makes sure it's a string
 				size_t char_j = 0;
 				while (_json_payload[json_i] != '"' && json_i < _json_length && char_j < size) {
 					buffer[char_j++] = _json_payload[json_i++];
@@ -1646,17 +1646,13 @@ public:
      * @note Useful for creating replies. If 'to' doesn't exist,
      *       'from' becomes 'to' and 'from' is thus removed.
      */
-	bool swap_from_with_to() {
+	bool swap_to_with_from() {
 		size_t key_from_position = _get_key_position('f');
 		size_t key_to_position = _get_key_position('t');
 		if (key_from_position) {
 			if (key_to_position) {
 				_json_payload[key_from_position] = 't';
 				_json_payload[key_to_position] = 'f';
-				// checks if this too isn't a channel '"t":"..."'
-				char to_string_quote = _json_payload[key_to_position + 3];
-				// Represents a real swap from 'from' with 'to' (string) if true
-				return to_string_quote == '"';	// It's a name and not a channel ('"t":123')
 			} else {
 				_json_payload[key_from_position] = 't';
 			}

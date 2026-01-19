@@ -175,20 +175,11 @@ private:
 		// It's a Recovery message, already prepared
 		if (&json_message == &_recovery_message.message) return true;	// It's a resend
 
-		if (json_message.has_from()) {
-			if (!json_message.is_from_name(_name)) {
-				// FROM is different from _name, must be swapped (replaces "f" with "t")
-				if (!json_message.swap_from_with_to()) {
-					
-					if (!json_message.set_from_name(_name)) return false;	// Unable to set FROM (must have)
-				}
-			}
-		} else if (json_message.is_to_name(_name)) {
+		if (json_message.is_to_name(_name)) {
+			
+			json_message.swap_to_with_from();
+		} else if (!json_message.is_from_name(_name) && !json_message.set_from_name(_name)) {
 
-			json_message.swap_from_with_to();
-			
-		} else if (!json_message.set_from_name(_name)) {
-			
 			return false;	// Unable to set FROM (must have)
 		}
 
