@@ -148,12 +148,10 @@ protected:
 						_finishTransmission(error_message);
 						transmitted_error = true;
 					}
-					if (!json_message.is_from_name(_from_talker.name)) {
-						if (_from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {
-							error_message.set_to_name(_from_talker.name);
-							_finishTransmission(error_message);
-							transmitted_error = true;
-						}
+					if (!json_message.is_from_name(_from_talker.name) && _from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {
+						error_message.set_to_name(_from_talker.name);
+						_finishTransmission(error_message);
+						transmitted_error = true;
 					}
 					if (transmitted_error) {
 						// Keeps the window opened
