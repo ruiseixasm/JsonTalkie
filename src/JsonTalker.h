@@ -183,6 +183,10 @@ private:
 					if (!json_message.set_from_name(_name)) return false;	// Unable to set FROM (must have)
 				}
 			}
+		} else if (json_message.is_to_name(_name)) {
+
+			json_message.swap_from_with_to();
+			
 		} else if (!json_message.set_from_name(_name)) {
 			
 			return false;	// Unable to set FROM (must have)

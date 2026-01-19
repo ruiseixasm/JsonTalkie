@@ -1660,6 +1660,8 @@ public:
 			} else {
 				_json_payload[key_from_position] = 't';
 			}
+		} else if (key_to_position) {
+			_json_payload[key_to_position] = 'f';
 		}
 		return false;
 	}
