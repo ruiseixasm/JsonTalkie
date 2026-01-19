@@ -39,6 +39,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCASTSOCKET_DEBUG
 // #define BROADCASTSOCKET_DEBUG_NEW
 // #define BROADCASTSOCKET_DEBUG_CHECKSUM
+// #define BROADCASTSOCKET_DEBUG_CHECKSUM_FULL
 
 // Readjust if necessary
 #define MAX_NETWORK_PACKET_LIFETIME_MS 256UL    // 256 milliseconds
@@ -89,7 +90,7 @@ protected:
 	struct RecoveryMessage {
 		uint16_t identity;
 		uint16_t received_time;
-		bool active = false;
+		bool active = false;_corrupt_payload
 	};
 	RecoveryMessage _recovery_message;
 	
@@ -128,10 +129,12 @@ protected:
 			
 		if (check_integrity) {	// Validate message integrity
 
-			#ifdef BROADCASTSOCKET_DEBUG_CHECKSUM
-			json_message._corrupt_payload();
+			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM)
+			json_message._corrupt_payload(false);
+			#elif defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+			json_message._corrupt_payload(true);
 			#endif
-			
+
 			size_t received_length = json_message._get_length();
 			if (!json_message._validate_json()) {
 				// Resets its initial length in order to be processed next, as error (checksum fail)
