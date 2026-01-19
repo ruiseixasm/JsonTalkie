@@ -136,7 +136,7 @@ public:
 			} else {
 				toggle_green_on_off.set_action_name("on");
 			}
-			return talker.transmitToRepeater(toggle_green_on_off);
+			talker.transmitToRepeater(toggle_green_on_off);
 		}
 	}
 
