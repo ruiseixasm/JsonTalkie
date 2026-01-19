@@ -133,35 +133,20 @@ protected:
 				json_message._set_length(received_length);
 			}
 
-
+			// Safer way of Recovering messages
 			if (!json_message._validate_checksum()) {
 				uint16_t message_id;
-				if (json_message.get_identity(&message_id)) {
+				if (json_message.get_identity(&message_id) && _from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {
 					JsonMessage error_message(MessageValue::TALKIE_MSG_ERROR, _from_talker.broadcast);
 					error_message.set_identity(message_id);
 					error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
-
-					bool transmitted_error = false;
-					char from_name[TALKIE_NAME_LEN];
-					if (json_message.get_from_name(from_name)) {
-						error_message.set_to_name(from_name);
-						_finishTransmission(error_message);
-						transmitted_error = true;
-					}
-					if (!json_message.is_from_name(_from_talker.name) && _from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {
-						error_message.set_to_name(_from_talker.name);
-						_finishTransmission(error_message);
-						transmitted_error = true;
-					}
-					if (transmitted_error) {
-						// Keeps the window opened
-						_recovery_message.identity = message_id;
-						_recovery_message.received_time = (uint16_t)millis();
-						_recovery_message.active = true;
-						++_misses_count;	// Still recoverable
-					} else {
-						++_lost_count;		// Non recoverable
-					}
+					error_message.set_to_name(_from_talker.name);
+					_finishTransmission(error_message);
+					// Keeps the window opened
+					_recovery_message.identity = message_id;
+					_recovery_message.received_time = (uint16_t)millis();
+					_recovery_message.active = true;
+					++_misses_count;	// Still recoverable
 				} else {
 					++_lost_count;			// Non recoverable
 				}
