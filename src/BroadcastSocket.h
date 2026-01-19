@@ -162,9 +162,9 @@ protected:
 		// At this point the message has its integrity guaranteed
 		if (json_message.has_key('M')) {	// It's a Recovery message
 			
-			uint16_t message_id = json_message.get_identity();
+			uint16_t message_id;
 			// Processes the Recovery message
-			if (_recovery_message.active && message_id == _recovery_message.identity) {
+			if (_recovery_message.active && json_message.get_identity(&message_id) && message_id == _recovery_message.identity) {
 				json_message.replace_key('M', 'm');	// Removes the tag in order to be processed
 				_recovery_message.active = false;	// Ends the recovering process
 			} else {
