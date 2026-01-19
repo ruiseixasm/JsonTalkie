@@ -54,8 +54,8 @@ bool JsonTalker::transmitToRepeater(JsonMessage& json_message) {
 
 	if (sent_by_socket && &json_message != &_recovery_message.message) {
 		MessageValue message_value = json_message.get_message_value();
-		// Echo, Error and Noise messages aren't recoverable
-		if (message_value < MessageValue::TALKIE_MSG_ECHO && message_value != MessageValue::TALKIE_MSG_NOISE) {
+		// Noise messages aren't recoverable
+		if (message_value != MessageValue::TALKIE_MSG_NOISE) {
 			_recovery_message.identity = json_message.get_identity();
 			_recovery_message.message = json_message;
 			_recovery_message.active = true;
