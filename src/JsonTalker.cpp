@@ -59,7 +59,6 @@ bool JsonTalker::transmitToRepeater(JsonMessage& json_message) {
 			_recovery_message.identity = json_message.get_identity();
 			_recovery_message.message = json_message;
 			_recovery_message.active = true;
-			_recovery_message.retries = 0;
 		}
 	}
 	return sent_by_socket;

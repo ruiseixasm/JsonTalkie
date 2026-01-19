@@ -743,7 +743,7 @@ public:
      * @brief Corrupts a single char for debugging purposes only
      * @param one_in How many messages per each corruption
      */
-	void _corrupt_payload(uint8_t one_in = 3) {
+	void _corrupt_payload(uint8_t one_in = 10) {
 		if (millis() % one_in && get_message_value() != MessageValue::TALKIE_MSG_ERROR) {
 			size_t corrupted_position = millis() % _json_length;
 			_json_payload[corrupted_position]++;

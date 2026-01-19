@@ -93,7 +93,6 @@ private:
 		uint16_t identity;
 		JsonMessage message;
 		bool active = false;
-		uint8_t retries;
 	};
 
 	MessageRepeater* _message_repeater = nullptr;
@@ -677,7 +676,7 @@ public:
 					Serial.print(" | ");
 					Serial.print(_recovery_message.identity);
 					Serial.print(" | ");
-					Serial.println(_recovery_message.retries);
+					Serial.println(_recovery_message.active);
 					#endif
 
 					if (_recovery_message.active && error_message_id == _recovery_message.identity &&
@@ -687,12 +686,10 @@ public:
 							switch (error_value) {
 
 								case ErrorValue::TALKIE_ERR_CHECKSUM:
-									if (_recovery_message.retries++ < TALKIE_MAX_RETRIES) {
-										// Retransmits as is, and because it represents the same id as _recovery_message
-										// it won't update the _recovery_message with this same message
-										_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message
-										transmitToRepeater(_recovery_message.message);
-									}
+									_recovery_message.active = false;	// One retry only (avoids cascading of retries)
+									// Retransmits as is, and because it represents the same id as _recovery_message
+									_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message ('M')
+									transmitToRepeater(_recovery_message.message);
 								break;
 								
 								default: break;
