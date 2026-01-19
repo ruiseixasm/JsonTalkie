@@ -129,7 +129,6 @@ public:
 
 		json_message.set_message_value(MessageValue::TALKIE_MSG_NOISE);
 		json_message.remove_from();	// Broadcasts message as noise
-		json_message.remove_to();	// Broadcasts message as noise
         talker.transmitToRepeater(json_message);	// Broadcasts message as noise
     }
 
