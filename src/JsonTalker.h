@@ -683,9 +683,9 @@ public:
 								
 								default: break;
 							}
-					} else {
-						_error(json_message, talker_match);
 					}
+					// Always send error messages to the User Manifesto
+					_error(json_message, talker_match);
 				}
 				break;
 			
