@@ -91,7 +91,6 @@ public:
 					uint32_t milliseconds_to_call = json_message.get_nth_value_number(0) % 60;
 					milliseconds_to_call = (60UL - milliseconds_to_call) * 60 * 1000;
 					_time_to_call = present_time + milliseconds_to_call;
-					_time_to_live = _time_to_call + 1UL * 60 * 1000;	// Add 1 minute extra
 					return true;
 				} else {
 					uint32_t minutes = (_time_to_call - present_time) / 1000 / 60;
@@ -136,6 +135,16 @@ public:
 		digitalWrite(LED_BUILTIN, LOW);	// In ESP8266 HIGH is LOW and LOW is HIGH
     }
     
+	
+    void _error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
+		(void)talker;		// Silence unused parameter warning
+		(void)talker_match;	// Silence unused parameter warning
+
+		json_message.set_message_value(MessageValue::TALKIE_MSG_NOISE);
+		json_message.remove_from();	// Broadcasts message as noise
+        talker.transmitToRepeater(json_message);	// Broadcasts message as noise
+    }
+
 };
 
 
