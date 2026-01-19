@@ -90,7 +90,7 @@ protected:
 	struct RecoveryMessage {
 		uint16_t identity;
 		uint16_t received_time;
-		bool active = false;_corrupt_payload
+		bool active = false;
 	};
 	RecoveryMessage _recovery_message;
 	
