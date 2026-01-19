@@ -37,6 +37,9 @@ protected:
 	uint32_t _time_to_call = 60UL * 60 * 1000;
 	uint32_t _time_to_live = 61UL * 60 * 1000;
 
+	uint32_t _last_blink = 0;
+	uint8_t _green_led_on = 0;
+
     Action calls[2] = {
 		{"active", "Gets or sets the active status"},
 		{"minutes", "Gets or sets the actual minutes"}
@@ -121,6 +124,19 @@ public:
 		if ((int32_t)(present_time - _time_to_live) >= 0) {
 			digitalWrite(LED_BUILTIN, HIGH);	// In ESP8266 HIGH is LOW and LOW is HIGH
 			_time_to_live = _time_to_call + 1UL * 60 * 1000;	// Add 1 minute extra
+		}
+
+		if (millis() - _last_blink > 1000) {
+			_last_blink = millis();
+
+			JsonMessage toggle_green_on_off(MessageValue::TALKIE_MSG_CALL, BroadcastValue::TALKIE_BC_REMOTE);
+			toggle_green_on_off.set_to_name("green");
+			if (_green_led_on++ % 2) {
+				toggle_green_on_off.set_action_name("off");
+			} else {
+				toggle_green_on_off.set_action_name("on");
+			}
+			return talker.transmitToRepeater(toggle_green_on_off);
 		}
 	}
 
