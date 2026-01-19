@@ -38,6 +38,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // #define BROADCASTSOCKET_DEBUG
 // #define BROADCASTSOCKET_DEBUG_NEW
+#define BROADCASTSOCKET_DEBUG_CHECKSUM
 
 // Readjust if necessary
 #define MAX_NETWORK_PACKET_LIFETIME_MS 256UL    // 256 milliseconds
@@ -127,6 +128,10 @@ protected:
 			
 		if (check_integrity) {	// Validate message integrity
 
+			#ifdef BROADCASTSOCKET_DEBUG_CHECKSUM
+			json_message._corrupt_payload();
+			#endif
+			
 			size_t received_length = json_message._get_length();
 			if (!json_message._validate_json()) {
 				// Resets its initial length in order to be processed next, as error (checksum fail)
