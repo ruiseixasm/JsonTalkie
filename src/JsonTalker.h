@@ -37,7 +37,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include "BroadcastSocket.h"
 
 
-#define JSON_TALKER_DEBUG
+// #define JSON_TALKER_DEBUG
 // #define JSON_TALKER_DEBUG_NEW
 
 
