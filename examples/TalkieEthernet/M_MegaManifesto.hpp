@@ -121,7 +121,17 @@ public:
 		}
 		return false;
 	}
-    
+
+
+    void _error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
+		(void)talker;		// Silence unused parameter warning
+		(void)talker_match;	// Silence unused parameter warning
+
+		json_message.set_message_value(MessageValue::TALKIE_MSG_NOISE);
+		json_message.remove_from();	// Broadcasts message as noise
+        talker.transmitToRepeater(json_message);	// Broadcasts message as noise
+    }
+
 };
 
 
