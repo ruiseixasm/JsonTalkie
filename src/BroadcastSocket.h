@@ -76,7 +76,7 @@ protected:
     unsigned long _last_local_time = 0;	// millis() compatible
     uint16_t _last_message_timestamp = 0;
     uint16_t _lost_count = 0;
-    uint16_t _misses_count = 0;
+    uint16_t _recoveries_count = 0;
     uint16_t _drops_count = 0;
     uint16_t _fails_count = 0;
 
@@ -151,10 +151,8 @@ protected:
 					_recovery_message.identity = message_id;
 					_recovery_message.received_time = (uint16_t)millis();
 					_recovery_message.active = true;
-					++_misses_count;	// Still recoverable
-				} else {
-					++_lost_count;			// Non recoverable
 				}
+				++_lost_count;			// Non recoverable (+1)
 				return;
 			}
 		}
@@ -167,6 +165,8 @@ protected:
 			if (_recovery_message.active && message_id == _recovery_message.identity) {
 				json_message.replace_key('M', 'm');	// Removes the tag in order to be processed
 				_recovery_message.active = false;	// Ends the recovering process
+				++_recoveries_count;	// Still recoverable (+1)
+				--_lost_count;			// Non recoverable (-1)
 			} else {
 				return;	// It's not intended to this Socket
 			}
@@ -356,12 +356,12 @@ public:
 
 	
     /**
-     * @brief Get the total amount of misses in transmission
+     * @brief Get the total amount of recoveries in transmission
      * @return Returns the number of failed transmissions, wrong checksum
      * 
      * @note A missed message is a received message that is corrupted but still has an id (recoverable)
      */
-    uint16_t get_misses_count() const { return _misses_count; }
+    uint16_t get_recoveries_count() const { return _recoveries_count; }
 
 	
     /**

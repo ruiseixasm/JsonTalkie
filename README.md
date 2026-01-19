@@ -243,7 +243,8 @@ This messages are exclusive to the system.
 - **sockets** - List Socket class names
 - **mute** - Returns or sets the mute mode to the `call` messages
 - **delay** - Maximum delay acceptable to a `call` message before being dropped
-- **misses** - Packets received that had a bad checksum, corrupted messages
+- **lost** - Packets received that had a bad checksum, corrupted messages not recovered
+- **recoveries** - Packets received that had a bad checksum, but where recovered, not count as lost
 - **drops** - Packets received that are `call` messages and arrived later than the configured maximum delay
 - **fails** - Packets which Socket failed to send
 
@@ -350,7 +351,7 @@ These are the member variables of the `BroadcastSocket`:
     bool _control_timing = false;
     unsigned long _last_local_time = 0;	// millis() compatible
     uint16_t _last_message_timestamp = 0;
-    uint16_t _misses_count = 0;
+    uint16_t _recoveries_count = 0;
     uint16_t _drops_count = 0;
     uint16_t _fails_count = 0;
 
