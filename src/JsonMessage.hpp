@@ -738,6 +738,15 @@ public:
 		return true;
 	}
 
+	
+    /** @brief Corrupts a single char for debugging purposes only */
+	void _corrupt_payload() {
+		if (get_message_value() != MessageValue::TALKIE_MSG_ERROR) {
+			size_t corrupted_position = millis() % _json_length;
+			_json_payload[corrupted_position]++;
+		}
+	}
+
 
     /**
      * @brief Checks if the checksum of the message matches the on in the respective field,
