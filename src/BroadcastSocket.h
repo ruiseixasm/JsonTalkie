@@ -137,7 +137,7 @@ protected:
 			if (!json_message._validate_checksum()) {
 				uint16_t message_id;
 				if (json_message.get_identity(&message_id) && _from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {	// a valid from_talker name
-					JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
+					JsonMessage error_message(MessageValue::TALKIE_MSG_ERROR, _from_talker.broadcast);
 					error_message.set_to_name(_from_talker.name);
 					error_message.set_identity(message_id);
 					error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
@@ -236,7 +236,7 @@ protected:
 							#endif
 							
 							if (_from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {	// a valid from_talker name (set above)
-								JsonMessage error_message(_from_talker.broadcast, MessageValue::TALKIE_MSG_ERROR);
+								JsonMessage error_message(MessageValue::TALKIE_MSG_ERROR, _from_talker.broadcast);
 								error_message.set_to_name(_from_talker.name);
 								error_message.set_identity(json_message.get_identity());	// Already validated with checksum
 								error_message.set_error_value(ErrorValue::TALKIE_ERR_DELAY);
