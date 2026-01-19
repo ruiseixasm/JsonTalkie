@@ -37,7 +37,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include "BroadcastSocket.h"
 
 
-// #define JSON_TALKER_DEBUG
+#define JSON_TALKER_DEBUG
 // #define JSON_TALKER_DEBUG_NEW
 
 
@@ -177,8 +177,27 @@ private:
 
 		if (json_message.is_to_name(_name)) {
 			
+			#ifdef JSON_TALKER_DEBUG
+			Serial.print(F("\t\t\t\t_prepareMessage1.1: IS TO NAME:"));
+			json_message.write_to(Serial);
+			Serial.println();  // optional: just to add a newline after the JSON
+			#endif
+
 			json_message.swap_to_with_from();
+			
+			#ifdef JSON_TALKER_DEBUG
+			Serial.print(F("\t\t\t\t_prepareMessage1.1: SWAPPED MESSAGE:"));
+			json_message.write_to(Serial);
+			Serial.println();  // optional: just to add a newline after the JSON
+			#endif
+
 		} else if (!json_message.is_from_name(_name) && !json_message.set_from_name(_name)) {
+
+			#ifdef JSON_TALKER_DEBUG
+			Serial.print(F("\t\t\t\t_prepareMessage1.2: FAILED TO SET FROM:"));
+			json_message.write_to(Serial);
+			Serial.println();  // optional: just to add a newline after the JSON
+			#endif
 
 			return false;	// Unable to set FROM (must have)
 		}
@@ -187,7 +206,7 @@ private:
 		if (message_value < MessageValue::TALKIE_MSG_ECHO) {
 
 			#ifdef JSON_TALKER_DEBUG
-			Serial.print(F("\t\t\t\t_prepareMessage1.1: Setting a new identifier (i) for :"));
+			Serial.print(F("\t\t\t\t_prepareMessage1.3: Setting a new identifier (i) for :"));
 			json_message.write_to(Serial);
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
@@ -200,7 +219,7 @@ private:
 		} else {	// errors and echoes
 			
 			#ifdef JSON_TALKER_DEBUG
-			Serial.print(F("\t\t\t\t_prepareMessage1.3: Keeping the same identifier (i): "));
+			Serial.print(F("\t\t\t\t_prepareMessage1.4: Keeping the same identifier (i): "));
 			json_message.write_to(Serial);
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif

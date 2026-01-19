@@ -1645,8 +1645,8 @@ public:
 	void swap_to_with_from() {
 		size_t key_to_position = _get_key_position('t');
 		if (key_to_position) {
-			_json_payload[key_to_position] = 'f';
 			size_t key_from_position = _get_key_position('f');
+			_json_payload[key_to_position] = 'f';
 			if (key_from_position) {
 				_json_payload[key_from_position] = 't';
 			}
