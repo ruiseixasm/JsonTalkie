@@ -690,6 +690,18 @@ public:
 									_recovery_message.active = false;	// One retry only (avoids cascading of retries)
 									// Retransmits as is, and because it represents the same id as _recovery_message
 									_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message ('M')
+
+									#ifdef JSON_TALKER_DEBUG_CHECKSUM
+									Serial.print(F("\t\t\thandleTransmission2 (error): "));
+									_recovery_message.message.write_to(Serial);
+									Serial.print(" | ");
+									Serial.print(error_message_id);
+									Serial.print(" | ");
+									Serial.print(_recovery_message.identity);
+									Serial.print(" | ");
+									Serial.println(_recovery_message.active);
+									#endif
+
 									transmitToRepeater(_recovery_message.message);
 								break;
 								
