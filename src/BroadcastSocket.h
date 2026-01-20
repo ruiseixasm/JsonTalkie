@@ -201,7 +201,7 @@ protected:
 				++_recoveries_count;	// Still recoverable (+1)
 				--_lost_count;			// Non recoverable (-1)
 			} else {
-				return;	// It's not intended to this Socket
+				// Not for this Socket, let the Repeater send to others
 			}
 		}
 
