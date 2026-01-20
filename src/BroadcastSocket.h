@@ -127,6 +127,13 @@ protected:
 		Serial.print(": ");
 		#endif
 			
+		#ifdef BROADCASTSOCKET_DEBUG_NEW
+		Serial.print(F("\t_startTransmission1.1: "));
+		json_message.write_to(Serial);
+		Serial.print(" | ");
+		Serial.println(json_message._get_length());
+		#endif
+		
 		if (check_integrity) {	// Validate message integrity
 
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM)
@@ -200,7 +207,7 @@ protected:
 		_showMessage(json_message);
 
 		#ifdef BROADCASTSOCKET_DEBUG_NEW
-		Serial.print(F("\t_startTransmission1.1: "));
+		Serial.print(F("\t_startTransmission1.2: "));
 		json_message.write_to(Serial);
 		Serial.print(" | ");
 		Serial.println(json_message._get_length());
