@@ -745,9 +745,9 @@ public:
      * @param one_in How many messages per each corruption
      */
 	void _corrupt_payload(bool any_message = true, uint8_t one_in = 100) {
-		if (millis() % one_in &&
+		if (micros() % one_in &&
 			(any_message || get_message_value() != MessageValue::TALKIE_MSG_ERROR)) {
-			size_t corrupted_position = millis() % _json_length;
+			size_t corrupted_position = micros() % _json_length;
 			_json_payload[corrupted_position]++;
 		}
 	}
