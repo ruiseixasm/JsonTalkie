@@ -159,7 +159,7 @@ protected:
 				Serial.println(json_message._get_length());
 				#endif
 			
-				if (_subsequent_errors < 10) {	// Avoids a runaway flux of errors
+				if (_subsequent_errors < MAXIMUM_SUBSEQUENT_ERRORS) {	// Avoids a runaway flux of errors
 
 					uint16_t message_id;
 					if (json_message.get_identity(&message_id) && _from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {

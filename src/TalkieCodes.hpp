@@ -35,6 +35,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define TALKIE_MAX_RETRIES 3		///< The maximum amount of retires for a not received message (checksum error)
 #define TALKIE_TRACE_TTL 900		///< The maximum time to live of the traceable message
 #define TALKIE_RECOVERY_TTL 500		///< The maximum time to live of the recoverable message
+#define MAXIMUM_SUBSEQUENT_ERRORS 3		///< The maximum number of subsequent errors able to be triggered
 
 
 /**
