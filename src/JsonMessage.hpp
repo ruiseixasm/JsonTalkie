@@ -751,7 +751,7 @@ public:
 
 			if (!triggered) {
 				size_t corrupted_position = millis() % _json_length;
-				_json_payload[corrupted_position]++;
+				_json_payload[corrupted_position] = 'X';
 				triggered = true;
 			}
 		} else {
