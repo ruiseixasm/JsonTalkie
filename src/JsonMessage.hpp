@@ -750,7 +750,7 @@ public:
 			(any_message || get_message_value() != MessageValue::TALKIE_MSG_ERROR)) {
 
 			if (!triggered) {
-				size_t corrupted_position = micros() % _json_length;
+				size_t corrupted_position = millis() % _json_length;
 				_json_payload[corrupted_position]++;
 				triggered = true;
 			}
