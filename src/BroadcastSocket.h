@@ -150,7 +150,7 @@ protected:
 			}
 
 			// Safer way of Recovering messages
-			if (!json_message._validate_checksum() && _subsequent_errors < 10) {
+			if (!json_message._validate_checksum()) {
 				
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 				Serial.print(F("\t_startTransmission1.2: "));
@@ -158,29 +158,32 @@ protected:
 				Serial.print(" | ");
 				Serial.println(json_message._get_length());
 				#endif
-		
-				uint16_t message_id;
-				if (json_message.get_identity(&message_id) && _from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {
-					JsonMessage error_message(MessageValue::TALKIE_MSG_ERROR, _from_talker.broadcast);
-					error_message.set_identity(message_id);
-					error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
-					error_message.set_to_name(_from_talker.name);
-					_finishTransmission(error_message);
+			
+				if (_subsequent_errors < 10) {	// Avoids a runaway flux of errors
 
-					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-					Serial.print(F("\t_startTransmission1.3: "));
-					error_message.write_to(Serial);
-					Serial.print(" | ");
-					Serial.println(error_message._get_length());
-					#endif
-		
-					// Keeps the window opened
-					_recovery_message.identity = message_id;
-					_recovery_message.received_time = (uint16_t)millis();
-					_recovery_message.active = true;
+					uint16_t message_id;
+					if (json_message.get_identity(&message_id) && _from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {
+						JsonMessage error_message(MessageValue::TALKIE_MSG_ERROR, _from_talker.broadcast);
+						error_message.set_identity(message_id);
+						error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
+						error_message.set_to_name(_from_talker.name);
+						_finishTransmission(error_message);
+
+						#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+						Serial.print(F("\t_startTransmission1.3: "));
+						error_message.write_to(Serial);
+						Serial.print(" | ");
+						Serial.println(error_message._get_length());
+						#endif
+			
+						// Keeps the window opened
+						_recovery_message.identity = message_id;
+						_recovery_message.received_time = (uint16_t)millis();
+						_recovery_message.active = true;
+					}
+					++_subsequent_errors;	// Avoids a runaway flux of errors
 				}
 				++_lost_count;			// Non recoverable (+1)
-				++_subsequent_errors;	// Avoids a runaway flux of errors
 				return;
 			}
 		}
