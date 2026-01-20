@@ -178,6 +178,13 @@ protected:
 		// At this point the message has its integrity guaranteed
 		if (json_message.has_key('M')) {	// It's a Recovery message
 			
+			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+			Serial.print(F("\t_startTransmission1.3: "));
+			json_message.write_to(Serial);
+			Serial.print(" | ");
+			Serial.println(json_message._get_length());
+			#endif
+		
 			uint16_t message_id = json_message.get_identity();	// Identity is correct for sure
 			// Processes the Recovery message
 			if (_recovery_message.active && message_id == _recovery_message.identity) {
