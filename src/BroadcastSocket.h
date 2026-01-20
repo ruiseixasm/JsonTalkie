@@ -80,6 +80,7 @@ protected:
     uint16_t _recoveries_count = 0;
     uint16_t _drops_count = 0;
     uint16_t _fails_count = 0;
+	uint8_t _subsequent_errors = 0;	// Avoids a runaway flux of errors
 
 	struct FromTalker {
 		char name[TALKIE_NAME_LEN] = {'\0'};
@@ -149,7 +150,7 @@ protected:
 			}
 
 			// Safer way of Recovering messages
-			if (!json_message._validate_checksum()) {
+			if (!json_message._validate_checksum() && _subsequent_errors < 10) {
 				
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 				Serial.print(F("\t_startTransmission1.2: "));
@@ -179,9 +180,12 @@ protected:
 					_recovery_message.active = true;
 				}
 				++_lost_count;			// Non recoverable (+1)
+				++_subsequent_errors;	// Avoids a runaway flux of errors
 				return;
 			}
 		}
+
+		_subsequent_errors = 0;	// Avoids a runaway flux of errors
 
 		// At this point the message has its integrity guaranteed
 		if (json_message.has_key('M')) {	// It's a Recovery message
