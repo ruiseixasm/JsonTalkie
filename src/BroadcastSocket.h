@@ -151,7 +151,7 @@ protected:
 			// Safer way of Recovering messages
 			if (!json_message._validate_checksum()) {
 				
-				#ifdef BROADCASTSOCKET_DEBUG_NEW
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 				Serial.print(F("\t_startTransmission1.2: "));
 				json_message.write_to(Serial);
 				Serial.print(" | ");
