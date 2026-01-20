@@ -492,6 +492,12 @@ public:
 			
 		if (json_message._get_length() && json_message._insert_checksum()) {
 			
+			#ifdef BROADCASTSOCKET_DEBUG_NEW
+			Serial.print(F("\tsocketSend2: "));
+			json_message.write_to(Serial);
+			Serial.println();  // optional: just to add a newline after the JSON
+			#endif
+
 			message_sent = _send(json_message);
 
 			#ifdef MESSAGE_DEBUG_TIMING
