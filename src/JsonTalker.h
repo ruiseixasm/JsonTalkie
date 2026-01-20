@@ -39,6 +39,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // #define JSON_TALKER_DEBUG
 // #define JSON_TALKER_DEBUG_NEW
+// #define JSON_TALKER_DEBUG_CHECKSUM
 
 
 using LinkType			= TalkieCodes::LinkType;
@@ -668,7 +669,7 @@ public:
 					// Makes sure it has the same id first (error match condition)
 					uint16_t error_message_id = json_message.get_identity();
 					
-					#ifdef JSON_TALKER_DEBUG_NEW
+					#ifdef JSON_TALKER_DEBUG_CHECKSUM
 					Serial.print(F("\t\t\thandleTransmission2 (error): "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
