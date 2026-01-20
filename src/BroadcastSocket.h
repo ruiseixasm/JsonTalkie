@@ -150,6 +150,14 @@ protected:
 
 			// Safer way of Recovering messages
 			if (!json_message._validate_checksum()) {
+				
+				#ifdef BROADCASTSOCKET_DEBUG_NEW
+				Serial.print(F("\t_startTransmission1.2: "));
+				json_message.write_to(Serial);
+				Serial.print(" | ");
+				Serial.println(json_message._get_length());
+				#endif
+		
 				uint16_t message_id;
 				if (json_message.get_identity(&message_id) && _from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {
 					JsonMessage error_message(MessageValue::TALKIE_MSG_ERROR, _from_talker.broadcast);
@@ -207,7 +215,7 @@ protected:
 		_showMessage(json_message);
 
 		#ifdef BROADCASTSOCKET_DEBUG_NEW
-		Serial.print(F("\t_startTransmission1.2: "));
+		Serial.print(F("\t_startTransmission2: "));
 		json_message.write_to(Serial);
 		Serial.print(" | ");
 		Serial.println(json_message._get_length());
