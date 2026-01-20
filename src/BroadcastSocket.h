@@ -165,6 +165,14 @@ protected:
 					error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
 					error_message.set_to_name(_from_talker.name);
 					_finishTransmission(error_message);
+
+					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+					Serial.print(F("\t_startTransmission1.3: "));
+					error_message.write_to(Serial);
+					Serial.print(" | ");
+					Serial.println(error_message._get_length());
+					#endif
+		
 					// Keeps the window opened
 					_recovery_message.identity = message_id;
 					_recovery_message.received_time = (uint16_t)millis();
