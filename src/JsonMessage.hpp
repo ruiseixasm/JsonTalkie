@@ -273,6 +273,8 @@ private:
      * @param number Pointer to a 32 bits number to get
      * @param colon_position Optional hint for colon position
      * @return false if no valid `uint32_t` number was found
+     * 
+     * @note This method checks that the number is well terminated with ',' or '}'
      */
 	bool _get_value_number(char key, uint32_t* number, size_t colon_position = 4) const {
 		uint32_t json_number = 0;
@@ -282,6 +284,7 @@ private:
 				json_number *= 10;
 				json_number += _json_payload[json_i++] - '0';
 			}
+			// Very important validation to guarantee it isn't a truncated number due to data corruption
 			if (_json_payload[json_i] == ',' || _json_payload[json_i] == '}') {
 				*number = json_number;
 				return true;
@@ -737,7 +740,7 @@ public:
 		}
         return checksum;
     }
-	
+
 	
     /**
      * @brief Corrupts a single char for debugging purposes only
