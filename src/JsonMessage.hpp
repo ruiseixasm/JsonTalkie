@@ -953,18 +953,36 @@ public:
 
 
     /**
+     * @brief Check if 'to' field is to name
+     * @return true if 'to' field is to a name
+     */
+	bool is_to_name() const {
+		char to_name[TALKIE_NAME_LEN];
+		return _get_value_string('t', to_name, TALKIE_NAME_LEN);
+	}
+
+
+    /**
      * @brief Check if 'to' field matches channel
      * @param channel Channel number (0-254)
      * @return true if 'to' field is number and matches
-     * 
-     * @note Returns false for channel 255 (reserved)
      */
 	bool is_to_channel(uint8_t channel) const {
 		uint32_t to_channel;
-		if (_get_value_number('t', &to_channel) && to_channel < 255) {
+		if (_get_value_number('t', &to_channel)) {
 			return channel == (uint8_t)to_channel;
 		}
 		return false;
+	}
+
+
+    /**
+     * @brief Checks if 'to' field is a channel
+     * @return true if 'to' field is a channel
+     */
+	bool is_to_channel() const {
+		uint32_t to_channel;
+		return _get_value_number('t', &to_channel);
 	}
 
 	
