@@ -1121,7 +1121,12 @@ public:
      * @return BroadcastValue enum, or TALKIE_BC_NONE if invalid
      */
 	BroadcastValue get_broadcast_value() const {
-		return static_cast<BroadcastValue>( _get_value_number('b') );
+		uint32_t broadcast_number;
+		uint32_t self_number = static_cast<uint32_t>( BroadcastValue::TALKIE_BC_SELF );
+		if (_get_value_number('b', &broadcast_number) && broadcast_number <= self_number) {
+			return static_cast<BroadcastValue>(broadcast_number);
+		}
+		return BroadcastValue::TALKIE_BC_NONE;
 	}
 
 
