@@ -1679,6 +1679,21 @@ public:
 
 
     /**
+     * @brief Swap 'from' with 'to' fields
+     */
+	void swap_from_with_to() {
+		size_t key_from_position = _get_key_position('f');
+		if (key_from_position) {
+			size_t key_to_position = _get_key_position('t');
+			_json_payload[key_from_position] = 't';
+			if (key_to_position) {
+				_json_payload[key_to_position] = 'f';
+			}
+		}
+	}
+
+
+    /**
      * @brief Swap 'to' with 'from' fields
      */
 	void swap_to_with_from() {

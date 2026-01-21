@@ -191,15 +191,10 @@ private:
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
 
-		} else if (!json_message.is_from_name(_name) && !json_message.set_from_name(_name)) {
+		} else if (!json_message.is_from_name(_name)) {
 
-			#ifdef JSON_TALKER_DEBUG
-			Serial.print(F("\t\t\t\t_prepareMessage1.2: FAILED TO SET FROM:"));
-			json_message.write_to(Serial);
-			Serial.println();  // optional: just to add a newline after the JSON
-			#endif
-
-			return false;	// Unable to set FROM (must have)
+			json_message.swap_from_with_to();
+			if (!json_message.set_from_name(_name)) return false;	// Unable to set FROM (must have)
 		}
 
 		MessageValue message_value = json_message.get_message_value();
