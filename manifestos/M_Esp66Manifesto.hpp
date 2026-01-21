@@ -150,17 +150,6 @@ public:
 		_time_to_live = _time_to_call + 1UL * 60 * 1000;		// Add 1 minute extra
 		digitalWrite(LED_BUILTIN, LOW);	// In ESP8266 HIGH is LOW and LOW is HIGH
     }
-    
-
-    void _error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
-		(void)talker;		// Silence unused parameter warning
-
-		if (talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// Only if for me
-			json_message.set_message_value(MessageValue::TALKIE_MSG_NOISE);
-			json_message.remove_from();	// Broadcasts message as noise
-			talker.transmitToRepeater(json_message);	// Broadcasts message as noise
-		}
-    }
 
 };
 
