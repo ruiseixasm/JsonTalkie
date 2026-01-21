@@ -274,7 +274,7 @@ private:
      * @param colon_position Optional hint for colon position
      * @return false if no valid `uint32_t` number was found
      * 
-     * @note This method checks that the number is well terminated with ',' or '}'
+     * @note This method checks if the number is well terminated with ',' or '}'
      */
 	bool _get_value_number(char key, uint32_t* number, size_t colon_position = 4) const {
 		uint32_t json_number = 0;
@@ -1086,6 +1086,8 @@ public:
      * @brief Get identity number
      * @param identity Pointer to a 16 bits number to get the identity
      * @return false if no valid number was found
+     * 
+     * @note This method checks if the number is well terminated and bounded
      */
 	bool get_identity(uint16_t* identity) const {
 		uint32_t json_number;
@@ -1129,6 +1131,8 @@ public:
      * @brief Get the broadcast_value
      * @param broadcast_value Pointer to a BroadcastValue variable
      * @return false if no valid BroadcastValue was found
+     * 
+     * @note This method checks if the number is well terminated and bounded
      */
 	bool get_broadcast_value(BroadcastValue* broadcast_value) const {
 		uint32_t json_number;
