@@ -1067,15 +1067,15 @@ public:
     /**
      * @brief Get the key value
      * @param key A single char like 'i'
-     * @param key_value Pointer to a 8 bits number to get the value
+     * @param key_number Pointer to a 8 bits number to get the value
      * @return false if no valid number was found
      * 
      * @note This method checks if the number is well terminated and bounded
      */
-	bool get_key_value(char key, uint8_t* key_value) const {
+	bool get_key_number(char key, uint8_t* key_number) const {
 		uint32_t json_number;
 		if (_get_value_number(key, &json_number) && json_number <= 0xFF) {
-			*key_value = (uint8_t)json_number;
+			*key_number = (uint8_t)json_number;
 			return true;
 		}
 		return false;
@@ -1085,15 +1085,15 @@ public:
     /**
      * @brief Get the key value
      * @param key A single char like 'i'
-     * @param key_value Pointer to a 16 bits number to get the value
+     * @param key_number Pointer to a 16 bits number to get the value
      * @return false if no valid number was found
      * 
      * @note This method checks if the number is well terminated and bounded
      */
-	bool get_key_value(char key, uint16_t* key_value) const {
+	bool get_key_number(char key, uint16_t* key_number) const {
 		uint32_t json_number;
 		if (_get_value_number(key, &json_number) && json_number <= 0xFFFF) {
-			*key_value = (uint16_t)json_number;
+			*key_number = (uint16_t)json_number;
 			return true;
 		}
 		return false;
@@ -1103,15 +1103,15 @@ public:
     /**
      * @brief Get the key value
      * @param key A single char like 'i'
-     * @param key_value Pointer to a 32 bits number to get the value
+     * @param key_number Pointer to a 32 bits number to get the value
      * @return false if no valid number was found
      * 
      * @note This method checks if the number is well terminated and bounded
      */
-	bool get_key_value(char key, uint32_t* key_value) const {
+	bool get_key_number(char key, uint32_t* key_number) const {
 		uint32_t json_number;
 		if (_get_value_number(key, &json_number)) {
-			*key_value = json_number;
+			*key_number = json_number;
 			return true;
 		}
 		return false;
