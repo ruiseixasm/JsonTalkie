@@ -99,14 +99,14 @@ protected:
     enum CorruptionType : uint8_t {
 		TALKIE_CT_CLEAN,
 		TALKIE_CT_DATA,
-		TALKIE_CT_IDENTITY,
 		TALKIE_CT_CHECKSUM,
+		TALKIE_CT_IDENTITY,
 		TALKIE_CT_UNRECOVERABLE
     };
 
 	struct CorruptedMessage {
 		CorruptionType corruption_type;
-		uint16_t identity;
+		BroadcastValue broadcast;
 		uint16_t checksum;
 		uint16_t received_time;
 		bool active = false;
@@ -172,10 +172,61 @@ protected:
 				
 				if (_corrupted_message.corruption_type == TALKIE_CT_IDENTITY) {
 					_corrupted_message.corruption_type = TALKIE_CT_UNRECOVERABLE;
-					++_lost_count;			// Non recoverable (+1)
-					return;
+				} else {
+					_corrupted_message.corruption_type = TALKIE_CT_CHECKSUM;
 				}
-				_corrupted_message.corruption_type = TALKIE_CT_CHECKSUM;
+
+			} else if (_corrupted_message.corruption_type == TALKIE_CT_CLEAN) {
+				json_message.remove_checksum();
+				if (json_message._generate_checksum() != _corrupted_message.checksum) {
+					_corrupted_message.corruption_type = TALKIE_CT_DATA;
+				}
+			}
+			
+
+			if (_corrupted_message.corruption_type != TALKIE_CT_CLEAN) {
+
+				JsonMessage error_message;
+				error_message.set_message_value(MessageValue::TALKIE_MSG_ERROR);
+				error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
+
+				if (!json_message.get_broadcast_value(&_corrupted_message.broadcast)) {
+					_corrupted_message.broadcast = BroadcastValue::TALKIE_BC_NONE;
+				} else {
+					error_message.set_broadcast_value(_corrupted_message.broadcast);
+				}
+
+				switch (_corrupted_message.corruption_type) 
+				{
+					case TALKIE_CT_DATA:
+					case TALKIE_CT_CHECKSUM:
+						error_message.set_identity(_corrupted_message.identity);
+					case TALKIE_CT_IDENTITY:
+						++_lost_count;	// Non recoverable so far (+1)
+					break;
+					
+					case TALKIE_CT_UNRECOVERABLE:
+						++_lost_count;	// Non recoverable (+1)
+						return;
+					break;
+					
+					default: break;
+				}
+
+				if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE) {
+
+					error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
+					_finishTransmission(error_message);
+					error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
+					_finishTransmission(error_message);
+
+				} else {
+					_finishTransmission(error_message);
+				}
+
+				_corrupted_message.received_time = (uint16_t)millis();
+				_corrupted_message.active = true;
+				return;
 			}
 
 
@@ -391,6 +442,9 @@ public:
         if (_control_timing && millis() - _last_local_time > MAX_NETWORK_PACKET_LIFETIME_MS) {
             _control_timing = false;
         }
+		if (_corrupted_message.active && (uint16_t)millis() - _corrupted_message.received_time > TALKIE_RECOVERY_TTL) {
+			_corrupted_message.active = false;
+		}
 		if (_recovery_message.active && (uint16_t)millis() - _recovery_message.received_time > TALKIE_RECOVERY_TTL) {
 			_recovery_message.active = false;
 		}
