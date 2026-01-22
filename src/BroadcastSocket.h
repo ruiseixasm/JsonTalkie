@@ -277,13 +277,13 @@ protected:
 				json_message._set_length(received_length);
 			}
 
+			JsonMessage reconstructed_message(json_message);
 			uint16_t message_checksum_1 = 0;
 			uint16_t message_identity_1 = 0;
 			CorruptionType corruption_type_1 = _messageCorruption(json_message, &message_checksum_1, &message_identity_1);
 
 			if (corruption_type_1 != TALKIE_CT_CLEAN) {
 
-				JsonMessage reconstructed_message(json_message);
 				reconstructed_message._try_to_reconstruct();
 				uint16_t message_checksum_2 = 0;
 				uint16_t message_identity_2 = 0;
