@@ -88,6 +88,9 @@ protected:
 		if (json_message.has_from()) {
 			json_message.get_from_name(_from_talker.name)
 			_from_talker.ip_address = _udp->remoteIP();
+		} else if (json_message.is_noise()) {	// Reset name keeping
+			_from_talker.name[0] = '\0';	// Resets the from talker data
+			return;	// It came from a Socket, no need to lose more time
 		}
 	}
 

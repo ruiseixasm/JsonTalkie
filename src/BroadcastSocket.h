@@ -81,12 +81,6 @@ protected:
     uint16_t _drops_count = 0;
     uint16_t _fails_count = 0;
 	uint8_t _consecutive_errors = 0;	// Avoids a runaway flux of errors
-
-	struct FromTalker {
-		char name[TALKIE_NAME_LEN] = {'\0'};
-		BroadcastValue broadcast = BroadcastValue::TALKIE_BC_NONE;
-	};
-	FromTalker _from_talker;
 	
 
     enum CorruptionType : uint8_t {
@@ -341,28 +335,6 @@ protected:
 			}
 		}
 
-
-		if (json_message.has_broadcast_value()) {	// Mandatory field
-			if (json_message.has_from()) {
-				// From a Talker
-				if (!(
-					json_message.get_from_name(_from_talker.name) &&
-					json_message.get_broadcast_value(&_from_talker.broadcast)
-				)) {
-					// Makes sure corrupt data isn't used
-					_from_talker.name[0] = '\0';
-					_from_talker.broadcast = BroadcastValue::TALKIE_BC_NONE;
-					return;	// If fields exist they must be valid
-				}
-			// From a Socket
-			} else if (json_message.is_noise()) {	// Reset name keeping
-				// Resets the from talker data
-				_from_talker.name[0] = '\0';
-				_from_talker.broadcast = BroadcastValue::TALKIE_BC_NONE;
-				return;	// It came from a Socket, no need to lose more time
-			}
-		}
-
 		_showMessage(json_message);
 
 		#ifdef BROADCASTSOCKET_DEBUG_NEW
@@ -408,14 +380,14 @@ protected:
 							Serial.println(remote_delay);
 							#endif
 							
-							if (_from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {	// a valid from_talker name (set above)
-								JsonMessage error_message(MessageValue::TALKIE_MSG_ERROR, _from_talker.broadcast);
-								error_message.set_to_name(_from_talker.name);
-								error_message.set_identity(json_message.get_identity());	// Already validated with checksum
-								error_message.set_error_value(ErrorValue::TALKIE_ERR_DELAY);
-								// Error messages can be anonymous messages without "from_name"
-								_finishTransmission(error_message);
-							}
+							JsonMessage error_message(MessageValue::TALKIE_MSG_ERROR, json_message.get_broadcast_value());
+							error_message.set_error_value(ErrorValue::TALKIE_ERR_DELAY);
+							char from_name[TALKIE_NAME_LEN];
+							json_message.get_to_name(from_name, TALKIE_NAME_LEN);
+							error_message.set_to_name(from_name);
+							error_message.set_identity(json_message.get_identity());	// Already validated with checksum
+							// Error messages can be anonymous messages without "from_name"
+							_finishTransmission(error_message);
 							++_drops_count;
 							return;
 						}
