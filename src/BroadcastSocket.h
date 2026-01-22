@@ -149,11 +149,11 @@ protected:
 		Serial.print(F("\t_startTransmission1.2: "));
 		json_message.write_to(Serial);
 		Serial.print(" | ");
-		Serial.print(_corrupted_message.checksum);
+		Serial.print(*message_checksum);
 		Serial.print(" | ");
-		Serial.print(_corrupted_message.identity);
+		Serial.print(*message_identity);
 		Serial.print(" | ");
-		Serial.println((int)_corrupted_message.corruption_type);
+		Serial.println((int)corruption_type);
 		#endif
 
 		return corruption_type;
