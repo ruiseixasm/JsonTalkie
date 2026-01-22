@@ -1333,7 +1333,7 @@ public:
 			}
 		} else {
 			MessageValue message_value = get_message_value();
-			if (message_value > MessageValue::TALKIE_MSG_PING || has_nth_value_number(0)) {
+			if ((message_value > MessageValue::TALKIE_MSG_PING && message_value != MessageValue::TALKIE_MSG_ERROR) || has_nth_value_number(0)) {
 				// Only TALK, CHANNEL and PING can be for ANY
 				// AVOIDS DANGEROUS ALL AT ONCE TRIGGERING (USE CHANNEL INSTEAD)
 				// AVOIDS DANGEROUS SETTING OF ALL CHANNELS AT ONCE
