@@ -272,7 +272,7 @@ protected:
 								_corrupted_message.active = false;
 							} else {
 								// Not for this Socket, let the Repeater send to other Sockets
-								json_message.replace_key('m', 'M')
+								json_message.replace_key('m', 'M');
 							}
 						break;
 
@@ -283,7 +283,7 @@ protected:
 								_corrupted_message.active = false;
 							} else {
 								// Not for this Socket, let the Repeater send to other Sockets
-								json_message.replace_key('m', 'M')
+								json_message.replace_key('m', 'M');
 							}
 						break;
 
@@ -294,7 +294,7 @@ protected:
 								_corrupted_message.active = false;
 							} else {
 								// Not for this Socket, let the Repeater send to other Sockets
-								json_message.replace_key('m', 'M')
+								json_message.replace_key('m', 'M');
 							}
 						break;
 						
