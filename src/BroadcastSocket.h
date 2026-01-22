@@ -97,9 +97,10 @@ protected:
 
 
     enum CorruptionType : uint8_t {
+		CORRUPTION_CLEAN,
 		CORRUPTED_IDENTITY,
 		CORRUPTED_CHECKSUM,
-		CORRUPTED_MESSAGE
+		CORRUPTED_PAYLOAD
     };
 
 	struct CorruptedMessage {
@@ -159,6 +160,19 @@ protected:
 			#elif defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 			json_message._corrupt_payload(true);
 			#endif
+
+			if (json_message.get_identity(&_corrupted_message.identity)) {
+				_corrupted_message.corruption_type = CORRUPTION_CLEAN;
+			} else {
+				_corrupted_message.corruption_type = CORRUPTED_IDENTITY;
+			}
+
+			if (json_message.get_checksum(&_corrupted_message.identity)) {
+				_corrupted_message.corruption_type = CORRUPTION_CLEAN;
+			} else {
+				_corrupted_message.corruption_type = CORRUPTED_IDENTITY;
+			}
+
 
 			size_t received_length = json_message._get_length();
 			if (!json_message._validate_json()) {

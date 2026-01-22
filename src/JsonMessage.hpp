@@ -1140,8 +1140,34 @@ public:
 
 
     /**
+     * @brief Get checksum number
+     * @return Checksum 16-bit value (0-65535)
+     */
+	uint16_t get_checksum() {
+		return static_cast<uint16_t>(_get_value_number('c'));
+	}
+
+
+    /**
+     * @brief Get checksum number
+     * @param checksum Pointer to a 16 bits number to get the checksum
+     * @return false if no valid number was found
+     * 
+     * @note This method checks if the number is well terminated and bounded
+     */
+	bool get_checksum(uint16_t* checksum) const {
+		uint32_t json_number;
+		if (_get_value_number('c', &json_number) && json_number <= 0xFFFF) {
+			*checksum = (uint16_t)json_number;
+			return true;
+		}
+		return false;
+	}
+
+
+    /**
      * @brief Get identity number
-     * @return Identity value (0-65535)
+     * @return Identity 16-bit value (0-65535)
      */
 	uint16_t get_identity() {
 		return static_cast<uint16_t>(_get_value_number('i'));
