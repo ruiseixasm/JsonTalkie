@@ -675,8 +675,7 @@ public:
 					Serial.println(_recovery_message.active);
 					#endif
 
-					if (_recovery_message.active && error_message_id == _recovery_message.identity &&
-						talker_match == TalkerMatch::TALKIE_MATCH_BY_NAME) {	// It's for me
+					if (_recovery_message.active && talker_match == TalkerMatch::TALKIE_MATCH_ANY) {	// It's a broadcast call
 
 							ErrorValue error_value = json_message.get_error_value();
 							switch (error_value) {
