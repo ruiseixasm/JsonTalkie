@@ -1563,6 +1563,17 @@ public:
     // SETTERS - FIELD MODIFICATION
     // ============================================
 
+	/**
+     * @brief Set a number for a given key
+     * @param key A single char like 'i'
+     * @param number An 32-bit integer
+     * @return true if successful
+     */
+	bool set_key_number(char key, uint32_t number) {
+		return _set_number(key, number);
+	}
+
+
     /**
      * @brief Set message type
      * @param message_value Message type enum
@@ -1793,7 +1804,6 @@ public:
 	}
 
 };
-
 
 
 #endif // JSON_MESSAGE_HPP
