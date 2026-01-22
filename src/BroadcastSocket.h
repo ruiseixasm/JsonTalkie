@@ -97,10 +97,11 @@ protected:
 
 
     enum CorruptionType : uint8_t {
-		CORRUPTION_CLEAN,
-		CORRUPTED_IDENTITY,
-		CORRUPTED_CHECKSUM,
-		CORRUPTED_PAYLOAD
+		TALKIE_CT_CLEAN,
+		TALKIE_CT_DATA,
+		TALKIE_CT_IDENTITY,
+		TALKIE_CT_CHECKSUM,
+		TALKIE_CT_UNRECOVERABLE
     };
 
 	struct CorruptedMessage {
@@ -161,16 +162,20 @@ protected:
 			json_message._corrupt_payload(true);
 			#endif
 
-			if (json_message.get_identity(&_corrupted_message.identity)) {
-				_corrupted_message.corruption_type = CORRUPTION_CLEAN;
+			if (!json_message.get_identity(&_corrupted_message.identity)) {
+				_corrupted_message.corruption_type = TALKIE_CT_IDENTITY;
 			} else {
-				_corrupted_message.corruption_type = CORRUPTED_IDENTITY;
+				_corrupted_message.corruption_type = TALKIE_CT_CLEAN;
 			}
 
-			if (json_message.get_checksum(&_corrupted_message.identity)) {
-				_corrupted_message.corruption_type = CORRUPTION_CLEAN;
-			} else {
-				_corrupted_message.corruption_type = CORRUPTED_IDENTITY;
+			if (!json_message.get_checksum(&_corrupted_message.checksum)) {
+				
+				if (_corrupted_message.corruption_type == TALKIE_CT_IDENTITY) {
+					_corrupted_message.corruption_type = TALKIE_CT_UNRECOVERABLE;
+					++_lost_count;			// Non recoverable (+1)
+					return;
+				}
+				_corrupted_message.corruption_type = TALKIE_CT_CHECKSUM;
 			}
 
 
