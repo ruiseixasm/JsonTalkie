@@ -453,9 +453,6 @@ public:
 		if (_corrupted_message.active && (uint16_t)millis() - _corrupted_message.received_time > TALKIE_RECOVERY_TTL) {
 			_corrupted_message.active = false;
 		}
-		if (_recovery_message.active && (uint16_t)millis() - _recovery_message.received_time > TALKIE_RECOVERY_TTL) {
-			_recovery_message.active = false;
-		}
         _receive();
     }
 
