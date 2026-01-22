@@ -121,7 +121,7 @@ protected:
 	}
 
 
-	CorruptionType _messageCorruption(const JsonMessage& json_message, uint16_t &message_checksum, , uint16_t &message_identity) const {
+	CorruptionType _messageCorruption(const JsonMessage& json_message, uint16_t* message_checksum, uint16_t* message_identity) const {
 
 		CorruptionType corruption_type = TALKIE_CT_CLEAN;
 
