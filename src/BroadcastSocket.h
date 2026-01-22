@@ -259,18 +259,21 @@ protected:
 		// At this point the message has its integrity guaranteed
 		if (json_message.has_key('M')) {	// It's a Recovery message
 			
-			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-			Serial.print(F("\t_startTransmission1.3: "));
-			json_message.write_to(Serial);
-			Serial.print(" | ");
-			Serial.println(json_message._get_length());
-			#endif
-		
 			if (_corrupted_message.active) {
 				if (json_message.replace_key('M', 'm')) {	// Removes the tag in order to be processed
 		
 					uint16_t message_checksum = json_message._generate_checksum();
 					uint16_t message_identity = json_message.get_identity();
+					
+					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+					Serial.print(F("\t_startTransmission1.3: "));
+					json_message.write_to(Serial);
+					Serial.print(" | ");
+					Serial.print(message_checksum);
+					Serial.print(" | ");
+					Serial.println(message_identity);
+					#endif
+		
 					switch (_corrupted_message.corruption_type) 
 					{
 						case TALKIE_CT_DATA:
