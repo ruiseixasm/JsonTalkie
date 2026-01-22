@@ -792,8 +792,12 @@ public:
      * @brief Tries to reconstruct a corrupt message
      */
 	void _try_to_reconstruct() {
-		_json_payload[4] = ':';	// All keys are a single char keys
-		for (size_t json_i = 4; json_i < _json_length; ++json_i) {	// 4 because it's the shortest position possible for ':'
+		// All keys are a single char keys
+		_json_payload[0] = '{';
+		_json_payload[1] = '"';
+		_json_payload[3] = '"';
+		_json_payload[4] = ':';
+		for (size_t json_i = 6; json_i < _json_length; ++json_i) {	// 4 because it's the shortest position possible for ':'
 			if (_json_payload[json_i] == ':') {
 				_json_payload[json_i - 4] = ',';
 				_json_payload[json_i - 3] = '"';
@@ -801,7 +805,7 @@ public:
 				if (_json_payload[json_i + 1] > '9' || _json_payload[json_i + 1] < '0') {
 					_json_payload[json_i + 1] = '"';
 				}
-				if (json_i > 4 && (_json_payload[json_i - 5] > '9' || _json_payload[json_i - 5] < '0')) {
+				if (_json_payload[json_i - 5] > '9' || _json_payload[json_i - 5] < '0') {
 					_json_payload[json_i - 5] = '"';
 				}
 			}
@@ -810,7 +814,6 @@ public:
 				_json_payload[json_i + 4] = ':';
 			}
 		}
-		_json_payload[0] = '{';
 		_json_payload[_json_length - 1] = '}';
 	}
 
