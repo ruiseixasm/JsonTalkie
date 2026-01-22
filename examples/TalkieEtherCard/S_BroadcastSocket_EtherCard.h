@@ -32,7 +32,12 @@ private:
 	#ifdef ENABLE_DIRECT_ADDRESSING
 	// Source Talker info
     static uint8_t _source_ip[4];
-    uint8_t _from_ip[4];
+
+	struct FromTalker {
+		char name[TALKIE_NAME_LEN] = {'\0'};
+		uint8_t ip_address[4];
+	};
+	FromTalker _from_talker;
 	#endif
 
 
@@ -93,9 +98,14 @@ protected:
 
 	#ifdef ENABLE_DIRECT_ADDRESSING
 	void _showMessage(const JsonMessage& json_message) override {
-        (void)json_message;	// Silence unused parameter warning
 
-		memcpy(_from_ip, _source_ip, 4);
+		if (json_message.has_from()) {
+			json_message.get_from_name(_from_talker.name)
+			memcpy(_from_talker.ip_address, _source_ip, 4);
+		} else if (json_message.is_noise()) {	// Reset name keeping
+			_from_talker.name[0] = '\0';	// Resets the from talker data
+			return;	// It came from a Socket, no need to lose more time
+		}
 	}
 	#endif
 
@@ -114,7 +124,7 @@ protected:
 
 		#ifdef ENABLE_DIRECT_ADDRESSING
 		if (json_message.is_to_name(_from_talker.name)) {
-			ether.sendUdp(message_buffer, message_length, _port, _from_ip, _port);
+			ether.sendUdp(message_buffer, message_length, _port, _from_talker.ip_address, _port);
 		} else {
 			ether.sendUdp(message_buffer, message_length, _port, broadcastIp, _port);
 		}
