@@ -147,8 +147,10 @@ public:
         (void)message_value;	// Silence unused parameter warning
         (void)talker_match;	// Silence unused parameter warning
 
-		_time_to_live = _time_to_call + 1UL * 60 * 1000;		// Add 1 minute extra
-		digitalWrite(LED_BUILTIN, LOW);	// In ESP8266 HIGH is LOW and LOW is HIGH
+		if (json_message.is_from_name("buzzer")) {
+			_time_to_live = _time_to_call + 1UL * 60 * 1000;		// Add 1 minute extra
+			digitalWrite(LED_BUILTIN, LOW);	// In ESP8266 HIGH is LOW and LOW is HIGH
+		}
     }
 
 };
