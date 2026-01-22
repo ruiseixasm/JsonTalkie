@@ -152,17 +152,17 @@ protected:
 		
 		if (check_integrity) {	// Validate message integrity
 
-			size_t received_length = json_message._get_length();
-			if (!json_message._validate_json()) {
-				// Resets its initial length in order to be processed next, as error (checksum fail)
-				json_message._set_length(received_length);
-			}
-
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM)
 			json_message._corrupt_payload(false);
 			#elif defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 			json_message._corrupt_payload(true);
 			#endif
+
+			size_t received_length = json_message._get_length();
+			if (!json_message._validate_json()) {
+				// Resets its initial length in order to be processed next, as error (checksum fail)
+				json_message._set_length(received_length);
+			}
 
 			if (!json_message.get_identity(&_message_identity)) {
 				_corrupted_message.corruption_type = TALKIE_CT_IDENTITY;
