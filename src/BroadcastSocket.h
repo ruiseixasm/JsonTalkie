@@ -164,6 +164,7 @@ protected:
 				json_message._set_length(received_length);
 			}
 
+
 			if (!json_message.get_checksum(&_corrupted_message.checksum)) {
 				
 				if (!json_message.get_identity(&_message_identity)) {
@@ -181,6 +182,8 @@ protected:
 					} else {
 						_corrupted_message.corruption_type = TALKIE_CT_DATA;
 					}
+				} else {
+					_corrupted_message.corruption_type = TALKIE_CT_CLEAN;
 				}
 			}
 			
