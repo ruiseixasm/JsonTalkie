@@ -36,10 +36,14 @@ protected:
 	IPAddress _my_ip;
 	uint16_t _port = 5005;
 	WiFiUDP* _udp;
-	// Source Talker info
-	IPAddress _from_ip = IPAddress(255, 255, 255, 255);   // By default it's used the broadcast IP
-    // ===== [SELF IP] cache our own IP =====
-    IPAddress _local_ip;
+	IPAddress _local_ip;
+
+	
+	struct FromTalker {
+		char name[TALKIE_NAME_LEN] = {'\0'};
+		IPAddress ip_address;
+	};
+	FromTalker _from_talker;
 
 
     // Constructor
@@ -117,9 +121,11 @@ protected:
 
 
 	void _showMessage(const JsonMessage& json_message) override {
-        (void)json_message;	// Silence unused parameter warning
 
-		_from_ip = _udp->remoteIP();
+		if (json_message.has_from()) {
+			json_message.get_from_name(_from_talker.name)
+			_from_talker.ip_address = _udp->remoteIP();
+		}
 	}
 
 
@@ -150,7 +156,7 @@ protected:
 			Serial.println(json_message._get_length());
 			#endif
 
-            if (!_udp->beginPacket(as_reply ? _from_ip : broadcastIP, _port)) {
+            if (!_udp->beginPacket(as_reply ? _from_talker.ip_address : broadcastIP, _port)) {
                 #ifdef BROADCAST_ESP_WIFI_DEBUG
                 Serial.println(F("\tFailed to begin packet"));
                 #endif
@@ -158,10 +164,10 @@ protected:
             } else {
 				
 				#ifdef BROADCAST_ESP_WIFI_DEBUG
-				if (as_reply && _from_ip != broadcastIP) {
+				if (as_reply && _from_talker.ip_address != broadcastIP) {
 
 					Serial.print(F("\tsend1: --> Directly sent to the  "));
-					Serial.print(_from_ip);
+					Serial.print(_from_talker.ip_address);
 					Serial.print(F(" address --> "));
 					
 				} else {
