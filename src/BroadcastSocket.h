@@ -150,7 +150,7 @@ protected:
 	}
 
 
-	void _recoverMessage(const JsonMessage& json_message) {
+	void _recoverMessage(const JsonMessage& json_message, CorruptionType corruption_type) {
 
 		// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
 		// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
@@ -269,11 +269,10 @@ protected:
 				
 				if (corruption_type_2 != TALKIE_CT_CLEAN) {
 					if (corruption_type_1 < corruption_type_2) {
-						_recoverMessage(json_message);
+						_recoverMessage(json_message, corruption_type_1);
 					} else {
-						_recoverMessage(reconstructed_message);
+						_recoverMessage(reconstructed_message, corruption_type_2);
 					}
-					break;
 				} else {
 					json_message = reconstructed_message;
 				}

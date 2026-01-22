@@ -792,7 +792,7 @@ public:
      * @brief Tries to reconstruct a corrupt message
      */
 	void _try_to_reconstruct() {
-		for (size_t json_i = colon_position; json_i < _json_length; ++json_i) {	// 4 because it's the shortest position possible for ':'
+		for (size_t json_i = 4; json_i < _json_length; ++json_i) {	// 4 because it's the shortest position possible for ':'
 			if (_json_payload[json_i] == ':') {
 				_json_payload[json_i - 4] = ',';
 				_json_payload[json_i - 3] = '"';
