@@ -267,12 +267,15 @@ protected:
 				reconstructed_message._try_to_reconstruct();
 				CorruptionType corruption_type_2 = _messageCorruption(reconstructed_message);
 				
-				if (corruption_type_1 < corruption_type_2) {
-					_recoverMessage(json_message);
-					return;
-				} else if (corruption_type_2 != TALKIE_CT_CLEAN) {
-					_recoverMessage(reconstructed_message);
+				if (corruption_type_2 != TALKIE_CT_CLEAN) {
+					if (corruption_type_1 < corruption_type_2) {
+						_recoverMessage(json_message);
+					} else {
+						_recoverMessage(reconstructed_message);
+					}
 					break;
+				} else {
+					json_message = reconstructed_message;
 				}
 			}
 		}
