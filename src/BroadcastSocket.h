@@ -183,6 +183,9 @@ protected:
 
 			if (corruption_type != TALKIE_CT_CLEAN) {
 
+				// {"m":0,"b":0,"f":"n","i":0,"c":0} <-- 33 (minimum)
+				// {"m":0,"b":0,"i":12345,"c":12345} <-- 33 (minimum)
+
 				if (json_message.has_key('M')) return;	// 'M' messages aren't intended to be recovered
 
 				if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
