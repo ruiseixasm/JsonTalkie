@@ -189,13 +189,6 @@ protected:
 
 			if (_corrupted_message.corruption_type != TALKIE_CT_CLEAN) {
 
-				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-				Serial.print(F("\t_startTransmission1.2: "));
-				json_message.write_to(Serial);
-				Serial.print(" | ");
-				Serial.println(json_message._get_length());
-				#endif
-			
 				if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
 
 					JsonMessage error_message;
@@ -247,6 +240,18 @@ protected:
 					_corrupted_message.received_time = (uint16_t)millis();
 					_corrupted_message.active = true;
 					++_consecutive_errors;	// Avoids a runaway flux of errors
+					
+					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+					Serial.print(F("\t_startTransmission1.2: "));
+					json_message.write_to(Serial);
+					Serial.print(" | ");
+					Serial.print(_corrupted_message.identity);
+					Serial.print(" | ");
+					Serial.print(_corrupted_message.checksum);
+					Serial.print(" | ");
+					Serial.println((int)_corrupted_message.corruption_type);
+					#endif
+			
 				} else {
 					++_lost_count;			// Non recoverable (+1)
 				}
