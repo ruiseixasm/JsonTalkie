@@ -140,7 +140,6 @@ struct TalkieCodes {
      * @brief Associated to the system state and configuration
      */
     enum SystemValue : uint8_t {
-        TALKIE_SYS_UNDEFINED, ///< Unspecified system request
         TALKIE_SYS_MANIFESTO, ///< Show the Manifesto class name
         TALKIE_SYS_BOARD,     ///< Board/system information request
         TALKIE_SYS_SOCKETS,   ///< List Socket class names
@@ -174,7 +173,6 @@ struct TalkieCodes {
      * failures and malformed messages.
      */
     enum ErrorValue : uint8_t {
-        TALKIE_ERR_UNDEFINED, ///< Unspecified/generic error
         TALKIE_ERR_CHECKSUM,  ///< Message checksum failure
         TALKIE_ERR_MESSAGE,   ///< Malformed message structure
         TALKIE_ERR_IDENTITY,  ///< Invalid sender/receiver identity

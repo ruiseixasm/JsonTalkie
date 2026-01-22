@@ -192,7 +192,7 @@ protected:
 
 					JsonMessage error_message;
 					error_message.set_message_value(MessageValue::TALKIE_MSG_ERROR);
-					error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
+					// By default, the ERROR message is a CHECKSUM error, so, no need to set it
 
 					if (!json_message.get_broadcast_value(&_corrupted_message.broadcast)) {
 						_corrupted_message.broadcast = BroadcastValue::TALKIE_BC_NONE;
