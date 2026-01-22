@@ -38,7 +38,6 @@ protected:
 	WiFiUDP* _udp;
 	IPAddress _local_ip;
 
-	
 	struct FromTalker {
 		char name[TALKIE_NAME_LEN] = {'\0'};
 		IPAddress ip_address;
