@@ -1572,6 +1572,20 @@ public:
 	bool set_key_number(char key, uint32_t number) {
 		return _set_number(key, number);
 	}
+	
+
+    /**
+     * @brief Set nth value as string
+     * @param key A single char like 'i'
+     * @param in_string String value
+     * @param size the size of the in_string buffer (not the length of the string) (TALKIE_MAX_LEN by default)
+     * @return true if successful
+	 * 
+	 * @note a string can't be bigger than TALKIE_MAX_LEN
+     */
+	bool set_key_string(char key, const char* in_string, size_t size = TALKIE_MAX_LEN) {
+		return _set_string(key, in_string, size);
+	}
 
 
     /**
@@ -1734,6 +1748,7 @@ public:
      * @brief Set nth value as string
      * @param nth Index 0-9
      * @param in_string String value
+     * @param size the size of the in_string buffer (not the length of the string) (TALKIE_MAX_LEN by default)
      * @return true if successful
 	 * 
 	 * @note a string can't be bigger than TALKIE_MAX_LEN
