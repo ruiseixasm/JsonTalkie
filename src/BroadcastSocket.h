@@ -144,6 +144,22 @@ protected:
 				}
 			}
 		}
+		
+		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+		Serial.print(F("\t_startTransmission1.2: "));
+		json_message.write_to(Serial);
+		Serial.print(" | ");
+		Serial.print(_corrupted_message.checksum);
+		Serial.print(" | ");
+		Serial.print(_corrupted_message.identity);
+		Serial.print(" | ");
+		Serial.println((int)_corrupted_message.corruption_type);
+		Serial.print(F("\t_startTransmission1.3: "));
+		error_message.write_to(Serial);
+		Serial.print(" | ");
+		Serial.println(error_message._get_length());
+		#endif
+
 		return corruption_type;
 	}
 
@@ -201,7 +217,7 @@ protected:
 			++_consecutive_errors;	// Avoids a runaway flux of errors
 			
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-			Serial.print(F("\t_startTransmission1.2: "));
+			Serial.print(F("\t_startTransmission1.4: "));
 			json_message.write_to(Serial);
 			Serial.print(" | ");
 			Serial.print(_corrupted_message.checksum);
@@ -209,7 +225,7 @@ protected:
 			Serial.print(_corrupted_message.identity);
 			Serial.print(" | ");
 			Serial.println((int)_corrupted_message.corruption_type);
-			Serial.print(F("\t_startTransmission1.3: "));
+			Serial.print(F("\t_startTransmission1.5: "));
 			error_message.write_to(Serial);
 			Serial.print(" | ");
 			Serial.println(error_message._get_length());
@@ -233,7 +249,7 @@ protected:
 		Serial.print(": ");
 		#endif
 			
-		#ifdef BROADCASTSOCKET_DEBUG_NEW
+		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 		Serial.print(F("\t_startTransmission1.1: "));
 		json_message.write_to(Serial);
 		Serial.print(" | ");
@@ -292,7 +308,7 @@ protected:
 					uint16_t message_identity = json_message.get_identity();
 					
 					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-					Serial.print(F("\t_startTransmission1.4: "));
+					Serial.print(F("\t_startTransmission1.6: "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
 					Serial.print(message_checksum);
@@ -343,7 +359,7 @@ protected:
 					}
 
 					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-					Serial.print(F("\t_startTransmission1.5: "));
+					Serial.print(F("\t_startTransmission1.7: "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
 					Serial.print(_corrupted_message.checksum);
