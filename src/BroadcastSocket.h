@@ -121,15 +121,13 @@ protected:
 	}
 
 
-	CorruptionType _messageCorruption(const JsonMessage& json_message) const {
+	CorruptionType _messageCorruption(const JsonMessage& json_message, uint16_t &message_checksum, , uint16_t &message_identity) const {
 
 		CorruptionType corruption_type = TALKIE_CT_CLEAN;
-		uint16_t message_checksum = 0;
-		uint16_t message_identity = 0;
 
-		if (!json_message.get_checksum(&message_checksum)) {
+		if (!json_message.get_checksum(message_checksum)) {
 			
-			if (!json_message.get_identity(&message_identity)) {
+			if (!json_message.get_identity(message_identity)) {
 				corruption_type = TALKIE_CT_UNRECOVERABLE;
 			} else {
 				corruption_type = TALKIE_CT_CHECKSUM;
@@ -137,9 +135,9 @@ protected:
 
 		} else {
 			json_message.remove_checksum();
-			if (json_message._generate_checksum() != message_checksum) {
+			if (json_message._generate_checksum() != *message_checksum) {
 
-				if (!json_message.get_identity(&message_identity)) {
+				if (!json_message.get_identity(message_identity)) {
 					corruption_type = TALKIE_CT_IDENTITY;
 				} else {
 					corruption_type = TALKIE_CT_DATA;
@@ -150,7 +148,7 @@ protected:
 	}
 
 
-	void _recoverMessage(const JsonMessage& json_message, CorruptionType corruption_type) {
+	void _recoverMessage(const JsonMessage& json_message, CorruptionType corruption_type, uint16_t message_checksum, uint16_t message_identity) {
 
 		// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
 		// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
@@ -159,13 +157,6 @@ protected:
 
 		if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
 
-			_corrupted_message.corruption_type = corruption_type;
-			_corrupted_message.identity = json_message.get_identity();
-			_corrupted_message.checksum = json_message.get_checksum();
-			_corrupted_message.received_time = (uint16_t)millis();
-			_corrupted_message.active = true;
-			++_consecutive_errors;	// Avoids a runaway flux of errors
-			
 			JsonMessage error_message;
 			error_message.set_message_value(MessageValue::TALKIE_MSG_ERROR);
 			// By default, the ERROR message is a CHECKSUM error, so, no need to set it
@@ -182,7 +173,7 @@ protected:
 			{
 				case TALKIE_CT_DATA:
 				case TALKIE_CT_CHECKSUM:
-					error_message.set_identity( _corrupted_message.identity );
+					error_message.set_identity(message_identity);
 				break;
 				
 				case TALKIE_CT_UNRECOVERABLE:
@@ -204,6 +195,13 @@ protected:
 				_finishTransmission(error_message);
 			}
 
+			_corrupted_message.corruption_type = corruption_type;
+			_corrupted_message.identity = message_identity;
+			_corrupted_message.checksum = message_checksum;
+			_corrupted_message.received_time = (uint16_t)millis();
+			_corrupted_message.active = true;
+			++_consecutive_errors;	// Avoids a runaway flux of errors
+			
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 			Serial.print(F("\t_startTransmission1.2: "));
 			json_message.write_to(Serial);
@@ -259,19 +257,23 @@ protected:
 				json_message._set_length(received_length);
 			}
 
-			CorruptionType corruption_type_1 = _messageCorruption(json_message);
+			uint16_t message_checksum_1 = 0;
+			uint16_t message_identity_1 = 0;
+			CorruptionType corruption_type_1 = _messageCorruption(json_message, &message_checksum_1, &message_identity_1);
 
 			if (corruption_type_1 != TALKIE_CT_CLEAN) {
 
 				JsonMessage reconstructed_message(json_message);
 				reconstructed_message._try_to_reconstruct();
-				CorruptionType corruption_type_2 = _messageCorruption(reconstructed_message);
+				uint16_t message_checksum_2 = 0;
+				uint16_t message_identity_2 = 0;
+				CorruptionType corruption_type_2 = _messageCorruption(reconstructed_message, &message_checksum_2, &message_identity_2);
 				
 				if (corruption_type_2 != TALKIE_CT_CLEAN) {
 					if (corruption_type_1 < corruption_type_2) {
-						_recoverMessage(json_message, corruption_type_1);
+						_recoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
 					} else {
-						_recoverMessage(reconstructed_message, corruption_type_2);
+						_recoverMessage(reconstructed_message, corruption_type_2, message_checksum_2, message_identity_2);
 					}
 					return;
 				} else {
@@ -279,6 +281,7 @@ protected:
 				}
 			}
 		}
+
 
 		_consecutive_errors = 0;	// Avoids a runaway flux of errors
 
