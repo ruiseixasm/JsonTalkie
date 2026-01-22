@@ -86,8 +86,8 @@ protected:
     enum CorruptionType : uint8_t {
 		TALKIE_CT_CLEAN,
 		TALKIE_CT_DATA,
-		TALKIE_CT_IDENTITY,
 		TALKIE_CT_CHECKSUM,
+		TALKIE_CT_IDENTITY,
 		TALKIE_CT_UNRECOVERABLE
     };
 
