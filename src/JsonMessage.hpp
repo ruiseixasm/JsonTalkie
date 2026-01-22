@@ -792,6 +792,7 @@ public:
      * @brief Tries to reconstruct a corrupt message
      */
 	void _try_to_reconstruct() {
+		_json_payload[4] = ':';	// All keys are a single char keys
 		for (size_t json_i = 4; json_i < _json_length; ++json_i) {	// 4 because it's the shortest position possible for ':'
 			if (_json_payload[json_i] == ':') {
 				_json_payload[json_i - 4] = ',';
@@ -803,6 +804,10 @@ public:
 				if (json_i > 4 && (_json_payload[json_i - 5] > '9' || _json_payload[json_i - 5] < '0')) {
 					_json_payload[json_i - 5] = '"';
 				}
+			}
+			// All keys are a single char keys
+			if (_json_payload[json_i] == ',' && _json_payload[json_i + 1] == '"' && _json_payload[json_i + 3] == '"') {
+				_json_payload[json_i + 4] = ':';
 			}
 		}
 		_json_payload[0] = '{';
