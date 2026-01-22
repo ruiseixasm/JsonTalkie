@@ -167,8 +167,6 @@ protected:
 				error_message.set_broadcast_value(_corrupted_message.broadcast);
 			}
 
-			++_lost_count;	// Non recoverable so far (+1)
-
 			switch (corruption_type) 
 			{
 				case TALKIE_CT_DATA:
@@ -216,9 +214,8 @@ protected:
 			Serial.print(" | ");
 			Serial.println(error_message._get_length());
 			#endif
-		} else {
-			++_lost_count;			// Non recoverable (+1)
 		}
+		++_lost_count;			// Non recoverable (+1)
 	}
 
 
