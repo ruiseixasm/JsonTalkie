@@ -94,6 +94,23 @@ protected:
 		bool active = false;
 	};
 	RecoveryMessage _recovery_message;
+
+
+    enum CorruptionType : uint8_t {
+		CORRUPTED_IDENTITY,
+		CORRUPTED_CHECKSUM,
+		CORRUPTED_MESSAGE
+    };
+
+	struct CorruptedMessage {
+		CorruptionType corruption_type;
+		uint16_t identity;
+		uint16_t checksum;
+		uint16_t received_time;
+		bool active = false;
+	};
+	CorruptedMessage _corrupted_message;
+
 	
     // Constructor
     BroadcastSocket() {
