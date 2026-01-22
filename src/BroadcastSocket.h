@@ -162,14 +162,15 @@ protected:
 				json_message._set_length(received_length);
 			}
 
+			CorruptionType corruption_type = TALKIE_CT_CLEAN;
 			uint16_t message_identity;
 
 			if (!json_message.get_checksum(&_corrupted_message.checksum)) {
 				
 				if (!json_message.get_identity(&message_identity)) {
-					_corrupted_message.corruption_type = TALKIE_CT_UNRECOVERABLE;
+					corruption_type = TALKIE_CT_UNRECOVERABLE;
 				} else {
-					_corrupted_message.corruption_type = TALKIE_CT_CHECKSUM;
+					corruption_type = TALKIE_CT_CHECKSUM;
 				}
 
 			} else {
@@ -177,17 +178,15 @@ protected:
 				if (json_message._generate_checksum() != _corrupted_message.checksum) {
 					
 					if (!json_message.get_identity(&message_identity)) {
-						_corrupted_message.corruption_type = TALKIE_CT_IDENTITY;
+						corruption_type = TALKIE_CT_IDENTITY;
 					} else {
-						_corrupted_message.corruption_type = TALKIE_CT_DATA;
+						corruption_type = TALKIE_CT_DATA;
 					}
-				} else {
-					_corrupted_message.corruption_type = TALKIE_CT_CLEAN;
 				}
 			}
 			
 
-			if (_corrupted_message.corruption_type != TALKIE_CT_CLEAN) {
+			if (corruption_type != TALKIE_CT_CLEAN) {
 
 				if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
 
@@ -203,7 +202,7 @@ protected:
 
 					++_lost_count;	// Non recoverable so far (+1)
 
-					switch (_corrupted_message.corruption_type) 
+					switch (corruption_type) 
 					{
 						case TALKIE_CT_DATA:
 						case TALKIE_CT_CHECKSUM:
@@ -229,6 +228,7 @@ protected:
 						_finishTransmission(error_message);
 					}
 
+					_corrupted_message.corruption_type = corruption_type;
 					_corrupted_message.identity = message_identity;
 					_corrupted_message.received_time = (uint16_t)millis();
 					_corrupted_message.active = true;
