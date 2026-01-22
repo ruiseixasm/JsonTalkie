@@ -413,7 +413,7 @@ private:
     /**
      * @brief Set string value for a key
      * @param key Key to set
-     * @param in_string String value (null-terminated)
+     * @param in_string String value pointer (null-terminated)
      * @param size makes sure it doesn't go beyond the in_string size - 1
      * @param colon_position Optional hint for colon position
      * @return true if successful, false if buffer too small or string empty
@@ -1577,7 +1577,7 @@ public:
     /**
      * @brief Set nth value as string
      * @param key A single char like 'i'
-     * @param in_string String value
+     * @param in_string String value pointer
      * @param size the size of the in_string buffer (not the length of the string) (TALKIE_MAX_LEN by default)
      * @return true if successful
 	 * 
@@ -1747,7 +1747,7 @@ public:
     /**
      * @brief Set nth value as string
      * @param nth Index 0-9
-     * @param in_string String value
+     * @param in_string String value pointer
      * @param size the size of the in_string buffer (not the length of the string) (TALKIE_MAX_LEN by default)
      * @return true if successful
 	 * 
