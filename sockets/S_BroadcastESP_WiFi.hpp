@@ -36,7 +36,6 @@ protected:
 	IPAddress _my_ip;
 	uint16_t _port = 5005;
 	WiFiUDP* _udp;
-	IPAddress _local_ip;
 
 	struct FromTalker {
 		char name[TALKIE_NAME_LEN] = {'\0'};
@@ -65,7 +64,7 @@ protected:
 			if (packetSize > 0) {
 				
 				// ===== [SELF IP] DROP self-sent packets ===== | WiFi
-				if (_udp->remoteIP() == _local_ip) {
+				if (_udp->remoteIP() == _my_ip) {
 					
 					#if defined(ESP8266)
 					_udp->flush();   // discard payload
@@ -78,7 +77,7 @@ protected:
 					Serial.print(F("\t\tRemote IP: "));
 					Serial.println(_udp->remoteIP());
 					Serial.print(F("\t\tLocal IP:  "));
-					Serial.println(_local_ip);
+					Serial.println(_my_ip);
 					#endif
 					
 					return;
@@ -89,7 +88,7 @@ protected:
 					Serial.print(F("\t\tRemote IP: "));
 					Serial.println(_udp->remoteIP());
 					Serial.print(F("\t\tLocal IP:  "));
-					Serial.println(_local_ip);
+					Serial.println(_my_ip);
 					#endif
 					
 				}
@@ -238,7 +237,7 @@ public:
     void set_udp(WiFiUDP* udp) {
         
         // ===== [SELF IP] store local IP for self-filtering =====
-        _local_ip = WiFi.localIP();
+        _my_ip = WiFi.localIP();
         _udp = udp;
     }
 
