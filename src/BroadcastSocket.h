@@ -86,8 +86,8 @@ protected:
     enum CorruptionType : uint8_t {
 		TALKIE_CT_CLEAN,
 		TALKIE_CT_DATA,
-		TALKIE_CT_CHECKSUM,
 		TALKIE_CT_IDENTITY,
+		TALKIE_CT_CHECKSUM,
 		TALKIE_CT_UNRECOVERABLE
     };
 
@@ -118,6 +118,109 @@ protected:
     /** @brief Allows the visualization of the message before transmission */
 	virtual void _showMessage(const JsonMessage& json_message) {
         (void)json_message;	// Silence unused parameter warning
+	}
+
+
+	CorruptionType _messageCorruption(const JsonMessage& json_message) const {
+
+		CorruptionType corruption_type = TALKIE_CT_CLEAN;
+		uint16_t message_checksum = 0;
+		uint16_t message_identity = 0;
+
+		if (!json_message.get_checksum(&message_checksum)) {
+			
+			if (!json_message.get_identity(&message_identity)) {
+				corruption_type = TALKIE_CT_UNRECOVERABLE;
+			} else {
+				corruption_type = TALKIE_CT_CHECKSUM;
+			}
+
+		} else {
+			json_message.remove_checksum();
+			if (json_message._generate_checksum() != message_checksum) {
+
+				if (!json_message.get_identity(&message_identity)) {
+					corruption_type = TALKIE_CT_IDENTITY;
+				} else {
+					corruption_type = TALKIE_CT_DATA;
+				}
+			}
+		}
+		return corruption_type;
+	}
+
+
+	void _recoverMessage(const JsonMessage& json_message) {
+
+		// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
+		// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
+
+		if (json_message.has_key('M') || json_message._get_length() < 24) return;	// 'M' or Socket messages aren't intended to be recovered
+
+		if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
+
+			_corrupted_message.corruption_type = corruption_type;
+			_corrupted_message.identity = json_message.get_identity();
+			_corrupted_message.checksum = json_message.get_checksum();
+			_corrupted_message.received_time = (uint16_t)millis();
+			_corrupted_message.active = true;
+			++_consecutive_errors;	// Avoids a runaway flux of errors
+			
+			JsonMessage error_message;
+			error_message.set_message_value(MessageValue::TALKIE_MSG_ERROR);
+			// By default, the ERROR message is a CHECKSUM error, so, no need to set it
+
+			if (!json_message.get_broadcast_value(&_corrupted_message.broadcast)) {
+				_corrupted_message.broadcast = BroadcastValue::TALKIE_BC_NONE;
+			} else {
+				error_message.set_broadcast_value(_corrupted_message.broadcast);
+			}
+
+			++_lost_count;	// Non recoverable so far (+1)
+
+			switch (corruption_type) 
+			{
+				case TALKIE_CT_DATA:
+				case TALKIE_CT_CHECKSUM:
+					error_message.set_identity( _corrupted_message.identity );
+				break;
+				
+				case TALKIE_CT_UNRECOVERABLE:
+					_corrupted_message.active = false;
+					return;
+				break;
+				
+				default: break;
+			}
+
+			if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE) {
+
+				error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
+				_finishTransmission(error_message);
+				error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
+				_finishTransmission(error_message);
+
+			} else {
+				_finishTransmission(error_message);
+			}
+
+			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+			Serial.print(F("\t_startTransmission1.2: "));
+			json_message.write_to(Serial);
+			Serial.print(" | ");
+			Serial.print(_corrupted_message.checksum);
+			Serial.print(" | ");
+			Serial.print(_corrupted_message.identity);
+			Serial.print(" | ");
+			Serial.println((int)_corrupted_message.corruption_type);
+			Serial.print(F("\t_startTransmission1.3: "));
+			error_message.write_to(Serial);
+			Serial.print(" | ");
+			Serial.println(error_message._get_length());
+			#endif
+		} else {
+			++_lost_count;			// Non recoverable (+1)
+		}
 	}
 
 
@@ -156,104 +259,21 @@ protected:
 				json_message._set_length(received_length);
 			}
 
-			CorruptionType corruption_type = TALKIE_CT_CLEAN;
-			uint16_t message_checksum = 0;
-			uint16_t message_identity = 0;
+			CorruptionType corruption_type_1 = _messageCorruption(json_message);
 
-			if (!json_message.get_checksum(&message_checksum)) {
+			if (corruption_type_1 != TALKIE_CT_CLEAN) {
+
+				JsonMessage reconstructed_message(json_message);
+				reconstructed_message._try_to_reconstruct();
+				CorruptionType corruption_type_2 = _messageCorruption(reconstructed_message);
 				
-				if (!json_message.get_identity(&message_identity)) {
-					corruption_type = TALKIE_CT_UNRECOVERABLE;
-				} else {
-					corruption_type = TALKIE_CT_CHECKSUM;
+				if (corruption_type_1 < corruption_type_2) {
+					_recoverMessage(json_message);
+					return;
+				} else if (corruption_type_2 != TALKIE_CT_CLEAN) {
+					_recoverMessage(reconstructed_message);
+					break;
 				}
-
-			} else {
-				json_message.remove_checksum();
-				if (json_message._generate_checksum() != message_checksum) {
-					
-					if (!json_message.get_identity(&message_identity)) {
-						corruption_type = TALKIE_CT_IDENTITY;
-					} else {
-						corruption_type = TALKIE_CT_DATA;
-					}
-				}
-			}
-			
-
-			if (corruption_type != TALKIE_CT_CLEAN) {
-
-				// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
-				// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
-
-				if (json_message.has_key('M') || json_message._get_length() < 24) return;	// 'M' or Socket messages aren't intended to be recovered
-
-				if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
-
-					JsonMessage error_message;
-					error_message.set_message_value(MessageValue::TALKIE_MSG_ERROR);
-					// By default, the ERROR message is a CHECKSUM error, so, no need to set it
-
-					if (!json_message.get_broadcast_value(&_corrupted_message.broadcast)) {
-						_corrupted_message.broadcast = BroadcastValue::TALKIE_BC_NONE;
-					} else {
-						error_message.set_broadcast_value(_corrupted_message.broadcast);
-					}
-
-					++_lost_count;	// Non recoverable so far (+1)
-
-					switch (corruption_type) 
-					{
-						case TALKIE_CT_DATA:
-						case TALKIE_CT_CHECKSUM:
-							error_message.set_identity(message_identity);
-						break;
-						
-						case TALKIE_CT_UNRECOVERABLE:
-							_corrupted_message.active = false;
-							return;
-						break;
-						
-						default: break;
-					}
-
-					if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE) {
-
-						error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
-						_finishTransmission(error_message);
-						error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
-						_finishTransmission(error_message);
-
-					} else {
-						_finishTransmission(error_message);
-					}
-
-					_corrupted_message.corruption_type = corruption_type;
-					_corrupted_message.checksum = message_checksum;
-					_corrupted_message.identity = message_identity;
-					_corrupted_message.received_time = (uint16_t)millis();
-					_corrupted_message.active = true;
-					++_consecutive_errors;	// Avoids a runaway flux of errors
-					
-					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-					Serial.print(F("\t_startTransmission1.2: "));
-					json_message.write_to(Serial);
-					Serial.print(" | ");
-					Serial.print(_corrupted_message.checksum);
-					Serial.print(" | ");
-					Serial.print(_corrupted_message.identity);
-					Serial.print(" | ");
-					Serial.println((int)_corrupted_message.corruption_type);
-					Serial.print(F("\t_startTransmission1.3: "));
-					error_message.write_to(Serial);
-					Serial.print(" | ");
-					Serial.println(error_message._get_length());
-					#endif
-			
-				} else {
-					++_lost_count;			// Non recoverable (+1)
-				}
-				return;
 			}
 		}
 
