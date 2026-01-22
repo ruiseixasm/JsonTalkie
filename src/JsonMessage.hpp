@@ -797,6 +797,7 @@ public:
 		_json_payload[1] = '"';
 		_json_payload[3] = '"';
 		_json_payload[4] = ':';
+		// {"m":4,"b":1,"t":"green","a":"off","f":"esp","i":36843}
 		for (size_t json_i = 6; json_i < _json_length; ++json_i) {	// 4 because it's the shortest position possible for ':'
 			if (_json_payload[json_i] == ':') {
 				_json_payload[json_i - 4] = ',';
