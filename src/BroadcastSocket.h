@@ -213,7 +213,7 @@ protected:
 					{
 						case TALKIE_CT_DATA:
 						case TALKIE_CT_CHECKSUM:
-							error_message.set_identity(_corrupted_message.identity);
+							error_message.set_identity(_message_identity);
 						break;
 						
 						case TALKIE_CT_UNRECOVERABLE:
