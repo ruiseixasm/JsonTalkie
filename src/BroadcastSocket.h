@@ -163,8 +163,8 @@ protected:
 			}
 
 			CorruptionType corruption_type = TALKIE_CT_CLEAN;
-			uint16_t message_checksum;
-			uint16_t message_identity;
+			uint16_t message_checksum = 0;
+			uint16_t message_identity = 0;
 
 			if (!json_message.get_checksum(&message_checksum)) {
 				
