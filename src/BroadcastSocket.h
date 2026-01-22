@@ -275,7 +275,9 @@ protected:
 					Serial.print(" | ");
 					Serial.print(message_identity);
 					Serial.print(" | ");
-					Serial.println((int)_corrupted_message.corruption_type);
+					Serial.print((int)_corrupted_message.corruption_type);
+					Serial.print(" | ");
+					Serial.println((int)_corrupted_message.active);
 					#endif
 		
 					switch (_corrupted_message.corruption_type) 
@@ -316,6 +318,19 @@ protected:
 						default: break;
 					}
 
+					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+					Serial.print(F("\t_startTransmission1.5: "));
+					json_message.write_to(Serial);
+					Serial.print(" | ");
+					Serial.print(message_checksum);
+					Serial.print(" | ");
+					Serial.print(message_identity);
+					Serial.print(" | ");
+					Serial.print((int)_corrupted_message.corruption_type);
+					Serial.print(" | ");
+					Serial.println((int)_corrupted_message.active);
+					#endif
+		
 				} else {
 					return;	// Malformatted 'M'
 				}
