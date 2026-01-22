@@ -273,6 +273,7 @@ protected:
 					} else {
 						_recoverMessage(reconstructed_message, corruption_type_2);
 					}
+					return;
 				} else {
 					json_message = reconstructed_message;
 				}
