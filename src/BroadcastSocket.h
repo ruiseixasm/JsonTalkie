@@ -134,7 +134,7 @@ protected:
 			}
 
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-			Serial.print(F("\t\t_startTransmission1.2: "));
+			Serial.print(F("\t_startTransmission1.2: "));
 			json_message.write_to(Serial);
 			Serial.print(" | ");
 			Serial.print(*message_checksum);
@@ -155,6 +155,19 @@ protected:
 				}
 				
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+				Serial.print(F("\t_startTransmission1.2: "));
+				json_message.write_to(Serial);
+				Serial.print(" | ");
+				Serial.print(*message_checksum);
+				Serial.print(" | ");
+				Serial.print(*message_identity);
+				Serial.print(" | ");
+				Serial.println((int)corruption_type);
+				#endif
+
+			} else {
+				
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 				Serial.print(F("\t\t_startTransmission1.2: "));
 				json_message.write_to(Serial);
 				Serial.print(" | ");
@@ -172,11 +185,6 @@ protected:
 
 
 	void _recoverMessage(const JsonMessage& json_message, CorruptionType corruption_type, uint16_t message_checksum, uint16_t message_identity) {
-
-		// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
-		// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
-
-		if (json_message.has_key('M') || json_message._get_length() < 24) return;	// 'M' or Socket messages aren't intended to be recovered
 
 		if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
 
@@ -290,10 +298,17 @@ protected:
 				CorruptionType corruption_type_2 = _messageCorruption(reconstructed_message, &message_checksum_2, &message_identity_2);
 				
 				if (corruption_type_2 != TALKIE_CT_CLEAN) {
-					if (corruption_type_1 < corruption_type_2) {
-						_recoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
-					} else {
-						_recoverMessage(reconstructed_message, corruption_type_2, message_checksum_2, message_identity_2);
+					
+					// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
+					// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
+
+					if (!json_message.has_key('M') && json_message._get_length() > 23) {	// 'M' or Socket messages aren't intended to be recalled
+
+						if (corruption_type_1 < corruption_type_2) {
+							_recoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
+						} else {
+							_recoverMessage(reconstructed_message, corruption_type_2, message_checksum_2, message_identity_2);
+						}
 					}
 					return;
 				} else {
