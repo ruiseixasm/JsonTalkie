@@ -100,8 +100,8 @@ protected:
 	struct CorruptedMessage {
 		CorruptionType corruption_type;
 		BroadcastValue broadcast;
-		uint16_t identity;
 		uint16_t checksum;
+		uint16_t identity;
 		uint16_t received_time;
 		bool active = false;
 	};
@@ -163,9 +163,10 @@ protected:
 			}
 
 			CorruptionType corruption_type = TALKIE_CT_CLEAN;
+			uint16_t message_checksum;
 			uint16_t message_identity;
 
-			if (!json_message.get_checksum(&_corrupted_message.checksum)) {
+			if (!json_message.get_checksum(&message_checksum)) {
 				
 				if (!json_message.get_identity(&message_identity)) {
 					corruption_type = TALKIE_CT_UNRECOVERABLE;
@@ -175,7 +176,7 @@ protected:
 
 			} else {
 				json_message.remove_checksum();
-				if (json_message._generate_checksum() != _corrupted_message.checksum) {
+				if (json_message._generate_checksum() != message_checksum) {
 					
 					if (!json_message.get_identity(&message_identity)) {
 						corruption_type = TALKIE_CT_IDENTITY;
@@ -229,6 +230,7 @@ protected:
 					}
 
 					_corrupted_message.corruption_type = corruption_type;
+					_corrupted_message.checksum = message_checksum;
 					_corrupted_message.identity = message_identity;
 					_corrupted_message.received_time = (uint16_t)millis();
 					_corrupted_message.active = true;
