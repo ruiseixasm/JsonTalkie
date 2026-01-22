@@ -1065,6 +1065,18 @@ public:
 
 
     /**
+     * @brief Get nth string
+     * @param key A single char like 'm'
+     * @param value_string An array of at least TALKIE_MAX_LEN (64)
+     * @param size The size of TALKIE_MAX_LEN or more
+     * @return false if nth string non existent
+     */
+	bool get_key_string(char key, char* value_string, size_t size = TALKIE_MAX_LEN) const {
+		return _get_value_string(key, value_string, size);
+	}
+
+
+    /**
      * @brief Get the key value
      * @param key A single char like 'i'
      * @param key_number Pointer to a 8 bits number to get the value
