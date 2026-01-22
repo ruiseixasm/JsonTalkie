@@ -189,6 +189,8 @@ protected:
 
 			if (corruption_type != TALKIE_CT_CLEAN) {
 
+				if (json_message.has_key('M')) return;	// 'M' messages aren't intended to be recovered
+
 				if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
 
 					JsonMessage error_message;
