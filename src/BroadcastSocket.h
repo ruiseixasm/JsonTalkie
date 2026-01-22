@@ -164,24 +164,23 @@ protected:
 				json_message._set_length(received_length);
 			}
 
-			if (!json_message.get_identity(&_message_identity)) {
-				_corrupted_message.corruption_type = TALKIE_CT_IDENTITY;
-			} else {
-				_corrupted_message.corruption_type = TALKIE_CT_CLEAN;
-			}
-
 			if (!json_message.get_checksum(&_corrupted_message.checksum)) {
 				
-				if (_corrupted_message.corruption_type == TALKIE_CT_IDENTITY) {
+				if (!json_message.get_identity(&_message_identity)) {
 					_corrupted_message.corruption_type = TALKIE_CT_UNRECOVERABLE;
 				} else {
 					_corrupted_message.corruption_type = TALKIE_CT_CHECKSUM;
 				}
 
-			} else if (_corrupted_message.corruption_type == TALKIE_CT_CLEAN) {
+			} else {
 				json_message.remove_checksum();
 				if (json_message._generate_checksum() != _corrupted_message.checksum) {
-					_corrupted_message.corruption_type = TALKIE_CT_DATA;
+					
+					if (!json_message.get_identity(&_message_identity)) {
+						_corrupted_message.corruption_type = TALKIE_CT_IDENTITY;
+					} else {
+						_corrupted_message.corruption_type = TALKIE_CT_DATA;
+					}
 				}
 			}
 			
