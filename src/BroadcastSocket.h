@@ -80,7 +80,7 @@ protected:
     uint16_t _recoveries_count = 0;
     uint16_t _drops_count = 0;
     uint16_t _fails_count = 0;
-	uint8_t _subsequent_errors = 0;	// Avoids a runaway flux of errors
+	uint8_t _consecutive_errors = 0;	// Avoids a runaway flux of errors
 
 	struct FromTalker {
 		char name[TALKIE_NAME_LEN] = {'\0'};
@@ -88,13 +88,8 @@ protected:
 	};
 	FromTalker _from_talker;
 	
-	struct RecoveryMessage {
-		uint16_t identity;
-		uint16_t received_time;
-		bool active = false;
-	};
-	RecoveryMessage _recovery_message;
 
+	uint16_t _message_identity;
 
     enum CorruptionType : uint8_t {
 		TALKIE_CT_CLEAN,
@@ -107,6 +102,7 @@ protected:
 	struct CorruptedMessage {
 		CorruptionType corruption_type;
 		BroadcastValue broadcast;
+		uint16_t identity;
 		uint16_t checksum;
 		uint16_t received_time;
 		bool active = false;
@@ -156,13 +152,19 @@ protected:
 		
 		if (check_integrity) {	// Validate message integrity
 
+			size_t received_length = json_message._get_length();
+			if (!json_message._validate_json()) {
+				// Resets its initial length in order to be processed next, as error (checksum fail)
+				json_message._set_length(received_length);
+			}
+
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM)
 			json_message._corrupt_payload(false);
 			#elif defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 			json_message._corrupt_payload(true);
 			#endif
 
-			if (!json_message.get_identity(&_corrupted_message.identity)) {
+			if (!json_message.get_identity(&_message_identity)) {
 				_corrupted_message.corruption_type = TALKIE_CT_IDENTITY;
 			} else {
 				_corrupted_message.corruption_type = TALKIE_CT_CLEAN;
@@ -186,59 +188,6 @@ protected:
 
 			if (_corrupted_message.corruption_type != TALKIE_CT_CLEAN) {
 
-				JsonMessage error_message;
-				error_message.set_message_value(MessageValue::TALKIE_MSG_ERROR);
-				error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
-
-				if (!json_message.get_broadcast_value(&_corrupted_message.broadcast)) {
-					_corrupted_message.broadcast = BroadcastValue::TALKIE_BC_NONE;
-				} else {
-					error_message.set_broadcast_value(_corrupted_message.broadcast);
-				}
-
-				switch (_corrupted_message.corruption_type) 
-				{
-					case TALKIE_CT_DATA:
-					case TALKIE_CT_CHECKSUM:
-						error_message.set_identity(_corrupted_message.identity);
-					case TALKIE_CT_IDENTITY:
-						++_lost_count;	// Non recoverable so far (+1)
-					break;
-					
-					case TALKIE_CT_UNRECOVERABLE:
-						++_lost_count;	// Non recoverable (+1)
-						return;
-					break;
-					
-					default: break;
-				}
-
-				if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE) {
-
-					error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
-					_finishTransmission(error_message);
-					error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
-					_finishTransmission(error_message);
-
-				} else {
-					_finishTransmission(error_message);
-				}
-
-				_corrupted_message.received_time = (uint16_t)millis();
-				_corrupted_message.active = true;
-				return;
-			}
-
-
-			size_t received_length = json_message._get_length();
-			if (!json_message._validate_json()) {
-				// Resets its initial length in order to be processed next, as error (checksum fail)
-				json_message._set_length(received_length);
-			}
-
-			// Safer way of Recovering messages
-			if (!json_message._validate_checksum()) {
-				
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 				Serial.print(F("\t_startTransmission1.2: "));
 				json_message.write_to(Serial);
@@ -246,36 +195,59 @@ protected:
 				Serial.println(json_message._get_length());
 				#endif
 			
-				if (_subsequent_errors < MAXIMUM_SUBSEQUENT_ERRORS) {	// Avoids a runaway flux of errors
+				if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
 
-					uint16_t message_id;
-					if (json_message.get_identity(&message_id) && _from_talker.broadcast != BroadcastValue::TALKIE_BC_NONE) {
-						JsonMessage error_message(MessageValue::TALKIE_MSG_ERROR, _from_talker.broadcast);
-						error_message.set_identity(message_id);
-						error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
-						error_message.set_to_name(_from_talker.name);
+					JsonMessage error_message;
+					error_message.set_message_value(MessageValue::TALKIE_MSG_ERROR);
+					error_message.set_error_value(ErrorValue::TALKIE_ERR_CHECKSUM);
+
+					if (!json_message.get_broadcast_value(&_corrupted_message.broadcast)) {
+						_corrupted_message.broadcast = BroadcastValue::TALKIE_BC_NONE;
+					} else {
+						error_message.set_broadcast_value(_corrupted_message.broadcast);
+					}
+
+					switch (_corrupted_message.corruption_type) 
+					{
+						case TALKIE_CT_DATA:
+						case TALKIE_CT_CHECKSUM:
+							error_message.set_identity(_corrupted_message.identity);
+						case TALKIE_CT_IDENTITY:
+							++_lost_count;	// Non recoverable so far (+1)
+						break;
+						
+						case TALKIE_CT_UNRECOVERABLE:
+							++_lost_count;	// Non recoverable (+1)
+							_corrupted_message.active = false;
+							return;
+						break;
+						
+						default: break;
+					}
+
+					if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE) {
+
+						error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
+						_finishTransmission(error_message);
+						error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
 						_finishTransmission(error_message);
 
-						#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-						Serial.print(F("\t_startTransmission1.3: "));
-						error_message.write_to(Serial);
-						Serial.print(" | ");
-						Serial.println(error_message._get_length());
-						#endif
-			
-						// Keeps the window opened
-						_recovery_message.identity = message_id;
-						_recovery_message.received_time = (uint16_t)millis();
-						_recovery_message.active = true;
+					} else {
+						_finishTransmission(error_message);
 					}
-					++_subsequent_errors;	// Avoids a runaway flux of errors
+
+					_corrupted_message.identity = _message_identity;
+					_corrupted_message.received_time = (uint16_t)millis();
+					_corrupted_message.active = true;
+					++_consecutive_errors;	// Avoids a runaway flux of errors
+				} else {
+					++_lost_count;			// Non recoverable (+1)
 				}
-				++_lost_count;			// Non recoverable (+1)
 				return;
 			}
 		}
 
-		_subsequent_errors = 0;	// Avoids a runaway flux of errors
+		_consecutive_errors = 0;	// Avoids a runaway flux of errors
 
 		// At this point the message has its integrity guaranteed
 		if (json_message.has_key('M')) {	// It's a Recovery message
@@ -287,15 +259,51 @@ protected:
 			Serial.println(json_message._get_length());
 			#endif
 		
-			uint16_t message_id = json_message.get_identity();	// Identity is correct for sure
-			// Processes the Recovery message
-			if (_recovery_message.active && message_id == _recovery_message.identity) {
-				json_message.replace_key('M', 'm');	// Removes the tag in order to be processed
-				_recovery_message.active = false;	// Ends the recovering process
-				++_recoveries_count;	// Still recoverable (+1)
-				--_lost_count;			// Non recoverable (-1)
-			} else {
-				// Not for this Socket, let the Repeater send to other Sockets
+			if (_corrupted_message.active) {
+				if (json_message.replace_key('M', 'm')) {	// Removes the tag in order to be processed
+
+					uint16_t message_checksum = json_message._generate_checksum();
+					switch (_corrupted_message.corruption_type) 
+					{
+						case TALKIE_CT_DATA:
+							if (_message_identity == _corrupted_message.identity && message_checksum == _corrupted_message.checksum) {
+								++_recoveries_count;	// It is a recovered message (+1)
+								--_lost_count;			// Non recoverable (-1)
+								_corrupted_message.active = false;
+							} else {
+								// Not for this Socket, let the Repeater send to other Sockets
+								json_message.replace_key('m', 'M')
+							}
+						break;
+
+						case TALKIE_CT_CHECKSUM:
+							if (_message_identity == _corrupted_message.identity) {
+								++_recoveries_count;	// It is a recovered message (+1)
+								--_lost_count;			// Non recoverable (-1)
+								_corrupted_message.active = false;
+							} else {
+								// Not for this Socket, let the Repeater send to other Sockets
+								json_message.replace_key('m', 'M')
+							}
+						break;
+
+						case TALKIE_CT_IDENTITY:
+							if (message_checksum == _corrupted_message.checksum) {
+								++_recoveries_count;	// It is a recovered message (+1)
+								--_lost_count;			// Non recoverable (-1)
+								_corrupted_message.active = false;
+							} else {
+								// Not for this Socket, let the Repeater send to other Sockets
+								json_message.replace_key('m', 'M')
+							}
+						break;
+						
+						default: break;
+					}
+
+				} else {
+					return;	// Malformatted 'M'
+				}
 			}
 		}
 
