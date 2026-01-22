@@ -207,20 +207,18 @@ protected:
 						error_message.set_broadcast_value(_corrupted_message.broadcast);
 					}
 
+					if (json_message.has_from()) {	// Avoids counting Socket anonymous messages
+						++_lost_count;	// Non recoverable so far (+1)
+					}
+
 					switch (_corrupted_message.corruption_type) 
 					{
 						case TALKIE_CT_DATA:
 						case TALKIE_CT_CHECKSUM:
 							error_message.set_identity(_corrupted_message.identity);
-							++_lost_count;	// Non recoverable so far (+1)
-						break;
-						
-						case TALKIE_CT_IDENTITY:
-							++_lost_count;	// Non recoverable so far (+1)
 						break;
 						
 						case TALKIE_CT_UNRECOVERABLE:
-							++_lost_count;	// Non recoverable (+1)
 							_corrupted_message.active = false;
 							return;
 						break;
