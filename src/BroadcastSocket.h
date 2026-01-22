@@ -273,7 +273,9 @@ protected:
 					Serial.print(" | ");
 					Serial.print(message_checksum);
 					Serial.print(" | ");
-					Serial.println(message_identity);
+					Serial.print(message_identity);
+					Serial.print(" | ");
+					Serial.println((int)_corrupted_message.corruption_type);
 					#endif
 		
 					switch (_corrupted_message.corruption_type) 
