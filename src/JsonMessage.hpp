@@ -797,6 +797,12 @@ public:
 				_json_payload[json_i - 4] = ',';
 				_json_payload[json_i - 3] = '"';
 				_json_payload[json_i - 1] = '"';
+				if (_json_payload[json_i + 1] > '9' || _json_payload[json_i + 1] < '0') {
+					_json_payload[json_i + 1] = '"';
+				}
+				if (json_i > 4 && (_json_payload[json_i - 5] > '9' || _json_payload[json_i - 5] < '0')) {
+					_json_payload[json_i - 5] = '"';
+				}
 			}
 		}
 		_json_payload[0] = '{';
