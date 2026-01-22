@@ -322,9 +322,9 @@ protected:
 					Serial.print(F("\t_startTransmission1.5: "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
-					Serial.print(message_checksum);
+					Serial.print(_corrupted_message.checksum);
 					Serial.print(" | ");
-					Serial.print(message_identity);
+					Serial.print(_corrupted_message.identity);
 					Serial.print(" | ");
 					Serial.print((int)_corrupted_message.corruption_type);
 					Serial.print(" | ");
