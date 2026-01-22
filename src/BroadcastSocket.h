@@ -165,19 +165,6 @@ protected:
 				Serial.println((int)corruption_type);
 				#endif
 
-			} else {
-				
-				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-				Serial.print(F("\t\t_startTransmission1.2: "));
-				json_message.write_to(Serial);
-				Serial.print(" | ");
-				Serial.print(*message_checksum);
-				Serial.print(" | ");
-				Serial.print(*message_identity);
-				Serial.print(" | ");
-				Serial.println((int)corruption_type);
-				#endif
-
 			}
 		}
 		return corruption_type;
@@ -314,6 +301,18 @@ protected:
 				} else {
 					json_message = reconstructed_message;
 					++_recoveries_count;	// It is a recovered message (+1)
+					
+					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+					Serial.print(F("\t\t_startTransmission1.2: "));
+					json_message.write_to(Serial);
+					Serial.print(" | ");
+					Serial.print(*message_checksum);
+					Serial.print(" | ");
+					Serial.print(*message_identity);
+					Serial.print(" | ");
+					Serial.println((int)corruption_type);
+					#endif
+
 				}
 			}
 		}
