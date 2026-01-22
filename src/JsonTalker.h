@@ -660,15 +660,12 @@ public:
 				break;
 			
 			case MessageValue::TALKIE_MSG_ERROR:
-				{
-					// Makes sure it has the same id first (error match condition)
-					uint16_t error_message_id = json_message.get_identity();
-					
+				{					
 					#ifdef JSON_TALKER_DEBUG_CHECKSUM
 					Serial.print(F("\t\t\thandleTransmission2 (error): "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
-					Serial.print(error_message_id);
+					Serial.print(json_message.get_identity());
 					Serial.print(" | ");
 					Serial.print(_recovery_message.identity);
 					Serial.print(" | ");
@@ -689,7 +686,7 @@ public:
 									Serial.print(F("\t\t\thandleTransmission2 (error): "));
 									_recovery_message.message.write_to(Serial);
 									Serial.print(" | ");
-									Serial.print(error_message_id);
+									Serial.print(json_message.get_identity());
 									Serial.print(" | ");
 									Serial.print(_recovery_message.identity);
 									Serial.print(" | ");
