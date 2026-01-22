@@ -207,9 +207,7 @@ protected:
 						error_message.set_broadcast_value(_corrupted_message.broadcast);
 					}
 
-					if (json_message.has_from()) {	// Avoids counting Socket anonymous messages
-						++_lost_count;	// Non recoverable so far (+1)
-					}
+					++_lost_count;	// Non recoverable so far (+1)
 
 					switch (_corrupted_message.corruption_type) 
 					{
@@ -237,6 +235,13 @@ protected:
 						_finishTransmission(error_message);
 					}
 
+					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+					Serial.print(F("\t_startTransmission1.3: "));
+					error_message.write_to(Serial);
+					Serial.print(" | ");
+					Serial.println(error_message._get_length());
+					#endif
+			
 					_corrupted_message.identity = _message_identity;
 					_corrupted_message.received_time = (uint16_t)millis();
 					_corrupted_message.active = true;
