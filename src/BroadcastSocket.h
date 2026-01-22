@@ -281,7 +281,7 @@ protected:
 					switch (_corrupted_message.corruption_type) 
 					{
 						case TALKIE_CT_DATA:
-							if (message_identity == _corrupted_message.identity && message_checksum == _corrupted_message.checksum) {
+							if (message_checksum == _corrupted_message.checksum && message_identity == _corrupted_message.identity) {
 								++_recoveries_count;	// It is a recovered message (+1)
 								--_lost_count;			// Non recoverable (-1)
 								_corrupted_message.active = false;
