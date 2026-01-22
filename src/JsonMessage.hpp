@@ -723,24 +723,6 @@ public:
 		return true;
 	}
 
-
-	/**
-     * @brief This helper method generates the checksum of a given buffer content
-     */
-    uint16_t _generateChecksum() const {	// 16-bit word and XORing
-        uint16_t checksum = 0;
-		if (_json_length <= TALKIE_BUFFER_SIZE) {
-			for (size_t i = 0; i < _json_length; i += 2) {
-				uint16_t chunk = _json_payload[i] << 8;
-				if (i + 1 < _json_length) {
-					chunk |= _json_payload[i + 1];
-				}
-				checksum ^= chunk;
-			}
-		}
-        return checksum;
-    }
-
 	
     /**
      * @brief Corrupts a single char for debugging purposes only
@@ -761,6 +743,24 @@ public:
 			triggered = false;
 		}
 	}
+
+
+	/**
+     * @brief This helper method generates the checksum of a given buffer content
+     */
+    uint16_t _generateChecksum() const {	// 16-bit word and XORing
+        uint16_t checksum = 0;
+		if (_json_length <= TALKIE_BUFFER_SIZE) {
+			for (size_t i = 0; i < _json_length; i += 2) {
+				uint16_t chunk = _json_payload[i] << 8;
+				if (i + 1 < _json_length) {
+					chunk |= _json_payload[i + 1];
+				}
+				checksum ^= chunk;
+			}
+		}
+        return checksum;
+    }
 
 
     /**
