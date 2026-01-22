@@ -212,6 +212,9 @@ protected:
 						case TALKIE_CT_DATA:
 						case TALKIE_CT_CHECKSUM:
 							error_message.set_identity(_corrupted_message.identity);
+							++_lost_count;	// Non recoverable so far (+1)
+						break;
+						
 						case TALKIE_CT_IDENTITY:
 							++_lost_count;	// Non recoverable so far (+1)
 						break;
