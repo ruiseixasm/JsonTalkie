@@ -1469,6 +1469,16 @@ public:
     // REMOVERS - FIELD DELETION
     // ============================================
 
+    /**
+     * @brief Remove the key value pair
+     * @param key A single char like 'i'
+     * @return false if it wasn't able to remove or the field is non existent
+     */
+	void remove_key_field(char key) {
+		_remove(key);
+	}
+
+
     /** @brief Remove checksum field */
 	void remove_checksum() {
 		_remove('c');
