@@ -186,7 +186,7 @@ protected:
 				// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
 				// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
 
-				if (json_message.has_key('M') || json_message._get_length() < 27) return;	// 'M' or Socket messages aren't intended to be recovered
+				if (json_message.has_key('M') || json_message._get_length() < 24) return;	// 'M' or Socket messages aren't intended to be recovered
 
 				if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
 

@@ -51,7 +51,9 @@ protected:
 
 			if (Ethernet.localIP() != _my_ip) {
 				_my_ip = Ethernet.localIP();
-				JsonMessage noise_message(MessageValue::TALKIE_MSG_NOISE, BroadcastValue::TALKIE_BC_NONE);
+				JsonMessage noise_message;
+				// No need for broadcast setting, it's for same LAN Sockets only
+				noise_message.set_message_value(MessageValue::TALKIE_MSG_NOISE);
 				// Sends noise to everybody else. Noise will trigger a reset of the kept ips on other sockets
 				_finishTransmission(noise_message);
 			}
