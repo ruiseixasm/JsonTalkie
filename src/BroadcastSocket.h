@@ -133,6 +133,17 @@ protected:
 				corruption_type = TALKIE_CT_CHECKSUM;
 			}
 
+			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+			Serial.print(F("\t_startTransmission1.2: "));
+			json_message.write_to(Serial);
+			Serial.print(" | ");
+			Serial.print(*message_checksum);
+			Serial.print(" | ");
+			Serial.print(*message_identity);
+			Serial.print(" | ");
+			Serial.println((int)corruption_type);
+			#endif
+
 		} else {
 			json_message.remove_checksum();
 			if (json_message._generate_checksum() != *message_checksum) {
@@ -142,20 +153,20 @@ protected:
 				} else {
 					corruption_type = TALKIE_CT_DATA;
 				}
+				
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+				Serial.print(F("\t_startTransmission1.2: "));
+				json_message.write_to(Serial);
+				Serial.print(" | ");
+				Serial.print(*message_checksum);
+				Serial.print(" | ");
+				Serial.print(*message_identity);
+				Serial.print(" | ");
+				Serial.println((int)corruption_type);
+				#endif
+
 			}
 		}
-		
-		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-		Serial.print(F("\t_startTransmission1.2: "));
-		json_message.write_to(Serial);
-		Serial.print(" | ");
-		Serial.print(*message_checksum);
-		Serial.print(" | ");
-		Serial.print(*message_identity);
-		Serial.print(" | ");
-		Serial.println((int)corruption_type);
-		#endif
-
 		return corruption_type;
 	}
 
@@ -245,7 +256,7 @@ protected:
 		Serial.print(": ");
 		#endif
 			
-		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+		#ifdef BROADCASTSOCKET_DEBUG_NEW
 		Serial.print(F("\t_startTransmission1.1: "));
 		json_message.write_to(Serial);
 		Serial.print(" | ");
