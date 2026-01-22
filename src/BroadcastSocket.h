@@ -134,7 +134,7 @@ protected:
 			}
 
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-			Serial.print(F("\t_startTransmission1.2: "));
+			Serial.print(F("\t\t_startTransmission1.2: "));
 			json_message.write_to(Serial);
 			Serial.print(" | ");
 			Serial.print(*message_checksum);
@@ -298,6 +298,7 @@ protected:
 					return;
 				} else {
 					json_message = reconstructed_message;
+					++_recoveries_count;	// It is a recovered message (+1)
 				}
 			}
 		}
