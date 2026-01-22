@@ -155,7 +155,7 @@ protected:
 				}
 				
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-				Serial.print(F("\t_startTransmission1.2: "));
+				Serial.print(F("\t\t_startTransmission1.2: "));
 				json_message.write_to(Serial);
 				Serial.print(" | ");
 				Serial.print(*message_checksum);
