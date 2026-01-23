@@ -799,7 +799,7 @@ public:
 		_json_payload[4] = ':';
 		// {"m":4,"b":1,"t":"green","a":"off","f":"esp","i":36843}
 		for (size_t json_i = 6; json_i < _json_length; ++json_i) {	// 4 because it's the shortest position possible for ':'
-			if (_json_payload[json_i] == ':') {
+			if (json_i + 1 < _json_length && _json_payload[json_i] == ':') {
 				_json_payload[json_i - 4] = ',';
 				_json_payload[json_i - 3] = '"';
 				_json_payload[json_i - 1] = '"';
@@ -810,8 +810,8 @@ public:
 					_json_payload[json_i - 5] = '"';
 				}
 			}
-			// All keys are a single char keys
-			if (_json_payload[json_i] == ',' && _json_payload[json_i + 1] == '"' && _json_payload[json_i + 3] == '"') {
+			if (json_i + 4 < _json_length &&	// All keys are a single char keys
+				_json_payload[json_i] == ',' && _json_payload[json_i + 1] == '"' && _json_payload[json_i + 3] == '"') {
 				_json_payload[json_i + 4] = ':';
 			}
 		}
