@@ -193,7 +193,7 @@ protected:
 				break;
 				
 				case TALKIE_CT_UNRECOVERABLE:
-					_corrupted_message.active = false;
+					++_lost_count;	// Non recoverable (+1)
 					return;
 				break;
 				
@@ -215,6 +215,7 @@ protected:
 			_corrupted_message.identity = message_identity;
 			_corrupted_message.checksum = message_checksum;
 			_corrupted_message.received_time = (uint16_t)millis();
+			if (_corrupted_message.active) ++_lost_count;	// Non recoverable (+1)
 			_corrupted_message.active = true;
 			++_consecutive_errors;	// Avoids a runaway flux of errors
 			
