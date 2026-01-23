@@ -233,7 +233,6 @@ protected:
 			Serial.println(error_message._get_length());
 			#endif
 		}
-		++_lost_count;			// Non recoverable (+1)
 	}
 
 
@@ -347,7 +346,6 @@ protected:
 						case TALKIE_CT_DATA:
 							if (message_checksum == _corrupted_message.checksum && message_identity == _corrupted_message.identity) {
 								++_recoveries_count;	// It is a recovered message (+1)
-								--_lost_count;			// Non recoverable (-1)
 								_corrupted_message.active = false;
 							} else {
 								// Not for this Socket, let the Repeater send to other Sockets
@@ -358,7 +356,6 @@ protected:
 						case TALKIE_CT_CHECKSUM:
 							if (message_identity == _corrupted_message.identity) {
 								++_recoveries_count;	// It is a recovered message (+1)
-								--_lost_count;			// Non recoverable (-1)
 								_corrupted_message.active = false;
 							} else {
 								// Not for this Socket, let the Repeater send to other Sockets
@@ -369,7 +366,6 @@ protected:
 						case TALKIE_CT_IDENTITY:
 							if (message_checksum == _corrupted_message.checksum) {
 								++_recoveries_count;	// It is a recovered message (+1)
-								--_lost_count;			// Non recoverable (-1)
 								_corrupted_message.active = false;
 							} else {
 								// Not for this Socket, let the Repeater send to other Sockets
@@ -521,6 +517,7 @@ public:
             _control_timing = false;
         }
 		if (_corrupted_message.active && (uint16_t)millis() - _corrupted_message.received_time > TALKIE_RECOVERY_TTL) {
+			++_lost_count;	// Times up, non recoverable (+1)
 			_corrupted_message.active = false;
 		}
         _receive();
