@@ -335,7 +335,7 @@ protected:
 					// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
 					// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
 
-					if (!json_message.has_key('M') && json_message._get_length() > 23) {	// 'M' or Socket messages aren't intended to be recalled
+					if (json_message._get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
 
 						if (corruption_type_1 < corruption_type_2) {
 							_recoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
