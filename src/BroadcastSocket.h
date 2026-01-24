@@ -97,7 +97,7 @@ protected:
 		BroadcastValue broadcast;
 		uint16_t checksum;
 		uint16_t identity;
-		char from_name[TALKIE_NAME_LEN] = '\0';
+		char from_name[TALKIE_NAME_LEN] = {'\0'};
 		uint16_t received_time;
 		bool active = false;
 	};
