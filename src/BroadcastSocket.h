@@ -38,9 +38,9 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // #define BROADCASTSOCKET_DEBUG
 // #define BROADCASTSOCKET_DEBUG_NEW
+// #define BROADCASTSOCKET_DEBUG_CHECKSUM_FULL false
 // #define BROADCASTSOCKET_DEBUG_CHECKSUM_ALL
 // #define BROADCASTSOCKET_DEBUG_CHECKSUM_LOST
-#define BROADCASTSOCKET_DEBUG_CHECKSUM_FULL false
 
 // Readjust if necessary
 #define MAX_NETWORK_PACKET_LIFETIME_MS 256UL    // 256 milliseconds
@@ -102,7 +102,11 @@ protected:
 	};
 	CorruptedMessage _corrupted_message;
 
+	#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
+	JsonMessage _lost_message;
+	#endif
 	
+
     // Constructor
     BroadcastSocket() {
 		// Does nothing here
@@ -195,6 +199,18 @@ protected:
 				
 				case TALKIE_CT_UNRECOVERABLE:
 					++_lost_count;	// Non recoverable (+1)
+
+					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
+					Serial.print(F("\t\t\tUNRECOVERABLE: "));
+					_lost_message.write_to(Serial);
+					Serial.print(" | ");
+					Serial.print(*message_checksum);
+					Serial.print(" | ");
+					Serial.print(*message_identity);
+					Serial.print(" | ");
+					Serial.println((int)corruption_type);
+					#endif
+
 					return;
 				break;
 				
@@ -216,8 +232,19 @@ protected:
 			_corrupted_message.identity = message_identity;
 			_corrupted_message.checksum = message_checksum;
 			_corrupted_message.received_time = (uint16_t)millis();
-			if (_corrupted_message.active) ++_lost_count;	// Non recoverable (+1)
-			_corrupted_message.active = true;
+
+			if (_corrupted_message.active) {
+				++_lost_count;	// Non recoverable (+1)
+
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
+				Serial.print(F("\t\t\tBROCKEN WINDOW: "));
+				_lost_message.write_to(Serial);
+				Serial.println(_lost_count);
+				#endif
+
+			} else {
+				_corrupted_message.active = true;
+			}
 			++_consecutive_errors;	// Avoids a runaway flux of errors
 			
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL))
@@ -278,6 +305,10 @@ protected:
 
 			if (corruption_type_1 != TALKIE_CT_CLEAN) {
 
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
+				_lost_message = reconstructed_message;	// as a copy of the original message
+				#endif
+	
 				reconstructed_message._try_to_reconstruct();
 				uint16_t message_checksum_2 = 0;
 				uint16_t message_identity_2 = 0;
@@ -519,6 +550,13 @@ public:
         }
 		if (_corrupted_message.active && (uint16_t)millis() - _corrupted_message.received_time > TALKIE_RECOVERY_TTL) {
 			++_lost_count;	// Times up, non recoverable (+1)
+
+			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
+			Serial.print(F("\t\t\tTIME OUT: "));
+			_lost_message.write_to(Serial);
+			Serial.println(_lost_count);
+			#endif
+
 			_corrupted_message.active = false;
 		}
         _receive();
