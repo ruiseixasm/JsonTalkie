@@ -384,8 +384,9 @@ protected:
 						#endif
 			
 						// a match from with a single char difference top and one of the 'i' or 'c' matching too
-						if (_similarName(from_name, _corrupted_message.from_name) &&
-							(message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum)) {
+						if (_similarName(from_name, _corrupted_message.from_name)
+							&& (message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum)
+							|| (message_identity == _corrupted_message.identity && message_checksum == _corrupted_message.checksum)) {
 
 							++_recoveries_count;	// It is a recovered message (+1)
 							_corrupted_message.active = false;
