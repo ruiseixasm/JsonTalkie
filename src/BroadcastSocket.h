@@ -193,7 +193,7 @@ protected:
 			json_message.get_broadcast_value(&broadcast_value);	// Does a value ad boundaries checking
 
 			// Only records a new corrupted message if no one else is still being recovered
-			if (!_corrupted_message.active) {
+			if (!_corrupted_message.active) && !json_message.has_key('M')) {	// Avoids overwriting with a Recovery 'M' message (broadcasted)
 				_corrupted_message.corruption_type = corruption_type;
 				_corrupted_message.broadcast = broadcast_value;
 				_corrupted_message.identity = message_identity;
