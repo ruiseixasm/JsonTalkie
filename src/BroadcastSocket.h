@@ -138,7 +138,7 @@ protected:
 				corruption_type = TALKIE_CT_CHECKSUM;
 			}
 
-			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL))
+			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 			Serial.print(F("\t_startTransmission1.2: "));
 			json_message.write_to(Serial);
 			Serial.print(" | ");
@@ -159,7 +159,7 @@ protected:
 					corruption_type = TALKIE_CT_DATA;
 				}
 				
-				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL))
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 				Serial.print(F("\t_startTransmission1.2: "));
 				json_message.write_to(Serial);
 				Serial.print(" | ");
@@ -247,7 +247,7 @@ protected:
 			}
 			++_consecutive_errors;	// Avoids a runaway flux of errors
 			
-			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL))
+			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 			Serial.print(F("\t_startTransmission1.3: "));
 			json_message.write_to(Serial);
 			Serial.print(" | ");
@@ -333,7 +333,7 @@ protected:
 					_corrupted_message.active = false;
 					++_recoveries_count;	// It is a recovered message (+1)
 					
-					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL))
+					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 					Serial.print(F("\t\t_startTransmission1.2: "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
@@ -360,7 +360,7 @@ protected:
 					uint16_t message_checksum = json_message._generate_checksum();
 					uint16_t message_identity = json_message.get_identity();
 					
-					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL))
+					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 					Serial.print(F("\t_startTransmission1.5: "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
@@ -408,7 +408,7 @@ protected:
 						default: break;
 					}
 
-					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL))
+					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 					Serial.print(F("\t_startTransmission1.6: "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
