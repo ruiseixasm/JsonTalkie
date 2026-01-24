@@ -726,17 +726,20 @@ public:
 	
     /**
      * @brief Corrupts a single char for debugging purposes only
-     * @param any_message Also corrupts the ERRO messages
+     * @param any_char Includes any ascii char that not 'X'
      * @param one_in How many messages per each corruption
      */
-	void _corrupt_payload(bool any_message = true, uint8_t one_in = 100) {
+	void _corrupt_payload(bool any_char = true, uint8_t one_in = 100) {
 		static bool triggered = false;
-		if (micros() % one_in == 0 &&
-			(any_message || get_message_value() != MessageValue::TALKIE_MSG_ERROR)) {
-
+		if (micros() % one_in == 0 && get_message_value() != MessageValue::TALKIE_MSG_ERROR) {
 			if (!triggered) {
 				size_t corrupted_position = millis() % _json_length;
-				_json_payload[corrupted_position] = 'X';
+				if (any_char) {
+					char corrupted_char = static_cast<char>( (micros() + millis()) % 128 );
+					_json_payload[corrupted_position] = corrupted_char;
+				} else {
+					_json_payload[corrupted_position] = 'X';
+				}
 				triggered = true;
 			}
 		} else {
