@@ -680,7 +680,9 @@ public:
 								case ErrorValue::TALKIE_ERR_CHECKSUM:
 									if (!json_message.has_identity() || json_message.get_identity() == _recovery_message.identity) {
 
-										_recovery_message.active = false;	// One retry only (avoids cascading of retries)
+										if (_recovery_message.message.has_key('M')) {	// Allows 2 retries
+											_recovery_message.active = false;
+										}
 										// Retransmits as is, and because it represents the same id as _recovery_message
 										_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message ('M')
 
