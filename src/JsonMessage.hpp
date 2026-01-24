@@ -1113,6 +1113,16 @@ public:
     /**
      * @brief Get the key value
      * @param key A single char like 'i'
+     * @return Extracted number, or 0 if key not found or not a number
+     */
+	uint32_t get_key_number(char key) const {
+		return _get_value_number(key);
+	}
+
+
+    /**
+     * @brief Get the key value
+     * @param key A single char like 'i'
      * @param key_number Pointer to a 8 bits number to get the value
      * @return false if no valid number was found
      * 
