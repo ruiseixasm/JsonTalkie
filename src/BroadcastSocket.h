@@ -370,19 +370,16 @@ protected:
 		if (json_message.has_key('M')) {	// It's a Recovery message
 			
 			if (_corrupted_message.active) {
-
-				uint16_t M_message_checksum = json_message._generate_checksum();
-
 				if (json_message.replace_key('M', 'm')) {	// Removes the tag in order to be processed
 		
-					uint16_t m_message_checksum = json_message._generate_checksum();
+					uint16_t message_checksum = json_message._generate_checksum();
 					uint16_t message_identity = json_message.get_identity();
 					
 					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 					Serial.print(F("\t_startTransmission1.5: "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
-					Serial.print(m_message_checksum);
+					Serial.print(message_checksum);
 					Serial.print(" | ");
 					Serial.print(message_identity);
 					Serial.print(" | ");
@@ -394,8 +391,7 @@ protected:
 					switch (_corrupted_message.corruption_type) 
 					{
 						case TALKIE_CT_DATA:
-							if (message_identity == _corrupted_message.identity &&
-								(m_message_checksum == _corrupted_message.checksum || M_message_checksum == _corrupted_message.checksum)) {
+							if (message_checksum == _corrupted_message.checksum && message_identity == _corrupted_message.identity) {
 								++_recoveries_count;	// It is a recovered message (+1)
 								_corrupted_message.active = false;
 							} else {
@@ -415,7 +411,7 @@ protected:
 						break;
 
 						case TALKIE_CT_IDENTITY:
-							if (m_message_checksum == _corrupted_message.checksum || M_message_checksum == _corrupted_message.checksum) {
+							if (message_checksum == _corrupted_message.checksum) {
 								++_recoveries_count;	// It is a recovered message (+1)
 								_corrupted_message.active = false;
 							} else {
