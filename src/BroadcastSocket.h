@@ -206,7 +206,7 @@ protected:
 					++_lost_count;	// Non recoverable (+1)
 
 					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
-					Serial.print(F("\t\t\tUNRECOVERABLE: "));
+					Serial.print(F("\t\t\tUNRECOVERABLE:       "));
 					_lost_message.write_to(Serial);
 					Serial.print(" | ");
 					Serial.println(_lost_count);
@@ -220,7 +220,7 @@ protected:
 
 			if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE) {
 
-				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 				Serial.println(F("\t\t\tTALKIE_BC_NONE"));
 				#endif
 
@@ -242,7 +242,7 @@ protected:
 				++_lost_count;	// Non recoverable (+1)
 
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
-				Serial.print(F("\t\t\tBROCKEN WINDOW: "));
+				Serial.print(F("\t\t\tBROCKEN WINDOW:      "));
 				_lost_message.write_to(Serial);
 				Serial.print(" | ");
 				Serial.println(_lost_count);
@@ -562,7 +562,7 @@ public:
 			Serial.print(F("\t\t\tTIME OUT (recovery): "));
 			_corrupt_message.write_to(Serial);
 			Serial.println();
-			Serial.print(F("\t\t\tTIME OUT (lost): "));
+			Serial.print(F("\t\t\tTIME OUT (lost):     "));
 			_lost_message.write_to(Serial);
 			Serial.print(" | ");
 			Serial.println(_lost_count);
