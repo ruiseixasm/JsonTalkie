@@ -92,7 +92,6 @@ private:
     
 	struct RecoveryMessage {
 		uint16_t identity;
-		uint16_t checksum;
 		JsonMessage message;
 		bool active = false;
 	};
@@ -680,33 +679,25 @@ public:
 
 								case ErrorValue::TALKIE_ERR_CHECKSUM:
 								
-									if (!_recovery_message.message.has_key('M')) {
-										_recovery_message.checksum = _recovery_message.message._generate_checksum();
+									if (_recovery_message.message.has_key('M')) {	// Allows 2 retries
+										_recovery_message.active = false;
+									} else {
+										_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message ('M')
 									}
 
-									// Avoids potential multiple talkers replying to a message recovery recall at the same time
-									if (json_message.get_identity() == _recovery_message.identity || json_message.get_key_number('C') == _recovery_message.checksum) {
+									#ifdef JSON_TALKER_DEBUG_CHECKSUM
+									Serial.print(F("\t\t\thandleTransmission2 (error): "));
+									_recovery_message.message.write_to(Serial);
+									Serial.print(" | ");
+									Serial.print(json_message.get_identity());
+									Serial.print(" | ");
+									Serial.print(_recovery_message.identity);
+									Serial.print(" | ");
+									Serial.println(_recovery_message.active);
+									#endif
 
-										if (_recovery_message.message.has_key('M')) {	// Allows 2 retries
-											_recovery_message.active = false;
-										} else {
-											_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message ('M')
-										}
-
-										#ifdef JSON_TALKER_DEBUG_CHECKSUM
-										Serial.print(F("\t\t\thandleTransmission2 (error): "));
-										_recovery_message.message.write_to(Serial);
-										Serial.print(" | ");
-										Serial.print(json_message.get_identity());
-										Serial.print(" | ");
-										Serial.print(_recovery_message.identity);
-										Serial.print(" | ");
-										Serial.println(_recovery_message.active);
-										#endif
-
-										// Retransmits as is, and because it represents the same id as _recovery_message
-										transmitToRepeater(_recovery_message.message);
-									}
+									// Retransmits as is, and because it represents the same id as _recovery_message
+									transmitToRepeater(_recovery_message.message);
 								break;
 								
 								default: break;
