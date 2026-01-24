@@ -682,9 +682,9 @@ public:
 
 										if (_recovery_message.message.has_key('M')) {	// Allows 2 retries
 											_recovery_message.active = false;
+										} else {
+											_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message ('M')
 										}
-										// Retransmits as is, and because it represents the same id as _recovery_message
-										_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message ('M')
 
 										#ifdef JSON_TALKER_DEBUG_CHECKSUM
 										Serial.print(F("\t\t\thandleTransmission2 (error): "));
@@ -697,6 +697,7 @@ public:
 										Serial.println(_recovery_message.active);
 										#endif
 
+										// Retransmits as is, and because it represents the same id as _recovery_message
 										transmitToRepeater(_recovery_message.message);
 									}
 								break;
