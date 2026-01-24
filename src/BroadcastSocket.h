@@ -103,6 +103,7 @@ protected:
 	CorruptedMessage _corrupted_message;
 
 	#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
+	JsonMessage _corrupt_message;
 	JsonMessage _lost_message;
 	#endif
 	
@@ -178,6 +179,10 @@ protected:
 
 	void _recoverMessage(const JsonMessage& json_message, CorruptionType corruption_type, uint16_t message_checksum, uint16_t message_identity) {
 
+		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
+		_lost_message = _corrupt_message;
+		#endif
+
 		if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
 
 			JsonMessage error_message;
@@ -245,6 +250,7 @@ protected:
 			} else {
 				_corrupted_message.active = true;
 			}
+
 			++_consecutive_errors;	// Avoids a runaway flux of errors
 			
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
@@ -306,7 +312,7 @@ protected:
 			if (corruption_type_1 != TALKIE_CT_CLEAN) {
 
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
-				_lost_message = reconstructed_message;	// as a copy of the original message
+				_corrupt_message = reconstructed_message;	// as a copy of the original message
 				#endif
 	
 				reconstructed_message._try_to_reconstruct();
