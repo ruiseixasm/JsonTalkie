@@ -321,11 +321,12 @@ protected:
 
 			}
 		}
+		_consecutive_errors = 0;	// Avoids a runaway flux of errors
 		return true;
 	}
 
 
-	virtual bool _recoverMessage(JsonMessage& json_message) {
+	virtual bool _recoverMessage() {
 
 		if (_corrupted_message.active) {
 			if (json_message.replace_key('M', 'm')) {	// Removes the tag in order to be processed
@@ -381,7 +382,7 @@ protected:
      * @param json_message A json message to be transmitted to the repeater
 	 *        usefull if you wan't to do it in the Socket implementation instead
      */
-    void _startTransmission(JsonMessage& json_message) {
+    void _startTransmission(JsonMessage& json_message = true) {
 		
 		#ifdef MESSAGE_DEBUG_TIMING
 		Serial.print("\n\t");
@@ -398,7 +399,6 @@ protected:
 		
 
 		if (!_checkMessageIntegrity(json_message)) return;
-		_consecutive_errors = 0;	// Avoids a runaway flux of errors
 		// At this point the message has its integrity guaranteed
 		if (json_message.has_key('M') && !_recoverMessage(json_message)) return;
 
