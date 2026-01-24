@@ -209,11 +209,7 @@ protected:
 					Serial.print(F("\t\t\tUNRECOVERABLE: "));
 					_lost_message.write_to(Serial);
 					Serial.print(" | ");
-					Serial.print(*message_checksum);
-					Serial.print(" | ");
-					Serial.print(*message_identity);
-					Serial.print(" | ");
-					Serial.println((int)corruption_type);
+					Serial.println(_lost_count);
 					#endif
 
 					return;
