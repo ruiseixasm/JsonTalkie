@@ -381,8 +381,6 @@ protected:
     /**
      * @brief Starts the transmission of the message received
      * @param json_message A json message to be transmitted to the repeater
-     * @param check_integrity Enables or disables the message integrity checking,
-	 *        usefull if you wan't to do it in the Socket implementation instead
      */
     void _startTransmission(JsonMessage& json_message) {
 		
