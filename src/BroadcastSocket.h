@@ -270,7 +270,7 @@ protected:
 			if (*str1 != *str2) diff_count++;
 			if (diff_count > 1) return false;
 		}
-		return char_i == 0 || str1[char_i] == str2[char_i];	// No size or same size
+		return str1[char_i] == str2[char_i];	// No size or same size
 	}
 
 
