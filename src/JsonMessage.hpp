@@ -1104,6 +1104,8 @@ public:
      * @param value_string An array of at least TALKIE_MAX_LEN (64)
      * @param size The size of TALKIE_MAX_LEN or more
      * @return false if nth string non existent
+	 * 
+	 * @note Sets name as '\0' if returns false
      */
 	bool get_key_string(char key, char* value_string, size_t size = TALKIE_MAX_LEN) const {
 		return _get_value_string(key, value_string, size);
@@ -1322,6 +1324,8 @@ public:
      * @param name An array of at least TALKIE_NAME_LEN
      * @param size The size of TALKIE_NAME_LEN or more
      * @return false if name is non existent or non conformant to TALKIE_NAME_LEN
+	 * 
+	 * @note Sets name as '\0' if returns false
      */
     bool get_from_name(char* name, size_t size = TALKIE_NAME_LEN) const {
         return _get_value_string('f', name, size > TALKIE_NAME_LEN ? TALKIE_NAME_LEN : size);
@@ -1333,6 +1337,8 @@ public:
      * @param name An array of at least TALKIE_NAME_LEN
      * @param size The size of TALKIE_NAME_LEN or more
      * @return false if name is non existent or non conformant to TALKIE_NAME_LEN
+	 * 
+	 * @note Sets name as '\0' if returns false
      */
     bool get_to_name(char* name, size_t size = TALKIE_NAME_LEN) const {
         return _get_value_string('t', name, size > TALKIE_NAME_LEN ? TALKIE_NAME_LEN : size);
@@ -1526,6 +1532,8 @@ public:
      * @param name An array of at least TALKIE_NAME_LEN
      * @param size The size of TALKIE_NAME_LEN or more
      * @return false if name is non existent or non conformant to TALKIE_NAME_LEN
+	 * 
+	 * @note Sets name as '\0' if returns false
      */
     bool get_action_name(char* name, size_t size = TALKIE_NAME_LEN) const {
         return _get_value_string('a', name, size > TALKIE_NAME_LEN ? TALKIE_NAME_LEN : size);

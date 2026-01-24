@@ -97,6 +97,7 @@ protected:
 		BroadcastValue broadcast;
 		uint16_t checksum;
 		uint16_t identity;
+		char from_name[TALKIE_NAME_LEN] = '\0';
 		uint16_t received_time;
 		bool active = false;
 	};
@@ -191,11 +192,14 @@ protected:
 
 			BroadcastValue broadcast_value = BroadcastValue::TALKIE_BC_NONE;
 			json_message.get_broadcast_value(&broadcast_value);	// Does a value ad boundaries checking
+			char from_name[TALKIE_NAME_LEN];
+			json_message.get_from_name(from_name);
 
 			// Only records a new corrupted message if no one else is still being recovered
 			if (!_corrupted_message.active) {
 				_corrupted_message.corruption_type = corruption_type;
 				_corrupted_message.broadcast = broadcast_value;
+				strcpy(_corrupted_message.from_name, from_name);
 				_corrupted_message.identity = message_identity;
 				_corrupted_message.checksum = message_checksum;
 				_corrupted_message.received_time = (uint16_t)millis();
@@ -215,8 +219,7 @@ protected:
 				#endif
 
 				// Unicast request (for WiFi too)
-				char from_name[TALKIE_NAME_LEN];
-				if (json_message.get_from_name(from_name)) {
+				if (_corrupted_message.from_name[0] != '\0') {
 					error_message.set_to_name(from_name);
 					error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
 					_finishTransmission(error_message);
@@ -233,8 +236,7 @@ protected:
 			} else {
 				error_message.set_broadcast_value(_corrupted_message.broadcast);
 				// Unicast request (for WiFi too)
-				char from_name[TALKIE_NAME_LEN];
-				if (json_message.get_from_name(from_name)) {
+				if (_corrupted_message.from_name[0] != '\0') {
 					error_message.set_to_name(from_name);
 					_finishTransmission(error_message);
 				}
