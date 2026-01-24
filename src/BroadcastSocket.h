@@ -263,18 +263,14 @@ protected:
 	}
 
 
-	uint8_t _countCharDifferences(const char* str1, const char* str2) {
+	bool _similarName(const char* str1, const char* str2) {
 
-		uint8_t diff_count = 0;
-		
-		while (*str1 && *str2) {
-			if (*str1 != *str2) {
-				diff_count++;
-			}
-			str1++;
-			str2++;
+		size_t char_i = 0;
+		for (size_t diff_count = 0; str1[char_i] && str2[char_i]; ++char_i) {
+			if (*str1 != *str2) diff_count++;
+			if (diff_count > 1) return false;
 		}
-		return diff_count;
+		return char_i == 0 || str1[char_i] == str2[char_i];	// No size or same size
 	}
 
 
@@ -388,7 +384,7 @@ protected:
 						#endif
 			
 						// a match from with a single char difference top and one of the 'i' or 'c' matching too
-						if (_countCharDifferences(from_name, _corrupted_message.from_name) < 2 &&
+						if (_similarName(from_name, _corrupted_message.from_name) &&
 							(message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum)) {
 
 							++_recoveries_count;	// It is a recovered message (+1)
