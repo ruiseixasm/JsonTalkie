@@ -189,11 +189,20 @@ protected:
 			error_message.set_message_value(MessageValue::TALKIE_MSG_ERROR);
 			// By default, the ERROR message is a CHECKSUM error, so, no need to set it
 
-			if (!json_message.get_broadcast_value(&_corrupted_message.broadcast)) {
-				_corrupted_message.broadcast = BroadcastValue::TALKIE_BC_NONE;
-			} else {
-				error_message.set_broadcast_value(_corrupted_message.broadcast);
+			BroadcastValue broadcast_value = BroadcastValue::TALKIE_BC_NONE;
+			json_message.get_broadcast_value(&broadcast_value);	// Does a value ad boundaries checking
+
+			// Only records a new corrupted message if no one else is still being recovered
+			if (!_corrupted_message.active) {
+				_corrupted_message.corruption_type = corruption_type;
+				_corrupted_message.broadcast = broadcast_value;
+				_corrupted_message.identity = message_identity;
+				_corrupted_message.checksum = message_checksum;
+				_corrupted_message.received_time = (uint16_t)millis();
+				_corrupted_message.active = true;
 			}
+			++_consecutive_errors;	// Avoids a runaway flux of errors
+			
 
 			switch (corruption_type) 
 			{
@@ -252,17 +261,6 @@ protected:
 				_finishTransmission(error_message);
 			}
 
-			// Only records a new corrupted message if no one else is still being recovered
-			if (!_corrupted_message.active) {
-				_corrupted_message.corruption_type = corruption_type;
-				_corrupted_message.identity = message_identity;
-				_corrupted_message.checksum = message_checksum;
-				_corrupted_message.received_time = (uint16_t)millis();
-				_corrupted_message.active = true;
-			}
-
-			++_consecutive_errors;	// Avoids a runaway flux of errors
-			
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 			Serial.print(F("\t_startTransmission1.3: "));
 			json_message.write_to(Serial);
