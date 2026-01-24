@@ -224,12 +224,31 @@ protected:
 				Serial.println(F("\t\t\tTALKIE_BC_NONE"));
 				#endif
 
+				// Unicast request (for WiFi too)
+				char from_name[TALKIE_NAME_LEN];
+				if (json_message.get_from_name(from_name)) {
+					error_message.set_to_name(from_name);
+					error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
+					_finishTransmission(error_message);
+					error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
+					_finishTransmission(error_message);
+				}
+				// Broadcast request
+				error_message.remove_to();
 				error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
 				_finishTransmission(error_message);
 				error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
 				_finishTransmission(error_message);
 
 			} else {
+				// Unicast request (for WiFi too)
+				char from_name[TALKIE_NAME_LEN];
+				if (json_message.get_from_name(from_name)) {
+					error_message.set_to_name(from_name);
+					_finishTransmission(error_message);
+				}
+				// Broadcast request
+				error_message.remove_to();
 				_finishTransmission(error_message);
 			}
 
