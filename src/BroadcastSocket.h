@@ -282,6 +282,7 @@ protected:
 		Serial.println(json_message._get_length());
 		#endif
 		
+		// Because in Arduino the usage of 'virtual' is bogus!!
 		if (check_integrity) {	// Validate message integrity
 
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
@@ -342,57 +343,56 @@ protected:
 
 				}
 			}
-		}
 
+			_consecutive_errors = 0;	// Avoids a runaway flux of errors
 
-		_consecutive_errors = 0;	// Avoids a runaway flux of errors
-
-		// At this point the message has its integrity guaranteed
-		if (json_message.has_key('M')) {	// It's a Recovery message
+			// At this point the message has its integrity guaranteed
+			if (json_message.has_key('M')) {	// It's a Recovery message
+				
+				if (_corrupted_message.active) {
+					if (json_message.replace_key('M', 'm')) {	// Removes the tag in order to be processed
 			
-			if (_corrupted_message.active) {
-				if (json_message.replace_key('M', 'm')) {	// Removes the tag in order to be processed
-		
-					uint16_t message_checksum = json_message._generate_checksum();
-					uint16_t message_identity = json_message.get_identity();
-					
-					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
-					Serial.print(F("\t_startTransmission1.5: "));
-					json_message.write_to(Serial);
-					Serial.print(" | ");
-					Serial.print(message_checksum);
-					Serial.print(" | ");
-					Serial.print(message_identity);
-					Serial.print(" | ");
-					Serial.print((int)_corrupted_message.corruption_type);
-					Serial.print(" | ");
-					Serial.println((int)_corrupted_message.active);
-					#endif
-		
-					// Only one needs to match, needed for the high probability of a corrupted 'i' or 'c' number content
-					if (message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum) {
-						++_recoveries_count;	// It is a recovered message (+1)
-						_corrupted_message.active = false;
-					} else {
-						// Not for this Socket, let the Repeater send to other Sockets
-						json_message.replace_key('m', 'M');	// Replaces the tag for other Socket
-					}
+						uint16_t message_checksum = json_message._generate_checksum();
+						uint16_t message_identity = json_message.get_identity();
+						
+						#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
+						Serial.print(F("\t_startTransmission1.5: "));
+						json_message.write_to(Serial);
+						Serial.print(" | ");
+						Serial.print(message_checksum);
+						Serial.print(" | ");
+						Serial.print(message_identity);
+						Serial.print(" | ");
+						Serial.print((int)_corrupted_message.corruption_type);
+						Serial.print(" | ");
+						Serial.println((int)_corrupted_message.active);
+						#endif
+			
+						// Only one needs to match, needed for the high probability of a corrupted 'i' or 'c' number content
+						if (message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum) {
+							++_recoveries_count;	// It is a recovered message (+1)
+							_corrupted_message.active = false;
+						} else {
+							// Not for this Socket, let the Repeater send to other Sockets
+							json_message.replace_key('m', 'M');	// Replaces the tag for other Socket
+						}
 
-					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
-					Serial.print(F("\t_startTransmission1.6: "));
-					json_message.write_to(Serial);
-					Serial.print(" | ");
-					Serial.print(_corrupted_message.checksum);
-					Serial.print(" | ");
-					Serial.print(_corrupted_message.identity);
-					Serial.print(" | ");
-					Serial.print((int)_corrupted_message.corruption_type);
-					Serial.print(" | ");
-					Serial.println((int)_corrupted_message.active);
-					#endif
-		
-				} else {
-					return;	// Malformatted 'M'
+						#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
+						Serial.print(F("\t_startTransmission1.6: "));
+						json_message.write_to(Serial);
+						Serial.print(" | ");
+						Serial.print(_corrupted_message.checksum);
+						Serial.print(" | ");
+						Serial.print(_corrupted_message.identity);
+						Serial.print(" | ");
+						Serial.print((int)_corrupted_message.corruption_type);
+						Serial.print(" | ");
+						Serial.println((int)_corrupted_message.active);
+						#endif
+			
+					} else {
+						return;	// Malformatted 'M'
+					}
 				}
 			}
 		}
