@@ -263,6 +263,21 @@ protected:
 	}
 
 
+	uint8_t _countCharDifferences(const char* str1, const char* str2) {
+
+		uint8_t diff_count = 0;
+		
+		while (*str1 && *str2) {
+			if (*str1 != *str2) {
+				diff_count++;
+			}
+			str1++;
+			str2++;
+		}
+		return diff_count;
+	}
+
+
     /**
      * @brief Starts the transmission of the message received
      * @param json_message A json message to be transmitted to the repeater
@@ -356,6 +371,8 @@ protected:
 			
 						uint16_t message_checksum = json_message._generate_checksum();
 						uint16_t message_identity = json_message.get_identity();
+						char from_name[TALKIE_NAME_LEN];
+						json_message.get_from_name(from_name);
 						
 						#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 						Serial.print(F("\t_startTransmission1.5: "));
@@ -370,8 +387,10 @@ protected:
 						Serial.println((int)_corrupted_message.active);
 						#endif
 			
-						// Only one needs to match, needed for the high probability of a corrupted 'i' or 'c' number content
-						if (message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum) {
+						// a match from with a single char difference top and one of the 'i' or 'c' matching too
+						if (_countCharDifferences(_corrupted_message.from_name, from_name) < 2 &&
+							(message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum)) {
+
 							++_recoveries_count;	// It is a recovered message (+1)
 							_corrupted_message.active = false;
 						} else {
