@@ -178,11 +178,14 @@ or miss transmission may occur. This way, the following maximum sizes must be re
 ### Descriptions
 - **Talker** - The Talker `description` *together* with its `name` shouldn't be more than **54 chars**.
 - **Action** - The Action `description` *together* with its `name` shouldn't be more than **40 chars**.
-- **Socket** - The description of the `BroadcastSocket` implementation shouldn't be more than **35 chars**.
-- **Action** - The description of the `TalkerManifesto` implementation shouldn't be more than **42 chars**.
+- **Socket** - The `description` of the `BroadcastSocket` implementation shouldn't be more than **35 chars**.
+- **Action** - The `description` of the `TalkerManifesto` implementation shouldn't be more than **42 chars**.
 - **any** - Any `description` can't be in any circumstance more than **54 chars**, however, in `nth` transmitted strings,
 being less than that doesn't guarantee transmission by itself , in other words, avoid big sized descriptions
 in `nth` transmitted strings.
+
+## The char ':'
+Avoid using the char ':' in `name`, `description` or `nth` fields because it is used by the JsonTalkie for recovering corrupt messages.
 
 ## JsonTalkie architecture
 The center class is the `MessageRepeater` class, this class routes the JsonMessage between Uplinked
