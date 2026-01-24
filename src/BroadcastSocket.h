@@ -206,6 +206,7 @@ protected:
 			if (corruption_type < TALKIE_CT_IDENTITY) {
 				error_message.set_identity(_corrupted_message.identity);
 			}
+			error_message.set_key_number('C', (uint32_t)_corrupted_message.checksum);
 
 			if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE) {
 
@@ -311,16 +312,10 @@ protected:
 				
 				if (corruption_type_2 != TALKIE_CT_CLEAN) {
 					
-					// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
-					// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
-
-					if (json_message._get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
-
-						if (corruption_type_1 < corruption_type_2) {
-							_recoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
-						} else {
-							_recoverMessage(reconstructed_message, corruption_type_2, message_checksum_2, message_identity_2);
-						}
+					if (corruption_type_1 < corruption_type_2) {
+						_recoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
+					} else {
+						_recoverMessage(reconstructed_message, corruption_type_2, message_checksum_2, message_identity_2);
 					}
 					return;
 				} else {

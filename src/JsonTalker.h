@@ -92,6 +92,7 @@ private:
     
 	struct RecoveryMessage {
 		uint16_t identity;
+		uint16_t checksum;
 		JsonMessage message;
 		bool active = false;
 	};
@@ -678,11 +679,18 @@ public:
 							switch (error_value) {
 
 								case ErrorValue::TALKIE_ERR_CHECKSUM:
-									if (!json_message.has_identity() || json_message.get_identity() == _recovery_message.identity) {
+								
+									if (!_recovery_message.message.has_key('M')) {
+										_recovery_message.checksum = _recovery_message.message._generate_checksum();
+									}
+
+									// Avoids potential multiple talkers replying to a message recovery recall at the same time
+									if (json_message.get_identity() == _recovery_message.identity || json_message.get_key_number('C') == _recovery_message.checksum) {
 
 										if (_recovery_message.message.has_key('M')) {	// Allows 2 retries
 											_recovery_message.active = false;
 										} else {
+											_recovery_message.checksum
 											_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message ('M')
 										}
 
