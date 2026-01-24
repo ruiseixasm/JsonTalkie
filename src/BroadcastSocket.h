@@ -183,7 +183,7 @@ protected:
 		_lost_message = _corrupt_message;
 		#endif
 
-		if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
+		if (corruption_type < TALKIE_CT_UNRECOVERABLE && _consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
 
 			JsonMessage error_message;
 			error_message.set_message_value(MessageValue::TALKIE_MSG_ERROR);
@@ -193,7 +193,7 @@ protected:
 			json_message.get_broadcast_value(&broadcast_value);	// Does a value ad boundaries checking
 
 			// Only records a new corrupted message if no one else is still being recovered
-			if (!_corrupted_message.active && !json_message.has_key('M')) {	// Avoids overwriting with a Recovery 'M' message (broadcasted)
+			if (!_corrupted_message.active) {
 				_corrupted_message.corruption_type = corruption_type;
 				_corrupted_message.broadcast = broadcast_value;
 				_corrupted_message.identity = message_identity;
@@ -203,28 +203,8 @@ protected:
 			}
 			++_consecutive_errors;	// Avoids a runaway flux of errors
 			
-
-			switch (_corrupted_message.corruption_type) 
-			{
-				case TALKIE_CT_DATA:
-				case TALKIE_CT_CHECKSUM:
-					error_message.set_identity(_corrupted_message.identity);
-				break;
-				
-				case TALKIE_CT_UNRECOVERABLE:
-					++_lost_count;	// Non recoverable (+1)
-
-					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
-					Serial.print(F("\t\t\tUNRECOVERABLE:       "));
-					_lost_message.write_to(Serial);
-					Serial.print(" | ");
-					Serial.println(_lost_count);
-					#endif
-
-					return;
-				break;
-				
-				default: break;
+			if (corruption_type < TALKIE_CT_IDENTITY) {
+				error_message.set_identity(_corrupted_message.identity);
 			}
 
 			if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE) {
@@ -388,39 +368,13 @@ protected:
 					Serial.println((int)_corrupted_message.active);
 					#endif
 		
-					switch (_corrupted_message.corruption_type) 
-					{
-						case TALKIE_CT_DATA:
-							if (message_checksum == _corrupted_message.checksum && message_identity == _corrupted_message.identity) {
-								++_recoveries_count;	// It is a recovered message (+1)
-								_corrupted_message.active = false;
-							} else {
-								// Not for this Socket, let the Repeater send to other Sockets
-								json_message.replace_key('m', 'M');	// Replaces the tag for other Socket
-							}
-						break;
-
-						case TALKIE_CT_CHECKSUM:
-							if (message_identity == _corrupted_message.identity) {
-								++_recoveries_count;	// It is a recovered message (+1)
-								_corrupted_message.active = false;
-							} else {
-								// Not for this Socket, let the Repeater send to other Sockets
-								json_message.replace_key('m', 'M');	// Replaces the tag for other Socket
-							}
-						break;
-
-						case TALKIE_CT_IDENTITY:
-							if (message_checksum == _corrupted_message.checksum) {
-								++_recoveries_count;	// It is a recovered message (+1)
-								_corrupted_message.active = false;
-							} else {
-								// Not for this Socket, let the Repeater send to other Sockets
-								json_message.replace_key('m', 'M');	// Replaces the tag for other Socket
-							}
-						break;
-						
-						default: break;
+					// Only one needs to match, needed for the high probability of a corrupted 'i' or 'c' number content
+					if (message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum) {
+						++_recoveries_count;	// It is a recovered message (+1)
+						_corrupted_message.active = false;
+					} else {
+						// Not for this Socket, let the Repeater send to other Sockets
+						json_message.replace_key('m', 'M');	// Replaces the tag for other Socket
 					}
 
 					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
