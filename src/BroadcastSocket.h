@@ -252,22 +252,12 @@ protected:
 				_finishTransmission(error_message);
 			}
 
-			_corrupted_message.corruption_type = corruption_type;
-			_corrupted_message.identity = message_identity;
-			_corrupted_message.checksum = message_checksum;
-			_corrupted_message.received_time = (uint16_t)millis();
-
-			if (_corrupted_message.active) {
-				++_lost_count;	// Non recoverable (+1)
-
-				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
-				Serial.print(F("\t\t\tBROCKEN WINDOW:      "));
-				_lost_message.write_to(Serial);
-				Serial.print(" | ");
-				Serial.println(_lost_count);
-				#endif
-
-			} else {
+			// Only records a new corrupted message if no one else is still being recovered
+			if (!_corrupted_message.active) {
+				_corrupted_message.corruption_type = corruption_type;
+				_corrupted_message.identity = message_identity;
+				_corrupted_message.checksum = message_checksum;
+				_corrupted_message.received_time = (uint16_t)millis();
 				_corrupted_message.active = true;
 			}
 
