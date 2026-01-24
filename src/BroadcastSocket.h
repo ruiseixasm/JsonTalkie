@@ -261,90 +261,68 @@ protected:
 	}
 
 
-    /**
-     * @brief Starts the transmission of the message received
-     * @param json_message A json message to be transmitted to the repeater
-     * @param check_integrity Enables or disables the message integrity checking,
-	 *        usefull if you wan't to do it in the Socket implementation instead
-     */
-    void _startTransmission(JsonMessage& json_message, bool check_integrity = true) {
-		
-		#ifdef MESSAGE_DEBUG_TIMING
-		Serial.print("\n\t");
-		Serial.print(class_description());
-		Serial.print(": ");
-		#endif
-			
-		#ifdef BROADCASTSOCKET_DEBUG_NEW
-		Serial.print(F("\t_startTransmission1.1: "));
-		json_message.write_to(Serial);
-		Serial.print(" | ");
-		Serial.println(json_message._get_length());
-		#endif
-		
-		if (check_integrity) {	// Validate message integrity
+	bool _checkMessageIntegrity(JsonMessage& json_message) {
 
-			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-			json_message._corrupt_payload(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL);
+		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+		json_message._corrupt_payload(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL);
+		#endif
+
+		size_t received_length = json_message._get_length();
+		if (!json_message._validate_json()) {
+			// Resets its initial length in order to be processed next, as error (checksum fail)
+			json_message._set_length(received_length);
+		}
+
+		JsonMessage reconstructed_message(json_message);
+		uint16_t message_checksum_1 = 0;
+		uint16_t message_identity_1 = 0;
+		CorruptionType corruption_type_1 = _messageCorruption(json_message, &message_checksum_1, &message_identity_1);
+
+		if (corruption_type_1 != TALKIE_CT_CLEAN) {
+
+			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
+			_corrupt_message = reconstructed_message;	// as a copy of the original message
 			#endif
 
-			size_t received_length = json_message._get_length();
-			if (!json_message._validate_json()) {
-				// Resets its initial length in order to be processed next, as error (checksum fail)
-				json_message._set_length(received_length);
-			}
-
-			JsonMessage reconstructed_message(json_message);
-			uint16_t message_checksum_1 = 0;
-			uint16_t message_identity_1 = 0;
-			CorruptionType corruption_type_1 = _messageCorruption(json_message, &message_checksum_1, &message_identity_1);
-
-			if (corruption_type_1 != TALKIE_CT_CLEAN) {
-
-				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
-				_corrupt_message = reconstructed_message;	// as a copy of the original message
-				#endif
-	
-				reconstructed_message._try_to_reconstruct();
-				uint16_t message_checksum_2 = 0;
-				uint16_t message_identity_2 = 0;
-				CorruptionType corruption_type_2 = _messageCorruption(reconstructed_message, &message_checksum_2, &message_identity_2);
+			reconstructed_message._try_to_reconstruct();
+			uint16_t message_checksum_2 = 0;
+			uint16_t message_identity_2 = 0;
+			CorruptionType corruption_type_2 = _messageCorruption(reconstructed_message, &message_checksum_2, &message_identity_2);
+			
+			if (corruption_type_2 != TALKIE_CT_CLEAN) {
 				
-				if (corruption_type_2 != TALKIE_CT_CLEAN) {
-					
-					// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
-					// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
+				// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
+				// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
 
-					if (json_message._get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
+				if (json_message._get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
 
-						if (corruption_type_1 < corruption_type_2) {
-							_recoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
-						} else {
-							_recoverMessage(reconstructed_message, corruption_type_2, message_checksum_2, message_identity_2);
-						}
+					if (corruption_type_1 < corruption_type_2) {
+						_recoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
+					} else {
+						_recoverMessage(reconstructed_message, corruption_type_2, message_checksum_2, message_identity_2);
 					}
-					return;
-				} else {
-					json_message = reconstructed_message;
-					_corrupted_message.active = false;
-					++_recoveries_count;	// It is a recovered message (+1)
-					
-					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
-					Serial.print(F("\t\t_startTransmission1.2: "));
-					json_message.write_to(Serial);
-					Serial.print(" | ");
-					Serial.print(message_checksum_2);
-					Serial.print(" | ");
-					Serial.print(message_identity_2);
-					Serial.print(" | ");
-					Serial.println((int)corruption_type_2);
-					#endif
-
 				}
+				return false;
+			} else {
+				json_message = reconstructed_message;
+				_corrupted_message.active = false;
+				++_recoveries_count;	// It is a recovered message (+1)
+				
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
+				Serial.print(F("\t\t_startTransmission1.2: "));
+				json_message.write_to(Serial);
+				Serial.print(" | ");
+				Serial.print(message_checksum_2);
+				Serial.print(" | ");
+				Serial.print(message_identity_2);
+				Serial.print(" | ");
+				Serial.println((int)corruption_type_2);
+				#endif
+
 			}
 		}
 
-
+		
 		_consecutive_errors = 0;	// Avoids a runaway flux of errors
 
 		// At this point the message has its integrity guaranteed
@@ -392,10 +370,37 @@ protected:
 					#endif
 		
 				} else {
-					return;	// Malformatted 'M'
+					return false;	// Malformatted 'M'
 				}
 			}
 		}
+		return true;
+	}
+
+
+    /**
+     * @brief Starts the transmission of the message received
+     * @param json_message A json message to be transmitted to the repeater
+     * @param check_integrity Enables or disables the message integrity checking,
+	 *        usefull if you wan't to do it in the Socket implementation instead
+     */
+    void _startTransmission(JsonMessage& json_message) {
+		
+		#ifdef MESSAGE_DEBUG_TIMING
+		Serial.print("\n\t");
+		Serial.print(class_description());
+		Serial.print(": ");
+		#endif
+			
+		#ifdef BROADCASTSOCKET_DEBUG_NEW
+		Serial.print(F("\t_startTransmission1.1: "));
+		json_message.write_to(Serial);
+		Serial.print(" | ");
+		Serial.println(json_message._get_length());
+		#endif
+		
+		if (!_checkMessageIntegrity(json_message)) return;
+
 
 		_showMessage(json_message);
 
