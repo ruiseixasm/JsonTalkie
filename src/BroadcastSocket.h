@@ -220,6 +220,10 @@ protected:
 
 			if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE) {
 
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
+				Serial.println(F("\t\t\tTALKIE_BC_NONE"));
+				#endif
+
 				error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
 				_finishTransmission(error_message);
 				error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
@@ -240,6 +244,7 @@ protected:
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
 				Serial.print(F("\t\t\tBROCKEN WINDOW: "));
 				_lost_message.write_to(Serial);
+				Serial.print(" | ");
 				Serial.println(_lost_count);
 				#endif
 
@@ -556,6 +561,7 @@ public:
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
 			Serial.print(F("\t\t\tTIME OUT: "));
 			_lost_message.write_to(Serial);
+			Serial.print(" | ");
 			Serial.println(_lost_count);
 			#endif
 
