@@ -204,11 +204,11 @@ protected:
 			++_consecutive_errors;	// Avoids a runaway flux of errors
 			
 
-			switch (corruption_type) 
+			switch (_corrupted_message.corruption_type) 
 			{
 				case TALKIE_CT_DATA:
 				case TALKIE_CT_CHECKSUM:
-					error_message.set_identity(message_identity);
+					error_message.set_identity(_corrupted_message.identity);
 				break;
 				
 				case TALKIE_CT_UNRECOVERABLE:
