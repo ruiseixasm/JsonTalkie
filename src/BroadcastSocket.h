@@ -559,7 +559,10 @@ public:
 			++_lost_count;	// Times up, non recoverable (+1)
 
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
-			Serial.print(F("\t\t\tTIME OUT: "));
+			Serial.print(F("\t\t\tTIME OUT (recovery): "));
+			_corrupt_message.write_to(Serial);
+			Serial.println();
+			Serial.print(F("\t\t\tTIME OUT (lost): "));
 			_lost_message.write_to(Serial);
 			Serial.print(" | ");
 			Serial.println(_lost_count);
