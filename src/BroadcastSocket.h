@@ -367,8 +367,6 @@ protected:
 			
 						uint16_t message_checksum = json_message._generate_checksum();
 						uint16_t message_identity = json_message.get_identity();
-						char from_name[TALKIE_NAME_LEN];
-						json_message.get_from_name(from_name);
 						
 						#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 						Serial.print(F("\t_startTransmission1.5: "));
@@ -384,7 +382,7 @@ protected:
 						#endif
 			
 						// a match from with a single char difference top and one of the 'i' or 'c' matching too
-						if (_similarName(from_name, _corrupted_message.from_name)
+						if (json_message.is_from_name(_corrupted_message.from_name)
 							&& (message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum)
 							|| (message_identity == _corrupted_message.identity && message_checksum == _corrupted_message.checksum)) {
 
