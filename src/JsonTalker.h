@@ -219,7 +219,8 @@ private:
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
 
-			return !json_message.is_no_reply();	// No replies DOESN'T apply to errors and echoes
+			// No replies DOESN'T apply to errors, just echoes
+			return !(json_message.is_no_reply() && message_value == MessageValue::TALKIE_MSG_ECHO);
 		}
 		return true;
 	}
