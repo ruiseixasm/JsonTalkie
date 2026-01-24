@@ -230,7 +230,7 @@ protected:
 			if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE) {
 
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
-				Serial.println(F("\t\t\tTALKIE_BC_NONE"));
+				Serial.println(F("\t\tTALKIE_BC_NONE"));
 				#endif
 
 				// Unicast request (for WiFi too)
