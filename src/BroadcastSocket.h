@@ -250,6 +250,7 @@ protected:
 				_finishTransmission(error_message);
 
 			} else {
+				error_message.set_broadcast_value(_corrupted_message.broadcast);
 				// Unicast request (for WiFi too)
 				char from_name[TALKIE_NAME_LEN];
 				if (json_message.get_from_name(from_name)) {
