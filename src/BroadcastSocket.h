@@ -177,7 +177,7 @@ protected:
 	}
 
 
-	void _recoverMessage(const JsonMessage& json_message, CorruptionType corruption_type, uint16_t message_checksum, uint16_t message_identity) {
+	void _requestRecoverMessage(const JsonMessage& json_message, CorruptionType corruption_type, uint16_t message_checksum, uint16_t message_identity) {
 
 		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
 		_lost_message = _corrupt_message;
@@ -261,13 +261,128 @@ protected:
 	}
 
 
+	virtual bool _checkMessageIntegrity(JsonMessage& json_message) {
+
+		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
+		json_message._corrupt_payload(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL);
+		#endif
+
+		size_t received_length = json_message._get_length();
+		if (!json_message._validate_json()) {
+			// Resets its initial length in order to be processed next, as error (checksum fail)
+			json_message._set_length(received_length);
+		}
+
+		JsonMessage reconstructed_message(json_message);
+		uint16_t message_checksum_1 = 0;
+		uint16_t message_identity_1 = 0;
+		CorruptionType corruption_type_1 = _messageCorruption(json_message, &message_checksum_1, &message_identity_1);
+
+		if (corruption_type_1 != TALKIE_CT_CLEAN) {
+
+			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
+			_corrupt_message = reconstructed_message;	// as a copy of the original message
+			#endif
+
+			reconstructed_message._try_to_reconstruct();
+			uint16_t message_checksum_2 = 0;
+			uint16_t message_identity_2 = 0;
+			CorruptionType corruption_type_2 = _messageCorruption(reconstructed_message, &message_checksum_2, &message_identity_2);
+			
+			if (corruption_type_2 != TALKIE_CT_CLEAN) {
+				
+				// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
+				// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
+
+				if (json_message._get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
+
+					if (corruption_type_1 < corruption_type_2) {
+						_requestRecoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
+					} else {
+						_requestRecoverMessage(reconstructed_message, corruption_type_2, message_checksum_2, message_identity_2);
+					}
+				}
+				return false;
+			} else {
+				json_message = reconstructed_message;
+				_corrupted_message.active = false;
+				++_recoveries_count;	// It is a recovered message (+1)
+				
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
+				Serial.print(F("\t\t_startTransmission1.2: "));
+				json_message.write_to(Serial);
+				Serial.print(" | ");
+				Serial.print(message_checksum_2);
+				Serial.print(" | ");
+				Serial.print(message_identity_2);
+				Serial.print(" | ");
+				Serial.println((int)corruption_type_2);
+				#endif
+
+			}
+		}
+		_consecutive_errors = 0;	// Avoids a runaway flux of errors
+		return true;
+	}
+
+
+	virtual bool _recoverMessage() {
+
+		if (_corrupted_message.active) {
+			if (json_message.replace_key('M', 'm')) {	// Removes the tag in order to be processed
+	
+				uint16_t message_checksum = json_message._generate_checksum();
+				uint16_t message_identity = json_message.get_identity();
+				
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
+				Serial.print(F("\t_startTransmission1.5: "));
+				json_message.write_to(Serial);
+				Serial.print(" | ");
+				Serial.print(message_checksum);
+				Serial.print(" | ");
+				Serial.print(message_identity);
+				Serial.print(" | ");
+				Serial.print((int)_corrupted_message.corruption_type);
+				Serial.print(" | ");
+				Serial.println((int)_corrupted_message.active);
+				#endif
+	
+				// Only one needs to match, needed for the high probability of a corrupted 'i' or 'c' number content
+				if (message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum) {
+					++_recoveries_count;	// It is a recovered message (+1)
+					_corrupted_message.active = false;
+				} else {
+					// Not for this Socket, let the Repeater send to other Sockets
+					json_message.replace_key('m', 'M');	// Replaces the tag for other Socket
+				}
+
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
+				Serial.print(F("\t_startTransmission1.6: "));
+				json_message.write_to(Serial);
+				Serial.print(" | ");
+				Serial.print(_corrupted_message.checksum);
+				Serial.print(" | ");
+				Serial.print(_corrupted_message.identity);
+				Serial.print(" | ");
+				Serial.print((int)_corrupted_message.corruption_type);
+				Serial.print(" | ");
+				Serial.println((int)_corrupted_message.active);
+				#endif
+	
+			} else {
+				return false;	// Malformatted 'M'
+			}
+		}
+		return true;
+	}
+
+
     /**
      * @brief Starts the transmission of the message received
      * @param json_message A json message to be transmitted to the repeater
-     * @param check_integrity Enables or disables the message integrity checking,
 	 *        usefull if you wan't to do it in the Socket implementation instead
      */
-    void _startTransmission(JsonMessage& json_message, bool check_integrity = true) {
+    void _startTransmission(JsonMessage& json_message = true) {
 		
 		#ifdef MESSAGE_DEBUG_TIMING
 		Serial.print("\n\t");
@@ -282,120 +397,10 @@ protected:
 		Serial.println(json_message._get_length());
 		#endif
 		
-		if (check_integrity) {	// Validate message integrity
 
-			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
-			json_message._corrupt_payload(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL);
-			#endif
-
-			size_t received_length = json_message._get_length();
-			if (!json_message._validate_json()) {
-				// Resets its initial length in order to be processed next, as error (checksum fail)
-				json_message._set_length(received_length);
-			}
-
-			JsonMessage reconstructed_message(json_message);
-			uint16_t message_checksum_1 = 0;
-			uint16_t message_identity_1 = 0;
-			CorruptionType corruption_type_1 = _messageCorruption(json_message, &message_checksum_1, &message_identity_1);
-
-			if (corruption_type_1 != TALKIE_CT_CLEAN) {
-
-				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
-				_corrupt_message = reconstructed_message;	// as a copy of the original message
-				#endif
-	
-				reconstructed_message._try_to_reconstruct();
-				uint16_t message_checksum_2 = 0;
-				uint16_t message_identity_2 = 0;
-				CorruptionType corruption_type_2 = _messageCorruption(reconstructed_message, &message_checksum_2, &message_identity_2);
-				
-				if (corruption_type_2 != TALKIE_CT_CLEAN) {
-					
-					// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
-					// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
-
-					if (json_message._get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
-
-						if (corruption_type_1 < corruption_type_2) {
-							_recoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
-						} else {
-							_recoverMessage(reconstructed_message, corruption_type_2, message_checksum_2, message_identity_2);
-						}
-					}
-					return;
-				} else {
-					json_message = reconstructed_message;
-					_corrupted_message.active = false;
-					++_recoveries_count;	// It is a recovered message (+1)
-					
-					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
-					Serial.print(F("\t\t_startTransmission1.2: "));
-					json_message.write_to(Serial);
-					Serial.print(" | ");
-					Serial.print(message_checksum_2);
-					Serial.print(" | ");
-					Serial.print(message_identity_2);
-					Serial.print(" | ");
-					Serial.println((int)corruption_type_2);
-					#endif
-
-				}
-			}
-		}
-
-
-		_consecutive_errors = 0;	// Avoids a runaway flux of errors
-
+		if (!_checkMessageIntegrity(json_message)) return;
 		// At this point the message has its integrity guaranteed
-		if (json_message.has_key('M')) {	// It's a Recovery message
-			
-			if (_corrupted_message.active) {
-				if (json_message.replace_key('M', 'm')) {	// Removes the tag in order to be processed
-		
-					uint16_t message_checksum = json_message._generate_checksum();
-					uint16_t message_identity = json_message.get_identity();
-					
-					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
-					Serial.print(F("\t_startTransmission1.5: "));
-					json_message.write_to(Serial);
-					Serial.print(" | ");
-					Serial.print(message_checksum);
-					Serial.print(" | ");
-					Serial.print(message_identity);
-					Serial.print(" | ");
-					Serial.print((int)_corrupted_message.corruption_type);
-					Serial.print(" | ");
-					Serial.println((int)_corrupted_message.active);
-					#endif
-		
-					// Only one needs to match, needed for the high probability of a corrupted 'i' or 'c' number content
-					if (message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum) {
-						++_recoveries_count;	// It is a recovered message (+1)
-						_corrupted_message.active = false;
-					} else {
-						// Not for this Socket, let the Repeater send to other Sockets
-						json_message.replace_key('m', 'M');	// Replaces the tag for other Socket
-					}
-
-					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
-					Serial.print(F("\t_startTransmission1.6: "));
-					json_message.write_to(Serial);
-					Serial.print(" | ");
-					Serial.print(_corrupted_message.checksum);
-					Serial.print(" | ");
-					Serial.print(_corrupted_message.identity);
-					Serial.print(" | ");
-					Serial.print((int)_corrupted_message.corruption_type);
-					Serial.print(" | ");
-					Serial.println((int)_corrupted_message.active);
-					#endif
-		
-				} else {
-					return;	// Malformatted 'M'
-				}
-			}
-		}
+		if (json_message.has_key('M') && !_recoverMessage(json_message)) return;
 
 		_showMessage(json_message);
 
