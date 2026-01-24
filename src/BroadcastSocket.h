@@ -177,7 +177,7 @@ protected:
 	}
 
 
-	void _requestRecoverMessage(const JsonMessage& json_message, CorruptionType corruption_type, uint16_t message_checksum, uint16_t message_identity) {
+	void _recoverMessage(const JsonMessage& json_message, CorruptionType corruption_type, uint16_t message_checksum, uint16_t message_identity) {
 
 		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
 		_lost_message = _corrupt_message;
@@ -297,9 +297,9 @@ protected:
 				if (json_message._get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
 
 					if (corruption_type_1 < corruption_type_2) {
-						_requestRecoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
+						_recoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
 					} else {
-						_requestRecoverMessage(reconstructed_message, corruption_type_2, message_checksum_2, message_identity_2);
+						_recoverMessage(reconstructed_message, corruption_type_2, message_checksum_2, message_identity_2);
 					}
 				}
 				return false;
