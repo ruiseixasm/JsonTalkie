@@ -219,7 +219,7 @@ private:
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
 
-			return !json_message.is_no_reply();	// No replies applies to errors and echoes
+			return !json_message.is_no_reply();	// No replies DOESN'T apply to errors and echoes
 		}
 		return true;
 	}
