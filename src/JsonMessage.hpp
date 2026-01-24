@@ -1111,7 +1111,7 @@ public:
 
 
     /**
-     * @brief Get the key value
+     * @brief Get the key value number
      * @param key A single char like 'i'
      * @return Extracted number, or 0 if key not found or not a number
      */
@@ -1121,9 +1121,9 @@ public:
 
 
     /**
-     * @brief Get the key value
+     * @brief Get the key value number
      * @param key A single char like 'i'
-     * @param key_number Pointer to a 8 bits number to get the value
+     * @param key_number Pointer to a 8 bits number to get the value number
      * @return false if no valid number was found
      * 
      * @note This method checks if the number is well terminated and bounded
@@ -1139,9 +1139,9 @@ public:
 
 
     /**
-     * @brief Get the key value
+     * @brief Get the key value number
      * @param key A single char like 'i'
-     * @param key_number Pointer to a 16 bits number to get the value
+     * @param key_number Pointer to a 16 bits number to get the value number
      * @return false if no valid number was found
      * 
      * @note This method checks if the number is well terminated and bounded
@@ -1157,9 +1157,9 @@ public:
 
 
     /**
-     * @brief Get the key value
+     * @brief Get the key value number
      * @param key A single char like 'i'
-     * @param key_number Pointer to a 32 bits number to get the value
+     * @param key_number Pointer to a 32 bits number to get the value number
      * @return false if no valid number was found
      * 
      * @note This method checks if the number is well terminated and bounded
