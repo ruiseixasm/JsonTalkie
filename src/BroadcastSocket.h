@@ -363,6 +363,9 @@ protected:
 					#endif
 
 				}
+			} else {
+				// Identity isn-t extracted by _messageCorruption when there is no corruption (correct checksum) 
+				message_identity = json_message.get_identity();
 			}
 
 			_consecutive_errors = 0;	// Avoids a runaway flux of errors
