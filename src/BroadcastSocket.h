@@ -383,11 +383,7 @@ protected:
 						Serial.print(" | ");
 						Serial.print(message_identity);
 						Serial.print(" | ");
-						Serial.print((int)_corrupted_message.corruption_type);
-						Serial.print(" | ");
-						Serial.print((int)_corrupted_message.active);
-						Serial.print(" | ");
-						Serial.println(_corrupted_message.from_name);
+						Serial.println(message_length);
 						#endif
 			
 						// a match from with a single char difference top and one of the 'i' or 'c' matching too
@@ -409,6 +405,10 @@ protected:
 						Serial.print(_corrupted_message.checksum);
 						Serial.print(" | ");
 						Serial.print(_corrupted_message.identity);
+						Serial.print(" | ");
+						Serial.print(_corrupted_message.length);
+						Serial.print(" | ");
+						Serial.print(_corrupted_message.from_name);
 						Serial.print(" | ");
 						Serial.print((int)_corrupted_message.corruption_type);
 						Serial.print(" | ");
