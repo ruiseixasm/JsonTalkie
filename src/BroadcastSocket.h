@@ -199,7 +199,7 @@ protected:
 		_lost_message = _corrupt_message;
 		#endif
 
-		if (corruption_type < TALKIE_CT_UNRECOVERABLE && _consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
+		if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
 
 			JsonMessage error_message;
 			error_message.set_message_value(MessageValue::TALKIE_MSG_ERROR);
@@ -360,7 +360,7 @@ protected:
 						if (corruption_type_2 < corruption_type) {
 							_requestRecoverMessage(reconstructed_message, corruption_type_2,
 								message_checksum_2, message_identity_2, from_name_2, message_length);
-						} else {
+						} else if (corruption_type != TALKIE_CT_UNRECOVERABLE) {
 							_requestRecoverMessage(json_message, corruption_type,
 								message_checksum, message_identity, from_name, message_length);
 						}
