@@ -129,7 +129,7 @@ protected:
 	}
 
 
-	CorruptionType _messageCorruption(JsonMessage& json_message,
+	CorruptionType _getMessageCorruption(JsonMessage& json_message,
 		uint16_t* message_checksum, uint16_t* message_identity) const {
 
 		CorruptionType corruption_type = TALKIE_CT_CLEAN;
@@ -180,7 +180,7 @@ protected:
 	}
 
 
-	void _recoverMessage(const JsonMessage& json_message, CorruptionType corruption_type,
+	void _requestRecoverMessage(const JsonMessage& json_message, CorruptionType corruption_type,
 		uint16_t message_checksum, uint16_t message_identity, size_t message_length) {
 
 		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
@@ -315,7 +315,7 @@ protected:
 			uint16_t message_checksum = 0;
 			uint16_t message_identity = 0;
 			JsonMessage reconstructed_message(json_message);
-			CorruptionType corruption_type_1 = _messageCorruption(json_message, &message_checksum, &message_identity);
+			CorruptionType corruption_type_1 = _getMessageCorruption(json_message, &message_checksum, &message_identity);
 
 			if (corruption_type_1 != TALKIE_CT_CLEAN) {
 
@@ -326,7 +326,7 @@ protected:
 				reconstructed_message._try_to_reconstruct();
 				uint16_t reconstructed_checksum = 0;
 				uint16_t reconstructed_identity = 0;
-				CorruptionType corruption_type_2 = _messageCorruption(reconstructed_message, &reconstructed_checksum, &reconstructed_identity);
+				CorruptionType corruption_type_2 = _getMessageCorruption(reconstructed_message, &reconstructed_checksum, &reconstructed_identity);
 				
 				if (corruption_type_2 != TALKIE_CT_CLEAN) {
 					
@@ -336,12 +336,12 @@ protected:
 					if (json_message._get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
 
 						if (corruption_type_1 < corruption_type_2) {
-							_recoverMessage(json_message, corruption_type_1,
+							_requestRecoverMessage(json_message, corruption_type_1,
 								message_checksum, message_identity, message_length);
 						} else {
 							message_checksum = reconstructed_checksum;
 							message_identity = reconstructed_identity;
-							_recoverMessage(reconstructed_message, corruption_type_2,
+							_requestRecoverMessage(reconstructed_message, corruption_type_2,
 								message_checksum, message_identity, message_length);
 						}
 					}
@@ -364,7 +364,7 @@ protected:
 
 				}
 			} else {
-				// Identity isn-t extracted by _messageCorruption when there is no corruption (correct checksum) 
+				// Identity isn-t extracted by _getMessageCorruption when there is no corruption (correct checksum) 
 				message_identity = json_message.get_identity();
 			}
 
