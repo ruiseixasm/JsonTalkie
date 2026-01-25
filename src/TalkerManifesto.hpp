@@ -173,6 +173,7 @@ public:
 	virtual void _error(JsonTalker& talker, JsonMessage& json_message, ErrorValue error_value, TalkerMatch talker_match) {
         (void)talker;		// Silence unused parameter warning
         (void)json_message;	// Silence unused parameter warning
+		(void)error_value;	// Silence unused parameter warning
         (void)talker_match;	// Silence unused parameter warning
     }
 

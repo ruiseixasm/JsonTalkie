@@ -183,6 +183,7 @@ in this example the Talker Manifesto results in the printing of those errors rec
 ```cpp
     void _error(JsonTalker& talker, JsonMessage& json_message, ErrorValue error_value, TalkerMatch talker_match) override {
 		(void)talker;		// Silence unused parameter warning
+		(void)error_value;	// Silence unused parameter warning
 		(void)talker_match;	// Silence unused parameter warning
 
 		char temp_string[TALKIE_MAX_LEN];
