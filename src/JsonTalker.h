@@ -683,6 +683,7 @@ public:
 								if (_recovery_message.message.has_key('M')) {	// Allows 2 retries
 									_recovery_message.active = false;
 								} else {
+									// This becomes equivalent to NOISE, given that 'M' isn't a recognizable message value and NOISE is the default value
 									_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message ('M')
 								}
 
