@@ -673,36 +673,36 @@ public:
 					Serial.println(_recovery_message.active);
 					#endif
 
-					if (_recovery_message.active) {
+					ErrorValue error_value = json_message.get_error_value();
+					switch (error_value) {
 
-							ErrorValue error_value = json_message.get_error_value();
-							switch (error_value) {
+						case ErrorValue::TALKIE_ERR_CHECKSUM:
+						
+							if (_recovery_message.active) {
 
-								case ErrorValue::TALKIE_ERR_CHECKSUM:
-								
-									if (_recovery_message.message.has_key('M')) {	// Allows 2 retries
-										_recovery_message.active = false;
-									} else {
-										_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message ('M')
-									}
+								if (_recovery_message.message.has_key('M')) {	// Allows 2 retries
+									_recovery_message.active = false;
+								} else {
+									_recovery_message.message.replace_key('m', 'M');	// Tags it as a Recovery message ('M')
+								}
 
-									#ifdef JSON_TALKER_DEBUG_CHECKSUM
-									Serial.print(F("\t\t\thandleTransmission2 (error): "));
-									_recovery_message.message.write_to(Serial);
-									Serial.print(" | ");
-									Serial.print(json_message.get_identity());
-									Serial.print(" | ");
-									Serial.print(_recovery_message.identity);
-									Serial.print(" | ");
-									Serial.println(_recovery_message.active);
-									#endif
+								#ifdef JSON_TALKER_DEBUG_CHECKSUM
+								Serial.print(F("\t\t\thandleTransmission2 (error): "));
+								_recovery_message.message.write_to(Serial);
+								Serial.print(" | ");
+								Serial.print(json_message.get_identity());
+								Serial.print(" | ");
+								Serial.print(_recovery_message.identity);
+								Serial.print(" | ");
+								Serial.println(_recovery_message.active);
+								#endif
 
-									// Retransmits as is, and because it represents the same id as _recovery_message
-									transmitToRepeater(_recovery_message.message);
-								break;
-								
-								default: break;
+								// Retransmits as is, and because it represents the same id as _recovery_message
+								transmitToRepeater(_recovery_message.message);
 							}
+							break;
+						
+						default: break;
 					}
 					// Always send error messages to the User Manifesto
 					_error(json_message, talker_match);
