@@ -389,7 +389,7 @@ protected:
 						#endif
 			
 						// a match from with a single char difference top and one of the 'i' or 'c' matching too
-						if (json_message.is_from_name(_corrupted_message.from_name)
+						if (json_message.is_from_name(_corrupted_message.from_name) && message_length == _corrupted_message.length
 							&& (message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum)
 							|| (message_identity == _corrupted_message.identity && message_checksum == _corrupted_message.checksum)) {
 
