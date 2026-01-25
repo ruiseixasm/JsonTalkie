@@ -89,23 +89,6 @@ private:
     // ============================================
 
     /**
-     * @brief Calculate number of digits in an unsigned integer
-     * @param number The number to analyze
-     * @return Number of decimal digits (1-10)
-     * 
-     * @note Handles numbers from 0 to 4,294,967,295
-     */
-	static size_t _number_of_digits(uint32_t number) {
-		size_t length = 1;	// 0 has 1 digit
-		while (number > 9) {
-			number /= 10;
-			length++;
-		}
-		return length;
-	}
-
-
-    /**
      * @brief Find the position of the colon for a given key
      * @param key Single character key to search for
      * @param colon_position Starting position for search (default: 4)
@@ -349,7 +332,7 @@ private:
 		colon_position = _get_colon_position(key, colon_position);
 		if (colon_position) _remove(key, colon_position);
 		// At this time there is no field key for sure, so, one can just add it right before the '}'
-		size_t number_size = _number_of_digits(number);
+		size_t number_size = number_of_digits(number);
 		// the usual key 4 plus the + 1 due to the ',' needed to be added to the beginning
 		size_t new_length = _json_length + 1 + 4 + number_size;
 		if (new_length > TALKIE_BUFFER_SIZE) {
@@ -585,6 +568,23 @@ public:
     // ============================================
     // BASIC OPERATIONS
     // ============================================
+
+    /**
+     * @brief Calculate number of digits in an unsigned integer
+     * @param number The number to analyze
+     * @return Number of decimal digits (1-10)
+     * 
+     * @note Handles numbers from 0 to 4,294,967,295
+     */
+	static size_t number_of_digits(uint32_t number) {
+		size_t length = 1;	// 0 has 1 digit
+		while (number > 9) {
+			number /= 10;
+			length++;
+		}
+		return length;
+	}
+
 
     /**
      * @brief Get current JSON length
