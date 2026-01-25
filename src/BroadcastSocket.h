@@ -318,6 +318,9 @@ protected:
 			JsonMessage reconstructed_message(json_message);
 			CorruptionType corruption_type_1 = _messageCorruption(json_message, &message_checksum_1, &message_identity_1);
 
+			uint16_t message_checksum = message_checksum_1;
+			uint16_t message_identity = message_identity_1;
+						
 			if (corruption_type_1 != TALKIE_CT_CLEAN) {
 
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
@@ -340,6 +343,8 @@ protected:
 							_recoverMessage(json_message, corruption_type_1,
 								message_checksum_1, message_identity_1, message_length);
 						} else {
+							message_checksum = message_checksum_2;
+							message_identity = message_identity_2;
 							_recoverMessage(reconstructed_message, corruption_type_2,
 								message_checksum_2, message_identity_2, message_length);
 						}
@@ -372,9 +377,6 @@ protected:
 				if (_corrupted_message.active) {
 					if (json_message.replace_key('M', 'm')) {	// Removes the tag in order to be processed
 			
-						uint16_t message_checksum = json_message._generate_checksum();
-						uint16_t message_identity = json_message.get_identity();
-						
 						#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 						Serial.print(F("\t_startTransmission1.5: "));
 						json_message.write_to(Serial);
