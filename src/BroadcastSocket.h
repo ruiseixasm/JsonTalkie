@@ -327,9 +327,7 @@ protected:
 				#endif
 	
 				reconstructed_message._try_to_reconstruct();
-				uint16_t reconstructed_checksum = 0;
-				uint16_t reconstructed_identity = 0;
-				CorruptionType corruption_type_2 = _getMessageCorruption(reconstructed_message, &reconstructed_checksum, &reconstructed_identity);
+				CorruptionType corruption_type_2 = _getMessageCorruption(reconstructed_message, &message_checksum, &message_identity);
 				
 				if (corruption_type_2 != TALKIE_CT_CLEAN) {
 					
@@ -342,8 +340,6 @@ protected:
 							_requestRecoverMessage(json_message, corruption_type_1,
 								message_checksum, message_identity, message_length);
 						} else {
-							message_checksum = reconstructed_checksum;
-							message_identity = reconstructed_identity;
 							_requestRecoverMessage(reconstructed_message, corruption_type_2,
 								message_checksum, message_identity, message_length);
 						}
