@@ -95,6 +95,7 @@ protected:
 	struct CorruptedMessage {
 		CorruptionType corruption_type;
 		BroadcastValue broadcast;
+		size_t length;
 		uint16_t checksum;
 		uint16_t identity;
 		char from_name[TALKIE_NAME_LEN] = {'\0'};
@@ -128,7 +129,8 @@ protected:
 	}
 
 
-	CorruptionType _messageCorruption(JsonMessage& json_message, uint16_t* message_checksum, uint16_t* message_identity) const {
+	CorruptionType _messageCorruption(JsonMessage& json_message,
+		uint16_t* message_checksum, uint16_t* message_identity) const {
 
 		CorruptionType corruption_type = TALKIE_CT_CLEAN;
 
@@ -178,7 +180,8 @@ protected:
 	}
 
 
-	void _recoverMessage(const JsonMessage& json_message, CorruptionType corruption_type, uint16_t message_checksum, uint16_t message_identity) {
+	void _recoverMessage(const JsonMessage& json_message, CorruptionType corruption_type,
+		uint16_t message_checksum, uint16_t message_identity, size_t message_length) {
 
 		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
 		_lost_message = _corrupt_message;
@@ -199,6 +202,7 @@ protected:
 			if (!_corrupted_message.active) {
 				_corrupted_message.corruption_type = corruption_type;
 				_corrupted_message.broadcast = broadcast_value;
+				_corrupted_message.length = message_length;
 				strcpy(_corrupted_message.from_name, from_name);
 				_corrupted_message.identity = message_identity;
 				_corrupted_message.checksum = message_checksum;
@@ -308,9 +312,10 @@ protected:
 				json_message._set_length(received_length);
 			}
 
-			JsonMessage reconstructed_message(json_message);
+			size_t message_length = json_message._get_length();
 			uint16_t message_checksum_1 = 0;
 			uint16_t message_identity_1 = 0;
+			JsonMessage reconstructed_message(json_message);
 			CorruptionType corruption_type_1 = _messageCorruption(json_message, &message_checksum_1, &message_identity_1);
 
 			if (corruption_type_1 != TALKIE_CT_CLEAN) {
@@ -332,9 +337,11 @@ protected:
 					if (json_message._get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
 
 						if (corruption_type_1 < corruption_type_2) {
-							_recoverMessage(json_message, corruption_type_1, message_checksum_1, message_identity_1);
+							_recoverMessage(json_message, corruption_type_1,
+								message_checksum_1, message_identity_1, message_length);
 						} else {
-							_recoverMessage(reconstructed_message, corruption_type_2, message_checksum_2, message_identity_2);
+							_recoverMessage(reconstructed_message, corruption_type_2,
+								message_checksum_2, message_identity_2, message_length);
 						}
 					}
 					return;
