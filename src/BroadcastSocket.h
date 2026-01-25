@@ -230,7 +230,20 @@ protected:
 				error_message.set_identity(_corrupted_message.identity);
 			}
 
-			if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE || _corrupted_message.broadcast == BroadcastValue::TALKIE_BC_SELF) {
+
+			if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_REMOTE || _corrupted_message.broadcast == BroadcastValue::TALKIE_BC_LOCAL) {
+
+				error_message.set_broadcast_value(_corrupted_message.broadcast);
+				// Unicast request (for WiFi too)
+				if (_corrupted_message.from_name[0] != '\0') {
+					error_message.set_to_name(from_name);
+					_finishTransmission(error_message);
+				}
+				// Broadcast request
+				error_message.remove_to();
+				_finishTransmission(error_message);
+
+			} else {
 
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 				Serial.println(F("\t\tTALKIE_BC_NONE"));
@@ -251,16 +264,6 @@ protected:
 				error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
 				_finishTransmission(error_message);
 
-			} else {
-				error_message.set_broadcast_value(_corrupted_message.broadcast);
-				// Unicast request (for WiFi too)
-				if (_corrupted_message.from_name[0] != '\0') {
-					error_message.set_to_name(from_name);
-					_finishTransmission(error_message);
-				}
-				// Broadcast request
-				error_message.remove_to();
-				_finishTransmission(error_message);
 			}
 
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
