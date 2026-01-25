@@ -230,7 +230,7 @@ protected:
 				error_message.set_identity(_corrupted_message.identity);
 			}
 
-			if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE) {
+			if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE || _corrupted_message.broadcast == BroadcastValue::TALKIE_BC_SELF) {
 
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 				Serial.println(F("\t\tTALKIE_BC_NONE"));
