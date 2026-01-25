@@ -95,7 +95,11 @@ protected:
 	struct CorruptedMessage {
 		CorruptionType corruption_type;
 		BroadcastValue broadcast;
+		
+		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 		bool has_key_M = false;
+		#endif
+
 		size_t length;
 		uint16_t checksum;
 		uint16_t identity;
@@ -206,7 +210,11 @@ protected:
 			if (!_corrupted_message.active) {
 				_corrupted_message.corruption_type = corruption_type;
 				_corrupted_message.broadcast = broadcast_value;
+
+				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 				_corrupted_message.has_key_M = json_message.has_key('M');
+				#endif
+				
 				_corrupted_message.length = message_length;
 				strcpy(_corrupted_message.from_name, from_name);
 				_corrupted_message.identity = message_identity;
@@ -549,10 +557,14 @@ public:
         }
 		if (_corrupted_message.active && (uint16_t)millis() - _corrupted_message.received_time > TALKIE_RECOVERY_TTL) {
 
+			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL)
 			// Lost recovery messages 'M' shouldn't be counted as losses
 			if (!_corrupted_message.has_key_M) {
 				++_lost_count;	// Times up, non recoverable (+1)
 			}
+			#else
+			++_lost_count;	// Times up, non recoverable (+1)
+			#endif
 
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
 			Serial.print(F("\t\t\tTIME OUT (recovery): "));
