@@ -644,7 +644,7 @@ public:
 					uint16_t echo_message_id = json_message.get_identity();
 
 					#ifdef JSON_TALKER_DEBUG_NEW
-					Serial.print(F("\t\thandleTransmission2 (echo): "));
+					Serial.print(F("\t\thandleTransmission2 (ECHO): "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
 					Serial.print(echo_message_id);
@@ -663,7 +663,7 @@ public:
 			case MessageValue::TALKIE_MSG_ERROR:
 				{					
 					#ifdef JSON_TALKER_DEBUG_CHECKSUM
-					Serial.print(F("\t\t\thandleTransmission2 (error): "));
+					Serial.print(F("\t\t\thandleTransmission2.1 (ERROR): "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
 					Serial.print(json_message.get_identity());
@@ -688,7 +688,7 @@ public:
 								}
 
 								#ifdef JSON_TALKER_DEBUG_CHECKSUM
-								Serial.print(F("\t\t\thandleTransmission2 (error): "));
+								Serial.print(F("\t\t\thandleTransmission2.2 (ERROR): "));
 								_recovery_message.message.write_to(Serial);
 								Serial.print(" | ");
 								Serial.print(json_message.get_identity());
