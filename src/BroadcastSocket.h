@@ -95,7 +95,6 @@ protected:
 	struct CorruptedMessage {
 		CorruptionType corruption_type;
 		BroadcastValue broadcast;
-		size_t length;
 		uint16_t checksum;
 		uint16_t identity;
 		char from_name[TALKIE_NAME_LEN] = {'\0'};
@@ -184,7 +183,7 @@ protected:
 
 
 	void _requestRecoverMessage(const JsonMessage& json_message, CorruptionType corruption_type,
-		uint16_t message_checksum, uint16_t message_identity, size_t message_length) {
+		uint16_t message_checksum, uint16_t message_identity) {
 
 		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
 		_lost_message = _corrupt_message;
@@ -205,7 +204,6 @@ protected:
 			if (!_corrupted_message.active) {
 				_corrupted_message.corruption_type = corruption_type;
 				_corrupted_message.broadcast = broadcast_value;
-				_corrupted_message.length = message_length;
 				strcpy(_corrupted_message.from_name, from_name);
 				_corrupted_message.identity = message_identity;
 				_corrupted_message.checksum = message_checksum;
@@ -314,7 +312,6 @@ protected:
 				json_message._set_length(received_length);
 			}
 
-			size_t message_length = json_message._get_length();
 			uint16_t message_checksum = 0;
 			uint16_t message_identity = 0;
 			JsonMessage reconstructed_message(json_message);
@@ -337,11 +334,9 @@ protected:
 					if (json_message._get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
 
 						if (corruption_type_1 < corruption_type_2) {
-							_requestRecoverMessage(json_message, corruption_type_1,
-								message_checksum, message_identity, message_length);
+							_requestRecoverMessage(json_message, corruption_type_1, message_checksum, message_identity);
 						} else {
-							_requestRecoverMessage(reconstructed_message, corruption_type_2,
-								message_checksum, message_identity, message_length);
+							_requestRecoverMessage(reconstructed_message, corruption_type_2, message_checksum, message_identity);
 						}
 					}
 					return;
@@ -381,13 +376,11 @@ protected:
 						Serial.print(" | ");
 						Serial.print(message_checksum);
 						Serial.print(" | ");
-						Serial.print(message_identity);
-						Serial.print(" | ");
-						Serial.println(message_length);
+						Serial.println(message_identity);
 						#endif
 			
 						// a match from with a single char difference top and one of the 'i' or 'c' matching too
-						if ((json_message.is_from_name(_corrupted_message.from_name) && message_length == _corrupted_message.length
+						if ((json_message.is_from_name(_corrupted_message.from_name)
 							&& (message_identity == _corrupted_message.identity || message_checksum == _corrupted_message.checksum))
 							|| (message_identity == _corrupted_message.identity && message_checksum == _corrupted_message.checksum)) {
 
@@ -405,8 +398,6 @@ protected:
 						Serial.print(_corrupted_message.checksum);
 						Serial.print(" | ");
 						Serial.print(_corrupted_message.identity);
-						Serial.print(" | ");
-						Serial.print(_corrupted_message.length);
 						Serial.print(" | ");
 						Serial.print(_corrupted_message.from_name);
 						Serial.print(" | ");
