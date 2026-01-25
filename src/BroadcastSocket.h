@@ -367,7 +367,7 @@ protected:
 					}
 					return;
 				} else {
-					// Needs to update the uncorrupted message data used bellow
+					// Needs to update with the uncorrupted message data used bellow
 					message_identity = message_identity_2;
 					json_message = reconstructed_message;
 					++_recoveries_count;	// It is a recovered message (+1)
