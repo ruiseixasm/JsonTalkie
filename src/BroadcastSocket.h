@@ -367,11 +367,13 @@ protected:
 					}
 					return;
 				} else {
-					
+					// Needs to update the uncorrupted message data used bellow
+					message_identity = message_identity_2;
 					json_message = reconstructed_message;
 					++_recoveries_count;	// It is a recovered message (+1)
 					
 					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
+					message_checksum = message_checksum_2;	// There is no use for this variable bellow
 					Serial.print(F("\t\t_startTransmission1.2: "));
 					json_message.write_to(Serial);
 					Serial.print(" | ");
