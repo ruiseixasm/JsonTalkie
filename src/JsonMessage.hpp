@@ -801,6 +801,8 @@ public:
 		_json_payload[3] = '"';
 		_json_payload[4] = ':';
 		char previous_key = _json_payload[2];
+		size_t position_i = 0;
+		size_t position_c = 0;
 		// {"m":4,"b":1,"t":"green","a":"off","f":"esp","i":36843}
 		for (size_t json_i = 6; json_i < _json_length; ++json_i) {	// 4 because it's the shortest position possible for ':'
 			if (json_i + 4 < _json_length &&	// All keys are a single char keys
@@ -810,6 +812,22 @@ public:
 			if (json_i + 1 < _json_length && _json_payload[json_i] == ':' &&
 				(_json_payload[json_i - 1] == '"' || _json_payload[json_i + 1] == '"' ||	// ':' surrounded by at least one '"'
 				!(_json_payload[json_i + 1] > '9' || _json_payload[json_i + 1] < '0'))) {	// ':' or with a number on the right side
+
+				if (_json_payload[json_i - 2] == 'i') {
+					if (!position_i) {
+						position_i = json_i - 2;
+					} else {
+						_json_payload[position_c] == 'X';	// Unknown, can only be one 'i'
+					}
+				} else if (_json_payload[json_i - 2] == 'c') {	// 'c' comes after 'i'
+					if (!position_c) {
+						position_c = json_i - 2;
+					} else if (!position_i) {
+						_json_payload[position_c] == 'i';	// The position_c must be 'i' because 'c' is the last one
+					} else {
+						_json_payload[position_c] == 'X';	// Unknown
+					}
+				}
 				_json_payload[json_i - 4] = ',';
 				_json_payload[json_i - 3] = '"';
 				_json_payload[json_i - 1] = '"';
