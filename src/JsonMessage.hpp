@@ -807,7 +807,9 @@ public:
 				_json_payload[json_i] == ',' && _json_payload[json_i + 1] == '"' && _json_payload[json_i + 3] == '"') {
 				_json_payload[json_i + 4] = ':';
 			}
-			if (json_i + 1 < _json_length && _json_payload[json_i] == ':') {
+			if (json_i + 1 < _json_length && _json_payload[json_i] == ':' &&
+				(_json_payload[json_i - 1] == '"' || _json_payload[json_i + 1] == '"' ||	// ':' surrounded by at least one '"'
+				!(_json_payload[json_i + 1] > '9' || _json_payload[json_i + 1] < '0'))) {	// ':' or with a number on the right side
 				_json_payload[json_i - 4] = ',';
 				_json_payload[json_i - 3] = '"';
 				_json_payload[json_i - 1] = '"';
