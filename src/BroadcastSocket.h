@@ -334,18 +334,21 @@ protected:
 			uint16_t message_identity = 0;
 			char from_name[TALKIE_NAME_LEN];
 			JsonMessage reconstructed_message(json_message);
-			CorruptionType corruption_type_1 = _getMessageCorruption(json_message,
+			CorruptionType corruption_type = _getMessageCorruption(json_message,
 				&message_checksum, &message_identity, from_name);
 
-			if (corruption_type_1 != TALKIE_CT_CLEAN) {
+			if (corruption_type != TALKIE_CT_CLEAN) {
 
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
 				_corrupt_message = reconstructed_message;	// as a copy of the original message
 				#endif
 	
+				uint16_t message_checksum_2 = 0;
+				uint16_t message_identity_2 = 0;
+				char from_name_2[TALKIE_NAME_LEN];
 				reconstructed_message._try_to_reconstruct();
 				CorruptionType corruption_type_2 = _getMessageCorruption(reconstructed_message,
-					&message_checksum, &message_identity, from_name);
+					&message_checksum_2, &message_identity_2, from_name_2);
 				
 				if (corruption_type_2 != TALKIE_CT_CLEAN) {
 					
@@ -354,16 +357,20 @@ protected:
 
 					if (json_message.get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
 						// The reconstructed message has to represent a gain in order to be adopted, otherwise keep it as is (safer approach)
-						if (corruption_type_2 < corruption_type_1) {
+						if (corruption_type_2 < corruption_type) {
 							_requestRecoverMessage(reconstructed_message, corruption_type_2,
-								message_checksum, message_identity, from_name, message_length);
+								message_checksum_2, message_identity_2, from_name_2, message_length);
 						} else {
-							_requestRecoverMessage(json_message, corruption_type_1,
+							_requestRecoverMessage(json_message, corruption_type,
 								message_checksum, message_identity, from_name, message_length);
 						}
 					}
 					return;
 				} else {
+					// Copies the uncorrupted content
+					message_checksum = message_checksum_2;
+					message_identity = message_identity_2;
+					strcpy(from_name, from_name_2);
 					json_message = reconstructed_message;
 					_corrupted_message.active = false;
 					++_recoveries_count;	// It is a recovered message (+1)
