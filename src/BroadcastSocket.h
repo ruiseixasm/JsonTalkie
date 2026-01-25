@@ -312,14 +312,11 @@ protected:
 			}
 
 			size_t message_length = json_message._get_length();
-			uint16_t message_checksum_1 = 0;
-			uint16_t message_identity_1 = 0;
+			uint16_t message_checksum = 0;
+			uint16_t message_identity = 0;
 			JsonMessage reconstructed_message(json_message);
-			CorruptionType corruption_type_1 = _messageCorruption(json_message, &message_checksum_1, &message_identity_1);
+			CorruptionType corruption_type_1 = _messageCorruption(json_message, &message_checksum, &message_identity);
 
-			uint16_t message_checksum = message_checksum_1;
-			uint16_t message_identity = message_identity_1;
-						
 			if (corruption_type_1 != TALKIE_CT_CLEAN) {
 
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
@@ -327,9 +324,9 @@ protected:
 				#endif
 	
 				reconstructed_message._try_to_reconstruct();
-				uint16_t message_checksum_2 = 0;
-				uint16_t message_identity_2 = 0;
-				CorruptionType corruption_type_2 = _messageCorruption(reconstructed_message, &message_checksum_2, &message_identity_2);
+				uint16_t reconstructed_checksum = 0;
+				uint16_t reconstructed_identity = 0;
+				CorruptionType corruption_type_2 = _messageCorruption(reconstructed_message, &reconstructed_checksum, &reconstructed_identity);
 				
 				if (corruption_type_2 != TALKIE_CT_CLEAN) {
 					
@@ -340,12 +337,12 @@ protected:
 
 						if (corruption_type_1 < corruption_type_2) {
 							_recoverMessage(json_message, corruption_type_1,
-								message_checksum_1, message_identity_1, message_length);
+								message_checksum, message_identity, message_length);
 						} else {
-							message_checksum = message_checksum_2;
-							message_identity = message_identity_2;
+							message_checksum = reconstructed_checksum;
+							message_identity = reconstructed_identity;
 							_recoverMessage(reconstructed_message, corruption_type_2,
-								message_checksum_2, message_identity_2, message_length);
+								message_checksum, message_identity, message_length);
 						}
 					}
 					return;
