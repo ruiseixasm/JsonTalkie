@@ -56,7 +56,7 @@ bool JsonTalker::transmitToRepeater(JsonMessage& json_message) {
 		MessageValue message_value = json_message.get_message_value();
 		// Noise messages aren't recoverable
 		if (message_value != MessageValue::TALKIE_MSG_NOISE) {
-			_recovery_message.identity = json_message.get_identity();
+			_recovery_message.transmitted_time = (uint16_t)millis();
 			_recovery_message.message = json_message;
 			_recovery_message.active = true;
 		}
@@ -100,7 +100,7 @@ void JsonTalker::_loop() {
 	if (_trace_message.active && (uint16_t)millis() - _trace_message.identity > TALKIE_TRACE_TTL) {
 		_trace_message.active = false;
 	}
-	if (_recovery_message.active && (uint16_t)millis() - _recovery_message.identity > TALKIE_RECOVERY_TTL) {
+	if (_recovery_message.active && (uint16_t)millis() - _recovery_message.transmitted_time > TALKIE_RECOVERY_TTL) {
 		_recovery_message.active = false;
 	}
 	if (_manifesto) _manifesto->_loop(*this);

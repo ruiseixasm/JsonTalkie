@@ -91,7 +91,7 @@ public:
 private:
     
 	struct RecoveryMessage {
-		uint16_t identity;
+		uint16_t transmitted_time;
 		JsonMessage message;
 		bool active = false;
 	};
@@ -668,7 +668,7 @@ public:
 					Serial.print(" | ");
 					Serial.print(json_message.get_identity());
 					Serial.print(" | ");
-					Serial.print(_recovery_message.identity);
+					Serial.print(_recovery_message.transmitted_time);
 					Serial.print(" | ");
 					Serial.println(_recovery_message.active);
 					#endif
@@ -693,7 +693,7 @@ public:
 								Serial.print(" | ");
 								Serial.print(json_message.get_identity());
 								Serial.print(" | ");
-								Serial.print(_recovery_message.identity);
+								Serial.print(_recovery_message.transmitted_time);
 								Serial.print(" | ");
 								Serial.println(_recovery_message.active);
 								#endif
