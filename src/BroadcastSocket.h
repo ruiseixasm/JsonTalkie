@@ -87,6 +87,7 @@ protected:
     enum CorruptionType : uint8_t {
 		TALKIE_CT_CLEAN,
 		TALKIE_CT_DATA,
+		TALKIE_CT_NAME,
 		TALKIE_CT_CHECKSUM,
 		TALKIE_CT_IDENTITY,
 		TALKIE_CT_UNRECOVERABLE
@@ -135,9 +136,10 @@ protected:
 
 
 	CorruptionType _getMessageCorruption(JsonMessage& json_message,
-		uint16_t* message_checksum, uint16_t* message_identity) const {
+		uint16_t* message_checksum, uint16_t* message_identity, char* from_name) const {
 
 		CorruptionType corruption_type = TALKIE_CT_CLEAN;
+		bool got_name = json_message.get_from_name(from_name);
 
 		if (!json_message.get_checksum(message_checksum)) {
 			
@@ -164,8 +166,10 @@ protected:
 
 				if (!json_message.get_identity(message_identity)) {
 					corruption_type = TALKIE_CT_IDENTITY;
-				} else {
+				} else if (got_name) {
 					corruption_type = TALKIE_CT_DATA;
+				} else {
+					corruption_type = TALKIE_CT_NAME;
 				}
 				
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
@@ -189,7 +193,7 @@ protected:
 
 
 	void _requestRecoverMessage(const JsonMessage& json_message, CorruptionType corruption_type,
-		uint16_t message_checksum, uint16_t message_identity, size_t message_length) {
+		uint16_t message_checksum, uint16_t message_identity, const char* from_name, size_t message_length) {
 
 		#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
 		_lost_message = _corrupt_message;
@@ -203,8 +207,6 @@ protected:
 
 			BroadcastValue broadcast_value = BroadcastValue::TALKIE_BC_NONE;
 			json_message.get_broadcast_value(&broadcast_value);	// Does a value ad boundaries checking
-			char from_name[TALKIE_NAME_LEN];
-			json_message.get_from_name(from_name);
 
 			// Only records a new corrupted message if no one else is still being recovered
 			if (!_corrupted_message.active) {
@@ -327,8 +329,10 @@ protected:
 			size_t message_length = json_message.get_length();
 			uint16_t message_checksum = 0;
 			uint16_t message_identity = 0;
+			char from_name[TALKIE_NAME_LEN];
 			JsonMessage reconstructed_message(json_message);
-			CorruptionType corruption_type_1 = _getMessageCorruption(json_message, &message_checksum, &message_identity);
+			CorruptionType corruption_type_1 = _getMessageCorruption(json_message,
+				&message_checksum, &message_identity, from_name);
 
 			if (corruption_type_1 != TALKIE_CT_CLEAN) {
 
@@ -337,7 +341,8 @@ protected:
 				#endif
 	
 				reconstructed_message._try_to_reconstruct();
-				CorruptionType corruption_type_2 = _getMessageCorruption(reconstructed_message, &message_checksum, &message_identity);
+				CorruptionType corruption_type_2 = _getMessageCorruption(reconstructed_message,
+					&message_checksum, &message_identity, from_name);
 				
 				if (corruption_type_2 != TALKIE_CT_CLEAN) {
 					
@@ -345,13 +350,13 @@ protected:
 					// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
 
 					if (json_message.get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
-
-						if (corruption_type_1 < corruption_type_2) {
-							_requestRecoverMessage(json_message, corruption_type_1,
-								message_checksum, message_identity, message_length);
-						} else {
+						// The reconstructed message has to represent a gain in order to be adopted, otherwise keep it as is (safer approach)
+						if (corruption_type_2 < corruption_type_1) {
 							_requestRecoverMessage(reconstructed_message, corruption_type_2,
-								message_checksum, message_identity, message_length);
+								message_checksum, message_identity, from_name, message_length);
+						} else {
+							_requestRecoverMessage(json_message, corruption_type_1,
+								message_checksum, message_identity, from_name, message_length);
 						}
 					}
 					return;
