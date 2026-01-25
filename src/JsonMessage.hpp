@@ -817,7 +817,7 @@ public:
 					if (!position_i) {
 						position_i = json_i - 2;
 					} else {
-						_json_payload[position_c] == 'X';	// Unknown, can only be one 'i'
+						_json_payload[position_i] == 'X';	// Unknown, it can only be one 'i'
 					}
 				} else if (_json_payload[json_i - 2] == 'c') {	// 'c' comes after 'i'
 					if (!position_c) {
@@ -825,7 +825,7 @@ public:
 					} else if (!position_i) {
 						_json_payload[position_c] == 'i';	// The position_c must be 'i' because 'c' is the last one
 					} else {
-						_json_payload[position_c] == 'X';	// Unknown
+						_json_payload[position_c] == 'X';	// Unknown, it can only be one 'c'
 					}
 				}
 				_json_payload[json_i - 4] = ',';
