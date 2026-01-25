@@ -814,19 +814,19 @@ public:
 				!(_json_payload[json_i + 1] > '9' || _json_payload[json_i + 1] < '0'))) {	// ':' or with a number on the right side
 
 				if (_json_payload[json_i - 2] == 'i') {
-					if (!position_i) {
-						position_i = json_i - 2;
-					} else {
+					if (position_i) {
 						_json_payload[position_i] == 'X';	// Unknown, it can only be one 'i'
 					}
+					position_i = json_i - 2;
 				} else if (_json_payload[json_i - 2] == 'c') {	// 'c' comes after 'i'
-					if (!position_c) {
-						position_c = json_i - 2;
-					} else if (!position_i) {
-						_json_payload[position_c] == 'i';	// The position_c must be 'i' because 'c' is the last one
-					} else {
-						_json_payload[position_c] == 'X';	// Unknown, it can only be one 'c'
+					if (position_c) {
+						if (position_i) {
+							_json_payload[position_c] == 'X';	// Unknown, it can only be one 'c'
+						} else {
+							_json_payload[position_c] == 'i';	// The position_c must be 'i' because 'c' is the last one
+						}
 					}
+					position_c = json_i - 2;
 				}
 				_json_payload[json_i - 4] = ',';
 				_json_payload[json_i - 3] = '"';
