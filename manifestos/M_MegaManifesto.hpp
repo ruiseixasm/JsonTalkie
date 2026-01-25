@@ -39,7 +39,7 @@ protected:
     
     bool _is_led_on = false;  // keep track of state yourself, by default it's off
 	uint8_t _blue_led_on = 0;
-	uint32_t _last_blink = 0;
+	uint32_t _last_talk = 0;
 
 public:
     
@@ -126,17 +126,12 @@ public:
 
 	void _loop(JsonTalker& talker) override {
 		
-		if (millis() - _last_blink > 1000) {
-			_last_blink = millis();
+		if (millis() - _last_talk > 1000) {
+			_last_talk = millis();
 
-			JsonMessage toggle_green_on_off(MessageValue::TALKIE_MSG_CALL, BroadcastValue::TALKIE_BC_REMOTE);
-			toggle_green_on_off.set_to_name("blue");
-			if (_blue_led_on++ % 2) {
-				toggle_green_on_off.set_action_name("off");
-			} else {
-				toggle_green_on_off.set_action_name("on");
-			}
-			talker.transmitToRepeater(toggle_green_on_off);
+			JsonMessage buzzer_talk(MessageValue::TALKIE_MSG_TALK, BroadcastValue::TALKIE_BC_REMOTE);
+			buzzer_talk.set_to_name("buzzer");
+			talker.transmitToRepeater(buzzer_talk);
 		}
 	}
 };
