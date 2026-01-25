@@ -376,6 +376,9 @@ protected:
 				if (_corrupted_message.active) {
 					if (json_message.replace_key('M', 'm')) {	// Removes the tag in order to be processed
 			
+						// This is a new checksum with a lowered case 'm' instead of 'M'!
+						message_checksum = json_message._generate_checksum();
+
 						#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
 						Serial.print(F("\t_startTransmission1.5: "));
 						json_message.write_to(Serial);
