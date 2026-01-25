@@ -374,7 +374,7 @@ protected:
 			
 						// This is a new checksum with a lowered case 'm' instead of 'M'!
 						message_checksum = json_message._generate_checksum();
-						message_length = json_message._get_length() 1 + 4;	// the 'c' field key (,"c":)
+						message_length = json_message._get_length() + 1 + 4;	// the 'c' field key (,"c":)
 						message_length += JsonMessage::number_of_digits((uint32_t)message_checksum);
 
 						#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
