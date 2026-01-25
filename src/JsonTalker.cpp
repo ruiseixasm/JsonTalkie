@@ -148,8 +148,8 @@ void JsonTalker::_echo(JsonMessage& json_message, MessageValue message_value, Ta
 	if (_manifesto) _manifesto->_echo(*this, json_message, message_value, talker_match);
 }
 
-void JsonTalker::_error(JsonMessage& json_message, TalkerMatch talker_match) {
-	if (_manifesto) _manifesto->_error(*this, json_message, talker_match);
+void JsonTalker::_error(JsonMessage& json_message, ErrorValue error_value, TalkerMatch talker_match) {
+	if (_manifesto) _manifesto->_error(*this, json_message, error_value, talker_match);
 }
 
 void JsonTalker::_noise(JsonMessage& json_message, TalkerMatch talker_match) {

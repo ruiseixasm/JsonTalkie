@@ -181,7 +181,7 @@ Here is an example of a Manifesto that processes the responses to its generated 
 The `_error` method can be used for report the errors returned by other Talkers,
 in this example the Talker Manifesto results in the printing of those errors received.
 ```cpp
-    void _error(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
+    void _error(JsonTalker& talker, JsonMessage& json_message, ErrorValue error_value, TalkerMatch talker_match) override {
 		(void)talker;		// Silence unused parameter warning
 		(void)talker_match;	// Silence unused parameter warning
 

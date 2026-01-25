@@ -293,7 +293,7 @@ private:
 	 * 
 	 * This method is intended to process the errors from the talker sent messages.
      */
-	void _error(JsonMessage& json_message, TalkerMatch talker_match);
+	void _error(JsonMessage& json_message, ErrorValue error_value, TalkerMatch talker_match);
 
 
     /**
@@ -706,7 +706,7 @@ public:
 						default: break;
 					}
 					// Always send error messages to the User Manifesto
-					_error(json_message, talker_match);
+					_error(json_message, error_value, talker_match);
 				}
 				break;
 			
