@@ -590,7 +590,7 @@ public:
      * @brief Get current JSON length
      * @return Length of JSON string (not including null terminator like '\0')
      */
-	size_t _get_length() const {
+	size_t get_length() const {
 		return _json_length;
 	}
 

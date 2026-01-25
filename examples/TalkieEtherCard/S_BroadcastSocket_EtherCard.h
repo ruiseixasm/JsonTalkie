@@ -87,7 +87,7 @@ protected:
 			
 			#ifdef BROADCAST_ETHERCARD_DEBUG
 			Serial.print(F("R: "));
-			Serial.write(_json_message._read_buffer(), _json_message._get_length());
+			Serial.write(_json_message._read_buffer(), _json_message.get_length());
 			Serial.println();
 			#endif
 
@@ -113,7 +113,7 @@ protected:
     bool _send(const JsonMessage& json_message) override {
         
 		const char* message_buffer = json_message._read_buffer();
-		size_t message_length = json_message._get_length();
+		size_t message_length = json_message.get_length();
 		uint8_t broadcastIp[4] = {255, 255, 255, 255};
 		
 		#ifdef BROADCAST_ETHERCARD_DEBUG

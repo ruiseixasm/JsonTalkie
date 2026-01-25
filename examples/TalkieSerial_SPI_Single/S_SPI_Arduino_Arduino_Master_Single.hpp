@@ -478,14 +478,14 @@ protected:
 
 			#ifdef BROADCAST_SPI_DEBUG
 			Serial.print(F("\t\t\t\t\tsend1: Sent message: "));
-			Serial.write(_sending_buffer, json_message._get_length());
+			Serial.write(_sending_buffer, json_message.get_length());
 			Serial.println();
 			Serial.print(F("\t\t\t\t\tsend2: Sent length: "));
-			Serial.println(json_message._get_length());
+			Serial.println(json_message.get_length());
 			#endif
 			
 			const char* message_buffer = json_message._read_buffer();
-			size_t message_length = json_message._get_length();
+			size_t message_length = json_message.get_length();
 			sendSPI(_ss_pin, message_buffer, message_length);
 
 			#ifdef BROADCAST_SPI_DEBUG_TIMING

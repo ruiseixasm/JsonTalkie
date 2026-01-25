@@ -263,7 +263,7 @@ protected:
 			Serial.print(F("\t_startTransmission1.4: "));
 			error_message.write_to(Serial);
 			Serial.print(" | ");
-			Serial.println(error_message._get_length());
+			Serial.println(error_message.get_length());
 			#endif
 		}
 	}
@@ -298,7 +298,7 @@ protected:
 		Serial.print(F("\t_startTransmission1.1: "));
 		json_message.write_to(Serial);
 		Serial.print(" | ");
-		Serial.println(json_message._get_length());
+		Serial.println(json_message.get_length());
 		#endif
 		
 		// Because in Arduino the usage of 'virtual' is bogus!!
@@ -308,13 +308,13 @@ protected:
 			json_message._corrupt_payload(BROADCASTSOCKET_DEBUG_CHECKSUM_FULL);
 			#endif
 
-			size_t received_length = json_message._get_length();
+			size_t received_length = json_message.get_length();
 			if (!json_message._validate_json()) {
 				// Resets its initial length in order to be processed next, as error (checksum fail)
 				json_message._set_length(received_length);
 			}
 
-			size_t message_length = json_message._get_length();
+			size_t message_length = json_message.get_length();
 			uint16_t message_checksum = 0;
 			uint16_t message_identity = 0;
 			JsonMessage reconstructed_message(json_message);
@@ -334,7 +334,7 @@ protected:
 					// {"m":0,"b":0,"f":"n","i":0} <-- 27 (minimum)
 					// {"m":0,"b":0,"i":12345} <-- 23 (maximum)
 
-					if (json_message._get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
+					if (json_message.get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
 
 						if (corruption_type_1 < corruption_type_2) {
 							_requestRecoverMessage(json_message, corruption_type_1,
@@ -374,7 +374,7 @@ protected:
 			
 						// This is a new checksum with a lowered case 'm' instead of 'M'!
 						message_checksum = json_message._generate_checksum();
-						message_length = json_message._get_length() + 1 + 4;	// the 'c' field key (,"c":)
+						message_length = json_message.get_length() + 1 + 4;	// the 'c' field key (,"c":)
 						message_length += JsonMessage::number_of_digits((uint32_t)message_checksum);
 
 						#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
@@ -430,7 +430,7 @@ protected:
 		Serial.print(F("\t_startTransmission2: "));
 		json_message.write_to(Serial);
 		Serial.print(" | ");
-		Serial.println(json_message._get_length());
+		Serial.println(json_message.get_length());
 		#endif
 		
 		if (_max_delay_ms > 0) {
@@ -699,7 +699,7 @@ public:
 		Serial.print(millis() - json_message._reference_time);
 		#endif
 			
-		if (json_message._get_length() && json_message._insert_checksum()) {
+		if (json_message.get_length() && json_message._insert_checksum()) {
 			
 			#ifdef BROADCASTSOCKET_DEBUG_NEW
 			Serial.print(F("\tsocketSend2: "));

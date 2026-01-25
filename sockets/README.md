@@ -14,7 +14,7 @@ You can always implement your own socket, by extending the `BroadcastSocket` cla
 ```
 The methods above should follow these basic rules:
 - In the `_receive` method you must create a `JsonMessage` and write on it or deserialize on it the data received, on that `new_message` you shall always call the methods `_validate_json` and `_validate_checksum`. After that, it should be called the method `_startTransmission` to process the received data. See example bellow for details;
-- In the `_send` method you must read from the `json_message` buffer with the help of the methods `_read_buffer` and `_get_length`.
+- In the `_send` method you must read from the `json_message` buffer with the help of the methods `_read_buffer` and `get_length`.
 ### Example
 Here is an example of such implementation for the Serial protocol:
 ```cpp
@@ -53,7 +53,7 @@ protected:
 			char* message_buffer = _json_message._write_buffer();
 			if (_reading_serial) {
 
-				size_t message_length = _json_message._get_length();
+				size_t message_length = _json_message.get_length();
 				if (message_length < TALKIE_BUFFER_SIZE) {
 					if (c == '}' && message_length && message_buffer[message_length - 1] != '\\') {
 
@@ -84,7 +84,7 @@ protected:
     bool _send(const JsonMessage& json_message) override {
 
 		const char* message_buffer = json_message._read_buffer();
-		size_t message_length = json_message._get_length();
+		size_t message_length = json_message.get_length();
 		return Serial.write(message_buffer, message_length) == message_length;
     }
 

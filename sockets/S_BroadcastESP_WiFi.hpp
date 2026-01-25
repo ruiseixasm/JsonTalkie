@@ -153,10 +153,10 @@ protected:
 			Serial.print(F("\t\t\t\t\tsend buff: "));
 			Serial.write(
 				json_message._read_buffer(),
-				json_message._get_length()
+				json_message.get_length()
 			);
 			Serial.print(" | ");
-			Serial.println(json_message._get_length());
+			Serial.println(json_message.get_length());
 			#endif
 
             if (!_udp->beginPacket(as_reply ? _from_talker.ip_address : broadcastIP, _port)) {
@@ -197,7 +197,7 @@ protected:
 
             size_t bytesSent = _udp->write(
 				reinterpret_cast<const uint8_t*>( json_message._read_buffer() ),
-				json_message._get_length()
+				json_message.get_length()
 			);
             (void)bytesSent; // Silence unused variable warning
 
@@ -211,7 +211,7 @@ protected:
             #ifdef BROADCAST_ESP_WIFI_DEBUG
             Serial.write(
 				json_message._read_buffer(),
-				json_message._get_length()
+				json_message.get_length()
 			);
             Serial.println();
             #endif

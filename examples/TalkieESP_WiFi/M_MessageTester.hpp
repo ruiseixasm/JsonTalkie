@@ -166,8 +166,8 @@ public:
 			{
 				size_t length = sizeof(json_payload) - 1;	// Discount the '\0' char at the end
 				json_message.set_nth_value_number(0, length);
-				json_message.set_nth_value_number(1, test_json_message._get_length());
-				if (test_json_message._get_length() != length) {
+				json_message.set_nth_value_number(1, test_json_message.get_length());
+				if (test_json_message.get_length() != length) {
 					return false;
 				}
 				return true;
@@ -265,7 +265,7 @@ public:
 				if (!test_json_message.set_nth_value_number(0, big_number) || !test_json_message.compare_buffer(final_payload1, sizeof(final_payload1) - 1)) {
 					json_message.set_nth_value_string(0, "1st");
 					json_message.set_nth_value_number(1, sizeof(final_payload1) - 1);
-					json_message.set_nth_value_number(2, test_json_message._get_length());
+					json_message.set_nth_value_number(2, test_json_message.get_length());
 					return false;
 				}
 				const char from_green[] = "green";
@@ -273,7 +273,7 @@ public:
 				if (!test_json_message.set_from_name(from_green) || !test_json_message.compare_buffer(final_payload2, sizeof(final_payload2) - 1)) {
 					json_message.set_nth_value_string(0, "2nd");
 					json_message.set_nth_value_number(1, sizeof(final_payload2) - 1);
-					json_message.set_nth_value_number(2, test_json_message._get_length());
+					json_message.set_nth_value_number(2, test_json_message.get_length());
 					return false;
 				}
 				return true;
@@ -300,7 +300,7 @@ public:
 				const char new_single_key[] = "{\"i\":32423}";
 				if (!test_json_message.compare_buffer(new_single_key, sizeof(new_single_key) - 1)) {
 					json_message.set_nth_value_string(0, "4th");
-					json_message.set_nth_value_number(1, test_json_message._get_length());
+					json_message.set_nth_value_number(1, test_json_message.get_length());
 					return false;
 				}
 				return true;

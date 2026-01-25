@@ -53,7 +53,7 @@ protected:
 			char* message_buffer = _json_message._write_buffer();
 			if (_reading_serial) {
 
-				size_t message_length = _json_message._get_length();
+				size_t message_length = _json_message.get_length();
 				if (message_length < TALKIE_BUFFER_SIZE) {
 					if (c == '}' && message_length && message_buffer[message_length - 1] != '\\') {
 
@@ -99,7 +99,7 @@ protected:
 		#endif
 
 		const char* message_buffer = json_message._read_buffer();
-		size_t message_length = json_message._get_length();
+		size_t message_length = json_message.get_length();
 		return Serial.write(message_buffer, message_length) == message_length;
     }
 

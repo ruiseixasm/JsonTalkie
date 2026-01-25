@@ -528,9 +528,9 @@ protected:
 
 			#ifdef BROADCAST_SPI_DEBUG
 			Serial.print(F("\t\t\t\t\tsend1: Sent message: "));
-			Serial.write(json_message._read_buffer(), json_message._get_length());
+			Serial.write(json_message._read_buffer(), json_message.get_length());
 			Serial.print(F("\n\t\t\t\t\tsend2: Sent length: "));
-			Serial.println(json_message._get_length());
+			Serial.println(json_message.get_length());
 			#endif
 			
 			#ifdef ENABLE_DIRECT_ADDRESSING
@@ -569,7 +569,7 @@ protected:
 			#endif
 
 			const char* message_buffer = json_message._read_buffer();
-			size_t message_length = json_message._get_length();
+			size_t message_length = json_message.get_length();
 
 			if (as_reply) {
 				sendSPI(_ss_pins[_actual_ss_pin_i], message_buffer, message_length);
