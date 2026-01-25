@@ -385,7 +385,9 @@ protected:
 						Serial.print(" | ");
 						Serial.print((int)_corrupted_message.corruption_type);
 						Serial.print(" | ");
-						Serial.println((int)_corrupted_message.active);
+						Serial.print((int)_corrupted_message.active);
+						Serial.print(" | ");
+						Serial.println(_corrupted_message.from_name);
 						#endif
 			
 						// a match from with a single char difference top and one of the 'i' or 'c' matching too
