@@ -800,6 +800,7 @@ public:
 		_json_payload[1] = '"';
 		_json_payload[3] = '"';
 		_json_payload[4] = ':';
+		char previous_key = _json_payload[2];
 		// {"m":4,"b":1,"t":"green","a":"off","f":"esp","i":36843}
 		for (size_t json_i = 6; json_i < _json_length; ++json_i) {	// 4 because it's the shortest position possible for ':'
 			if (json_i + 4 < _json_length &&	// All keys are a single char keys
@@ -813,12 +814,16 @@ public:
 				if (_json_payload[json_i - 2] == 'f') {
 					_json_payload[json_i + 1] = '"';
 				}
+				if (previous_key == 'f') {
+					_json_payload[json_i - 5] = '"';
+				}
 				if (_json_payload[json_i + 1] > '9' || _json_payload[json_i + 1] < '0') {
 					_json_payload[json_i + 1] = '"';
 				}
 				if (_json_payload[json_i - 5] > '9' || _json_payload[json_i - 5] < '0') {
 					_json_payload[json_i - 5] = '"';
 				}
+				previous_key = _json_payload[json_i - 2];
 			}
 		}
 		_json_payload[_json_length - 1] = '}';
