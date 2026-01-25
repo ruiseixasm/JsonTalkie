@@ -811,16 +811,10 @@ public:
 				_json_payload[json_i - 4] = ',';
 				_json_payload[json_i - 3] = '"';
 				_json_payload[json_i - 1] = '"';
-				if (_json_payload[json_i - 2] == 'f') {
+				if (_json_payload[json_i + 1] > '9' || _json_payload[json_i + 1] < '0' || _json_payload[json_i - 2] == 'f') {
 					_json_payload[json_i + 1] = '"';
 				}
-				if (previous_key == 'f') {
-					_json_payload[json_i - 5] = '"';
-				}
-				if (_json_payload[json_i + 1] > '9' || _json_payload[json_i + 1] < '0') {
-					_json_payload[json_i + 1] = '"';
-				}
-				if (_json_payload[json_i - 5] > '9' || _json_payload[json_i - 5] < '0') {
+				if (_json_payload[json_i - 5] > '9' || _json_payload[json_i - 5] < '0' || previous_key == 'f') {
 					_json_payload[json_i - 5] = '"';
 				}
 				previous_key = _json_payload[json_i - 2];
