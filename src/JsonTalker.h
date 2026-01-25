@@ -673,7 +673,7 @@ public:
 					Serial.println(_recovery_message.active);
 					#endif
 
-					if (_recovery_message.active && talker_match == TalkerMatch::TALKIE_MATCH_ANY) {	// It's a broadcast call
+					if (_recovery_message.active) {
 
 							ErrorValue error_value = json_message.get_error_value();
 							switch (error_value) {
