@@ -369,7 +369,6 @@ protected:
 				} else {
 					
 					json_message = reconstructed_message;
-					_corrupted_message.active = false;	// <-- CLOSES THE PROCESS!
 					++_recoveries_count;	// It is a recovered message (+1)
 					
 					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
