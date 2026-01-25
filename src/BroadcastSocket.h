@@ -367,12 +367,9 @@ protected:
 					}
 					return;
 				} else {
-					// Copies the uncorrupted content
-					message_checksum = message_checksum_2;
-					message_identity = message_identity_2;
-					strcpy(from_name, from_name_2);
+					
 					json_message = reconstructed_message;
-					_corrupted_message.active = false;
+					_corrupted_message.active = false;	// <-- CLOSES THE PROCESS!
 					++_recoveries_count;	// It is a recovered message (+1)
 					
 					#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
@@ -410,7 +407,11 @@ protected:
 						Serial.print(" | ");
 						Serial.print(message_identity);
 						Serial.print(" | ");
-						Serial.println(message_length);
+						Serial.print(message_length);
+						Serial.print(" | ");
+						Serial.print(from_name);
+						Serial.print(" | ");
+						Serial.println((int)corruption_type);
 						#endif
 			
 						// a match from with a single char difference top and one of the 'i' or 'c' matching too
