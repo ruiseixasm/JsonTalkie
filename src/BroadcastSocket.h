@@ -174,6 +174,9 @@ protected:
 				Serial.println((int)corruption_type);
 				#endif
 
+			} else {
+				// Makes sure the identity is set even for a uncorrupted message!
+				*message_identity = json_message.get_identity();
 			}
 		}
 		return corruption_type;
@@ -363,9 +366,6 @@ protected:
 					#endif
 
 				}
-			} else {
-				// Identity isn-t extracted by _getMessageCorruption when there is no corruption (correct checksum) 
-				message_identity = json_message.get_identity();
 			}
 
 			_consecutive_errors = 0;	// Avoids a runaway flux of errors
