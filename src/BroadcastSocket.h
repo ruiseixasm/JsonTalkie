@@ -155,7 +155,7 @@ protected:
 
 		} else {
 			json_message.remove_checksum();
-			if (json_message._generate_checksum() != *message_checksum) {
+			if (json_message.generate_checksum() != *message_checksum) {
 
 				if (!json_message.get_identity(message_identity)) {
 					corruption_type = TALKIE_CT_IDENTITY;
@@ -373,7 +373,7 @@ protected:
 					if (json_message.replace_key('M', 'm')) {	// Removes the tag in order to be processed
 			
 						// This is a new checksum with a lowered case 'm' instead of 'M'!
-						message_checksum = json_message._generate_checksum();
+						message_checksum = json_message.generate_checksum();
 						message_length = json_message.get_length() + 1 + 4;	// the 'c' field key (,"c":)
 						message_length += JsonMessage::number_of_digits((uint32_t)message_checksum);
 

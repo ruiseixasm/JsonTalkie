@@ -751,7 +751,7 @@ public:
 	/**
      * @brief This helper method generates the checksum of a given buffer content
      */
-    uint16_t _generate_checksum() const {	// 16-bit word and XORing
+    uint16_t generate_checksum() const {	// 16-bit word and XORing
         uint16_t checksum = 0;
 		if (_json_length <= TALKIE_BUFFER_SIZE) {
 			for (size_t i = 0; i < _json_length; i += 2) {
@@ -776,7 +776,7 @@ public:
 		size_t c_colon_position = _get_colon_position('c');
 		uint16_t received_checksum = _get_value_number('c', c_colon_position);
 		_remove('c', c_colon_position);
-		return _generate_checksum() == received_checksum;
+		return generate_checksum() == received_checksum;
 	}
 
 
@@ -786,7 +786,7 @@ public:
      */
 	bool _insert_checksum() {
 		_remove('c');	// Starts by clearing any pre existent checksum (NO surprises or miss receives)
-		uint16_t checksum = _generate_checksum();
+		uint16_t checksum = generate_checksum();
 		return _set_number('c', checksum);
 	}
 
