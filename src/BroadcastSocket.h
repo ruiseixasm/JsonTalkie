@@ -214,7 +214,6 @@ protected:
 			if (corruption_type < TALKIE_CT_IDENTITY) {
 				error_message.set_identity(_corrupted_message.identity);
 			}
-			error_message.set_key_number('C', (uint32_t)_corrupted_message.checksum);
 
 			if (_corrupted_message.broadcast == BroadcastValue::TALKIE_BC_NONE) {
 
