@@ -417,12 +417,20 @@ private:
      * @param size makes sure it doesn't go beyond the in_string size - 1
      * @param colon_position Optional hint for colon position
      * @return true if successful, false if buffer too small or string empty
+	 * 
+	 * For sizes equal to TALKIE_NAME_LEN, the type of chars are validate accordingly their compatibility
+	 * with names, meaning, [a-z,A-Z,0-9,_]
      */
 	bool _set_value_string(char key, const char* in_string, size_t size, size_t colon_position = 4) {
 		if (in_string) {
 			size_t string_length = 0;
 			for (size_t char_j = 0; in_string[char_j] != '\0' && char_j < TALKIE_BUFFER_SIZE && char_j < size; char_j++) {
-				string_length++;
+				// Names require specific type of chars (TALKIE_NAME_LEN)
+				if (size != TALKIE_NAME_LEN || _validate_name_char(in_string[char_j], char_j)) {
+					string_length++;
+				} else {
+					return false;
+				}
 			}
 			// Can't go beyond the in_string size without '\0' char (last char must be present BUT not counted thus the '<')
 			if (string_length < size) {
