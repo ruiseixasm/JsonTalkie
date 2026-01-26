@@ -808,21 +808,21 @@ public:
 		for (size_t json_i = 6; json_i < _json_length; ++json_i) {	// 4 because it's the shortest position possible for ':'
 			if (json_i + 4 < _json_length &&	// All keys are a single char keys
 				_json_payload[json_i] == ',' && _json_payload[json_i + 1] == '"' && _json_payload[json_i + 3] == '"') {
-					
+
 				_json_payload[json_i + 4] = ':';
 
-				if (_json_payload[json_i - 2] == 'i') {
+				if (_json_payload[json_i + 2] == 'i') {
 					if (position_i) {
 						if (position_c) {
 							_json_payload[position_c] == 'X';	// Unknown, it can only be one 'c', the last key
 						}
-						position_c = json_i - 2;
+						position_c = json_i + 2;
 						_json_payload[position_c] == 'c';	// Must be 'c', because it can only be one 'i'
 						repeated_keys = true;
 					} else {
-						position_i = json_i - 2;
+						position_i = json_i + 2;
 					}
-				} else if (_json_payload[json_i - 2] == 'c') {	// 'c' comes after 'i'
+				} else if (_json_payload[json_i + 2] == 'c') {	// 'c' comes after 'i'
 					if (position_c) {
 						if (position_i) {
 							_json_payload[position_c] == 'X';	// Unknown, it can only be one 'c'
@@ -831,7 +831,7 @@ public:
 						}
 						repeated_keys = true;
 					}
-					position_c = json_i - 2;
+					position_c = json_i + 2;
 				}
 			}
 			if (json_i + 1 < _json_length && _json_payload[json_i] == ':' &&
