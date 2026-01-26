@@ -1196,7 +1196,7 @@ public:
 	 * 
 	 * @note Sets name as '\0' if returns false
      */
-	bool get_key_string(char key, char* value_string, size_t size = TALKIE_MAX_LEN) const {
+	bool get_key_value_string(char key, char* value_string, size_t size = TALKIE_MAX_LEN) const {
 		return _get_value_string(key, value_string, size);
 	}
 
@@ -1206,7 +1206,7 @@ public:
      * @param key A single char like 'i'
      * @return Extracted number, or 0 if key not found or not a number
      */
-	uint32_t get_key_number(char key) const {
+	uint32_t get_key_value_number(char key) const {
 		return _get_value_number(key);
 	}
 
@@ -1219,7 +1219,7 @@ public:
      * 
      * @note This method checks if the number is well terminated and bounded
      */
-	bool get_key_number(char key, uint8_t* key_number) const {
+	bool get_key_value_number(char key, uint8_t* key_number) const {
 		uint32_t json_number;
 		if (_get_value_number(key, &json_number) && json_number <= 0xFF) {
 			*key_number = (uint8_t)json_number;
@@ -1237,7 +1237,7 @@ public:
      * 
      * @note This method checks if the number is well terminated and bounded
      */
-	bool get_key_number(char key, uint16_t* key_number) const {
+	bool get_key_value_number(char key, uint16_t* key_number) const {
 		uint32_t json_number;
 		if (_get_value_number(key, &json_number) && json_number <= 0xFFFF) {
 			*key_number = (uint16_t)json_number;
@@ -1255,7 +1255,7 @@ public:
      * 
      * @note This method checks if the number is well terminated and bounded
      */
-	bool get_key_number(char key, uint32_t* key_number) const {
+	bool get_key_value_number(char key, uint32_t* key_number) const {
 		uint32_t json_number;
 		if (_get_value_number(key, &json_number)) {
 			*key_number = json_number;
