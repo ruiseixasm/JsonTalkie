@@ -1142,6 +1142,15 @@ public:
 	}
 
 
+    /**
+     * @brief Get if it is a recovery message
+     * @return true if a recovery message
+     */
+	bool is_recovery_message() const {
+		return _get_colon_position('M') > 0;
+	}
+
+
     // ============================================
     // GETTERS - FIELD VALUES
     // ============================================
@@ -1240,6 +1249,15 @@ public:
      */
 	MessageValue get_message_value() const {
 		return static_cast<MessageValue>( _get_value_number('m') );
+	}
+
+
+    /**
+     * @brief Get recovery message type
+     * @return MessageValue enum, or TALKIE_MSG_NOISE if invalid
+     */
+	MessageValue get_recover_message_value() const {
+		return static_cast<MessageValue>( _get_value_number('M') );
 	}
 
 
@@ -1639,6 +1657,12 @@ public:
 	}
 
 
+    /** @brief Remove recover message field */
+	void remove_recover_message() {
+		_remove_field('M');
+	}
+
+
 	/** @brief Remove from field */
 	void remove_from() {
 		_remove_field('f');
@@ -1743,6 +1767,16 @@ public:
      */
 	bool set_message_value(MessageValue message_value) {
 		return _set_value_single_digit_number('m', static_cast<uint32_t>(message_value));
+	}
+
+
+    /**
+     * @brief Set recover message type
+     * @param message_value Message type enum
+     * @return true if field exists and was updated
+     */
+	bool set_recover_message_value(MessageValue message_value) {
+		return _set_value_single_digit_number('M', static_cast<uint32_t>(message_value));
 	}
 
 
