@@ -237,8 +237,9 @@ protected:
 				// Unicast request (for WiFi too)
 				if (_corrupted_message.from_name[0] != '\0') {
 					error_message.set_to_name(from_name);
-					_finishTransmission(error_message);
 				}
+				// Always sends two requests to avoid drops (redundancy)
+				_finishTransmission(error_message);
 				// Broadcast request
 				error_message.remove_to();
 				_finishTransmission(error_message);
@@ -252,18 +253,18 @@ protected:
 				// Unicast request (for WiFi too)
 				if (_corrupted_message.from_name[0] != '\0') {
 					error_message.set_to_name(from_name);
-					error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
-					_finishTransmission(error_message);
-					error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
-					_finishTransmission(error_message);
 				}
+				// Always sends two requests to avoid drops (redundancy)
+				error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
+				_finishTransmission(error_message);
+				error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
+				_finishTransmission(error_message);
 				// Broadcast request
 				error_message.remove_to();
 				error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
 				_finishTransmission(error_message);
 				error_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
 				_finishTransmission(error_message);
-
 			}
 
 			#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL)
