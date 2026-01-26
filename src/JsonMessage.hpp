@@ -202,14 +202,6 @@ private:
 	}
 
 
-	static bool _validate_name_char(char name_char, size_t char_j) {
-		if (name_char >= 'a' && name_char <= 'z') return true;
-		if (name_char >= '0' && name_char <= '9') return char_j > 0;
-		if (name_char >= 'A' && name_char <= 'Z') return true;
-		return name_char == '_';
-	}
-
-
     /**
      * @brief Extract string value for a key
      * @param key Single character key
@@ -620,6 +612,24 @@ public:
 			length++;
 		}
 		return length;
+	}
+
+
+    /**
+     * @brief Validates a given character to be used in names
+     * @param name_char The character belonging to a name
+     * @param char_j The name position of the char
+	 * 
+	 * Validation accordingly to their compatibility with names, meaning, [a-z,A-Z,0-9,_],
+	 * where numbers can't be used as the first name char
+     * 
+     * @return true if the given character at the given position can be used in a name
+     */
+	static bool _validate_name_char(char name_char, size_t char_j) {
+		if (name_char >= 'a' && name_char <= 'z') return true;
+		if (name_char >= '0' && name_char <= '9') return char_j > 0;
+		if (name_char >= 'A' && name_char <= 'Z') return true;
+		return name_char == '_';
 	}
 
 
@@ -1994,6 +2004,14 @@ public:
 				_json_payload[key_from_position] = 't';
 			}
 		}
+	}
+
+
+    /**
+     * @brief Swaps 'M' with 'm' fields, converting this way to a regular message
+     */
+	bool convert_recovery_message_to_message() {
+		return json_message.replace_key('M', 'm');
 	}
 
 
