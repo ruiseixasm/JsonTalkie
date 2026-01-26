@@ -228,13 +228,19 @@ private:
 			size_t json_i = _get_value_position(key, colon_position);
 			if (json_i && _json_payload[json_i++] == '"') {	// Safe code, makes sure it's a string
 				size_t char_j = 0;
-				while (_json_payload[json_i] != '"' && json_i < _json_length && char_j < size) {
-					// Names require specific type of chars (TALKIE_NAME_LEN)
-					if (_validate_name_char(_json_payload[json_i], char_j) || size != TALKIE_NAME_LEN) {
+				if (size == TALKIE_NAME_LEN) {
+					while (_json_payload[json_i] != '"' && json_i < _json_length && char_j < size) {
+						// Names require specific type of chars (TALKIE_NAME_LEN)
+						if (_validate_name_char(_json_payload[json_i], char_j)) {
+							buffer[char_j++] = _json_payload[json_i++];
+						} else {
+							buffer[0] = '\0';	// Safe code, no surprises
+							return false;
+						}
+					}
+				} else {
+					while (_json_payload[json_i] != '"' && json_i < _json_length && char_j < size) {
 						buffer[char_j++] = _json_payload[json_i++];
-					} else {
-						buffer[0] = '\0';	// Safe code, no surprises
-						return false;
 					}
 				}
 				if (char_j < size) {
