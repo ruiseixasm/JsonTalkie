@@ -239,6 +239,41 @@ private:
 	}
 
 
+    /**
+     * @brief Extract string name validated with the accepted chars
+     * @param key Single character key
+     * @param[out] buffer Output buffer for string
+     * @param size Size of output buffer (including null terminator)
+     * @param colon_position Optional hint for colon position
+     * @return true if successful, false if key not found, buffer too small or not a string
+     * 
+	 * The name valid chars are: [a-zA-Z]_[0-9]
+	 * 
+     * @warning Buffer size must include space for null terminator
+     */
+	bool _get_value_name(char key, char* buffer, size_t size, size_t colon_position = 4) const {
+		if (buffer && size) {
+			size_t json_i = _get_value_position(key, colon_position);
+			if (json_i && _json_payload[json_i++] == '"') {	// Safe code, makes sure it's a string
+				size_t char_j = 0;
+				while (_json_payload[json_i] != '"' && json_i < _json_length && char_j < size) {
+					if (_validate_name_char(_json_payload[json_i], char_j)) {
+						buffer[char_j++] = _json_payload[json_i++];
+					} else {
+						buffer[char_j] = '\0';	// Makes sure the termination char is added
+						return true;
+					}
+				}
+				if (char_j < size) {
+					buffer[char_j] = '\0';	// Makes sure the termination char is added
+					return true;
+				}
+			}
+			buffer[0] = '\0';	// Safe code, no surprises
+		}
+		return false;
+	}
+
 	/**
      * @brief Extract numeric value for a key
      * @param key Single character key
