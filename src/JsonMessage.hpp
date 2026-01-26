@@ -202,6 +202,14 @@ private:
 	}
 
 
+	static bool _validate_name_char(char name_char, size_t char_j) {
+		if (name_char >= 'a' && name_char <= 'z') retrun true;
+		if (name_char >= 'A' && name_char <= 'Z') retrun true;
+		if (name_char >= '0' && name_char <= '9') return char_j != 0;
+		return name_char == '_';
+	}
+
+
     /**
      * @brief Extract string value for a key
      * @param key Single character key
