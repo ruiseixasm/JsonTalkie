@@ -2011,7 +2011,7 @@ public:
      * @brief Swaps 'M' with 'm' fields, converting this way to a regular message
      */
 	bool convert_recovery_message_to_message() {
-		return json_message.replace_key('M', 'm');
+		return replace_key('M', 'm');
 	}
 
 
