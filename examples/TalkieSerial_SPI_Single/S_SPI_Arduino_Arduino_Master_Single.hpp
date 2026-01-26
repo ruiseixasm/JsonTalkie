@@ -32,7 +32,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #define TALKIE_MAX_NAMES 8
 
 
-class S_SPI_Arduino_Arduino_Master_Single : public BroadcastSocket {
+class S_Basic_SPI_2xArduino_Master_Single : public BroadcastSocket {
 public:
 
     enum StatusByte : uint8_t {
@@ -66,7 +66,7 @@ protected:
 
 
     // Constructor
-    S_SPI_Arduino_Arduino_Master_Single(int ss_pin) : BroadcastSocket() {
+    S_Basic_SPI_2xArduino_Master_Single(int ss_pin) : BroadcastSocket() {
 		
 			_ss_pin = ss_pin;
 			if (_spi_instance) {
@@ -502,8 +502,8 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_SPI_Arduino_Arduino_Master_Single& instance(int ss_pin) {
-        static S_SPI_Arduino_Arduino_Master_Single instance(ss_pin);
+    static S_Basic_SPI_2xArduino_Master_Single& instance(int ss_pin) {
+        static S_Basic_SPI_2xArduino_Master_Single instance(ss_pin);
 
         return instance;
     }

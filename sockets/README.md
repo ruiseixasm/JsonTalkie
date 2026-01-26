@@ -218,12 +218,12 @@ This Socket allows the communication centered in a single ESP32 master board to 
 #### Dependencies
 This uses the already installed SPI Arduino library.
 ### Arduino Master
-#### S_SPI_Arduino_Arduino_Master_Multiple
+#### S_Basic_SPI_2xArduino_Master_Multiple
 #### Description
 This Socket allows the communication centered in a single Arduino master board to many Arduino slave boards.
 #### Dependencies
 This uses the already installed SPI Arduino library.
-#### S_SPI_Arduino_Arduino_Master_Single
+#### S_Basic_SPI_2xArduino_Master_Single
 #### Description
 This Socket allows the communication centered in a single Arduino master board to another single Arduino slave board.
 #### Dependencies

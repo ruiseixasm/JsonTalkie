@@ -11,8 +11,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#ifndef SPI_ARDUINO_ARDUINO_MASTER_MULTIPLE_HPP
-#define SPI_ARDUINO_ARDUINO_MASTER_MULTIPLE_HPP
+#ifndef SPI_ARDUINO_ARDUINO_MASTER_SINGLE_HPP
+#define SPI_ARDUINO_ARDUINO_MASTER_SINGLE_HPP
 
 
 #include <BroadcastSocket.h>
@@ -25,15 +25,14 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 
-#define ENABLE_DIRECT_ADDRESSING
-
-
 #define send_delay_us 10
 #define receive_delay_us 10
+
+
 #define TALKIE_MAX_NAMES 8
 
 
-class S_SPI_Arduino_Arduino_Master_Multiple : public BroadcastSocket {
+class S_Basic_SPI_2xArduino_Master_Single : public BroadcastSocket {
 public:
 
     enum StatusByte : uint8_t {
@@ -61,44 +60,25 @@ public:
 
 protected:
 
-	SPIClass* const _spi_instance = &SPI;  // Alias pointer (Arduino SPI)
-	bool _initiated = false;
-    int* _ss_pins;
-    uint8_t _ss_pins_count = 0;
-	char _names[TALKIE_MAX_NAMES][TALKIE_NAME_LEN];
-	uint8_t _actual_ss_pin_i = 0;
+	SPIClass* const _spi_instance = &SPI;  // Alias pointer
+    int _ss_pin = 10;
+	// Just create a pointer to the existing SPI object
 
 
     // Constructor
-    S_SPI_Arduino_Arduino_Master_Multiple(int* ss_pins, uint8_t ss_pins_count) : BroadcastSocket() {
-            
-        	_ss_pins = ss_pins;
-        	_ss_pins_count = ss_pins_count;
-			for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count && ss_pin_i < TALKIE_MAX_NAMES; ++ss_pin_i) {
-				_names[ss_pin_i][0] = '\0';
-			}
+    S_Basic_SPI_2xArduino_Master_Single(int ss_pin) : BroadcastSocket() {
+		
+			_ss_pin = ss_pin;
 			if (_spi_instance) {
 				// Initialize SPI
 				_spi_instance->begin();
 				_spi_instance->setClockDivider(SPI_CLOCK_DIV4);    // Only affects the char transmission
 				_spi_instance->setDataMode(SPI_MODE0);
 				_spi_instance->setBitOrder(MSBFIRST);  // EXPLICITLY SET MSB FIRST! (OTHERWISE is LSB)
-
-				// ================== CONFIGURE SS PINS ==================
-				// CRITICAL: Configure all SS pins as outputs and set HIGH
-				for (uint8_t i = 0; i < _ss_pins_count; i++) {
-					pinMode(_ss_pins[i], OUTPUT);
-					digitalWrite(_ss_pins[i], HIGH);
-					delayMicroseconds(10); // Small delay between pins
-				}
-
-				_initiated = true;
-				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
-					if (!acknowledgeSPI(_ss_pins[ss_pin_i])) {
-						_initiated = false;
-						break;
-					}
-				}
+				// Enable the SS pin
+				pinMode(_ss_pin, OUTPUT);
+				digitalWrite(_ss_pin, HIGH);
+				// Sets the class SS pin
 			}
             _max_delay_ms = 0;  // SPI is sequencial, no need to control out of order packages
         }
@@ -464,59 +444,29 @@ protected:
     // Socket processing is always Half-Duplex because there is just one buffer to receive and other to send
     void _receive() override {
 
-		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-		static uint16_t timeout = (uint16_t)micros();
+		if (_spi_instance) {
 
-		if (micros() - timeout > 500) {
-			timeout = (uint16_t)micros();
+			#ifdef BROADCAST_SPI_DEBUG_TIMING
+			_reference_time = millis();
+			#endif
 
-			if (_initiated) {
+			JsonMessage new_message;
+			char* message_buffer = new_message._write_buffer();
+			size_t length = receiveSPI(_ss_pin, message_buffer);
 
-				#ifdef BROADCAST_SPI_DEBUG_TIMING
-				_reference_time = millis();
-				#endif
-
-				JsonMessage new_message;
-				char* message_buffer = new_message._write_buffer();
-
-				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
-					
-					size_t length = receiveSPI(_ss_pins[ss_pin_i], message_buffer);
-					if (length > 0) {
-						
-						new_message._set_length(length);
-						_actual_ss_pin_i = ss_pin_i;
-						_startTransmission(new_message);
-							
-					}
-				}
+			if (length > 0) {
+				
+				new_message._set_length(length);
+				_startTransmission(new_message);
 			}
 		}
     }
-
-
-	void _showMessage(const JsonMessage& json_message) override {
-
-		if (_names[_actual_ss_pin_i][0] == '\0') {
-			json_message.get_from_name(_names[_actual_ss_pin_i]);
-			
-			#ifdef BROADCAST_SPI_DEBUG
-			Serial.print(F("\t_showMessage1: Saved actual named pin index i: "));
-			Serial.println(_actual_ss_pin_i);
-			Serial.print(F("\t_showMessage2: Saved name: "));
-			Serial.println(_names[_actual_ss_pin_i]);
-			Serial.print(F("\t_showMessage3: Concerning actual pin: "));
-			Serial.println(_ss_pins[_actual_ss_pin_i]);
-			#endif
-
-		}
-	}
 
     
     // Socket processing is always Half-Duplex because there is just one buffer to receive and other to send
     bool _send(const JsonMessage& json_message) override {
 
-		if (_initiated) {
+		if (_spi_instance) {
 			
 			#ifdef BROADCAST_SPI_DEBUG_TIMING
 			Serial.print("\n\tsend: ");
@@ -528,75 +478,15 @@ protected:
 
 			#ifdef BROADCAST_SPI_DEBUG
 			Serial.print(F("\t\t\t\t\tsend1: Sent message: "));
-			Serial.write(json_message._read_buffer(), json_message.get_length());
-			Serial.print(F("\n\t\t\t\t\tsend2: Sent length: "));
+			Serial.write(_sending_buffer, json_message.get_length());
+			Serial.println();
+			Serial.print(F("\t\t\t\t\tsend2: Sent length: "));
 			Serial.println(json_message.get_length());
 			#endif
 			
-			#ifdef ENABLE_DIRECT_ADDRESSING
-
-			bool as_reply = false;
-			char to_name[TALKIE_NAME_LEN];
-			if (json_message.get_to_name(to_name)) {
-
-				#ifdef BROADCAST_SPI_DEBUG
-				Serial.println(F("\t\t\t\t\tsend3: json_message TO is a String"));
-				Serial.print(F("\t\t\t\t\tsend4: Message name TO: "));
-				Serial.println(to_name);
-				#endif
-
-				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count && ss_pin_i < TALKIE_MAX_NAMES; ++ss_pin_i) {
-					
-					#ifdef BROADCAST_SPI_DEBUG
-					Serial.print(F("\t\t\t\t\tsend5: Comparing to the name: "));
-					Serial.println(_names[ss_pin_i]);
-					#endif
-
-					if (strcmp(to_name, _names[ss_pin_i]) == 0) {
-						as_reply = true;
-						_actual_ss_pin_i = ss_pin_i;
-						break;
-					}
-				}
-			} else {
-				#ifdef BROADCAST_SPI_DEBUG
-				Serial.println(F("\t\t\t\t\tsend3: json_message TO is NOT a String or doesn't exist"));
-				#endif
-			}
-			#ifdef BROADCAST_SPI_DEBUG_TIMING
-			Serial.print(" | ");
-			Serial.print(millis() - _reference_time);
-			#endif
-
 			const char* message_buffer = json_message._read_buffer();
 			size_t message_length = json_message.get_length();
-
-			if (as_reply) {
-				sendSPI(_ss_pins[_actual_ss_pin_i], message_buffer, message_length);
-
-				#ifdef BROADCAST_SPI_DEBUG
-				Serial.print(F("\t\t\t\t\tsend4: --> Directly sent for the received pin --> "));
-				Serial.println(_actual_ss_pin_i);
-				#endif
-
-			} else {    // Broadcast mode
-				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
-					sendSPI(_ss_pins[ss_pin_i], message_buffer, message_length);
-				}
-				
-				#ifdef BROADCAST_SPI_DEBUG
-				Serial.println(F("\t\t\t\t\tsend4: --> Broadcast sent to all pins -->"));
-				#endif
-
-			}
-			#else
-			for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
-				sendSPI(_ss_pins[ss_pin_i], message_buffer, message_length);
-			}
-			#ifdef BROADCAST_SPI_DEBUG
-			Serial.println(F("\t\t\t\t\tsend4: --> Broadcast sent to all pins -->"));
-			#endif
-			#endif
+			sendSPI(_ss_pin, message_buffer, message_length);
 
 			#ifdef BROADCAST_SPI_DEBUG_TIMING
 			Serial.print(" | ");
@@ -612,18 +502,18 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_SPI_Arduino_Arduino_Master_Multiple& instance(int* ss_pins, uint8_t ss_pins_count) {
-        static S_SPI_Arduino_Arduino_Master_Multiple instance(ss_pins, ss_pins_count);
+    static S_Basic_SPI_2xArduino_Master_Single& instance(int ss_pin) {
+        static S_Basic_SPI_2xArduino_Master_Single instance(ss_pin);
 
         return instance;
     }
 
 	// The Socket class description shouldn't be greater than 35 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*10) = 35
-    const char* class_description() const override { return "SPI_Arduino_x2_Master_M"; }
+    const char* class_description() const override { return "SPI_Arduino_x2_Master_S"; }
 
 };
 
 
 
-#endif // SPI_ARDUINO_ARDUINO_MASTER_MULTIPLE_HPP
+#endif // SPI_ARDUINO_ARDUINO_MASTER_SINGLE_HPP
