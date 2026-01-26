@@ -33,9 +33,10 @@ protected:
 	// The Action pair name and description shouldn't be greater than 32 chars
 	// {"m":7,"b":1,"i":6442,"f":"","t":"","0":255,"1":"","2":"","c":25870} <-- 128 - (68 + 2*15) = 30
 
-    Action calls[5] = {
+    Action calls[6] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
+		{"state", "The actual state of the led"},
 		{"bpm_10", "Sets the Tempo in BPM x 10"},
 		{"bpm_10", "Gets the Tempo in BPM x 10"},
 		{"toggle", "Toggles 'blue' led on and off"}
@@ -114,15 +115,20 @@ public:
 			break;
 			
             case 2:
+				json_message.set_nth_value_number(0, (uint32_t)_is_led_on);
+                return true;
+            break;
+			
+            case 3:
                 _bpm_10 = json_message.get_nth_value_number(0);
                 return true;
                 break;
 				
-            case 3:
+            case 4:
 				json_message.set_nth_value_number(0, _bpm_10);
 				return true;
 
-            case 4:
+            case 5:
 			{
 				JsonMessage toggle_blue_on_off(MessageValue::TALKIE_MSG_CALL, BroadcastValue::TALKIE_BC_LOCAL);
 				toggle_blue_on_off.set_to_name("blue");
