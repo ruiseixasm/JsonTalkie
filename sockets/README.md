@@ -212,7 +212,7 @@ SPI is among the most difficult protocols to implement, mainly in the Slave side
 are done per byte and also they take their time, around, 12us. So, a message of 90 bytes long will take around 1 millisecond to be transmitted, this means that,
 it is best to target the talkers by name (unicast) than by channel (broadcast) to avoid repeating a single message among multiple Slave sockets.
 ### ESP32 Master
-#### S_SPI_ESP_Arduino_Master
+#### S_Basic_SPI_ESP_Arduino_Master
 #### Description
 This Socket allows the communication centered in a single ESP32 master board to many Arduino slave boards.
 #### Dependencies

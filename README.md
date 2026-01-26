@@ -57,7 +57,7 @@ You may include more than one Manifesto or Socket, like so:
 ```cpp
 #include <JsonTalkie.hpp>
 #include "S_BroadcastESP_WiFi.hpp"
-#include "S_SPI_ESP_Arduino_Master.hpp"
+#include "S_Basic_SPI_ESP_Arduino_Master.hpp"
 #include "M_Spy.hpp"
 #include "M_BlueManifesto.hpp"
 #include "M_MessageTester.hpp"
@@ -91,7 +91,7 @@ JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
 // Singleton requires the & (to get a reference variable)
 auto& ethernet_socket = S_EthernetENC_Broadcast::instance();
 int spi_pins[] = {4, 16};
-auto& spi_socket = S_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
+auto& spi_socket = S_Basic_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 
 
 // SETTING THE REPEATER
