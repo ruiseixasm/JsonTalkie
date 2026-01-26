@@ -204,8 +204,8 @@ private:
 
 	static bool _validate_name_char(char name_char, size_t char_j) {
 		if (name_char >= 'a' && name_char <= 'z') return true;
-		if (name_char >= 'A' && name_char <= 'Z') return true;
 		if (name_char >= '0' && name_char <= '9') return char_j != 0;
+		if (name_char >= 'A' && name_char <= 'Z') return true;
 		return name_char == '_';
 	}
 
