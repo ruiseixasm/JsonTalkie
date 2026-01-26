@@ -230,7 +230,7 @@ private:
 				size_t char_j = 0;
 				while (_json_payload[json_i] != '"' && json_i < _json_length && char_j < size) {
 					// Names require specific type of chars (TALKIE_NAME_LEN)
-					if (size != TALKIE_NAME_LEN || _validate_name_char(_json_payload[json_i], char_j)) {
+					if (_validate_name_char(_json_payload[json_i], char_j) || size != TALKIE_NAME_LEN) {
 						buffer[char_j++] = _json_payload[json_i++];
 					} else {
 						buffer[0] = '\0';	// Safe code, no surprises
@@ -426,7 +426,7 @@ private:
 			size_t string_length = 0;
 			for (size_t char_j = 0; in_string[char_j] != '\0' && char_j < TALKIE_BUFFER_SIZE && char_j < size; char_j++) {
 				// Names require specific type of chars (TALKIE_NAME_LEN)
-				if (size != TALKIE_NAME_LEN || _validate_name_char(in_string[char_j], char_j)) {
+				if (_validate_name_char(in_string[char_j], char_j) || size != TALKIE_NAME_LEN) {
 					string_length++;
 				} else {
 					return false;
