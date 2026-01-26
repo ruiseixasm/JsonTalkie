@@ -41,6 +41,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCASTSOCKET_DEBUG_CHECKSUM_FULL true
 // #define BROADCASTSOCKET_DEBUG_CHECKSUM_ALL
 // #define BROADCASTSOCKET_DEBUG_CHECKSUM_LOST
+// #define BROADCASTSOCKET_DISABLE_RECOVERY
 
 // Readjust if necessary
 #define MAX_NETWORK_PACKET_LIFETIME_MS 256UL    // 256 milliseconds
@@ -285,17 +286,6 @@ protected:
 	}
 
 
-	bool _similarName(const char* str1, const char* str2) {
-
-		size_t char_i = 0;
-		for (size_t diff_count = 0; str1[char_i] && str2[char_i]; ++char_i) {
-			if (*str1 != *str2) diff_count++;
-			if (diff_count > 1) return false;
-		}
-		return str1[char_i] == str2[char_i];	// No size or same size
-	}
-
-
     /**
      * @brief Starts the transmission of the message received
      * @param json_message A json message to be transmitted to the repeater
@@ -339,6 +329,11 @@ protected:
 				&message_checksum, &message_identity, from_name);
 
 			if (corruption_type != TALKIE_CT_CLEAN) {
+
+			#ifdef BROADCASTSOCKET_DISABLE_RECOVERY
+				return;
+
+			#else
 
 				#if defined(BROADCASTSOCKET_DEBUG_CHECKSUM_ALL) || defined(BROADCASTSOCKET_DEBUG_CHECKSUM_LOST)
 				_corrupt_message = reconstructed_message;	// as a copy of the original message
@@ -386,6 +381,7 @@ protected:
 					#endif
 
 				}
+			#endif
 			}
 
 			_consecutive_errors = 0;	// Avoids a runaway flux of errors
