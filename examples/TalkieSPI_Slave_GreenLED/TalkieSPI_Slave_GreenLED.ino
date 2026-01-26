@@ -26,20 +26,26 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #include <JsonTalkie.hpp>
 #include "M_GreenManifesto.hpp"
+#include "M_LedManifesto.hpp"
 #include "S_SPI_Arduino_Slave.h"
 
 
-const char talker_name[] = "green";
-const char talker_desc[] = "I'm a green talker";
+const char green_name[] = "green";
+const char green_desc[] = "I'm a green talker";
 M_GreenManifesto green_manifesto;
-JsonTalker talker = JsonTalker(talker_name, talker_desc, &green_manifesto);
+JsonTalker green = JsonTalker(green_name, green_desc, &green_manifesto);
+
+const char yellow_name[] = "yellow";
+const char yellow_desc[] = "I'm a yellow talker";
+M_LedManifesto yellow_manifesto(YELLOW_LED_PIN);
+JsonTalker yellow = JsonTalker(yellow_name, yellow_desc, &yellow_manifesto);
 
 // Singleton requires the & (to get a reference variable)
 auto& spi_socket = S_SPI_Arduino_Slave::instance();
 
 // SETTING THE REPEATER
 BroadcastSocket* uplinked_sockets[] = { &spi_socket };
-JsonTalker* downlinked_talkers[] = { &talker };
+JsonTalker* downlinked_talkers[] = { &green, &yellow };
 MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
 		downlinked_talkers, sizeof(downlinked_talkers)/sizeof(JsonTalker*)
