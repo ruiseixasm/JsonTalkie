@@ -31,16 +31,19 @@ public:
 
 protected:
 
-    Action calls[4] = {
+    Action calls[6] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
 		{"state", "The actual state of the led"},
-		{"toggle", "Toggles 'blue' led on and off"}
+		{"toggle", "Toggles 'blue' led on and off"},
+		{"enable", "Enables 1sec cyclic transmission"},
+		{"disable", "Disables 1sec cyclic transmission"}
     };
     
     bool _is_led_on = false;  // keep track of state yourself, by default it's off
 	uint8_t _blue_led_on = 0;
 	uint32_t _last_talk = 0;
+	bool _cyclic_transmission = false;
 
 public:
     
@@ -124,6 +127,16 @@ public:
 			}
             break;
 			
+            case 4:
+				_cyclic_transmission = true;
+                return true;
+            break;
+				
+            case 5:
+				_cyclic_transmission = false;
+                return true;
+            break;
+				
 			default: break;
 		}
 		return false;
@@ -137,7 +150,7 @@ public:
 
 			JsonMessage buzzer_talk(MessageValue::TALKIE_MSG_TALK, BroadcastValue::TALKIE_BC_REMOTE);
 			buzzer_talk.set_to_name("buzzer");
-			talker.transmitToRepeater(buzzer_talk);
+			if (_cyclic_transmission) talker.transmitToRepeater(buzzer_talk);
 		}
 	}
 };

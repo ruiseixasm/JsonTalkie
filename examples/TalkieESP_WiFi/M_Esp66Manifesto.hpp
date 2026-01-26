@@ -40,11 +40,14 @@ protected:
 
 	uint32_t _last_blink = 0;
 	uint8_t _green_led_on = 0;
+	bool _cyclic_transmission = false;
 
-    Action calls[3] = {
+    Action calls[5] = {
 		{"active", "Gets or sets the active status"},
 		{"minutes", "Gets or sets the actual minutes"},
-		{"state", "The actual state of the led"}
+		{"state", "The actual state of the led"},
+		{"enable", "Enables 1sec cyclic transmission"},
+		{"disable", "Disables 1sec cyclic transmission"}
     };
     
 public:
@@ -110,6 +113,16 @@ public:
                 return true;
             break;
 				
+            case 3:
+				_cyclic_transmission = true;
+                return true;
+            break;
+				
+            case 4:
+				_cyclic_transmission = false;
+                return true;
+            break;
+				
             default: break;
 		}
 		return false;
@@ -146,7 +159,7 @@ public:
 			} else {
 				toggle_green_on_off.set_action_name("on");
 			}
-			talker.transmitToRepeater(toggle_green_on_off);
+			if (_cyclic_transmission) talker.transmitToRepeater(toggle_green_on_off);
 		}
 	}
 
