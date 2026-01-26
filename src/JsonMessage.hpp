@@ -808,11 +808,8 @@ public:
 		for (size_t json_i = 6; json_i < _json_length; ++json_i) {	// 4 because it's the shortest position possible for ':'
 			if (json_i + 4 < _json_length &&	// All keys are a single char keys
 				_json_payload[json_i] == ',' && _json_payload[json_i + 1] == '"' && _json_payload[json_i + 3] == '"') {
+					
 				_json_payload[json_i + 4] = ':';
-			}
-			if (json_i + 1 < _json_length && _json_payload[json_i] == ':' &&
-				(_json_payload[json_i - 1] == '"' || _json_payload[json_i + 1] == '"' ||	// ':' surrounded by at least one '"'
-				!(_json_payload[json_i + 1] > '9' || _json_payload[json_i + 1] < '0'))) {	// ':' or with a number on the right side
 
 				if (_json_payload[json_i - 2] == 'i') {
 					if (position_i) {
@@ -836,6 +833,11 @@ public:
 					}
 					position_c = json_i - 2;
 				}
+			}
+			if (json_i + 1 < _json_length && _json_payload[json_i] == ':' &&
+				(_json_payload[json_i - 1] == '"' || _json_payload[json_i + 1] == '"' ||	// ':' surrounded by at least one '"'
+				!(_json_payload[json_i + 1] > '9' || _json_payload[json_i + 1] < '0'))) {	// ':' or with a number on the right side
+
 				_json_payload[json_i - 4] = ',';
 				_json_payload[json_i - 3] = '"';
 				_json_payload[json_i - 1] = '"';
