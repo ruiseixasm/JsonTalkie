@@ -140,31 +140,19 @@ public:
     }
 
 
-    void _error(JsonTalker& talker, JsonMessage& json_message, ErrorValue error_value, TalkerMatch talker_match) override {
+    void _noise(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
 		(void)talker;		// Silence unused parameter warning
-		(void)error_value;	// Silence unused parameter warning
 		(void)talker_match;	// Silence unused parameter warning
 
-		char temp_string[TALKIE_MAX_LEN];
-		json_message.get_from_name(temp_string);
-		Serial.print( temp_string );
-        Serial.print(" - ");
-		
-		ValueType value_type = json_message.get_nth_value_type(0);
-		switch (value_type) {
-
-			case ValueType::TALKIE_VT_STRING:
-				json_message.get_nth_value_string(0, temp_string);
-				Serial.println(temp_string);
-			break;
-			
-			case ValueType::TALKIE_VT_INTEGER:
-				Serial.println(json_message.get_nth_value_number(0));
-			break;
-			
-			default:
-            	Serial.println(F("Empty echo received!"));
-			break;
+		if (json_message.is_recovery_message()) {
+			char from_name[TALKIE_MAX_LEN];
+			json_message.get_from_name(from_name);
+			Serial.print("Recovery message from: ");
+			Serial.print(from_name);
+			Serial.print(" - ");
+			json_message.write_to(Serial);
+			Serial.print(" | ");
+			Serial.println((int)json_message.get_recover_message_value());
 		}
     }
 
