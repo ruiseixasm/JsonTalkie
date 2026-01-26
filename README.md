@@ -51,7 +51,7 @@ To use it you only have to create a **Manifesto** and include it in a Sketch. Yo
 ```cpp
 #include <JsonTalkie.hpp>
 #include "M_BuzzerManifesto.hpp"
-#include "S_SPI_Arduino_Slave.h"
+#include "S_Basic_SPI_Arduino_Slave.h"
 ```
 You may include more than one Manifesto or Socket, like so:
 ```cpp

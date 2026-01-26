@@ -24,7 +24,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCAST_SPI_DEBUG_2
 
 
-class S_SPI_Arduino_Slave : public BroadcastSocket {
+class S_Basic_SPI_Arduino_Slave : public BroadcastSocket {
 public:
 
 	// The Socket class description shouldn't be greater than 35 chars
@@ -65,7 +65,7 @@ protected:
 
     // Needed for the compiler, the base class is the one being called though
     // ADD THIS CONSTRUCTOR - it calls the base class constructor
-    S_SPI_Arduino_Slave() : BroadcastSocket() {
+    S_Basic_SPI_Arduino_Slave() : BroadcastSocket() {
             
 			// Initialize SPI
 			SPI.begin();
@@ -145,9 +145,9 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_SPI_Arduino_Slave& instance() {
+    static S_Basic_SPI_Arduino_Slave& instance() {
 
-        static S_SPI_Arduino_Slave instance;
+        static S_Basic_SPI_Arduino_Slave instance;
         return instance;
     }
 

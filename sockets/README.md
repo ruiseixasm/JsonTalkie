@@ -229,7 +229,7 @@ This Socket allows the communication centered in a single Arduino master board t
 #### Dependencies
 This uses the already installed SPI Arduino library.
 ### Arduino Slave
-#### S_SPI_Arduino_Slave
+#### S_Basic_SPI_Arduino_Slave
 #### Description
 This Socket is targeted to Arduino boards intended to be used as SPI Slaves.
 #### Dependencies
