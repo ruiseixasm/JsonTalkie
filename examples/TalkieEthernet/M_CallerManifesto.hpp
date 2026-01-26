@@ -23,7 +23,7 @@ class M_CallerManifesto : public TalkerManifesto {
 public:
 
 	// The Manifesto class description shouldn't be greater than 42 chars
-	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*10) = 42
+	// {"m":7,"s":1,"b":1,"f":"","t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*10) = 42
     const char* class_description() const override { return "CallerManifesto"; }
 
     M_CallerManifesto() : TalkerManifesto() {
@@ -37,10 +37,12 @@ protected:
 	bool _active_caller = false;
 	uint32_t _time_to_call = 0;
 	uint32_t _time_to_live = 0;
+    bool _is_led_on = false;	// keep track of the led state, by default it's off
 
-    Action calls[2] = {
+    Action calls[3] = {
 		{"active", "Gets or sets the active status"},
-		{"minutes", "Gets or sets the actual minutes"}
+		{"minutes", "Gets or sets the actual minutes"},
+		{"state", "The actual state of the led"}
     };
     
 public:
@@ -100,6 +102,13 @@ public:
 				}
 			}
 			break;
+			
+            case 2:
+				json_message.set_nth_value_number(0, (uint32_t)_is_led_on);
+                return true;
+            break;
+				
+            default: break;
 		}
 		return false;
 	}
@@ -121,6 +130,7 @@ public:
 		}
 		if ((int32_t)(present_time - _time_to_live) >= 0) {
 			digitalWrite(LED_BUILTIN, LOW);
+			_is_led_on = false;
 			_time_to_live = _time_to_call + 1UL * 60 * 1000;	// Add 1 minute extra
 		}
 	}
@@ -132,8 +142,11 @@ public:
         (void)message_value;	// Silence unused parameter warning
         (void)talker_match;	// Silence unused parameter warning
 
-		_time_to_live = _time_to_call + 1UL * 60 * 1000;		// Add 1 minute extra
-		digitalWrite(LED_BUILTIN, HIGH);
+		if (json_message.is_from_name("nano")) {
+			_time_to_live = _time_to_call + 1UL * 60 * 1000;		// Add 1 minute extra
+			digitalWrite(LED_BUILTIN, HIGH);
+			_is_led_on = true;
+		}
     }
     
 };

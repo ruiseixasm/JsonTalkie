@@ -36,13 +36,15 @@ protected:
 	// Avoids the initial triggering
 	uint32_t _time_to_call = 60UL * 60 * 1000;
 	uint32_t _time_to_live = 61UL * 60 * 1000;
+    bool _is_led_on = false;	// keep track of the led state, by default it's off
 
 	uint32_t _last_blink = 0;
 	uint8_t _green_led_on = 0;
 
-    Action calls[2] = {
+    Action calls[3] = {
 		{"active", "Gets or sets the active status"},
-		{"minutes", "Gets or sets the actual minutes"}
+		{"minutes", "Gets or sets the actual minutes"},
+		{"state", "The actual state of the led"}
     };
     
 public:
@@ -102,6 +104,13 @@ public:
 				}
 			}
 			break;
+			
+            case 2:
+				json_message.set_nth_value_number(0, (uint32_t)_is_led_on);
+                return true;
+            break;
+				
+            default: break;
 		}
 		return false;
 	}
@@ -123,6 +132,7 @@ public:
 		}
 		if ((int32_t)(present_time - _time_to_live) >= 0) {
 			digitalWrite(LED_BUILTIN, HIGH);	// In ESP8266 HIGH is LOW and LOW is HIGH
+			_is_led_on = false;
 			_time_to_live = _time_to_call + 1UL * 60 * 1000;	// Add 1 minute extra
 		}
 
@@ -150,6 +160,7 @@ public:
 		if (json_message.is_from_name("buzzer")) {
 			_time_to_live = _time_to_call + 1UL * 60 * 1000;		// Add 1 minute extra
 			digitalWrite(LED_BUILTIN, LOW);	// In ESP8266 HIGH is LOW and LOW is HIGH
+			_is_led_on = true;
 		}
     }
 
