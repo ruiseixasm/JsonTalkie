@@ -217,6 +217,9 @@ private:
      * @param size Size of output buffer (including null terminator)
      * @param colon_position Optional hint for colon position
      * @return true if successful, false if key not found, buffer too small or not a string
+	 * 
+	 * For sizes equal to TALKIE_NAME_LEN, the type of chars are validate accordingly their compatibility
+	 * with names, meaning, [a-z,A-Z,0-9,_]
      * 
      * @warning Buffer size must include space for null terminator
      */
@@ -226,38 +229,8 @@ private:
 			if (json_i && _json_payload[json_i++] == '"') {	// Safe code, makes sure it's a string
 				size_t char_j = 0;
 				while (_json_payload[json_i] != '"' && json_i < _json_length && char_j < size) {
-					buffer[char_j++] = _json_payload[json_i++];
-				}
-				if (char_j < size) {
-					buffer[char_j] = '\0';	// Makes sure the termination char is added
-					return true;
-				}
-			}
-			buffer[0] = '\0';	// Safe code, no surprises
-		}
-		return false;
-	}
-
-
-    /**
-     * @brief Extract string name validated with the accepted chars
-     * @param key Single character key
-     * @param[out] buffer Output buffer for string
-     * @param size Size of output buffer (including null terminator)
-     * @param colon_position Optional hint for colon position
-     * @return true if successful, false if key not found, buffer too small or not a string
-     * 
-	 * The name valid chars are: [a-zA-Z]_[0-9]
-	 * 
-     * @warning Buffer size must include space for null terminator
-     */
-	bool _get_value_name(char key, char* buffer, size_t size, size_t colon_position = 4) const {
-		if (buffer && size) {
-			size_t json_i = _get_value_position(key, colon_position);
-			if (json_i && _json_payload[json_i++] == '"') {	// Safe code, makes sure it's a string
-				size_t char_j = 0;
-				while (_json_payload[json_i] != '"' && json_i < _json_length && char_j < size) {
-					if (_validate_name_char(_json_payload[json_i], char_j)) {
+					// Names require specific type of chars (TALKIE_NAME_LEN)
+					if (size != TALKIE_NAME_LEN || _validate_name_char(_json_payload[json_i], char_j)) {
 						buffer[char_j++] = _json_payload[json_i++];
 					} else {
 						buffer[0] = '\0';	// Safe code, no surprises
@@ -273,6 +246,7 @@ private:
 		}
 		return false;
 	}
+
 
 	/**
      * @brief Extract numeric value for a key
@@ -343,7 +317,7 @@ private:
      * 
      * @note Also removes leading or trailing commas as needed
      */
-	void _remove(char key, size_t colon_position = 4) {
+	void _remove_field(char key, size_t colon_position = 4) {
 		colon_position = _get_colon_position(key, colon_position);
 		if (colon_position) {
 			size_t field_position = colon_position - 3;	// All keys occupy 3 '"k":' chars to the left of the colon
@@ -371,9 +345,9 @@ private:
      * 
      * @note If key exists, it's replaced. Otherwise, it's added before closing brace.
      */
-	bool _set_number(char key, uint32_t number, size_t colon_position = 4) {
+	bool _set_value_number(char key, uint32_t number, size_t colon_position = 4) {
 		colon_position = _get_colon_position(key, colon_position);
-		if (colon_position) _remove(key, colon_position);
+		if (colon_position) _remove_field(key, colon_position);
 		// At this time there is no field key for sure, so, one can just add it right before the '}'
 		size_t number_size = number_of_digits(number);
 		// the usual key 4 plus the + 1 due to the ',' needed to be added to the beginning
@@ -422,14 +396,14 @@ private:
      * 
      * @note If key exists, the value is replaced. Otherwise, it's added before closing brace.
      */
-	bool _set_single_digit_number(char key, uint32_t number, size_t colon_position = 4) {
+	bool _set_value_single_digit_number(char key, uint32_t number, size_t colon_position = 4) {
 		if (number < 10) {
 			colon_position = _get_colon_position(key, colon_position);
 			if (colon_position) {
 				size_t value_position = _get_value_position(key, colon_position);
 				_json_payload[value_position] = '0' + number;
 			} else {
-				return _set_number(key, number);
+				return _set_value_number(key, number);
 			}
 		}
 		return false;
@@ -444,7 +418,7 @@ private:
      * @param colon_position Optional hint for colon position
      * @return true if successful, false if buffer too small or string empty
      */
-	bool _set_string(char key, const char* in_string, size_t size, size_t colon_position = 4) {
+	bool _set_value_string(char key, const char* in_string, size_t size, size_t colon_position = 4) {
 		if (in_string) {
 			size_t string_length = 0;
 			for (size_t char_j = 0; in_string[char_j] != '\0' && char_j < TALKIE_BUFFER_SIZE && char_j < size; char_j++) {
@@ -454,7 +428,7 @@ private:
 			if (string_length < size) {
 				// It can have empty strings too, so, a string_length can be 0!
 				colon_position = _get_colon_position(key, colon_position);
-				if (colon_position) _remove(key, colon_position);
+				if (colon_position) _remove_field(key, colon_position);
 				// the usual key + 4 plus + 2 for both '"' and the + 1 due to the heading ',' needed to be added
 				size_t new_length = _json_length + string_length + 1 + 4 + 2;
 				if (new_length > TALKIE_BUFFER_SIZE) {
@@ -818,7 +792,7 @@ public:
 	bool _validate_checksum() {
 		size_t c_colon_position = _get_colon_position('c');
 		uint16_t received_checksum = _get_value_number('c', c_colon_position);
-		_remove('c', c_colon_position);
+		_remove_field('c', c_colon_position);
 		return generate_checksum() == received_checksum;
 	}
 
@@ -828,9 +802,9 @@ public:
      * @return true if it had space to insert the checksum field
      */
 	bool _insert_checksum() {
-		_remove('c');	// Starts by clearing any pre existent checksum (NO surprises or miss receives)
+		_remove_field('c');	// Starts by clearing any pre existent checksum (NO surprises or miss receives)
 		uint16_t checksum = generate_checksum();
-		return _set_number('c', checksum);
+		return _set_value_number('c', checksum);
 	}
 
 	
@@ -1641,61 +1615,61 @@ public:
      * @return false if it wasn't able to remove or the field is non existent
      */
 	void remove_key_field(char key) {
-		_remove(key);
+		_remove_field(key);
 	}
 
 
     /** @brief Remove checksum field */
 	void remove_checksum() {
-		_remove('c');
+		_remove_field('c');
 	}
 
 
     /** @brief Remove message field */
 	void remove_message() {
-		_remove('m');
+		_remove_field('m');
 	}
 
 
 	/** @brief Remove from field */
 	void remove_from() {
-		_remove('f');
+		_remove_field('f');
 	}
 
 
 	/** @brief Remove to field */
 	void remove_to() {
-		_remove('t');
+		_remove_field('t');
 	}
 
 
 	/** @brief Remove identity field */
 	void remove_identity() {
-		_remove('i');
+		_remove_field('i');
 	}
 
 
 	/** @brief Remove timestamp field */
 	void remove_timestamp() {
-		_remove('i');
+		_remove_field('i');
 	}
 
 
 	/** @brief Remove broadcast field */
 	void remove_broadcast_value() {
-		_remove('b');
+		_remove_field('b');
 	}
 
 
 	/** @brief Remove roger field */
 	void remove_roger_value() {
-		_remove('r');
+		_remove_field('r');
 	}
 
 
 	/** @brief Remove system field */
 	void remove_system_value() {
-		_remove('s');
+		_remove_field('s');
 	}
 
 
@@ -1704,7 +1678,7 @@ public:
      * @param nth Index 0-9
      */
 	void remove_nth_value(uint8_t nth) {
-		if (nth < 10) _remove('0' + nth);
+		if (nth < 10) _remove_field('0' + nth);
 	}
 
 
@@ -1721,7 +1695,7 @@ public:
 
 	/** @brief Remove no reply field */
 	void remove_no_reply() {
-		_remove('n');
+		_remove_field('n');
 	}
 
 
@@ -1736,7 +1710,7 @@ public:
      * @return true if successful
      */
 	bool set_key_number(char key, uint32_t number) {
-		return _set_number(key, number);
+		return _set_value_number(key, number);
 	}
 	
 
@@ -1750,7 +1724,7 @@ public:
 	 * @note a string can't be bigger than TALKIE_MAX_LEN
      */
 	bool set_key_string(char key, const char* in_string, size_t size = TALKIE_MAX_LEN) {
-		return _set_string(key, in_string, size);
+		return _set_value_string(key, in_string, size);
 	}
 
 
@@ -1760,7 +1734,7 @@ public:
      * @return true if field exists and was updated
      */
 	bool set_message_value(MessageValue message_value) {
-		return _set_single_digit_number('m', static_cast<uint32_t>(message_value));
+		return _set_value_single_digit_number('m', static_cast<uint32_t>(message_value));
 	}
 
 
@@ -1770,7 +1744,7 @@ public:
      * @return true if successful
      */
 	bool set_identity(uint16_t identity) {
-		return _set_number('i', identity);
+		return _set_value_number('i', identity);
 	}
 
 
@@ -1780,7 +1754,7 @@ public:
      */
 	bool set_identity() {
 		uint16_t identity = (uint16_t)millis();
-		return _set_number('i', identity);
+		return _set_value_number('i', identity);
 	}
 
 
@@ -1790,7 +1764,7 @@ public:
      * @return true if successful
      */
 	bool set_timestamp(uint16_t timestamp) {
-		return _set_number('i', timestamp);
+		return _set_value_number('i', timestamp);
 	}
 
 
@@ -1809,7 +1783,7 @@ public:
      * @return true if successful
      */
 	bool set_from_name(const char* name) {
-		return _set_string('f', name, TALKIE_NAME_LEN);
+		return _set_value_string('f', name, TALKIE_NAME_LEN);
 	}
 
 
@@ -1819,7 +1793,7 @@ public:
      * @return true if successful
      */
 	bool set_to_name(const char* name) {
-		return _set_string('t', name, TALKIE_NAME_LEN);
+		return _set_value_string('t', name, TALKIE_NAME_LEN);
 	}
 
 
@@ -1829,7 +1803,7 @@ public:
      * @return true if successful
      */
 	bool set_to_channel(uint8_t channel) {
-		return _set_number('t', channel);
+		return _set_value_number('t', channel);
 	}
 
 
@@ -1839,7 +1813,7 @@ public:
      * @return true if successful
      */
 	bool set_action_name(const char* name) {
-		return _set_string('a', name, TALKIE_NAME_LEN);
+		return _set_value_string('a', name, TALKIE_NAME_LEN);
 	}
 
 
@@ -1849,7 +1823,7 @@ public:
      * @return true if successful
      */
 	bool set_action_index(uint8_t index) {
-		return _set_number('a', index);
+		return _set_value_number('a', index);
 	}
 
 
@@ -1859,7 +1833,7 @@ public:
      * @return true if successful
      */
 	bool set_broadcast_value(BroadcastValue broadcast_value) {
-		return _set_single_digit_number('b', static_cast<uint32_t>(broadcast_value));
+		return _set_value_single_digit_number('b', static_cast<uint32_t>(broadcast_value));
 	}
 
 
@@ -1869,7 +1843,7 @@ public:
      * @return true if successful
      */
 	bool set_roger_value(RogerValue roger_value) {
-		return _set_single_digit_number('r', static_cast<uint32_t>(roger_value));
+		return _set_value_single_digit_number('r', static_cast<uint32_t>(roger_value));
 	}
 
 
@@ -1879,7 +1853,7 @@ public:
      * @return true if successful
      */
 	bool set_system_value(SystemValue system_value) {
-		return _set_single_digit_number('s', static_cast<uint32_t>(system_value));
+		return _set_value_single_digit_number('s', static_cast<uint32_t>(system_value));
 	}
 
 
@@ -1889,7 +1863,7 @@ public:
      * @return true if successful
      */
 	bool set_error_value(ErrorValue error_value) {
-		return _set_single_digit_number('e', static_cast<uint32_t>(error_value));
+		return _set_value_single_digit_number('e', static_cast<uint32_t>(error_value));
 	}
 
 
@@ -1901,7 +1875,7 @@ public:
      */
 	bool set_nth_value_number(uint8_t nth, uint32_t number) {
 		if (nth < 10) {
-			return _set_number('0' + nth, number);
+			return _set_value_number('0' + nth, number);
 		}
 		return false;
 	}
@@ -1921,7 +1895,7 @@ public:
      */
 	bool set_nth_value_string(uint8_t nth, const char* in_string, size_t size = TALKIE_MAX_LEN) {
 		if (nth < 10) {
-			return _set_string('0' + nth, in_string, size);
+			return _set_value_string('0' + nth, in_string, size);
 		}
 		return false;
 	}
@@ -1935,7 +1909,7 @@ public:
      * @return true if successful
      */
 	bool set_no_reply() {
-		return _set_number('n', 1);
+		return _set_value_number('n', 1);
 	}
 
 
