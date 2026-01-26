@@ -31,14 +31,16 @@ public:
 
 protected:
 
-    Action calls[3] = {
+    Action calls[4] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
+		{"state", "The actual state of the led"},
 		{"toggle", "Toggles 'blue' led on and off"}
     };
     
     bool _is_led_on = false;  // keep track of state yourself, by default it's off
 	uint8_t _blue_led_on = 0;
+	uint32_t _last_talk = 0;
 
 public:
     
@@ -105,6 +107,11 @@ public:
 			break;
 			
             case 2:
+				json_message.set_nth_value_number(0, (uint32_t)_is_led_on);
+                return true;
+            break;
+				
+            case 3:
 			{
 				JsonMessage toggle_blue_on_off(MessageValue::TALKIE_MSG_CALL, BroadcastValue::TALKIE_BC_REMOTE);
 				toggle_blue_on_off.set_to_name("blue");
@@ -121,7 +128,18 @@ public:
 		}
 		return false;
 	}
-    
+
+
+	void _loop(JsonTalker& talker) override {
+		
+		if (millis() - _last_talk > 1000) {
+			_last_talk = millis();
+
+			JsonMessage buzzer_talk(MessageValue::TALKIE_MSG_TALK, BroadcastValue::TALKIE_BC_REMOTE);
+			buzzer_talk.set_to_name("buzzer");
+			talker.transmitToRepeater(buzzer_talk);
+		}
+	}
 };
 
 

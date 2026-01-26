@@ -31,9 +31,10 @@ public:
 
 protected:
 
-    Action calls[3] = {
+    Action calls[4] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
+		{"state", "The actual state of the led"},
 		{"toggle", "Toggles 'blue' led on and off"}
     };
     
@@ -106,6 +107,11 @@ public:
 			break;
 			
             case 2:
+				json_message.set_nth_value_number(0, (uint32_t)_is_led_on);
+                return true;
+            break;
+				
+            case 3:
 			{
 				JsonMessage toggle_blue_on_off(MessageValue::TALKIE_MSG_CALL, BroadcastValue::TALKIE_BC_REMOTE);
 				toggle_blue_on_off.set_to_name("blue");

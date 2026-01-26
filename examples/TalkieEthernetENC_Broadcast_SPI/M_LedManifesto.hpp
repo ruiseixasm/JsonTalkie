@@ -44,9 +44,10 @@ protected:
     bool _is_led_on = false;	// keep track of the led state, by default it's off
     uint16_t _total_calls = 0;
 
-    Action calls[3] = {
+    Action calls[4] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
+		{"state", "The actual state of the led"},
 		{"actions", "Total of triggered Actions"}
     };
     
@@ -103,6 +104,11 @@ public:
 			break;
 			
             case 2:
+				json_message.set_nth_value_number(0, (uint32_t)_is_led_on);
+                return true;
+            break;
+				
+            case 3:
 				json_message.set_nth_value_number(0, _total_calls);
                 return true;
             break;
