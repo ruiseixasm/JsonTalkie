@@ -357,7 +357,7 @@ protected:
 
 					if (json_message.get_length() > 23) {	// Sourced Socket messages aren't intended to be recalled (<= 23)
 						// The reconstructed message has to represent a gain in order to be adopted, otherwise keep it as is (safer approach)
-						if (corruption_type_2 < corruption_type || repeated_keys) {
+						if (corruption_type_2 < corruption_type || (repeated_keys && corruption_type_2 != TALKIE_CT_UNRECOVERABLE)) {
 							_requestRecoverMessage(reconstructed_message, corruption_type_2,
 								message_checksum_2, message_identity_2, from_name_2, message_length);
 						} else if (corruption_type != TALKIE_CT_UNRECOVERABLE) {
