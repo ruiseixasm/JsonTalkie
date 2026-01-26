@@ -816,10 +816,15 @@ public:
 
 				if (_json_payload[json_i - 2] == 'i') {
 					if (position_i) {
-						_json_payload[position_i] == 'X';	// Unknown, it can only be one 'i'
+						if (position_c) {
+							_json_payload[position_c] == 'X';	// Unknown, it can only be one 'c', the last key
+						}
+						position_c = json_i - 2;
+						_json_payload[position_c] == 'c';	// Must be 'c', because it can only be one 'i'
 						repeated_keys = true;
+					} else {
+						position_i = json_i - 2;
 					}
-					position_i = json_i - 2;
 				} else if (_json_payload[json_i - 2] == 'c') {	// 'c' comes after 'i'
 					if (position_c) {
 						if (position_i) {
