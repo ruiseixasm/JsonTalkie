@@ -424,12 +424,18 @@ private:
 	bool _set_value_string(char key, const char* in_string, size_t size, size_t colon_position = 4) {
 		if (in_string) {
 			size_t string_length = 0;
-			for (size_t char_j = 0; in_string[char_j] != '\0' && char_j < TALKIE_BUFFER_SIZE && char_j < size; char_j++) {
-				// Names require specific type of chars (TALKIE_NAME_LEN)
-				if (_validate_name_char(in_string[char_j], char_j) || size != TALKIE_NAME_LEN) {
+			if (size == TALKIE_NAME_LEN) {
+				for (size_t char_j = 0; in_string[char_j] != '\0' && char_j < TALKIE_BUFFER_SIZE && char_j < size; char_j++) {
+					// Names require specific type of chars (TALKIE_NAME_LEN)
+					if (_validate_name_char(in_string[char_j], char_j)) {
+						string_length++;
+					} else {
+						return false;
+					}
+				}
+			} else {
+				for (size_t char_j = 0; in_string[char_j] != '\0' && char_j < TALKIE_BUFFER_SIZE && char_j < size; char_j++) {
 					string_length++;
-				} else {
-					return false;
 				}
 			}
 			// Can't go beyond the in_string size without '\0' char (last char must be present BUT not counted thus the '<')
