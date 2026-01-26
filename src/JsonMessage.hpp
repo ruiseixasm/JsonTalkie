@@ -794,7 +794,8 @@ public:
     /**
      * @brief Tries to reconstruct a corrupt message
      */
-	void _try_to_reconstruct() {
+	bool _try_to_reconstruct() {
+		bool repeated_keys = false;
 		// All keys are a single char keys
 		_json_payload[0] = '{';
 		_json_payload[1] = '"';
@@ -816,6 +817,7 @@ public:
 				if (_json_payload[json_i - 2] == 'i') {
 					if (position_i) {
 						_json_payload[position_i] == 'X';	// Unknown, it can only be one 'i'
+						repeated_keys = true;
 					}
 					position_i = json_i - 2;
 				} else if (_json_payload[json_i - 2] == 'c') {	// 'c' comes after 'i'
@@ -825,6 +827,7 @@ public:
 						} else {
 							_json_payload[position_c] == 'i';	// The position_c must be 'i' because 'c' is the last one
 						}
+						repeated_keys = true;
 					}
 					position_c = json_i - 2;
 				}
@@ -841,6 +844,7 @@ public:
 			}
 		}
 		_json_payload[_json_length - 1] = '}';
+		return repeated_keys;
 	}
 
 
