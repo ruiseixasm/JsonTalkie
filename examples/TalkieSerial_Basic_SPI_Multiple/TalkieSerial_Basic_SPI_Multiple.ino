@@ -14,15 +14,15 @@ https://github.com/ruiseixasm/JsonTalkie
 
 
 #include <JsonTalkie.hpp>
-#include "M_MultipleManifesto.hpp"
+#include "M_BuzzerManifesto.hpp"
 #include "S_SocketSerial.hpp"
 #include "S_Basic_SPI_2xArduino_Master_Multiple.hpp"
 
 
 const char talker_name[] = "multiple";
 const char talker_desc[] = "I'm a multiple talker";
-M_MultipleManifesto serial_manifesto;
-JsonTalker talker = JsonTalker(talker_name, talker_desc, &serial_manifesto);
+M_BuzzerManifesto buzzer_manifesto;
+JsonTalker talker = JsonTalker(talker_name, talker_desc, &buzzer_manifesto);
 
 // Singleton requires the & (to get a reference variable)
 auto& serial_socket = S_SocketSerial::instance();
