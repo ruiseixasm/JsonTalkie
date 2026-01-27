@@ -32,7 +32,7 @@ auto& spi_socket = S_Basic_SPI_2xArduino_Master_Single::instance(SS);
 BroadcastSocket* uplinked_sockets[] = { &serial_socket };
 JsonTalker* downlinked_talkers[] = { &talker };
 BroadcastSocket* downlinked_sockets[] = { &spi_socket };
-MessageRepeater message_repeater(
+const MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
 		downlinked_talkers, sizeof(downlinked_talkers)/sizeof(JsonTalker*),
 		downlinked_sockets, sizeof(downlinked_sockets)/sizeof(BroadcastSocket*)
