@@ -35,11 +35,17 @@ protected:
     uint16_t _buzz_duration_ms = 100;
 	uint16_t _buzz_start = 0;
 
+	uint32_t _last_blink = 0;
+	uint8_t _yellow_led_on = 0;
+	bool _cyclic_transmission = true;	// true by default
+
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
-    Action calls[2] = {
+    Action calls[4] = {
 		{"buzz", "Buzz for a while"},
-		{"ms", "Gets and sets the buzzing duration"}
+		{"ms", "Gets and sets the buzzing duration"},
+		{"enable", "Enables 1sec cyclic transmission"},
+		{"disable", "Disables 1sec cyclic transmission"}
     };
     
 public:
@@ -56,6 +62,19 @@ public:
 			#ifdef BUZZ_PIN
 			digitalWrite(BUZZ_PIN, LOW);
 			#endif
+		}
+
+		if (millis() - _last_blink > 1000) {
+			_last_blink = millis();
+
+			JsonMessage toggle_yellow_on_off(MessageValue::TALKIE_MSG_CALL, BroadcastValue::TALKIE_BC_LOCAL);
+			toggle_yellow_on_off.set_to_name("yellow");
+			if (_yellow_led_on++ % 2) {
+				toggle_yellow_on_off.set_action_name("off");
+			} else {
+				toggle_yellow_on_off.set_action_name("on");
+			}
+			if (_cyclic_transmission) talker.transmitToRepeater(toggle_yellow_on_off);
 		}
 	}
 
@@ -102,9 +121,18 @@ public:
 					}
 					return true;
 				break;
-
-				// case 2:
-				// 	return _buzz_duration_ms;
+			
+				case 2:
+					_cyclic_transmission = true;
+					return true;
+				break;
+					
+				case 3:
+					_cyclic_transmission = false;
+					return true;
+				break;
+					
+				default: break;
 			}
 		}
 		return false;
