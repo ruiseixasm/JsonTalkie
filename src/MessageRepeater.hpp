@@ -454,12 +454,11 @@ public:
 
 	/**
      * @brief Transmits to the Repeater downlink a json message
-     * @param socket The socket that is calling the method
      * @param message A json message to be transmitted
 	 * 
      * @note This is intended to be called internally and not by the user code.
      */
-	void _socketUplink(BroadcastSocket &socket, JsonMessage &message) const {
+	void _socketUplink(JsonMessage &message) const {
 		BroadcastValue broadcast = message.get_broadcast_value();
 
 		switch (broadcast) {

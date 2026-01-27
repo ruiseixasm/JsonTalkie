@@ -39,7 +39,7 @@ void BroadcastSocket::_transmitToRepeater(JsonMessage& json_message) {
 				_message_repeater->_socketDownlink(*this, json_message);
 				break;
 			case LinkType::TALKIE_LT_DOWN_LINKED:
-				_message_repeater->_socketUplink(*this, json_message);
+				_message_repeater->_socketUplink(json_message);
 				break;
 			default: break;
 		}
