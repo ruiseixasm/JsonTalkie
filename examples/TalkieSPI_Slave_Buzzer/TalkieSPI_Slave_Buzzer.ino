@@ -39,14 +39,14 @@ MessageRepeater message_repeater(
 void setup() {
     // Then start Serial
     Serial.begin(115200);
-    Serial.println("\n\n=== Arduino with SPI STARTING ===");
+    Serial.println(F("\n\n=== Arduino with SPI STARTING ==="));
 
-    Serial.println("Step 1: Starting SPI...");
+    Serial.println(F("Step 1: Starting SPI..."));
 	spi_socket.bridgeSocket();	// Makes sure it accepts LOCAL messages too
-    Serial.println("SPI started successfully");
+    Serial.println(F("SPI started successfully"));
     delay(1000);
 
-    Serial.println("Setup completed - Ready for JSON communication!");
+    Serial.println(F("Setup completed - Ready for JSON communication!"));
 }
 
 
