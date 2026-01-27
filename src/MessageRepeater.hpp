@@ -236,9 +236,12 @@ public:
 
 				case TalkerMatch::TALKIE_MATCH_ANY:
 				{
-					for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count;) {
-						JsonMessage message_copy(message);
-						_downlinked_talkers[talker_i++]->handleTransmission(message_copy, talker_match);
+					for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+						const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+						if (strcmp(talker_name, from_name) != 0) {
+							JsonMessage message_copy(message);
+							_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+						}
 					}
 				}
 				break;
@@ -250,8 +253,11 @@ public:
 						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 							uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
 							if (talker_channel == message_channel) {
-								JsonMessage message_copy(message);
-								_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+								const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+								if (strcmp(talker_name, from_name) != 0) {
+									JsonMessage message_copy(message);
+									_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+								}
 							}
 						}
 					} else {
@@ -268,11 +274,11 @@ public:
 				#endif
 				
 				{
-					char message_to_name[TALKIE_NAME_LEN];
-					if (message.get_to_name(message_to_name, TALKIE_NAME_LEN)) {
+					char to_name[TALKIE_NAME_LEN];
+					if (message.get_to_name(to_name, TALKIE_NAME_LEN)) {
 						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 							const char* talker_name = _downlinked_talkers[talker_i]->get_name();
-							if (strcmp(talker_name, message_to_name) == 0) {
+							if (strcmp(talker_name, to_name) == 0 && strcmp(talker_name, from_name) != 0) {
 								_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
 								return;
 							}
@@ -386,12 +392,12 @@ public:
 					
 					case TalkerMatch::TALKIE_MATCH_BY_NAME:
 					{
-						char message_to_name[TALKIE_NAME_LEN];
-						if (message.get_to_name(message_to_name, TALKIE_NAME_LEN)) {
+						char to_name[TALKIE_NAME_LEN];
+						if (message.get_to_name(to_name, TALKIE_NAME_LEN)) {
 							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 								if (_downlinked_talkers[talker_i] != &talker) {
 									const char* talker_name = _downlinked_talkers[talker_i]->get_name();
-									if (strcmp(talker_name, message_to_name) == 0) {
+									if (strcmp(talker_name, to_name) == 0) {
 										_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
 										return false;	// Not sent via Socket
 									}
@@ -399,7 +405,7 @@ public:
 							}
 							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
 								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
-								if (strcmp(talker_name, message_to_name) == 0) {
+								if (strcmp(talker_name, to_name) == 0) {
 									_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
 									return false;		// Not sent via Socket
 								}
@@ -494,13 +500,19 @@ public:
 
 					case TalkerMatch::TALKIE_MATCH_ANY:
 					{
-						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count;) {
-							JsonMessage message_copy(message);
-							_downlinked_talkers[talker_i++]->handleTransmission(message_copy, talker_match);
+						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+							const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+							if (strcmp(talker_name, from_name) != 0) {
+								JsonMessage message_copy(message);
+								_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+							}
 						}
-						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count;) {
-							JsonMessage message_copy(message);
-							_uplinked_talkers[talker_i++]->handleTransmission(message_copy, talker_match);
+						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+							const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+							if (strcmp(talker_name, from_name) != 0) {
+								JsonMessage message_copy(message);
+								_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+							}
 						}
 					}
 					break;
@@ -512,15 +524,21 @@ public:
 							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 								uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
 								if (talker_channel == message_channel) {
-									JsonMessage message_copy(message);
-									_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+									const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+									if (strcmp(talker_name, from_name) != 0) {
+										JsonMessage message_copy(message);
+										_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+									}
 								}
 							}
 							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
 								uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
 								if (talker_channel == message_channel) {
-									JsonMessage message_copy(message);
-									_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+									const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+									if (strcmp(talker_name, from_name) != 0) {
+										JsonMessage message_copy(message);
+										_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
+									}
 								}
 							}
 						} else {
@@ -531,18 +549,18 @@ public:
 					
 					case TalkerMatch::TALKIE_MATCH_BY_NAME:
 					{
-						char message_to_name[TALKIE_NAME_LEN];
-						if (message.get_to_name(message_to_name, TALKIE_NAME_LEN)) {
+						char to_name[TALKIE_NAME_LEN];
+						if (message.get_to_name(to_name, TALKIE_NAME_LEN)) {
 							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 								const char* talker_name = _downlinked_talkers[talker_i]->get_name();
-								if (strcmp(talker_name, message_to_name) == 0) {
+								if (strcmp(talker_name, to_name) == 0 && strcmp(talker_name, from_name) != 0) {
 									_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
 									return;
 								}
 							}
 							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
 								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
-								if (strcmp(talker_name, message_to_name) == 0) {
+								if (strcmp(talker_name, to_name) == 0 && strcmp(talker_name, from_name) != 0) {
 									_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
 									return;
 								}
@@ -653,11 +671,11 @@ public:
 					
 					case TalkerMatch::TALKIE_MATCH_BY_NAME:
 					{
-						char message_to_name[TALKIE_NAME_LEN];
-						if (message.get_to_name(message_to_name, TALKIE_NAME_LEN)) {
+						char to_name[TALKIE_NAME_LEN];
+						if (message.get_to_name(to_name, TALKIE_NAME_LEN)) {
 							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 								const char* talker_name = _downlinked_talkers[talker_i]->get_name();
-								if (strcmp(talker_name, message_to_name) == 0) {
+								if (strcmp(talker_name, to_name) == 0) {
 									_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
 									return false;		// Not sent via Socket
 								}
@@ -665,7 +683,7 @@ public:
 							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
 								if (_uplinked_talkers[talker_i] != &talker) {
 									const char* talker_name = _uplinked_talkers[talker_i]->get_name();
-									if (strcmp(talker_name, message_to_name) == 0) {
+									if (strcmp(talker_name, to_name) == 0) {
 										_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
 										return false;	// Not sent via Socket
 									}
