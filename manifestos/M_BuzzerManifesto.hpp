@@ -172,7 +172,7 @@ public:
 		(void)talker;		// Silence unused parameter warning
 		(void)talker_match;	// Silence unused parameter warning
 
-		if (json_message.is_recovery_message()) {
+		if (json_message.is_recover_message()) {
 			char from_name[TALKIE_MAX_LEN];
 			json_message.get_from_name(from_name);
 			Serial.print("Recovery message from: ");

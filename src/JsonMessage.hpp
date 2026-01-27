@@ -1168,7 +1168,7 @@ public:
      * @brief Get if it is a recovery message
      * @return true if a recovery message
      */
-	bool is_recovery_message() const {
+	bool is_recover_message() const {
 		return _get_colon_position('M') > 0;
 	}
 
