@@ -61,8 +61,8 @@ void setup() {
 
     // Then start Serial
     Serial.begin(115200);
+    delay(100); // Important: Give time for serial to initialize
     digitalWrite(YELLOW_LED_PIN, HIGH);
-    delay(1000); // Important: Give time for serial to initialize
     digitalWrite(YELLOW_LED_PIN, LOW);
     Serial.println(F("\n\n=== Arduino with SPI STARTING ==="));
 
@@ -85,12 +85,12 @@ void setup() {
     Serial.println(F("Step 1: Starting SPI..."));
 	spi_socket.bridgeSocket();	// Makes sure it accepts LOCAL messages too
     Serial.println(F("SPI started successfully"));
-    delay(1000);
 
     // Final startup indication
     digitalWrite(GREEN_LED, HIGH);
     delay(500);
     digitalWrite(GREEN_LED, LOW);
+    delay(5000);	// Waits 5 seconds for all other SPIs to start (it's a slave, so, it depends on a master)
 
     Serial.println(F("Setup completed - Ready for JSON communication!"));
 }
