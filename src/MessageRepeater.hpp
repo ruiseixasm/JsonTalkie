@@ -219,6 +219,8 @@ public:
 		// To downlinked nodes (BRIDGED uplinks process LOCAL messages too)
 		if (broadcast == BroadcastValue::TALKIE_BC_REMOTE || (broadcast == BroadcastValue::TALKIE_BC_LOCAL && socket.isBridged())) {
 
+			char from_name[TALKIE_NAME_LEN];
+			message.get_from_name(from_name, TALKIE_NAME_LEN);
 			TalkerMatch talker_match = message.get_talker_match();
 			
 			#ifdef MESSAGE_REPEATER_DEBUG
@@ -477,6 +479,8 @@ public:
 			
 			case BroadcastValue::TALKIE_BC_LOCAL:		// To local talkers and bridged sockets
 			{
+				char from_name[TALKIE_NAME_LEN];
+				message.get_from_name(from_name, TALKIE_NAME_LEN);
 				TalkerMatch talker_match = message.get_talker_match();
 
 				#ifdef MESSAGE_REPEATER_DEBUG
