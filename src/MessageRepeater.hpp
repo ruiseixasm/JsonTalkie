@@ -575,10 +575,8 @@ public:
 				}
 
 				for (uint8_t socket_j = 0; socket_j < _downlinked_sockets_count; ++socket_j) {
-					if (_downlinked_sockets[socket_j] != &socket) {	// Shouldn't locally Uplink to itself
-						// Sockets ONLY manipulate the checksum ('c')
-						_downlinked_sockets[socket_j]->_finishTransmission(message);
-					}
+					// Sockets ONLY manipulate the checksum ('c')
+					_downlinked_sockets[socket_j]->_finishTransmission(message);
 				}
 				for (uint8_t socket_j = 0; socket_j < _uplinked_sockets_count; ++socket_j) {
 					if (_uplinked_sockets[socket_j]->isBridged()) {
