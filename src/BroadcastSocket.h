@@ -331,6 +331,8 @@ protected:
 			if (corruption_type != TALKIE_CT_CLEAN) {
 
 			#ifdef BROADCASTSOCKET_DISABLE_RECOVERY
+
+				++_lost_count;	// Times up, non recoverable (+1)
 				return;
 
 			#else
