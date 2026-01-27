@@ -497,7 +497,7 @@ With the command `system` it's possible to get the board and the sockets associa
 	[system green board] 	   Arduino Uno/Nano (ATmega328P)
 >>> system blue sockets
 	[system blue sockets]      0       EthernetENC_Broadcast           10
-	[system blue sockets]      1       SPI_ESP_Arduino_Master          20
+	[system blue sockets]      1       Basic_SPI_ESP_Arduino_Master          20
 >>> system green sockets
     [system green sockets]     0       SPI_Arduino_Slave       11
 >>>
