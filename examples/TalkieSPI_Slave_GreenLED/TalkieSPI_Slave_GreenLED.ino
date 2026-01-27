@@ -64,7 +64,7 @@ void setup() {
     digitalWrite(YELLOW_LED_PIN, HIGH);
     delay(1000); // Important: Give time for serial to initialize
     digitalWrite(YELLOW_LED_PIN, LOW);
-    Serial.println("\n\n=== Arduino with SPI STARTING ===");
+    Serial.println(F("\n\n=== Arduino with SPI STARTING ==="));
 
     // Add a small LED blink to confirm code is running
     digitalWrite(GREEN_LED, HIGH);
@@ -75,16 +75,16 @@ void setup() {
     delay(100);
     digitalWrite(GREEN_LED, LOW);
     
-    Serial.println("Pins initialized successfully");
+    Serial.println(F("Pins initialized successfully"));
 
 
 
     // STEP 1: Initialize SPI only
     // Defines the CS pin by Talker name here
 	
-    Serial.println("Step 1: Starting SPI...");
+    Serial.println(F("Step 1: Starting SPI..."));
 	spi_socket.bridgeSocket();	// Makes sure it accepts LOCAL messages too
-    Serial.println("SPI started successfully");
+    Serial.println(F("SPI started successfully"));
     delay(1000);
 
     // Final startup indication
@@ -92,7 +92,7 @@ void setup() {
     delay(500);
     digitalWrite(GREEN_LED, LOW);
 
-    Serial.println("Setup completed - Ready for JSON communication!");
+    Serial.println(F("Setup completed - Ready for JSON communication!"));
 }
 
 
