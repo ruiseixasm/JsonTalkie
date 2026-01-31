@@ -61,101 +61,99 @@ public:
 		BroadcastValue source_data = json_message.get_broadcast_value();
 		if (source_data == BroadcastValue::TALKIE_BC_REMOTE) {
 
-			if (index < _actionsCount()) {
-				// Actual implementation would do something based on index
-				switch(index) {
+			// Actual implementation would do something based on index
+			switch(index) {
 
-					case 0:
-					{
-						ping = true;
+				case 0:
+				{
+					ping = true;
 
-						// 1. Start by collecting info from message
-						json_message.get_from_name(_original_talker);
-						_trace_message_timestamp = json_message.get_identity();
+					// 1. Start by collecting info from message
+					json_message.get_from_name(_original_talker);
+					_trace_message_timestamp = json_message.get_identity();
 
-						// 2. Repurpose it to be a LOCAL PING
-						json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
-						json_message.remove_identity();
-						if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_STRING) {
-							char value_name[TALKIE_NAME_LEN];
-							if (json_message.get_nth_value_string(0, value_name, TALKIE_NAME_LEN)) {
-								json_message.set_to_name(value_name);
-							}
-						} else if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_INTEGER) {
-							json_message.set_to_channel((uint8_t)json_message.get_nth_value_number(0));
-						} else {	// Removes the original TO
-							json_message.remove_to();	// Without TO works as broadcast
+					// 2. Repurpose it to be a LOCAL PING
+					json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
+					json_message.remove_identity();
+					if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_STRING) {
+						char value_name[TALKIE_NAME_LEN];
+						if (json_message.get_nth_value_string(0, value_name, TALKIE_NAME_LEN)) {
+							json_message.set_to_name(value_name);
 						}
-						json_message.remove_nth_value(0);
-						json_message.set_from_name(talker.get_name());	// Avoids the swapping
-
-						// 3. Sends the message LOCALLY
-						json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
-						// No need to transmit the message, the normal ROGER reply does that for us!
+					} else if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_INTEGER) {
+						json_message.set_to_channel((uint8_t)json_message.get_nth_value_number(0));
+					} else {	// Removes the original TO
+						json_message.remove_to();	// Without TO works as broadcast
 					}
-					break;
+					json_message.remove_nth_value(0);
+					json_message.set_from_name(talker.get_name());	// Avoids the swapping
 
-					case 1:
-					{
-						ping = true;
-
-						// 1. Start by collecting info from message
-						 json_message.get_from_name(_original_talker);
-						_trace_message_timestamp = json_message.get_identity();
-
-						// 2. Repurpose it to be a SELF PING
-						json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
-						json_message.remove_identity();	// Makes sure a new IDENTITY is set
-						json_message.set_from_name(talker.get_name());	// Avoids swapping
-
-						// 3. Sends the message to myself
-						json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_SELF);
-						// No need to transmit the message, the normal ROGER reply does that for us!
-					}
-					break;
-					
-					case 2:
-					{
-						ping = true;
-
-						// 1. Start by setting the Action fields
-						if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_STRING) {
-							char value_name[TALKIE_NAME_LEN];
-							if (json_message.get_nth_value_string(0, value_name, TALKIE_NAME_LEN)) {
-								json_message.set_to_name(value_name);
-							}
-						} else if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_INTEGER) {
-							json_message.set_to_channel((uint8_t)json_message.get_nth_value_number(0));
-						} else {
-							return false;
-						}
-						if (json_message.get_nth_value_type(1) == ValueType::TALKIE_VT_STRING) {
-							char action_name[TALKIE_NAME_LEN];
-							if (json_message.get_nth_value_string(1, action_name, TALKIE_NAME_LEN)) {
-								json_message.set_action_name(action_name);
-							}
-						} else if (json_message.get_nth_value_type(1) == ValueType::TALKIE_VT_INTEGER) {
-							json_message.set_action_index((uint8_t)json_message.get_nth_value_number(1));
-						} else {
-							return false;
-						}
-						json_message.remove_nth_value(0);
-						json_message.set_message_value(MessageValue::TALKIE_MSG_CALL);
-
-						// 2. Collect info from message
-						json_message.get_from_name(_original_talker);
-						_trace_message_timestamp = json_message.get_identity();
-
-						// 3. Repurpose message with new targets
-						json_message.remove_identity();
-						json_message.set_from_name(talker.get_name());	// Avoids the swapping
-
-						// 4. Sends the message LOCALLY
-						json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
-						// No need to transmit the message, the normal ROGER reply does that for us!
-					}
-					break;
+					// 3. Sends the message LOCALLY
+					json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
+					// No need to transmit the message, the normal ROGER reply does that for us!
 				}
+				break;
+
+				case 1:
+				{
+					ping = true;
+
+					// 1. Start by collecting info from message
+						json_message.get_from_name(_original_talker);
+					_trace_message_timestamp = json_message.get_identity();
+
+					// 2. Repurpose it to be a SELF PING
+					json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
+					json_message.remove_identity();	// Makes sure a new IDENTITY is set
+					json_message.set_from_name(talker.get_name());	// Avoids swapping
+
+					// 3. Sends the message to myself
+					json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_SELF);
+					// No need to transmit the message, the normal ROGER reply does that for us!
+				}
+				break;
+				
+				case 2:
+				{
+					ping = true;
+
+					// 1. Start by setting the Action fields
+					if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_STRING) {
+						char value_name[TALKIE_NAME_LEN];
+						if (json_message.get_nth_value_string(0, value_name, TALKIE_NAME_LEN)) {
+							json_message.set_to_name(value_name);
+						}
+					} else if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_INTEGER) {
+						json_message.set_to_channel((uint8_t)json_message.get_nth_value_number(0));
+					} else {
+						return false;
+					}
+					if (json_message.get_nth_value_type(1) == ValueType::TALKIE_VT_STRING) {
+						char action_name[TALKIE_NAME_LEN];
+						if (json_message.get_nth_value_string(1, action_name, TALKIE_NAME_LEN)) {
+							json_message.set_action_name(action_name);
+						}
+					} else if (json_message.get_nth_value_type(1) == ValueType::TALKIE_VT_INTEGER) {
+						json_message.set_action_index((uint8_t)json_message.get_nth_value_number(1));
+					} else {
+						return false;
+					}
+					json_message.remove_nth_value(0);
+					json_message.set_message_value(MessageValue::TALKIE_MSG_CALL);
+
+					// 2. Collect info from message
+					json_message.get_from_name(_original_talker);
+					_trace_message_timestamp = json_message.get_identity();
+
+					// 3. Repurpose message with new targets
+					json_message.remove_identity();
+					json_message.set_from_name(talker.get_name());	// Avoids the swapping
+
+					// 4. Sends the message LOCALLY
+					json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
+					// No need to transmit the message, the normal ROGER reply does that for us!
+				}
+				break;
 			}
 		}
 		return ping;

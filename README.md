@@ -789,30 +789,28 @@ public:
         (void)talker;		// Silence unused parameter warning
     	(void)talker_match;	// Silence unused parameter warning
 
-		if (index < _actionsCount()) {
-			// Actual implementation would do something based on index
-			switch(index) {
+		// Actual implementation would do something based on index
+		switch(index) {
 
-				case 0:
-				{
-					digitalWrite(BUZZ_PIN, HIGH);
-					_buzz_start = (uint16_t)millis();
+			case 0:
+			{
+				digitalWrite(BUZZ_PIN, HIGH);
+				_buzz_start = (uint16_t)millis();
 
-					return true;
-				}
-				break;
-
-				case 1:
-					if (json_message.has_nth_value_number(0)) {
-						_buzz_duration_ms = (uint16_t)json_message.get_nth_value_number(0);
-					} else {
-						json_message.set_nth_value_number(0, _buzz_duration_ms);
-					}
-					return true;
-				break;
-
-				default: break;
+				return true;
 			}
+			break;
+
+			case 1:
+				if (json_message.has_nth_value_number(0)) {
+					_buzz_duration_ms = (uint16_t)json_message.get_nth_value_number(0);
+				} else {
+					json_message.set_nth_value_number(0, _buzz_duration_ms);
+				}
+				return true;
+			break;
+
+			default: break;
 		}
 		return false;
 	}
