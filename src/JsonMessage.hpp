@@ -1461,42 +1461,6 @@ public:
     /**
      * @brief Get targeting method
      * @return TalkerMatch enum indicating how message is targeted
-     * 
-     * Determines if message is for specific name, channel, broadcast, or invalid.
-     */
-	TalkerMatch get_talker_match() const {
-		size_t to_position = _get_colon_position('t');
-		if (to_position) {
-
-			ValueType value_type = _get_value_type('t', to_position);
-			switch (value_type) {
-
-				case ValueType::TALKIE_VT_INTEGER:
-					return TalkerMatch::TALKIE_MATCH_BY_CHANNEL;
-
-				case ValueType::TALKIE_VT_STRING:
-					return TalkerMatch::TALKIE_MATCH_BY_NAME;
-
-				default: break;
-			}
-		} else {
-			MessageValue message_value = get_message_value();
-			if ((message_value > MessageValue::TALKIE_MSG_PING || has_nth_value_number(0)) && message_value != MessageValue::TALKIE_MSG_ERROR) {
-				// Only TALK, CHANNEL and PING can be for ANY
-				// AVOIDS DANGEROUS ALL AT ONCE TRIGGERING (USE CHANNEL INSTEAD)
-				// AVOIDS DANGEROUS SETTING OF ALL CHANNELS AT ONCE
-				return TalkerMatch::TALKIE_MATCH_FAIL;
-			} else {
-				return TalkerMatch::TALKIE_MATCH_ANY;
-			}
-		}
-		return TalkerMatch::TALKIE_MATCH_NONE;
-	}
-
-
-    /**
-     * @brief Get targeting method
-     * @return TalkerMatch enum indicating how message is targeted
      * @param name A char array of at least TALKIE_NAME_LEN
      * @param channel A pointer to a 8 bits number to get the channel number
      * 
