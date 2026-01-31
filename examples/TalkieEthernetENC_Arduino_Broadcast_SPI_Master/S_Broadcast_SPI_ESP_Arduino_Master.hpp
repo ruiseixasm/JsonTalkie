@@ -27,7 +27,6 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #define send_delay_us 10
 #define receive_delay_us 18
-#define TALKIE_MAX_NAMES 8
 
 
 class S_Broadcast_SPI_ESP_Arduino_Master : public BroadcastSocket {
