@@ -223,7 +223,7 @@ This uses the already installed SPI Arduino library.
 This Socket allows the communication centered in a single Arduino master board to many Arduino slave boards.
 #### Dependencies
 This uses the already installed SPI Arduino library.
-#### S_Basic_SPI_2xArduino_Master_Single
+#### S_Basic_SPI_2xArduino_Master
 #### Description
 This Socket allows the communication centered in a single Arduino master board to another single Arduino slave board.
 #### Dependencies

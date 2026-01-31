@@ -11,8 +11,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#ifndef SPI_ARDUINO_ARDUINO_MASTER_SINGLE_HPP
-#define SPI_ARDUINO_ARDUINO_MASTER_SINGLE_HPP
+#ifndef SPI_ARDUINO_ARDUINO_MASTER_HPP
+#define SPI_ARDUINO_ARDUINO_MASTER_HPP
 
 
 #include <BroadcastSocket.h>
@@ -32,12 +32,12 @@ https://github.com/ruiseixasm/JsonTalkie
 #define TALKIE_MAX_NAMES 8
 
 
-class S_Basic_SPI_2xArduino_Master_Single : public BroadcastSocket {
+class S_Basic_SPI_2xArduino_Master : public BroadcastSocket {
 public:
 
 	// The Socket class description shouldn't be greater than 35 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*10) = 35
-    const char* class_description() const override { return "SPI_Arduino_x2_Master_S"; }
+    const char* class_description() const override { return "SPI_Arduino_x2_Master"; }
 
     enum StatusByte : uint8_t {
         TALKIE_SB_ACK		= 0xF0, // Acknowledge
@@ -70,7 +70,7 @@ protected:
 
 
     // Constructor
-    S_Basic_SPI_2xArduino_Master_Single(int ss_pin) : BroadcastSocket() {
+    S_Basic_SPI_2xArduino_Master(int ss_pin) : BroadcastSocket() {
 		
 			_ss_pin = ss_pin;
 			if (_spi_instance) {
@@ -457,8 +457,8 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_Basic_SPI_2xArduino_Master_Single& instance(int ss_pin) {
-        static S_Basic_SPI_2xArduino_Master_Single instance(ss_pin);
+    static S_Basic_SPI_2xArduino_Master& instance(int ss_pin) {
+        static S_Basic_SPI_2xArduino_Master instance(ss_pin);
 
         return instance;
     }
@@ -467,4 +467,4 @@ public:
 
 
 
-#endif // SPI_ARDUINO_ARDUINO_MASTER_SINGLE_HPP
+#endif // SPI_ARDUINO_ARDUINO_MASTER_HPP
