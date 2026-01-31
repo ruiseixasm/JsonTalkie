@@ -201,6 +201,7 @@ protected:
 		#endif
 
 		if (_consecutive_errors < MAXIMUM_CONSECUTIVE_ERRORS) {	// Avoids a runaway flux of errors
+			++_consecutive_errors;	// Avoids a runaway flux of errors
 
 			JsonMessage error_message;
 			error_message.set_message_value(MessageValue::TALKIE_MSG_ERROR);
@@ -225,7 +226,6 @@ protected:
 				_corrupted_message.received_time = (uint16_t)millis();
 				_corrupted_message.active = true;
 			}
-			++_consecutive_errors;	// Avoids a runaway flux of errors
 			
 			if (corruption_type < TALKIE_CT_IDENTITY) {
 				error_message.set_identity(_corrupted_message.identity);
