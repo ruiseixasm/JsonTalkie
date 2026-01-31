@@ -1493,6 +1493,35 @@ public:
 		return TalkerMatch::TALKIE_MATCH_NONE;
 	}
 
+
+    /**
+     * @brief Get targeting method
+     * @return TalkerMatch enum indicating how message is targeted
+     * @param name A char array of at least TALKIE_NAME_LEN
+     * @param channel A pointer to a 8 bits number to get the channel number
+     * 
+     * Determines if message is for specific name, channel, broadcast, or invalid.
+     */
+	TalkerMatch _get_talker_match(char* name, uint8_t* channel) const {
+		// To name
+		if (get_to_name(name)) return TalkerMatch::TALKIE_MATCH_BY_NAME;
+		// To channel
+		uint32_t long_channel;
+		if (get_key_value_number('t', &long_channel)) {
+			*channel = static_cast<uint8_t>( long_channel );
+			return TalkerMatch::TALKIE_MATCH_BY_CHANNEL;
+		}
+		// To everyone (Broadcasted)
+		MessageValue message_value = get_message_value();
+		if ((message_value > MessageValue::TALKIE_MSG_PING || has_nth_value_number(0)) && message_value != MessageValue::TALKIE_MSG_ERROR) {
+			// Only TALK, CHANNEL and PING can be for ANY
+			// AVOIDS DANGEROUS ALL AT ONCE TRIGGERING (USE CHANNEL INSTEAD)
+			// AVOIDS DANGEROUS SETTING OF ALL CHANNELS AT ONCE
+			return TalkerMatch::TALKIE_MATCH_FAIL;
+		}
+		return TalkerMatch::TALKIE_MATCH_ANY;
+	}
+
 	
     /**
      * @brief Get nth value type
