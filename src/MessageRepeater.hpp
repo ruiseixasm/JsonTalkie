@@ -221,7 +221,10 @@ public:
 
 			char from_name[TALKIE_NAME_LEN];
 			message.get_from_name(from_name, TALKIE_NAME_LEN);
-			TalkerMatch talker_match = message.get_talker_match();
+
+			char to_name[TALKIE_NAME_LEN];
+			uint8_t to_channel;
+			TalkerMatch talker_match = message._get_talker_match(to_name, &to_channel);
 			
 			#ifdef MESSAGE_REPEATER_DEBUG
 			Serial.print(F("\t\t_socketDownlink1: "));
@@ -248,11 +251,10 @@ public:
 				
 				case TalkerMatch::TALKIE_MATCH_BY_CHANNEL:
 				{
-					uint8_t message_channel = message.get_to_channel();
-					if (message_channel < 255) {
+					if (to_channel < 255) {
 						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 							uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
-							if (talker_channel == message_channel) {
+							if (talker_channel == to_channel) {
 								const char* talker_name = _downlinked_talkers[talker_i]->get_name();
 								if (strcmp(talker_name, from_name) != 0) {
 									JsonMessage message_copy(message);
@@ -267,24 +269,19 @@ public:
 				break;
 				
 				case TalkerMatch::TALKIE_MATCH_BY_NAME:
-				
-				#ifdef MESSAGE_DEBUG_TIMING
-				Serial.print(" | ");
-				Serial.print(millis() - message._reference_time);
-				#endif
-				
 				{
-					char to_name[TALKIE_NAME_LEN];
-					if (message.get_to_name(to_name, TALKIE_NAME_LEN)) {
-						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
-							const char* talker_name = _downlinked_talkers[talker_i]->get_name();
-							if (strcmp(talker_name, to_name) == 0 && strcmp(talker_name, from_name) != 0) {
-								_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
-								return;
-							}
+
+					#ifdef MESSAGE_DEBUG_TIMING
+					Serial.print(" | ");
+					Serial.print(millis() - message._reference_time);
+					#endif
+				
+					for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+						const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+						if (strcmp(talker_name, to_name) == 0 && strcmp(talker_name, from_name) != 0) {
+							_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
+							return;
 						}
-					} else {
-						return;	// To name not valid, greater size than TALKIE_NAME_LEN
 					}
 				}
 				break;
@@ -346,7 +343,10 @@ public:
 			
 			case BroadcastValue::TALKIE_BC_LOCAL:		// To downlinked nodes
 			{
-				TalkerMatch talker_match = message.get_talker_match();
+				char to_name[TALKIE_NAME_LEN];
+				uint8_t to_channel;
+				TalkerMatch talker_match = message._get_talker_match(to_name, &to_channel);
+			
 				switch (talker_match) {
 
 					case TalkerMatch::TALKIE_MATCH_ANY:
@@ -366,12 +366,11 @@ public:
 					
 					case TalkerMatch::TALKIE_MATCH_BY_CHANNEL:
 					{
-						uint8_t message_channel = message.get_to_channel();
-						if (message_channel < 255) {
+						if (to_channel < 255) {
 							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 								if (_downlinked_talkers[talker_i] != &talker) {
 									uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
-									if (talker_channel == message_channel) {
+									if (talker_channel == to_channel) {
 										JsonMessage message_copy(message);
 										_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 									}
@@ -379,7 +378,7 @@ public:
 							}
 							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
 								uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
-								if (talker_channel == message_channel) {
+								if (talker_channel == to_channel) {
 									JsonMessage message_copy(message);
 									_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 								}
@@ -392,26 +391,21 @@ public:
 					
 					case TalkerMatch::TALKIE_MATCH_BY_NAME:
 					{
-						char to_name[TALKIE_NAME_LEN];
-						if (message.get_to_name(to_name, TALKIE_NAME_LEN)) {
-							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
-								if (_downlinked_talkers[talker_i] != &talker) {
-									const char* talker_name = _downlinked_talkers[talker_i]->get_name();
-									if (strcmp(talker_name, to_name) == 0) {
-										_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
-										return false;	// Not sent via Socket
-									}
-								}
-							}
-							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
-								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
+						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+							if (_downlinked_talkers[talker_i] != &talker) {
+								const char* talker_name = _downlinked_talkers[talker_i]->get_name();
 								if (strcmp(talker_name, to_name) == 0) {
-									_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
-									return false;		// Not sent via Socket
+									_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
+									return false;	// Not sent via Socket
 								}
 							}
-						} else {
-							return false;	// To name not valid, greater size than TALKIE_NAME_LEN
+						}
+						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+							const char* talker_name = _uplinked_talkers[talker_i]->get_name();
+							if (strcmp(talker_name, to_name) == 0) {
+								_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
+								return false;		// Not sent via Socket
+							}
 						}
 					}
 					break;
@@ -439,11 +433,14 @@ public:
 			break;
 			
 			case BroadcastValue::TALKIE_BC_SELF:
-				{
-					TalkerMatch talker_match = message.get_talker_match();
-					talker.handleTransmission(message, talker_match);
-					return false;	// Not sent via Socket
-				}
+			{
+				char to_name[TALKIE_NAME_LEN];
+				uint8_t to_channel;
+				TalkerMatch talker_match = message._get_talker_match(to_name, &to_channel);
+
+				talker.handleTransmission(message, talker_match);
+				return false;	// Not sent via Socket
+			}
 			break;
 			
 			default: break;
@@ -486,7 +483,11 @@ public:
 			{
 				char from_name[TALKIE_NAME_LEN];
 				message.get_from_name(from_name, TALKIE_NAME_LEN);
-				TalkerMatch talker_match = message.get_talker_match();
+
+				char to_name[TALKIE_NAME_LEN];
+				uint8_t to_channel;
+				TalkerMatch talker_match = message._get_talker_match(to_name, &to_channel);
+				
 
 				#ifdef MESSAGE_REPEATER_DEBUG
 				Serial.print(F("\t\t_socketUplink1: "));
@@ -518,11 +519,10 @@ public:
 					
 					case TalkerMatch::TALKIE_MATCH_BY_CHANNEL:
 					{
-						uint8_t message_channel = message.get_to_channel();
-						if (message_channel < 255) {
+						if (to_channel < 255) {
 							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 								uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
-								if (talker_channel == message_channel) {
+								if (talker_channel == to_channel) {
 									const char* talker_name = _downlinked_talkers[talker_i]->get_name();
 									if (strcmp(talker_name, from_name) != 0) {
 										JsonMessage message_copy(message);
@@ -532,7 +532,7 @@ public:
 							}
 							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
 								uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
-								if (talker_channel == message_channel) {
+								if (talker_channel == to_channel) {
 									const char* talker_name = _downlinked_talkers[talker_i]->get_name();
 									if (strcmp(talker_name, from_name) != 0) {
 										JsonMessage message_copy(message);
@@ -548,24 +548,19 @@ public:
 					
 					case TalkerMatch::TALKIE_MATCH_BY_NAME:
 					{
-						char to_name[TALKIE_NAME_LEN];
-						if (message.get_to_name(to_name, TALKIE_NAME_LEN)) {
-							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
-								const char* talker_name = _downlinked_talkers[talker_i]->get_name();
-								if (strcmp(talker_name, to_name) == 0 && strcmp(talker_name, from_name) != 0) {
-									_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
-									return;
-								}
+						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+							const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+							if (strcmp(talker_name, to_name) == 0 && strcmp(talker_name, from_name) != 0) {
+								_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
+								return;
 							}
-							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
-								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
-								if (strcmp(talker_name, to_name) == 0 && strcmp(talker_name, from_name) != 0) {
-									_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
-									return;
-								}
+						}
+						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+							const char* talker_name = _uplinked_talkers[talker_i]->get_name();
+							if (strcmp(talker_name, to_name) == 0 && strcmp(talker_name, from_name) != 0) {
+								_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
+								return;
 							}
-						} else {
-							return;	// To name not valid, greater size than TALKIE_NAME_LEN
 						}
 					}
 					break;
@@ -614,8 +609,10 @@ public:
 			// A Talker is always a local node, so, it only transmits local messages
 			case BroadcastValue::TALKIE_BC_LOCAL:
 			{
-				TalkerMatch talker_match = message.get_talker_match();
-
+				char to_name[TALKIE_NAME_LEN];
+				uint8_t to_channel;
+				TalkerMatch talker_match = message._get_talker_match(to_name, &to_channel);
+				
 				#ifdef MESSAGE_REPEATER_DEBUG
 				Serial.print(F("\t\t\t_talkerDownlink2: "));
 				message.write_to(Serial);
@@ -642,11 +639,10 @@ public:
 					
 					case TalkerMatch::TALKIE_MATCH_BY_CHANNEL:
 					{
-						uint8_t message_channel = message.get_to_channel();
-						if (message_channel < 255) {
+						if (to_channel < 255) {
 							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
 								uint8_t talker_channel = _downlinked_talkers[talker_i]->get_channel();
-								if (talker_channel == message_channel) {
+								if (talker_channel == to_channel) {
 									JsonMessage message_copy(message);
 									_downlinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 								}
@@ -654,7 +650,7 @@ public:
 							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
 								if (_uplinked_talkers[talker_i] != &talker) {
 									uint8_t talker_channel = _uplinked_talkers[talker_i]->get_channel();
-									if (talker_channel == message_channel) {
+									if (talker_channel == to_channel) {
 										JsonMessage message_copy(message);
 										_uplinked_talkers[talker_i]->handleTransmission(message_copy, talker_match);
 									}
@@ -668,26 +664,21 @@ public:
 					
 					case TalkerMatch::TALKIE_MATCH_BY_NAME:
 					{
-						char to_name[TALKIE_NAME_LEN];
-						if (message.get_to_name(to_name, TALKIE_NAME_LEN)) {
-							for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
-								const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+						for (uint8_t talker_i = 0; talker_i < _downlinked_talkers_count; ++talker_i) {
+							const char* talker_name = _downlinked_talkers[talker_i]->get_name();
+							if (strcmp(talker_name, to_name) == 0) {
+								_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
+								return false;		// Not sent via Socket
+							}
+						}
+						for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
+							if (_uplinked_talkers[talker_i] != &talker) {
+								const char* talker_name = _uplinked_talkers[talker_i]->get_name();
 								if (strcmp(talker_name, to_name) == 0) {
-									_downlinked_talkers[talker_i]->handleTransmission(message, talker_match);
-									return false;		// Not sent via Socket
+									_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
+									return false;	// Not sent via Socket
 								}
 							}
-							for (uint8_t talker_i = 0; talker_i < _uplinked_talkers_count; ++talker_i) {
-								if (_uplinked_talkers[talker_i] != &talker) {
-									const char* talker_name = _uplinked_talkers[talker_i]->get_name();
-									if (strcmp(talker_name, to_name) == 0) {
-										_uplinked_talkers[talker_i]->handleTransmission(message, talker_match);
-										return false;	// Not sent via Socket
-									}
-								}
-							}
-						} else {
-							return false;	// To name not valid, greater size than TALKIE_NAME_LEN
 						}
 					}
 					break;
@@ -715,11 +706,14 @@ public:
 			break;
 			
 			case BroadcastValue::TALKIE_BC_SELF:
-				{
-					TalkerMatch talker_match = message.get_talker_match();
-					talker.handleTransmission(message, talker_match);
-					return false;	// Not sent via Socket
-				}
+			{
+				char to_name[TALKIE_NAME_LEN];
+				uint8_t to_channel;
+				TalkerMatch talker_match = message._get_talker_match(to_name, &to_channel);
+			
+				talker.handleTransmission(message, talker_match);
+				return false;	// Not sent via Socket
+			}
 			break;
 			
 			default: break;
