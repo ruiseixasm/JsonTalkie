@@ -111,22 +111,22 @@ private:
 	uint16_t _count_negatives = 0;
 	uint16_t _count_says_again = 0;
 
-    enum IncrementTarget : uint8_t {
-        TALKIE_IT_ROGERS,
-        TALKIE_IT_NEGATIVES,
-        TALKIE_IT_SAYS_AGAIN,
+    enum CallCount : uint8_t {
+        TALKIE_CC_ROGERS,
+        TALKIE_CC_NEGATIVES,
+        TALKIE_CC_SAYS_AGAIN,
     };
 
 
     /**
      * @brief Increments the totals of calls accordingly to it's result
-     * @param increment_target What is to be incremented
+     * @param call_count What is to be incremented
      * @return true if an overflow happened resulting in the respective reset
      */
-	bool _increment_call_count(IncrementTarget increment_target) {
-		switch (increment_target) {
+	bool _increment_call_count(CallCount call_count) {
+		switch (call_count) {
 
-			case TALKIE_IT_ROGERS:
+			case TALKIE_CC_ROGERS:
 			{
 				if (_count_rogers == 0xFFFF) {
 					_count_rogers = 0;
@@ -138,7 +138,7 @@ private:
 			}
 			break;
 			
-			case TALKIE_IT_NEGATIVES:
+			case TALKIE_CC_NEGATIVES:
 			{
 				if (_count_negatives == 0xFFFF) {
 					_count_rogers = 0;
@@ -150,7 +150,7 @@ private:
 			}
 			break;
 			
-			case TALKIE_IT_SAYS_AGAIN:
+			case TALKIE_CC_SAYS_AGAIN:
 			{
 				if (_count_says_again == 0xFFFF) {
 					_count_rogers = 0;
@@ -526,9 +526,13 @@ public:
 
 							// ROGER should be implicit for CALL to spare json string size for more data index value nth
 							if (!_actionByIndex(index_found_i, json_message, talker_match)) {
+								_increment_call_count(TALKIE_CC_NEGATIVES);
 								json_message.set_roger_value(RogerValue::TALKIE_RGR_NEGATIVE);
+							} else {
+								_increment_call_count(TALKIE_CC_ROGERS);
 							}
 						} else {
+							_increment_call_count(TALKIE_CC_SAYS_AGAIN);
 							json_message.set_roger_value(RogerValue::TALKIE_RGR_SAY_AGAIN);
 						}
 					} else {
