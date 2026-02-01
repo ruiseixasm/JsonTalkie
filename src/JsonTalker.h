@@ -107,6 +107,65 @@ private:
 	TraceMessage _trace_message;
 	RecoveryMessage _recovery_message;
 
+	uint16_t _count_rogers = 0;
+	uint16_t _count_negatives = 0;
+	uint16_t _count_says_again = 0;
+
+    enum IncrementTarget : uint8_t {
+        TALKIE_IT_ROGERS,
+        TALKIE_IT_NEGATIVES,
+        TALKIE_IT_SAYS_AGAIN,
+    };
+
+
+    /**
+     * @brief Increments the totals of calls accordingly to it's result
+     * @param increment_target What is to be incremented
+     * @return true if an overflow happened resulting in the respective reset
+     */
+	bool _increment_call_count(IncrementTarget increment_target) {
+		switch (increment_target) {
+
+			case TALKIE_IT_ROGERS:
+			{
+				if (_count_rogers == 0xFFFF) {
+					_count_rogers = 0;
+					_count_negatives = 0;
+					_count_says_again = 0;
+					return true;	// reset due to overflow
+				}
+				_count_rogers++;
+			}
+			break;
+			
+			case TALKIE_IT_NEGATIVES:
+			{
+				if (_count_negatives == 0xFFFF) {
+					_count_rogers = 0;
+					_count_negatives = 0;
+					_count_says_again = 0;
+					return true;
+				}
+				_count_negatives++;
+			}
+			break;
+			
+			case TALKIE_IT_SAYS_AGAIN:
+			{
+				if (_count_says_again == 0xFFFF) {
+					_count_rogers = 0;
+					_count_negatives = 0;
+					_count_says_again = 0;
+					return true;
+				}
+				_count_says_again++;
+			}
+			break;
+			
+		}
+		return false;
+	}
+
 
 	/**
      * @brief Returns the description of the board where the Talker is being run on
