@@ -93,9 +93,11 @@ void setup() {
         Serial.println("Setting up broadcast sockets...");
     #endif
 
+	SPIClass* hspi = new SPIClass(HSPI);  // heap variable!
 	// ================== INITIALIZE HSPI ==================
-	// Initialize SPI with HSPI pins: MOSI=13, MISO=12, SCK=14
-    spi_socket.begin(13, 12, 14);	// MOSI, MISO, SCK
+	// Initialize SPI with HSPI pins: SCK=14, MISO=12, MOSI=13, SS=15
+	hspi->begin(14, 12, 13, 15);  // SCK, MISO, MOSI, SS
+    spi_socket.begin(hspi);
 
     // Finally, sets the blue led as always HIGH signalling this way to be a SPI Master
     digitalWrite(LED_BUILTIN, HIGH);
