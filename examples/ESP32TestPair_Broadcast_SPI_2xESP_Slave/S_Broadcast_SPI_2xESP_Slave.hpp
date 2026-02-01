@@ -26,12 +26,12 @@ extern "C" {
 
 
 
-class S_Broadcast_SPI_ESP_Slave : public BroadcastSocket {
+class S_Broadcast_SPI_2xESP_Slave : public BroadcastSocket {
 public:
 
 	// The Socket class description shouldn't be greater than 35 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*10) = 35
-    const char* class_description() const override { return "Broadcast_SPI_ESP_Slave"; }
+    const char* class_description() const override { return "Broadcast_SPI_2xESP_Slave"; }
 
 
 	#ifdef BROADCAST_SPI_DEBUG_TIMING
@@ -60,7 +60,7 @@ protected:
 	uint8_t _stacked_transmissions = 0;
 
     // Constructor
-    S_Broadcast_SPI_ESP_Slave(spi_host_device_t host) : BroadcastSocket(), _host(host) {
+    S_Broadcast_SPI_2xESP_Slave(spi_host_device_t host) : BroadcastSocket(), _host(host) {
             
 		_max_delay_ms = 0;  // SPI is sequencial, no need to control out of order packages
 	}
@@ -263,8 +263,8 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_Broadcast_SPI_ESP_Slave& instance(spi_host_device_t host = HSPI_HOST) {
-        static S_Broadcast_SPI_ESP_Slave instance(host);
+    static S_Broadcast_SPI_2xESP_Slave& instance(spi_host_device_t host = HSPI_HOST) {
+        static S_Broadcast_SPI_2xESP_Slave instance(host);
 
         return instance;
     }

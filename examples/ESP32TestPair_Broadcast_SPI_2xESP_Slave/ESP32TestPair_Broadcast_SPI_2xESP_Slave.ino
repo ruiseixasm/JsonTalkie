@@ -23,7 +23,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #include <JsonTalkie.hpp>
 // ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
-#include "S_Broadcast_SPI_ESP_Slave.hpp"
+#include "S_Broadcast_SPI_2xESP_Slave.hpp"
 #include "M_LedManifesto.hpp"
 
 
@@ -38,7 +38,7 @@ JsonTalker l_led = JsonTalker(l_led_name, l_led_desc, &led_manifesto);
 
 // SOCKETS
 // Singleton requires the & (to get a reference variable)
-auto& spi_socket = S_Broadcast_SPI_ESP_Slave::instance(VSPI_HOST);
+auto& spi_socket = S_Broadcast_SPI_2xESP_Slave::instance(VSPI_HOST);
 
 
 // SETTING THE REPEATER
