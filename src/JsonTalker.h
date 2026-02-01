@@ -121,49 +121,42 @@ private:
     /**
      * @brief Increments the totals of calls accordingly to it's result
      * @param call_count What is to be incremented
-     * @return true if an overflow happened resulting in the respective reset
      */
-	bool _increment_call_count(CallCount call_count) {
+	void _increment_call_count(CallCount call_count) {
 		switch (call_count) {
 
 			case TALKIE_CC_ROGERS:
 			{
-				if (_count_rogers == 0xFFFF) {
-					_count_rogers = 0;
-					_count_negatives = 0;
-					_count_says_again = 0;
-					return true;	// reset due to overflow
+				if (_count_rogers < 0xFFFF) {
+					_count_rogers++;
+					return;
 				}
-				_count_rogers++;
 			}
 			break;
 			
 			case TALKIE_CC_NEGATIVES:
 			{
-				if (_count_negatives == 0xFFFF) {
-					_count_rogers = 0;
-					_count_negatives = 0;
-					_count_says_again = 0;
-					return true;
+				if (_count_negatives < 0xFFFF) {
+					_count_negatives++;
+					return;
 				}
-				_count_negatives++;
 			}
 			break;
 			
 			case TALKIE_CC_SAYS_AGAIN:
 			{
-				if (_count_says_again == 0xFFFF) {
-					_count_rogers = 0;
-					_count_negatives = 0;
-					_count_says_again = 0;
-					return true;
+				if (_count_says_again < 0xFFFF) {
+					_count_says_again++;
+					return;
 				}
-				_count_says_again++;
 			}
 			break;
 			
 		}
-		return false;
+		// reset due to overflow
+		_count_rogers = 0;
+		_count_negatives = 0;
+		_count_says_again = 0;
 	}
 
 
