@@ -72,8 +72,6 @@ public:
     // Index-based operations (simplified examples)
     bool _actionByIndex(uint8_t index, JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
 		
-		if (index >= sizeof(calls)/sizeof(Action)) return false;
-		
 		const char json_payload[] = "{\"m\":7,\"b\":0,\"f\":\"buzzer\",\"i\":13825,\"0\":\"I'm a buzzer that buzzes\",\"t\":\"Talker-7a\"}";
 		JsonMessage test_json_message;
 		test_json_message.deserialize_buffer(json_payload, sizeof(json_payload) - 1);	// Discount the '\0' of the literal

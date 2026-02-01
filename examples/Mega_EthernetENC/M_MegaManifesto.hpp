@@ -55,8 +55,6 @@ public:
         (void)talker;		// Silence unused parameter warning
         (void)talker_match;	// Silence unused parameter warning
 		
-		if (index >= sizeof(calls)/sizeof(Action)) return false;
-		
 		// Actual implementation would do something based on index
 		switch(index) {
 

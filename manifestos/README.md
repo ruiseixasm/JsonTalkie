@@ -77,8 +77,8 @@ public:
         (void)talker;		// Silence unused parameter warning
     	(void)talker_match;	// Silence unused parameter warning
 		
-		if (index >= sizeof(calls)/sizeof(Action)) return false;
-		
+		_total_calls++;
+
 		// Actual implementation would do something based on index
 		switch(index) {
 
@@ -87,7 +87,6 @@ public:
 				if (!_is_led_on) {
 					digitalWrite(_led_pin, HIGH);
 					_is_led_on = true;
-					_total_calls++;
 					return true;
 				} else {
 					json_message.set_nth_value_string(0, "Already On!");
@@ -101,7 +100,6 @@ public:
 				if (_is_led_on) {
 				digitalWrite(_led_pin, LOW);
 					_is_led_on = false;
-					_total_calls++;
 				} else {
 					json_message.set_nth_value_string(0, "Already Off!");
 					return false;
