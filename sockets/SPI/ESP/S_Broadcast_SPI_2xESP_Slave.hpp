@@ -11,8 +11,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 Lesser General Public License for more details.
 https://github.com/ruiseixasm/JsonTalkie
 */
-#ifndef BROADCAST_SPI_ESP_SLAVE_HPP
-#define BROADCAST_SPI_ESP_SLAVE_HPP
+#ifndef BROADCAST_SPI_ESP2X_SLAVE_HPP
+#define BROADCAST_SPI_ESP2X_SLAVE_HPP
 
 
 #include <BroadcastSocket.h>
@@ -297,4 +297,4 @@ public:
 };
 
 
-#endif // BROADCAST_SPI_ESP_SLAVE_HPP
+#endif // BROADCAST_SPI_ESP2X_SLAVE_HPP
