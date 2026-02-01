@@ -44,7 +44,6 @@ protected:
     
     bool _is_led_on = false;  // keep track of state yourself, by default it's off
     uint16_t _bpm_10 = 1200;
-    uint16_t _total_calls = 0;
 	uint8_t _blue_led_on = 0;
 
 
@@ -61,8 +60,6 @@ public:
         (void)talker;		// Silence unused parameter warning
     	(void)talker_match;	// Silence unused parameter warning
 		
-		_total_calls++;
-
 		// Actual implementation would do something based on index
 		switch(index) {
 

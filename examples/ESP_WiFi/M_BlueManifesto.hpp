@@ -42,13 +42,11 @@ protected:
 
 	const uint8_t _led_pin;
     bool _is_led_on = false;	// keep track of the led state, by default it's off
-    uint16_t _total_calls = 0;
 
-    Action calls[4] = {
+    Action calls[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
-		{"state", "The actual state of the led"},
-		{"actions", "Total of triggered Actions"}
+		{"state", "The actual state of the led"}
     };
     
 public:
@@ -62,8 +60,6 @@ public:
         (void)talker;		// Silence unused parameter warning
     	(void)talker_match;	// Silence unused parameter warning
 		
-		_total_calls++;
-
 		// Actual implementation would do something based on index
 		switch(index) {
 
@@ -103,11 +99,6 @@ public:
 			
             case 2:
 				json_message.set_nth_value_number(0, (uint32_t)_is_led_on);
-                return true;
-            break;
-				
-            case 3:
-				json_message.set_nth_value_number(0, _total_calls);
                 return true;
             break;
 				
