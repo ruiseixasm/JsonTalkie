@@ -22,8 +22,12 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCAST_SPI_DEBUG
 // #define BROADCAST_SPI_DEBUG_TIMING
 
-#define border_delay_us 10
+// Broadcast SPI is fire and forget, so, it is needed to give some time to the Slaves catch up with the next send from the Master
+#define broadcast_time_spacing_us 1000	// Gives 1 millisecond to all Slaves to process the received broadcast before a next one
+
 #define padding_delay_us 2
+#define border_delay_us 10
+#define ENABLED_BROADCAST_TIME_SLOT
 
 
 class S_Broadcast_SPI_2xESP_Master : public BroadcastSocket {
@@ -49,6 +53,9 @@ protected:
 	spi_device_handle_t _spi;
 	uint8_t _data_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
 
+	bool _in_broadcast_slot = false;
+	uint32_t _broadcast_time_us;
+
 
     // Constructor
     S_Broadcast_SPI_2xESP_Master(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host)
@@ -61,47 +68,69 @@ protected:
     // Socket processing is always Half-Duplex because there is just one buffer to receive and other to send
     void _receive() override {
 
-		// Sends once per pin, avoids getting stuck in processing many pins
-		static uint8_t actual_pin_index = 0;
-		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-		static uint16_t last_beacon_time = (uint16_t)micros();
+		static uint8_t stacked_transmissions = 0;
+		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
+			_in_broadcast_slot = false;
+		}
 
-		if (micros() - last_beacon_time > 100) {
-			last_beacon_time = (uint16_t)micros();	// Avoid calling the beacon right away
+		// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
+		if (!_in_broadcast_slot) {
 
-			if (_initiated) {
+			// Sends once per pin, avoids getting stuck in processing many pins
+			static uint8_t actual_pin_index = 0;
+			// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
+			static uint32_t last_beacon_time = micros();
 
-				#ifdef BROADCAST_SPI_DEBUG_TIMING
-				_reference_time = millis();
-				#endif
+			if (micros() - last_beacon_time > 100) {
+				last_beacon_time = micros();	// Avoid calling the beacon right away
 
-				uint8_t l = sendBeacon(_spi_cs_pins[actual_pin_index]);
-				
-				if (l > 0) {
+				if (_initiated) {
 
-					uint8_t match_l = sendBeacon(_spi_cs_pins[actual_pin_index], l);
-					if (match_l == l) {	// Avoid noise triggering
+					#ifdef BROADCAST_SPI_DEBUG_TIMING
+					_reference_time = millis();
+					#endif
 
-						receivePayload(_spi_cs_pins[actual_pin_index], l);
+					uint8_t l = sendBeacon(_spi_cs_pins[actual_pin_index]);
+					
+					if (l > 0) {
 
-						#ifdef BROADCAST_SPI_DEBUG
-							Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
-								_spi_cs_pins[actual_pin_index], 0b10000000 | l, l);
-							Serial.print("[From Slave] Received: ");
-							for (int i = 0; i < l; i++) {
-								Serial.print((char)_data_buffer[i]);
-							}
-							Serial.println();
-						#endif
-						
-						JsonMessage new_message(
-							reinterpret_cast<const char*>( _data_buffer ),
-							static_cast<size_t>( l )
-						);
-						_startTransmission(new_message);
+						uint8_t match_l = sendBeacon(_spi_cs_pins[actual_pin_index], l);
+						if (match_l == l) {	// Avoid noise triggering
+
+							receivePayload(_spi_cs_pins[actual_pin_index], l);
+
+							#ifdef BROADCAST_SPI_DEBUG
+								Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
+									_spi_cs_pins[actual_pin_index], 0b10000000 | l, l);
+								Serial.print("[From Slave] Received: ");
+								for (int i = 0; i < l; i++) {
+									Serial.print((char)_data_buffer[i]);
+								}
+								Serial.println();
+							#endif
+							
+							#ifdef ENABLED_BROADCAST_TIME_SLOT
+								if (stacked_transmissions < 5) {
+
+									JsonMessage new_message(
+										reinterpret_cast<const char*>( _data_buffer ),
+										static_cast<size_t>( l )
+									);
+									stacked_transmissions++;
+									_startTransmission(new_message);
+									stacked_transmissions--;
+								}
+							#else
+								JsonMessage new_message(
+									reinterpret_cast<const char*>( _data_buffer ),
+									static_cast<size_t>( l )
+								);
+								_startTransmission(new_message);
+							#endif
+						}
 					}
+					actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 				}
-				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 			}
 		}
     }
@@ -135,8 +164,19 @@ protected:
 			);
 			
 			if (len > 0) {
+
+				#ifdef ENABLED_BROADCAST_TIME_SLOT
+					while (_in_broadcast_slot) {	// Avoids too many sends too close in time
+						// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
+						if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
+					}
+				#endif
+
 				broadcastLength(_spi_cs_pins, _ss_pins_count, (uint8_t)len); // D=0, L=len
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
+				_broadcast_time_us = micros();	// send time spacing applies after the sending
+				_in_broadcast_slot = true;
+
 			} else {
 				return false;
 			}
@@ -167,7 +207,6 @@ protected:
 		t.tx_buffer = &tx_byte;
 		t.rx_buffer = nullptr;
 
-		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], LOW);
 		}
@@ -177,6 +216,7 @@ protected:
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], HIGH);
 		}
+		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 	}
 
 	void broadcastPayload(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
@@ -188,7 +228,6 @@ protected:
 		t.tx_buffer = _data_buffer;
 		t.rx_buffer = nullptr;
 
-		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], LOW);
 		}
@@ -198,6 +237,7 @@ protected:
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], HIGH);
 		}
+		// Border already included in the broadcast time slot
 	}
 
 
@@ -209,12 +249,12 @@ protected:
 		t.tx_buffer = &tx_byte;
 		t.rx_buffer = &rx_byte;
 
-		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 		digitalWrite(ss_pin, LOW);
 		delayMicroseconds(padding_delay_us);
 		spi_device_transmit(_spi, &t);
 		delayMicroseconds(padding_delay_us);
 		digitalWrite(ss_pin, HIGH);
+		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 
 		return rx_byte;
 	}
@@ -228,12 +268,12 @@ protected:
 		t.tx_buffer = nullptr;
 		t.rx_buffer = _data_buffer;
 		
-		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 		digitalWrite(ss_pin, LOW);
 		delayMicroseconds(padding_delay_us);
 		spi_device_transmit(_spi, &t);
 		delayMicroseconds(padding_delay_us);
 		digitalWrite(ss_pin, HIGH);
+		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 	}
 
 
