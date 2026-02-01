@@ -692,6 +692,30 @@ public:
 							}
 							break;
 
+						case SystemValue::TALKIE_SYS_CALLS:
+							{
+								if (_manifesto) {
+
+									if (json_message.has_nth_value_number(0)) {
+										_count_rogers = 0;
+										_count_negatives = 0;
+										_count_says_again = 0;
+									}
+
+									const uint32_t total_calls =
+										(uint32_t)_count_rogers + (uint32_t)_count_negatives + (uint32_t)_count_says_again;
+
+									json_message.set_nth_value_number(0, total_calls);
+									json_message.set_nth_value_number(1, _count_rogers);
+									json_message.set_nth_value_number(2, _count_negatives);
+									json_message.set_nth_value_number(3, _count_says_again);
+
+								} else {
+									json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
+								}
+							}
+							break;
+
 						default: break;
 					}
 
