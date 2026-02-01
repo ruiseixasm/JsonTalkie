@@ -63,7 +63,7 @@ protected:
 
 	SPIClass* const _spi_instance = &SPI;  // Alias pointer (Arduino SPI)
 	bool _initiated = false;
-    int* _ss_pins;
+    int* _spi_cs_pins;
     uint8_t _ss_pins_count = 0;
 	char _names[TALKIE_MAX_NAMES][TALKIE_NAME_LEN];
 	uint8_t _actual_ss_pin_i = 0;
@@ -72,7 +72,7 @@ protected:
     // Constructor
     S_Basic_SPI_2xArduino_Master_Multiple(int* ss_pins, uint8_t ss_pins_count) : BroadcastSocket() {
             
-        	_ss_pins = ss_pins;
+        	_spi_cs_pins = ss_pins;
         	_ss_pins_count = ss_pins_count;
 			for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count && ss_pin_i < TALKIE_MAX_NAMES; ++ss_pin_i) {
 				_names[ss_pin_i][0] = '\0';
@@ -87,14 +87,14 @@ protected:
 				// ================== CONFIGURE SS PINS ==================
 				// CRITICAL: Configure all SS pins as outputs and set HIGH
 				for (uint8_t i = 0; i < _ss_pins_count; i++) {
-					pinMode(_ss_pins[i], OUTPUT);
-					digitalWrite(_ss_pins[i], HIGH);
+					pinMode(_spi_cs_pins[i], OUTPUT);
+					digitalWrite(_spi_cs_pins[i], HIGH);
 					delayMicroseconds(10); // Small delay between pins
 				}
 
 				_initiated = true;
 				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
-					if (!acknowledgeSPI(_ss_pins[ss_pin_i])) {
+					if (!acknowledgeSPI(_spi_cs_pins[ss_pin_i])) {
 						_initiated = false;
 						break;
 					}
@@ -425,7 +425,7 @@ protected:
 
 				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
 					
-					size_t length = receiveSPI(_ss_pins[ss_pin_i], message_buffer);
+					size_t length = receiveSPI(_spi_cs_pins[ss_pin_i], message_buffer);
 					if (length > 0) {
 						
 						new_message._set_length(length);
@@ -450,7 +450,7 @@ protected:
 			Serial.print(F("\t_showMessage2: Saved name: "));
 			Serial.println(_names[_actual_ss_pin_i]);
 			Serial.print(F("\t_showMessage3: Concerning actual pin: "));
-			Serial.println(_ss_pins[_actual_ss_pin_i]);
+			Serial.println(_spi_cs_pins[_actual_ss_pin_i]);
 			#endif
 
 		}
@@ -516,7 +516,7 @@ protected:
 			size_t message_length = json_message.get_length();
 
 			if (as_reply) {
-				sendSPI(_ss_pins[_actual_ss_pin_i], message_buffer, message_length);
+				sendSPI(_spi_cs_pins[_actual_ss_pin_i], message_buffer, message_length);
 
 				#ifdef BROADCAST_SPI_DEBUG
 				Serial.print(F("\t\t\t\t\tsend4: --> Directly sent for the received pin --> "));
@@ -525,7 +525,7 @@ protected:
 
 			} else {    // Broadcast mode
 				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
-					sendSPI(_ss_pins[ss_pin_i], message_buffer, message_length);
+					sendSPI(_spi_cs_pins[ss_pin_i], message_buffer, message_length);
 				}
 				
 				#ifdef BROADCAST_SPI_DEBUG
@@ -535,7 +535,7 @@ protected:
 			}
 			#else
 			for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
-				sendSPI(_ss_pins[ss_pin_i], message_buffer, message_length);
+				sendSPI(_spi_cs_pins[ss_pin_i], message_buffer, message_length);
 			}
 			#ifdef BROADCAST_SPI_DEBUG
 			Serial.println(F("\t\t\t\t\tsend4: --> Broadcast sent to all pins -->"));

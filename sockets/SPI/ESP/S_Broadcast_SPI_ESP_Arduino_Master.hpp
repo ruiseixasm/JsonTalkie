@@ -63,15 +63,14 @@ protected:
 
 	SPIClass* _spi_instance;  // Pointer to SPI instance
 	bool _initiated = false;
-    int* _ss_pins;
-    uint8_t _ss_pins_count = 0;
+    const int* _spi_cs_pins;
+    const uint8_t _ss_pins_count = 0;
 
 
     // Constructor
-    S_Broadcast_SPI_ESP_Arduino_Master(int* ss_pins, uint8_t ss_pins_count) : BroadcastSocket() {
+    S_Broadcast_SPI_ESP_Arduino_Master(const int* ss_pins, uint8_t ss_pins_count)
+		: BroadcastSocket(), _spi_cs_pins(ss_pins), _ss_pins_count(ss_pins_count) {
             
-		_ss_pins = ss_pins;
-		_ss_pins_count = ss_pins_count;
 		_max_delay_ms = 0;  // SPI is sequencial, no need to control out of order packages
 	}
 
@@ -96,7 +95,7 @@ protected:
 
 				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
 					
-					size_t length = receiveSPI(_ss_pins[ss_pin_i], message_buffer);
+					size_t length = receiveSPI(_spi_cs_pins[ss_pin_i], message_buffer);
 					if (length > 0) {
 						
 						new_message._set_length(length);
@@ -136,7 +135,7 @@ protected:
 			const char* message_buffer = json_message._read_buffer();
 			size_t message_length = json_message.get_length();
 
-			sendBroadcastSPI(_ss_pins, _ss_pins_count, message_buffer, message_length);
+			sendBroadcastSPI(_spi_cs_pins, _ss_pins_count, message_buffer, message_length);
 			
 			#ifdef BROADCAST_SPI_DEBUG
 			Serial.println(F("\t\t\t\t\tsend4: --> Broadcast sent to all pins -->"));
@@ -166,8 +165,8 @@ protected:
 			// ================== CONFIGURE SS PINS ==================
 			// CRITICAL: Configure all SS pins as outputs and set HIGH
 			for (uint8_t i = 0; i < _ss_pins_count; i++) {
-				pinMode(_ss_pins[i], OUTPUT);
-				digitalWrite(_ss_pins[i], HIGH);
+				pinMode(_spi_cs_pins[i], OUTPUT);
+				digitalWrite(_spi_cs_pins[i], HIGH);
 				delayMicroseconds(10); // Small delay between pins
 			}
 
@@ -184,7 +183,7 @@ protected:
 			Serial.print(F("\t\tinitiate3: SS pins: "));
 			
 			for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
-				Serial.print(_ss_pins[ss_pin_i]);
+				Serial.print(_spi_cs_pins[ss_pin_i]);
 				Serial.print(F(", "));
 			}
 			Serial.println();
@@ -200,7 +199,7 @@ protected:
 	
     // Specific methods associated to Arduino SPI as Master
 	
-    bool sendBroadcastSPI(int* ss_pins, uint8_t ss_pins_count, const char* message_buffer, size_t length) {
+    bool sendBroadcastSPI(const int* ss_pins, uint8_t ss_pins_count, const char* message_buffer, size_t length) {
 		
 		#ifdef BROADCAST_SPI_ARDUINO2X_MASTER_DEBUG_1
 		Serial.print(F("\tSending on pin: "));
@@ -316,7 +315,7 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_Broadcast_SPI_ESP_Arduino_Master& instance(int* ss_pins, uint8_t ss_pins_count) {
+    static S_Broadcast_SPI_ESP_Arduino_Master& instance(const int* ss_pins, uint8_t ss_pins_count) {
         static S_Broadcast_SPI_ESP_Arduino_Master instance(ss_pins, ss_pins_count);
 
         return instance;
