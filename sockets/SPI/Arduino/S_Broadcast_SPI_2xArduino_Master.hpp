@@ -63,14 +63,14 @@ public:
 protected:
 
 	SPIClass* const _spi_instance = &SPI;  // Alias pointer
-    int _ss_pin = 10;
-	// Just create a pointer to the existing SPI object
+    const int* _spi_cs_pins;
+    const uint8_t _ss_pins_count = 0;
 
 
     // Constructor
-    S_Broadcast_SPI_2xArduino_Master(int ss_pin) : BroadcastSocket() {
+    S_Broadcast_SPI_2xArduino_Master(const int* ss_pins, uint8_t ss_pins_count)
+		: BroadcastSocket(), _spi_cs_pins(ss_pins), _ss_pins_count(ss_pins_count) {
 		
-			_ss_pin = ss_pin;
 			if (_spi_instance) {
 				// Initialize SPI
 				_spi_instance->begin();
@@ -78,9 +78,14 @@ protected:
 				_spi_instance->setDataMode(SPI_MODE0);
 				_spi_instance->setBitOrder(MSBFIRST);  // EXPLICITLY SET MSB FIRST! (OTHERWISE is LSB)
 				// Enable the SS pin
-				pinMode(_ss_pin, OUTPUT);
-				digitalWrite(_ss_pin, HIGH);
-				// Sets the class SS pin
+				
+				// ================== CONFIGURE SS PINS ==================
+				// CRITICAL: Configure all SS pins as outputs and set HIGH
+				for (uint8_t i = 0; i < _ss_pins_count; i++) {
+					pinMode(_spi_cs_pins[i], OUTPUT);
+					digitalWrite(_spi_cs_pins[i], HIGH);
+					delayMicroseconds(10); // Small delay between pins
+				}
 			}
             _max_delay_ms = 0;  // SPI is sequencial, no need to control out of order packages
         }
@@ -104,20 +109,15 @@ protected:
 
 				JsonMessage new_message;
 				char* message_buffer = new_message._write_buffer();
-				size_t length = receiveSPI(_ss_pin, message_buffer);
 
-				if (length > 0) {
+				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
 					
-					new_message._set_length(length);
-
-					#ifdef BROADCAST_SPI_ARDUINO2X_MASTER_DEBUG_RECEIVE
-					Serial.print(F("\t\t\t\t\treceive1: Received message: "));
-					new_message.write_to(Serial);
-					Serial.print(" | ");
-					Serial.println(new_message.get_length());
-					#endif
-
-					_startTransmission(new_message);
+					size_t length = receiveSPI(_spi_cs_pins[ss_pin_i], message_buffer);
+					if (length > 0) {
+						
+						new_message._set_length(length);
+						_startTransmission(new_message);
+					}
 				}
 			}
 		}
@@ -156,8 +156,8 @@ protected:
 			Serial.println(message_length);
 			#endif
 			
-			sendSPI(_ss_pin, message_buffer, message_length);
-
+			sendBroadcastSPI(_spi_cs_pins, _ss_pins_count, message_buffer, message_length);
+			
 			#ifdef BROADCAST_SPI_ARDUINO2X_MASTER_DEBUG_TIMING
 			Serial.print(" | ");
 			Serial.print(millis() - _reference_time);
@@ -171,7 +171,7 @@ protected:
     
     // Specific methods associated to Arduino SPI as Master
 	
-    bool sendSPI(int ss_pin, const char* message_buffer, size_t length) {
+    bool sendBroadcastSPI(const int* ss_pins, uint8_t ss_pins_count, const char* message_buffer, size_t length) {
 		
 		#ifdef BROADCAST_SPI_ARDUINO2X_MASTER_DEBUG_1
 		Serial.print(F("\tSending on pin: "));
@@ -191,7 +191,9 @@ protected:
 
 		if (length > 0) {	// Don't send empty strings
 			
-			digitalWrite(ss_pin, LOW);
+			for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
+				digitalWrite(ss_pins[ss_pin_i], LOW);
+			}
 
 			for (uint8_t receive_sends = 0; receive_sends < 2; ++receive_sends) {
 				delayMicroseconds(send_delay_us);
@@ -209,7 +211,9 @@ protected:
 			}
 
 			delayMicroseconds(5);
-			digitalWrite(ss_pin, HIGH);
+			for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
+				digitalWrite(ss_pins[ss_pin_i], HIGH);
+			}
 			
         	return true;
 		}
@@ -283,8 +287,8 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_Broadcast_SPI_2xArduino_Master& instance(int ss_pin) {
-        static S_Broadcast_SPI_2xArduino_Master instance(ss_pin);
+    static S_Broadcast_SPI_2xArduino_Master& instance(const int* ss_pins, uint8_t ss_pins_count) {
+        static S_Broadcast_SPI_2xArduino_Master instance(ss_pins, ss_pins_count);
 
         return instance;
     }

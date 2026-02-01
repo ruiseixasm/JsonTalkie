@@ -63,15 +63,14 @@ protected:
 
 	SPIClass* _spi_instance;  // Pointer to SPI instance
 	bool _initiated = false;
-    int* _spi_cs_pins;
-    uint8_t _ss_pins_count = 0;
+    const int* _spi_cs_pins;
+    const uint8_t _ss_pins_count = 0;
 
 
     // Constructor
-    S_Broadcast_SPI_ESP_Arduino_Master(int* ss_pins, uint8_t ss_pins_count) : BroadcastSocket() {
+    S_Broadcast_SPI_ESP_Arduino_Master(const int* ss_pins, uint8_t ss_pins_count)
+		: BroadcastSocket(), _spi_cs_pins(ss_pins), _ss_pins_count(ss_pins_count) {
             
-		_spi_cs_pins = ss_pins;
-		_ss_pins_count = ss_pins_count;
 		_max_delay_ms = 0;  // SPI is sequencial, no need to control out of order packages
 	}
 
@@ -200,7 +199,7 @@ protected:
 	
     // Specific methods associated to Arduino SPI as Master
 	
-    bool sendBroadcastSPI(int* ss_pins, uint8_t ss_pins_count, const char* message_buffer, size_t length) {
+    bool sendBroadcastSPI(const int* ss_pins, uint8_t ss_pins_count, const char* message_buffer, size_t length) {
 		
 		#ifdef BROADCAST_SPI_ARDUINO2X_MASTER_DEBUG_1
 		Serial.print(F("\tSending on pin: "));
@@ -316,7 +315,7 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_Broadcast_SPI_ESP_Arduino_Master& instance(int* ss_pins, uint8_t ss_pins_count) {
+    static S_Broadcast_SPI_ESP_Arduino_Master& instance(const int* ss_pins, uint8_t ss_pins_count) {
         static S_Broadcast_SPI_ESP_Arduino_Master instance(ss_pins, ss_pins_count);
 
         return instance;
