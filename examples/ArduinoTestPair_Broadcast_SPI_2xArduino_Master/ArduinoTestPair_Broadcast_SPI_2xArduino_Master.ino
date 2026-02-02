@@ -27,7 +27,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // TALKERS 
 
-// M_Spy Talker
+// Duo Talker
 const char t_duo_name[] = "duo";
 const char t_duo_desc[] = "I'm a duo socket tester";
 M_DuoTesterManifesto duo_manifesto;
