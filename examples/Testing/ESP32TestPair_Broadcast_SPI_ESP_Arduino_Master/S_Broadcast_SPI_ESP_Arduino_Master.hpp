@@ -25,6 +25,9 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 
+// Broadcast SPI is fire and forget, so, it is needed to give some time to the Slaves catch up with the next send from the Master
+#define broadcast_time_spacing_us 500	// Gives some time to all Slaves to process the received broadcast before a next one
+
 #define send_delay_us 10
 #define receive_delay_us 18
 #define ENABLED_BROADCAST_TIME_SLOT
@@ -87,8 +90,11 @@ protected:
 
 		// Sends once per pin, avoids getting stuck in processing many pins
 		static uint8_t actual_pin_index = 0;
+		
+		#ifdef ENABLED_BROADCAST_TIME_SLOT
 		// Avoids too many recursions
 		static uint8_t stacked_transmissions = 0;
+		#endif
 
 		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
 			_in_broadcast_slot = false;
@@ -105,9 +111,24 @@ protected:
 
 				size_t length = receiveSPI(_spi_cs_pins[actual_pin_index], _received_buffer);
 				if (length > 0) {
-					// Data buffer decoupling
-					JsonMessage new_message(_received_buffer, length);
-					_startTransmission(new_message);
+
+					
+					#ifdef ENABLED_BROADCAST_TIME_SLOT
+						if (stacked_transmissions < 5) {
+
+							// Data buffer decoupling
+							JsonMessage new_message(_received_buffer, length);
+
+							stacked_transmissions++;
+							_startTransmission(new_message);
+							stacked_transmissions--;
+						}
+					#else
+						// Data buffer decoupling
+						JsonMessage new_message(_received_buffer, length);
+						_startTransmission(new_message);
+					#endif
+
 				}
 				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 			}
