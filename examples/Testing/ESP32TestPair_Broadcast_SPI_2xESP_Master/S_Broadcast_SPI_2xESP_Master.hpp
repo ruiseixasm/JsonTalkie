@@ -71,8 +71,6 @@ protected:
 
 		// Sends once per pin, avoids getting stuck in processing many pins
 		static uint8_t actual_pin_index = 0;
-		// Avoids too many recursions
-		static uint8_t stacked_transmissions = 0;
 
 		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
 			_in_broadcast_slot = false;
@@ -107,24 +105,12 @@ protected:
 							Serial.println();
 						#endif
 						
-						#ifdef ENABLED_BROADCAST_TIME_SLOT
-							if (stacked_transmissions < 5) {
-
-								JsonMessage new_message(
-									reinterpret_cast<const char*>( _data_buffer ),
-									static_cast<size_t>( l )
-								);
-								stacked_transmissions++;
-								_startTransmission(new_message);
-								stacked_transmissions--;
-							}
-						#else
-							JsonMessage new_message(
-								reinterpret_cast<const char*>( _data_buffer ),
-								static_cast<size_t>( l )
-							);
-							_startTransmission(new_message);
-						#endif
+						// No receiving while a send is pending, so, no _json_message corruption is possible
+						JsonMessage new_message(
+							reinterpret_cast<const char*>( _data_buffer ),
+							static_cast<size_t>( l )
+						);
+						_startTransmission(new_message);
 					}
 				}
 				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;

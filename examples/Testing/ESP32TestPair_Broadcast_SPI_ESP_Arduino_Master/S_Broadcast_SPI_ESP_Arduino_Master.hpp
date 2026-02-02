@@ -107,7 +107,7 @@ protected:
 				char* message_buffer = _json_message._write_buffer();
 				size_t length = receiveSPI(_spi_cs_pins[actual_pin_index], message_buffer);
 				if (length > 0) {
-					// No receiving while a send is pending, so, no _json_message corruption
+					// No receiving while a send is pending, so, no _json_message corruption is possible
 					_json_message._set_length(length);
 					_startTransmission(_json_message);
 				}
