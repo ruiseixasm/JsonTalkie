@@ -62,8 +62,6 @@ protected:
 	volatile static size_t _sending_length;
     volatile static StatusByte _transmission_mode;
 
-	uint8_t _stacked_transmissions = 0;
-
 
     // Needed for the compiler, the base class is the one being called though
     // ADD THIS CONSTRUCTOR - it calls the base class constructor
@@ -107,13 +105,8 @@ protected:
 				#endif
 				
 				_received_length = 0;	// Allows the device to receive more data
-				if (_stacked_transmissions < 2) {
+				_startTransmission(new_message);
 
-					_stacked_transmissions++;
-					_startTransmission(new_message);
-					_stacked_transmissions--;
-				}
-				
 			} else {
 				_received_length = 0;	// Discards the data regardless
 			}
