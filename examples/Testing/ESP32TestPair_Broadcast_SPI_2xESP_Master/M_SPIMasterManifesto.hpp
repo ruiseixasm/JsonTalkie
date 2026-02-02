@@ -129,7 +129,11 @@ public:
 		switch(index) {
 
 			case 0:
-				_cyclic_period_ms = json_message.get_nth_value_number(0);
+				if (json_message.has_nth_value_number(0)) {
+					_cyclic_period_ms = json_message.get_nth_value_number(0);
+				} else {
+					json_message.set_nth_value_number(0, _cyclic_period_ms);
+				}
 				return true;
 			break;
 				
@@ -152,6 +156,8 @@ public:
 			case 4:
 				_total_calls = 0;
 				_total_echoes = 0;
+				json_message.set_nth_value_number(0, _total_calls);
+				json_message.set_nth_value_number(1, _total_echoes);
 				return true;
 			break;
 			
@@ -163,7 +169,11 @@ public:
 			break;
 			
 			case 6:
-				_burst_spacing_us = json_message.get_nth_value_number(0);
+				if (json_message.has_nth_value_number(0)) {
+					_burst_spacing_us = json_message.get_nth_value_number(0);
+				} else {
+					json_message.set_nth_value_number(0, _burst_spacing_us);
+				}
 				return true;
 			break;
 				
