@@ -25,7 +25,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
 #include "S_SocketSerial.hpp"
 #include "S_Broadcast_SPI_2xESP_Master.hpp"
-#include "M_DuoTesterManifesto.hpp"
+#include "M_SPIMasterManifesto.hpp"
 
 
 // TALKERS 
@@ -33,7 +33,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // Duo Talker
 const char t_duo_name[] = "master";
 const char t_duo_desc[] = "I'm the SPI Master";
-M_DuoTesterManifesto duo_manifesto;
+M_SPIMasterManifesto duo_manifesto;
 JsonTalker t_duo = JsonTalker(t_duo_name, t_duo_desc, &duo_manifesto);
 
 
