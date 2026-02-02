@@ -43,7 +43,7 @@ protected:
 	uint16_t _self_blink_time = 0;
 
 	uint32_t _last_blink = 0;
-	uint8_t _blue_led_on = 0;
+	uint8_t _yellow_led_on = 0;
 	uint32_t _cyclic_period_ms = 1000;
 	bool _cyclic_transmission = true;	// true by default
 
@@ -95,12 +95,12 @@ public:
 		if (millis() - _last_blink > _cyclic_period_ms) {
 			_last_blink = millis();
 
-			if (_blue_led_on++ % 2) {
-				_toggle_yellow_on_off.set_action_name("off");
-			} else {
-				_toggle_yellow_on_off.set_action_name("on");
-			}
 			if (_cyclic_transmission) {
+				if (_yellow_led_on++ % 2) {
+					_toggle_yellow_on_off.set_action_name("off");
+				} else {
+					_toggle_yellow_on_off.set_action_name("on");
+				}
 				talker.transmitToRepeater(_toggle_yellow_on_off);
 				_total_calls++;
 			}
@@ -109,7 +109,7 @@ public:
 		if (_burst_toggles > 0 && micros() - _last_burst_us > _burst_spacing_us) {
 			_burst_toggles--;
 			
-			if (_blue_led_on++ % 2) {
+			if (_yellow_led_on++ % 2) {
 				_toggle_yellow_on_off.set_action_name("off");
 			} else {
 				_toggle_yellow_on_off.set_action_name("on");
