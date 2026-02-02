@@ -127,7 +127,7 @@ protected:
 		const uint16_t start_waiting = (uint16_t)millis();
 		while (_sending_length > 0) {
 
-			if (_received_buffer || (uint16_t)millis() - start_waiting > 1 * 1000) {
+			if (_received_length || (uint16_t)millis() - start_waiting > 1 * 1000) {
 
 				#ifdef BROADCAST_SPI_DEBUG
 					Serial.println(F("\t_unlockSendingBuffer: NOT available sending buffer"));
