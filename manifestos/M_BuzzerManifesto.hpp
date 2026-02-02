@@ -67,14 +67,16 @@ public:
 		if (millis() - _last_blink > 1000) {
 			_last_blink = millis();
 
-			JsonMessage toggle_yellow_on_off(MessageValue::TALKIE_MSG_CALL, BroadcastValue::TALKIE_BC_LOCAL);
-			toggle_yellow_on_off.set_to_name("yellow");
-			if (_yellow_led_on++ % 2) {
-				toggle_yellow_on_off.set_action_name("off");
-			} else {
-				toggle_yellow_on_off.set_action_name("on");
+			if (_cyclic_transmission) {
+				JsonMessage toggle_yellow_on_off(MessageValue::TALKIE_MSG_CALL, BroadcastValue::TALKIE_BC_LOCAL);
+				toggle_yellow_on_off.set_to_name("yellow");
+				if (_yellow_led_on++ % 2) {
+					toggle_yellow_on_off.set_action_name("off");
+				} else {
+					toggle_yellow_on_off.set_action_name("on");
+				}
+				talker.transmitToRepeater(toggle_yellow_on_off);
 			}
-			if (_cyclic_transmission) talker.transmitToRepeater(toggle_yellow_on_off);
 		}
 	}
 
