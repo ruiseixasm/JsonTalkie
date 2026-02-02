@@ -31,8 +31,8 @@ https://github.com/ruiseixasm/JsonTalkie
 // TALKERS 
 
 // Duo Talker
-const char t_duo_name[] = "duo";
-const char t_duo_desc[] = "I'm a duo socket tester";
+const char t_duo_name[] = "master";
+const char t_duo_desc[] = "I'm the SPI Master";
 M_DuoTesterManifesto duo_manifesto;
 JsonTalker t_duo = JsonTalker(t_duo_name, t_duo_desc, &duo_manifesto);
 
