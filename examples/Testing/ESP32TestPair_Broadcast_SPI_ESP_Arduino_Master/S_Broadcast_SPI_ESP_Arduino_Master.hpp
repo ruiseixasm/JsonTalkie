@@ -112,9 +112,8 @@ protected:
 				size_t length = receiveSPI(_spi_cs_pins[actual_pin_index], _received_buffer);
 				if (length > 0) {
 
-					
 					#ifdef ENABLED_BROADCAST_TIME_SLOT
-						if (stacked_transmissions < 5) {
+						if (stacked_transmissions < 5) {	// ESP can handle it!
 
 							// Data buffer decoupling
 							JsonMessage new_message(_received_buffer, length);
@@ -167,6 +166,13 @@ protected:
 			
 			if (message_length > 0) {
 
+				#ifdef ENABLED_BROADCAST_TIME_SLOT
+					while (_in_broadcast_slot) {	// Avoids too many sends too close in time
+						// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
+						if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
+					}
+				#endif
+
 				sendBroadcastSPI(_spi_cs_pins, _ss_pins_count, message_buffer, message_length);
 				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
 				_last_beacon_time_us = _broadcast_time_us;	// Avoid calling the beacon right away
@@ -186,7 +192,6 @@ protected:
 			}
 
 			return true;
-		
 		}
         return false;
     }
