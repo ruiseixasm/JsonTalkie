@@ -108,6 +108,7 @@ protected:
 				size_t length = receiveSPI(_spi_cs_pins[actual_pin_index], message_buffer);
 				if (length > 0) {
 					// No receiving while a send is pending, so, no _json_message corruption
+					_json_message._set_length(length);
 					_startTransmission(_json_message);
 				}
 				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
