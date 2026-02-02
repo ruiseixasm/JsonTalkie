@@ -62,6 +62,8 @@ protected:
 	volatile static size_t _sending_length;
     volatile static StatusByte _transmission_mode;
 
+	uint8_t _stacked_transmissions = 0;
+
 
     // Needed for the compiler, the base class is the one being called though
     // ADD THIS CONSTRUCTOR - it calls the base class constructor
@@ -105,7 +107,12 @@ protected:
 				#endif
 				
 				_received_length = 0;	// Allows the device to receive more data
-				_startTransmission(new_message);
+				if (_stacked_transmissions < 2) {
+
+					_stacked_transmissions++;
+					_startTransmission(new_message);
+					_stacked_transmissions--;
+				}
 				
 			} else {
 				_received_length = 0;	// Discards the data regardless
@@ -124,17 +131,28 @@ protected:
 		Serial.println(json_message.get_length());
 		#endif
 
-		uint16_t start_waiting = (uint16_t)millis();
-		while (_sending_length) {
-			if ((uint16_t)millis() - start_waiting > 1 * 1000) {
+		const uint16_t start_waiting = (uint16_t)millis();
+		while (_send_length > 0) {
 
-				#ifdef BROADCASTSOCKET_DEBUG
-				Serial.println(F("\t_unlockSendingBuffer: NOT available sending buffer"));
-				#endif
+			if (_stacked_transmissions < 1) {
 
+				_receive();	// keeps processing pending messages, mainly the ones pooled to be sent
+				if ((uint16_t)millis() - start_waiting > 1 * 1000) {
+
+					#ifdef BROADCAST_SPI_DEBUG
+						Serial.println(F("\t_unlockSendingBuffer: NOT available sending buffer"));
+					#endif
+
+					return false;
+				}
+
+			// If there is already 3 messages staked, then, start dropping sends
+			// Receive HAS priority over send!
+			} else {	// Start dropping
 				return false;
 			}
 		}
+
 		_sending_length = json_message.serialize_json(_sending_buffer, TALKIE_BUFFER_SIZE);
 			
         return true;
