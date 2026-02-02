@@ -15,11 +15,8 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // #define SKETCH_DEBUG
 
-// LED_BUILTIN is already defined by ESP32 platform
-// Typically GPIO2 for most ESP32 boards
-#ifndef LED_BUILTIN
-  #define LED_BUILTIN 2  // Fallback definition if not already defined
-#endif
+#define RED_LED_PIN 2  // Fallback definition if not already defined
+
 
 #include <JsonTalkie.hpp>
 // ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
@@ -47,9 +44,8 @@ JsonTalker t_cycler = JsonTalker(t_cycler_name, t_cycler_desc, &cycler_manifesto
 // SOCKETS
 // Singleton requires the & (to get a reference variable)
 auto& serial_socket = S_SocketSerial::instance();
-#define HSPI_CS 15
 // ALWAYS MAKE SURE YOU ARE CONNECTED ALL AND EACH SLAVE PIN !!!
-const int spi_pins[] = {4, HSPI_CS, 16};
+const int spi_pins[] = {SS};
 auto& spi_socket = S_Broadcast_SPI_2xArduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 
 
@@ -67,8 +63,8 @@ const MessageRepeater message_repeater(
 
 void setup() {
     // Initialize pins FIRST before anything else
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, LOW); // Start with LED off
+    pinMode(RED_LED_PIN, OUTPUT);
+    digitalWrite(RED_LED_PIN, LOW); // Start with LED off
     
     // Then start Serial
     Serial.begin(115200);
@@ -79,13 +75,13 @@ void setup() {
     #endif
     
     // Add a small LED blink to confirm code is running
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(RED_LED_PIN, HIGH);
     delay(100);
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(RED_LED_PIN, LOW);
     delay(100);
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(RED_LED_PIN, HIGH);
     delay(100);
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(RED_LED_PIN, LOW);
     
     // Setting up broadcast sockets
 
@@ -93,14 +89,8 @@ void setup() {
         Serial.println("Setting up broadcast sockets...");
     #endif
 
-	SPIClass* hspi = new SPIClass(HSPI);  // heap variable!
-	// ================== INITIALIZE HSPI ==================
-	// Initialize SPI with HSPI pins: SCK=14, MISO=12, MOSI=13, SS=15
-	hspi->begin(14, 12, 13, 15);  // SCK, MISO, MOSI, SS
-    spi_socket.begin(hspi);
-
     // Finally, sets the blue led as always HIGH signalling this way to be a SPI Master
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(RED_LED_PIN, HIGH);
 
 	#ifdef SKETCH_DEBUG
         Serial.println("Setup completed - Ready for JSON communication!");
