@@ -106,7 +106,7 @@ protected:
 				
 				_received_length = 0;	// Allows the device to receive more data
 				_startTransmission(new_message);
-				
+
 			} else {
 				_received_length = 0;	// Discards the data regardless
 			}
@@ -124,17 +124,21 @@ protected:
 		Serial.println(json_message.get_length());
 		#endif
 
-		uint16_t start_waiting = (uint16_t)millis();
-		while (_sending_length) {
-			if ((uint16_t)millis() - start_waiting > 1 * 1000) {
+		const uint16_t start_waiting = (uint16_t)millis();
+		while (_sending_length > 0) {
 
-				#ifdef BROADCASTSOCKET_DEBUG
-				Serial.println(F("\t_unlockSendingBuffer: NOT available sending buffer"));
+			if (_received_length || (uint16_t)millis() - start_waiting > 1 * 1000) {
+
+				#ifdef BROADCAST_SPI_DEBUG
+					Serial.println(F("\t_unlockSendingBuffer: NOT available sending buffer"));
 				#endif
 
-				return false;
+				// If there is already a pending received message, process it
+				// Receive HAS priority over send!
+				return false;	// Start dropping
 			}
 		}
+
 		_sending_length = json_message.serialize_json(_sending_buffer, TALKIE_BUFFER_SIZE);
 			
         return true;

@@ -25,8 +25,12 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 
+// Broadcast SPI is fire and forget, so, it is needed to give some time to the Slaves catch up with the next send from the Master
+#define broadcast_time_spacing_us 700	// Gives some time to all Slaves to process the received broadcast before a next one
+
 #define send_delay_us 10
 #define receive_delay_us 18
+#define ENABLED_BROADCAST_TIME_SLOT
 
 
 class S_Broadcast_SPI_ESP_Arduino_Master : public BroadcastSocket {
@@ -66,6 +70,12 @@ protected:
     const int* _spi_cs_pins;
     const uint8_t _ss_pins_count = 0;
 
+	JsonMessage _json_message;
+
+	bool _in_broadcast_slot = false;
+	uint32_t _broadcast_time_us = 0;
+	uint32_t _last_beacon_time_us = 0;
+
 
     // Constructor
     S_Broadcast_SPI_ESP_Arduino_Master(const int* ss_pins, uint8_t ss_pins_count)
@@ -78,11 +88,15 @@ protected:
     // Socket processing is always Half-Duplex because there is just one buffer to receive and other to send
     void _receive() override {
 
-		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-		static uint16_t timeout = (uint16_t)micros();
+		// Sends once per pin, avoids getting stuck in processing many pins
+		static uint8_t actual_pin_index = 0;
+		
+		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
+			_in_broadcast_slot = false;
+		}
 
-		if (micros() - timeout > 250) {
-			timeout = (uint16_t)micros();
+		if (micros() - _last_beacon_time_us > 250) {
+			_last_beacon_time_us = (uint16_t)micros();
 
 			if (_initiated) {
 
@@ -90,18 +104,14 @@ protected:
 				_reference_time = millis();
 				#endif
 
-				JsonMessage new_message;
-				char* message_buffer = new_message._write_buffer();
-
-				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
-					
-					size_t length = receiveSPI(_spi_cs_pins[ss_pin_i], message_buffer);
-					if (length > 0) {
-						
-						new_message._set_length(length);
-						_startTransmission(new_message);
-					}
+				char* message_buffer = _json_message._write_buffer();
+				size_t length = receiveSPI(_spi_cs_pins[actual_pin_index], message_buffer);
+				if (length > 0) {
+					// No receiving while a send is pending, so, no _json_message corruption is possible
+					_json_message._set_length(length);
+					_startTransmission(_json_message);
 				}
+				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 			}
 		}
     }
@@ -135,16 +145,33 @@ protected:
 			const char* message_buffer = json_message._read_buffer();
 			size_t message_length = json_message.get_length();
 
-			sendBroadcastSPI(_spi_cs_pins, _ss_pins_count, message_buffer, message_length);
 			
-			#ifdef BROADCAST_SPI_DEBUG
-			Serial.println(F("\t\t\t\t\tsend4: --> Broadcast sent to all pins -->"));
-			#endif
+			if (message_length > 0) {
 
-			#ifdef BROADCAST_SPI_DEBUG_TIMING
-			Serial.print(" | ");
-			Serial.print(millis() - _reference_time);
-			#endif
+				#ifdef ENABLED_BROADCAST_TIME_SLOT
+					while (_in_broadcast_slot) {	// Avoids too many sends too close in time
+						// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
+						if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
+					}
+				#endif
+
+				sendBroadcastSPI(_spi_cs_pins, _ss_pins_count, message_buffer, message_length);
+				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
+				_last_beacon_time_us = _broadcast_time_us;	// Avoid calling the beacon right away
+				_in_broadcast_slot = true;
+				
+				#ifdef BROADCAST_SPI_DEBUG
+				Serial.println(F("\t\t\t\t\tsend4: --> Broadcast sent to all pins -->"));
+				#endif
+
+				#ifdef BROADCAST_SPI_DEBUG_TIMING
+				Serial.print(" | ");
+				Serial.print(millis() - _reference_time);
+				#endif
+
+			} else {
+				return false;
+			}
 
 			return true;
 		}
