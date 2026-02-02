@@ -38,7 +38,7 @@ JsonTalker t_spy = JsonTalker(t_spy_name, t_spy_desc, &spy_manifesto);
 
 // Talker (led)
 const char l_led_name[] = "blue";
-const char l_led_desc[] = "I'm the SPI Slave";
+const char l_led_desc[] = "I turn led Blue on and off";
 M_LedManifesto led_manifesto(LED_BUILTIN);
 JsonTalker l_led = JsonTalker(l_led_name, l_led_desc, &led_manifesto);
 
