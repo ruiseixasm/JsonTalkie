@@ -38,7 +38,7 @@ JsonTalker t_duo = JsonTalker(t_duo_name, t_duo_desc, &duo_manifesto);
 // Singleton requires the & (to get a reference variable)
 auto& serial_socket = S_SocketSerial::instance();
 // ALWAYS MAKE SURE YOU ARE CONNECTED ALL AND EACH SLAVE PIN !!!
-const int spi_pins[] = {SS};
+const int spi_pins[] = {7, SS, 8};
 auto& spi_socket = S_Broadcast_SPI_2xArduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 
 
