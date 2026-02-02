@@ -23,7 +23,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 // Broadcast SPI is fire and forget, so, it is needed to give some time to the Slaves catch up with the next send from the Master
-#define broadcast_time_spacing_us 300	// Gives some time to all Slaves to process the received broadcast before a next one
+#define broadcast_time_spacing_us 500	// Gives some time to all Slaves to process the received broadcast before a next one
 
 #define padding_delay_us 2
 #define border_delay_us 10
@@ -54,7 +54,8 @@ protected:
 	uint8_t _data_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
 
 	bool _in_broadcast_slot = false;
-	uint32_t _broadcast_time_us;
+	uint32_t _broadcast_time_us = 0;
+	uint32_t _last_beacon_time_us = 0;
 
 
     // Constructor
@@ -68,69 +69,65 @@ protected:
     // Socket processing is always Half-Duplex because there is just one buffer to receive and other to send
     void _receive() override {
 
+		// Sends once per pin, avoids getting stuck in processing many pins
+		static uint8_t actual_pin_index = 0;
+		// Avoids too many recursions
 		static uint8_t stacked_transmissions = 0;
+
 		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
 			_in_broadcast_slot = false;
 		}
 
-		// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
-		if (!_in_broadcast_slot) {
+		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
+		if (micros() - _last_beacon_time_us > 100) {
+			_last_beacon_time_us = micros();	// Avoid calling the beacon right away
 
-			// Sends once per pin, avoids getting stuck in processing many pins
-			static uint8_t actual_pin_index = 0;
-			// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-			static uint32_t last_beacon_time = micros();
+			if (_initiated) {
 
-			if (micros() - last_beacon_time > 100) {
-				last_beacon_time = micros();	// Avoid calling the beacon right away
+				#ifdef BROADCAST_SPI_DEBUG_TIMING
+				_reference_time = millis();
+				#endif
 
-				if (_initiated) {
+				uint8_t l = sendBeacon(_spi_cs_pins[actual_pin_index]);
+				
+				if (l > 0) {
 
-					#ifdef BROADCAST_SPI_DEBUG_TIMING
-					_reference_time = millis();
-					#endif
+					uint8_t match_l = sendBeacon(_spi_cs_pins[actual_pin_index], l);
+					if (match_l == l) {	// Avoid noise triggering
 
-					uint8_t l = sendBeacon(_spi_cs_pins[actual_pin_index]);
-					
-					if (l > 0) {
+						receivePayload(_spi_cs_pins[actual_pin_index], l);
 
-						uint8_t match_l = sendBeacon(_spi_cs_pins[actual_pin_index], l);
-						if (match_l == l) {	// Avoid noise triggering
+						#ifdef BROADCAST_SPI_DEBUG
+							Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
+								_spi_cs_pins[actual_pin_index], 0b10000000 | l, l);
+							Serial.print("[From Slave] Received: ");
+							for (int i = 0; i < l; i++) {
+								Serial.print((char)_data_buffer[i]);
+							}
+							Serial.println();
+						#endif
+						
+						#ifdef ENABLED_BROADCAST_TIME_SLOT
+							if (stacked_transmissions < 5) {
 
-							receivePayload(_spi_cs_pins[actual_pin_index], l);
-
-							#ifdef BROADCAST_SPI_DEBUG
-								Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
-									_spi_cs_pins[actual_pin_index], 0b10000000 | l, l);
-								Serial.print("[From Slave] Received: ");
-								for (int i = 0; i < l; i++) {
-									Serial.print((char)_data_buffer[i]);
-								}
-								Serial.println();
-							#endif
-							
-							#ifdef ENABLED_BROADCAST_TIME_SLOT
-								if (stacked_transmissions < 5) {
-
-									JsonMessage new_message(
-										reinterpret_cast<const char*>( _data_buffer ),
-										static_cast<size_t>( l )
-									);
-									stacked_transmissions++;
-									_startTransmission(new_message);
-									stacked_transmissions--;
-								}
-							#else
 								JsonMessage new_message(
 									reinterpret_cast<const char*>( _data_buffer ),
 									static_cast<size_t>( l )
 								);
+								stacked_transmissions++;
 								_startTransmission(new_message);
-							#endif
-						}
+								stacked_transmissions--;
+							}
+						#else
+							JsonMessage new_message(
+								reinterpret_cast<const char*>( _data_buffer ),
+								static_cast<size_t>( l )
+							);
+							_startTransmission(new_message);
+						#endif
 					}
-					actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 				}
+				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 			}
 		}
     }
@@ -174,7 +171,8 @@ protected:
 
 				broadcastLength(_spi_cs_pins, _ss_pins_count, (uint8_t)len); // D=0, L=len
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
-				_broadcast_time_us = micros();	// send time spacing applies after the sending
+				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
+				_last_beacon_time_us = _broadcast_time_us;	// Avoid calling the beacon right away
 				_in_broadcast_slot = true;
 
 			} else {
