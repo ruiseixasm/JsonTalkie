@@ -134,22 +134,15 @@ protected:
 		const uint16_t start_waiting = (uint16_t)millis();
 		while (_sending_length > 0) {
 
-			if (_stacked_transmissions < 2) {
+			if (_received_buffer || (uint16_t)millis() - start_waiting > 1 * 1000) {
 
-				_receive();	// keeps processing pending messages, mainly the ones pooled to be sent
-				if ((uint16_t)millis() - start_waiting > 1 * 1000) {
+				#ifdef BROADCAST_SPI_DEBUG
+					Serial.println(F("\t_unlockSendingBuffer: NOT available sending buffer"));
+				#endif
 
-					#ifdef BROADCAST_SPI_DEBUG
-						Serial.println(F("\t_unlockSendingBuffer: NOT available sending buffer"));
-					#endif
-
-					return false;
-				}
-
-			// If there is already 3 messages staked, then, start dropping sends
-			// Receive HAS priority over send!
-			} else {	// Start dropping
-				return false;
+				// If there is already a pending received message, process it
+				// Receive HAS priority over send!
+				return false;	// Start dropping
 			}
 		}
 
