@@ -25,23 +25,16 @@ https://github.com/ruiseixasm/JsonTalkie
 // ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
 #include "S_SocketSerial.hpp"
 #include "S_Broadcast_SPI_ESP_Arduino_Master.hpp"
-#include "M_Spy.hpp"
-#include "M_CyclerManifesto.hpp"
+#include "M_DuoTesterManifesto.hpp"
 
 
 // TALKERS 
 
-// M_Spy Talker
-const char t_spy_name[] = "spy";
-const char t_spy_desc[] = "I'm a M_Spy and I spy the talkers' pings";
-M_Spy spy_manifesto;
-JsonTalker t_spy = JsonTalker(t_spy_name, t_spy_desc, &spy_manifesto);
-
-// Talker cycler
-const char t_cycler_name[] = "cycler";
-const char t_cycler_desc[] = "I cycle the blue led";
-M_CyclerManifesto cycler_manifesto;
-JsonTalker t_cycler = JsonTalker(t_cycler_name, t_cycler_desc, &cycler_manifesto);
+// Duo Talker
+const char t_duo_name[] = "duo";
+const char t_duo_desc[] = "I'm a duo socket tester";
+M_DuoTesterManifesto duo_manifesto;
+JsonTalker t_duo = JsonTalker(t_duo_name, t_duo_desc, &duo_manifesto);
 
 
 // SOCKETS
@@ -55,7 +48,7 @@ auto& spi_socket = S_Broadcast_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof
 
 // SETTING THE REPEATER
 BroadcastSocket* uplinked_sockets[] = { &serial_socket };
-JsonTalker* downlinked_talkers[] = { &t_spy, &t_cycler };
+JsonTalker* downlinked_talkers[] = { &t_duo };
 BroadcastSocket* downlinked_sockets[] = { &spi_socket };
 const MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
