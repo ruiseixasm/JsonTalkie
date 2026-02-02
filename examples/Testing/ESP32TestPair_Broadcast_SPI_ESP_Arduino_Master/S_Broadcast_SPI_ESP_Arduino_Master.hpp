@@ -27,6 +27,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #define send_delay_us 10
 #define receive_delay_us 18
+#define ENABLED_BROADCAST_TIME_SLOT
 
 
 class S_Broadcast_SPI_ESP_Arduino_Master : public BroadcastSocket {
@@ -66,6 +67,10 @@ protected:
     const int* _spi_cs_pins;
     const uint8_t _ss_pins_count = 0;
 
+	bool _in_broadcast_slot = false;
+	uint32_t _broadcast_time_us = 0;
+	uint32_t _last_beacon_time_us = 0;
+
 
     // Constructor
     S_Broadcast_SPI_ESP_Arduino_Master(const int* ss_pins, uint8_t ss_pins_count)
@@ -78,11 +83,12 @@ protected:
     // Socket processing is always Half-Duplex because there is just one buffer to receive and other to send
     void _receive() override {
 
-		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-		static uint16_t timeout = (uint16_t)micros();
+		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
+			_in_broadcast_slot = false;
+		}
 
-		if (micros() - timeout > 250) {
-			timeout = (uint16_t)micros();
+		if (micros() - _last_beacon_time_us > 250) {
+			_last_beacon_time_us = (uint16_t)micros();
 
 			if (_initiated) {
 
@@ -135,18 +141,29 @@ protected:
 			const char* message_buffer = json_message._read_buffer();
 			size_t message_length = json_message.get_length();
 
-			sendBroadcastSPI(_spi_cs_pins, _ss_pins_count, message_buffer, message_length);
 			
-			#ifdef BROADCAST_SPI_DEBUG
-			Serial.println(F("\t\t\t\t\tsend4: --> Broadcast sent to all pins -->"));
-			#endif
+			if (message_length > 0) {
 
-			#ifdef BROADCAST_SPI_DEBUG_TIMING
-			Serial.print(" | ");
-			Serial.print(millis() - _reference_time);
-			#endif
+				sendBroadcastSPI(_spi_cs_pins, _ss_pins_count, message_buffer, message_length);
+				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
+				_last_beacon_time_us = _broadcast_time_us;	// Avoid calling the beacon right away
+				_in_broadcast_slot = true;
+				
+				#ifdef BROADCAST_SPI_DEBUG
+				Serial.println(F("\t\t\t\t\tsend4: --> Broadcast sent to all pins -->"));
+				#endif
+
+				#ifdef BROADCAST_SPI_DEBUG_TIMING
+				Serial.print(" | ");
+				Serial.print(millis() - _reference_time);
+				#endif
+
+			} else {
+				return false;
+			}
 
 			return true;
+		
 		}
         return false;
     }
