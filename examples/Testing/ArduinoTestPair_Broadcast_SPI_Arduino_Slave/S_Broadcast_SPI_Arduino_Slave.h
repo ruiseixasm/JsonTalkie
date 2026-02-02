@@ -132,7 +132,7 @@ protected:
 		#endif
 
 		const uint16_t start_waiting = (uint16_t)millis();
-		while (_send_length > 0) {
+		while (_sending_length > 0) {
 
 			if (_stacked_transmissions < 1) {
 
