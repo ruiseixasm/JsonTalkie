@@ -134,7 +134,7 @@ protected:
 		const uint16_t start_waiting = (uint16_t)millis();
 		while (_sending_length > 0) {
 
-			if (_stacked_transmissions < 1) {
+			if (_stacked_transmissions < 2) {
 
 				_receive();	// keeps processing pending messages, mainly the ones pooled to be sent
 				if ((uint16_t)millis() - start_waiting > 1 * 1000) {

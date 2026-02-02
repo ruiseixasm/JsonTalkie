@@ -189,7 +189,7 @@ protected:
 			const uint16_t start_waiting = (uint16_t)millis();
 			while (_send_length > 0) {
 
-				if (_stacked_transmissions < 3) {
+				if (_stacked_transmissions < 5) {
 					// There is NO need to do any of this
 					// yield();          // or vTaskDelay(1)
 					// vTaskDelay(1);   // ← allows SPI driver + DMA completion
