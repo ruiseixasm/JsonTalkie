@@ -150,14 +150,16 @@ public:
 		if (millis() - _last_blink > 1000) {
 			_last_blink = millis();
 
-			JsonMessage toggle_green_on_off(MessageValue::TALKIE_MSG_CALL, BroadcastValue::TALKIE_BC_REMOTE);
-			toggle_green_on_off.set_to_name("green");
-			if (_green_led_on++ % 2) {
-				toggle_green_on_off.set_action_name("off");
-			} else {
-				toggle_green_on_off.set_action_name("on");
+			if (_cyclic_transmission) {
+				JsonMessage toggle_green_on_off(MessageValue::TALKIE_MSG_CALL, BroadcastValue::TALKIE_BC_REMOTE);
+				toggle_green_on_off.set_to_name("green");
+				if (_green_led_on++ % 2) {
+					toggle_green_on_off.set_action_name("off");
+				} else {
+					toggle_green_on_off.set_action_name("on");
+				}
+				talker.transmitToRepeater(toggle_green_on_off);
 			}
-			if (_cyclic_transmission) talker.transmitToRepeater(toggle_green_on_off);
 		}
 	}
 
