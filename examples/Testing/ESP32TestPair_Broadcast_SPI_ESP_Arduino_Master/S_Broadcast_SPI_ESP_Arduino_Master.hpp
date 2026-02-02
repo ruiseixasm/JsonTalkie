@@ -67,6 +67,8 @@ protected:
     const int* _spi_cs_pins;
     const uint8_t _ss_pins_count = 0;
 
+	char _received_buffer[TALKIE_BUFFER_SIZE];
+
 	bool _in_broadcast_slot = false;
 	uint32_t _broadcast_time_us = 0;
 	uint32_t _last_beacon_time_us = 0;
@@ -83,6 +85,11 @@ protected:
     // Socket processing is always Half-Duplex because there is just one buffer to receive and other to send
     void _receive() override {
 
+		// Sends once per pin, avoids getting stuck in processing many pins
+		static uint8_t actual_pin_index = 0;
+		// Avoids too many recursions
+		static uint8_t stacked_transmissions = 0;
+
 		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
 			_in_broadcast_slot = false;
 		}
@@ -96,18 +103,13 @@ protected:
 				_reference_time = millis();
 				#endif
 
-				JsonMessage new_message;
-				char* message_buffer = new_message._write_buffer();
-
-				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
-					
-					size_t length = receiveSPI(_spi_cs_pins[ss_pin_i], message_buffer);
-					if (length > 0) {
-						
-						new_message._set_length(length);
-						_startTransmission(new_message);
-					}
+				size_t length = receiveSPI(_spi_cs_pins[actual_pin_index], _received_buffer);
+				if (length > 0) {
+					// Data buffer decoupling
+					JsonMessage new_message(_received_buffer, length);
+					_startTransmission(new_message);
 				}
+				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 			}
 		}
     }
