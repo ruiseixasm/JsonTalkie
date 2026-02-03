@@ -95,7 +95,7 @@ protected:
 					if (beacon) {
 						if (cmd_length > 0 && cmd_length == _send_length) {	// beacon
 							
-							queue_tx(cmd_length);
+							queue_tx(_send_length);
 							
 							#ifdef BROADCAST_SPI_DEBUG
 								Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n", _cmd_byte, beacon, cmd_length);
@@ -166,7 +166,7 @@ protected:
 				case TX_PAYLOAD:
 				{
 					#ifdef BROADCAST_SPI_DEBUG
-						Serial.printf("Sent %u bytes\n", cmd_length);
+						Serial.printf("Sent %u bytes\n", _send_length);
 					#endif
 
 					_send_length = 0;	// payload was sent
@@ -242,6 +242,7 @@ protected:
 
 	void queue_tx(uint8_t len) {
 		_spi_state = TX_PAYLOAD;
+		_cmd_byte = 0;	// Makes sure it isn't interpreted as a new tx to respond to (duplicated sends)
 		// Half-Duplex
 		spi_slave_transaction_t *t = &_data_trans;
 		t->length    = (size_t)len * 8;
