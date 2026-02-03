@@ -25,16 +25,16 @@ https://github.com/ruiseixasm/JsonTalkie
 // ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
 #include "S_SocketSerial.hpp"
 #include "S_Broadcast_SPI_2xESP_Master.hpp"
-#include "M_SPIMasterManifesto.hpp"
+#include "M_CyclerManifesto.hpp"
 
 
 // TALKERS 
 
-// Duo Talker
-const char t_master_name[] = "master";
-const char t_master_desc[] = "I'm the SPI Master";
-M_SPIMasterManifesto master_manifesto;
-JsonTalker t_master = JsonTalker(t_master_name, t_master_desc, &master_manifesto);
+// Talker cycler
+const char t_cycler_name[] = "cycler";
+const char t_cycler_desc[] = "I cycle the blue led";
+M_CyclerManifesto cycler_manifesto;
+JsonTalker t_cycler = JsonTalker(t_cycler_name, t_cycler_desc, &cycler_manifesto);
 
 
 // SOCKETS
@@ -48,7 +48,7 @@ auto& spi_socket = S_Broadcast_SPI_2xESP_Master::instance(spi_pins, sizeof(spi_p
 
 // SETTING THE REPEATER
 BroadcastSocket* uplinked_sockets[] = { &serial_socket };
-JsonTalker* downlinked_talkers[] = { &t_master };
+JsonTalker* downlinked_talkers[] = { &t_cycler };
 BroadcastSocket* downlinked_sockets[] = { &spi_socket };
 const MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
