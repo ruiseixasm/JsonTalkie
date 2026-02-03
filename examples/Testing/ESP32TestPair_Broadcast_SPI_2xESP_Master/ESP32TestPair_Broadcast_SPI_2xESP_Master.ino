@@ -48,7 +48,7 @@ auto& spi_socket = S_Broadcast_SPI_2xESP_Master::instance(spi_pins, sizeof(spi_p
 
 // SETTING THE REPEATER
 BroadcastSocket* uplinked_sockets[] = { &serial_socket };
-JsonTalker* downlinked_talkers[] = { &t_duo };
+JsonTalker* downlinked_talkers[] = { &t_master };
 BroadcastSocket* downlinked_sockets[] = { &spi_socket };
 const MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
