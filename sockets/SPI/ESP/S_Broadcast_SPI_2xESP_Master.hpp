@@ -27,7 +27,6 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #define padding_delay_us 2
 #define border_delay_us 10
-#define ENABLED_BROADCAST_TIME_SLOT
 
 
 class S_Broadcast_SPI_2xESP_Master : public BroadcastSocket {
@@ -55,7 +54,6 @@ protected:
 
 	bool _in_broadcast_slot = false;
 	uint32_t _broadcast_time_us = 0;
-	uint32_t _last_beacon_time_us = 0;
 
 
     // Constructor
@@ -71,22 +69,24 @@ protected:
 
 		// Sends once per pin, avoids getting stuck in processing many pins
 		static uint8_t actual_pin_index = 0;
+		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
+		static uint32_t last_beacon_time_us = micros();
 
 		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
 			_in_broadcast_slot = false;
 		}
 
-		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
 		// Master gives priority to broadcast send, NOT to receive
-		if (micros() - _last_beacon_time_us > 100 && !_in_broadcast_slot) {
-			_last_beacon_time_us = micros();	// Avoid calling the beacon right away
-
-			if (_initiated) {
+		if (!_in_broadcast_slot && _initiated) {
+			
+			// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
+			if (micros() - last_beacon_time_us > 100) {
+				last_beacon_time_us = micros();	// Avoid calling the beacon right away
 
 				#ifdef BROADCAST_SPI_DEBUG_TIMING
 				_reference_time = millis();
 				#endif
-
+			
 				uint8_t l = sendBeacon(_spi_cs_pins[actual_pin_index]);
 				
 				if (l > 0) {
@@ -114,8 +114,8 @@ protected:
 						_startTransmission(new_message);
 					}
 				}
-				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 			}
+			actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 		}
     }
 
@@ -149,12 +149,10 @@ protected:
 			
 			if (len > 0) {
 
-				#ifdef ENABLED_BROADCAST_TIME_SLOT
-					while (_in_broadcast_slot) {	// Avoids too many sends too close in time
-						// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
-						if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
-					}
-				#endif
+				while (_in_broadcast_slot) {	// Avoids too many sends too close in time
+					// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
+					if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
+				}
 
 				broadcastLength(_spi_cs_pins, _ss_pins_count, (uint8_t)len); // D=0, L=len
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
