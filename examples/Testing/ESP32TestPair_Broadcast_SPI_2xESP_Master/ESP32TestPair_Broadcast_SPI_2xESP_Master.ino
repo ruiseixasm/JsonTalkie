@@ -31,10 +31,10 @@ https://github.com/ruiseixasm/JsonTalkie
 // TALKERS 
 
 // Duo Talker
-const char t_duo_name[] = "master";
-const char t_duo_desc[] = "I'm the SPI Master";
-M_SPIMasterManifesto duo_manifesto;
-JsonTalker t_duo = JsonTalker(t_duo_name, t_duo_desc, &duo_manifesto);
+const char t_master_name[] = "master";
+const char t_master_desc[] = "I'm the SPI Master";
+M_SPIMasterManifesto master_manifesto;
+JsonTalker t_master = JsonTalker(t_master_name, t_master_desc, &master_manifesto);
 
 
 // SOCKETS
