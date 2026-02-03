@@ -138,7 +138,7 @@ protected:
 						Serial.println();
 					#endif
 
-					if (_stacked_transmissions < 5) {
+					if (_stacked_transmissions < 3) {
 
 						JsonMessage new_message(
 							reinterpret_cast<const char*>( _rx_buffer ),
@@ -185,7 +185,7 @@ protected:
 			const uint16_t start_waiting = (uint16_t)millis();
 			while (_send_length > 0) {
 
-				if (_stacked_transmissions < 5) {
+				if (_stacked_transmissions < 3) {
 
 					_receive();	// keeps processing pending messages, mainly the ones pooled to be sent
 					if ((uint16_t)millis() - start_waiting > 1 * 1000) {
