@@ -565,7 +565,7 @@ public:
 					uint8_t total_actions = _actionsCount();	// This makes the access safe
 					const Action* actions = _getActionsArray();
 					if (json_message.has_nth_value(0)) {
-						uint8_t action_index;
+						uint8_t action_index = 255;
 						char action_name[TALKIE_NAME_LEN];
 						if (json_message.get_key_value_number('0', &action_index)) {
 							action_index = _actionIndex(action_index);
@@ -585,8 +585,8 @@ public:
 						for (uint8_t action_i = 0; action_i < total_actions; ++action_i) {
 							
 							json_message.set_nth_value_number(0, action_i);
-							json_message.set_nth_value_string(1, actions[action_index].name, TALKIE_NAME_LEN);
-							json_message.set_nth_value_string(2, actions[action_index].desc, TALKIE_MAX_LEN);
+							json_message.set_nth_value_string(1, actions[action_i].name, TALKIE_NAME_LEN);
+							json_message.set_nth_value_string(2, actions[action_i].desc, TALKIE_MAX_LEN);
 							transmitToRepeater(json_message);	// Many-to-One
 							json_message.remove_all_nth_values();	// Makes sure there is space for each new action
 						}
