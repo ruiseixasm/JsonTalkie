@@ -260,28 +260,41 @@ public:
 
 
     void begin(int mosi_io_num, int miso_io_num, int sclk_io_num, int spics_io_num) {
+
+		// https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/spi_master.html
 		
+		// 1. ZERO the entire structs
 		spi_bus_config_t buscfg = {};
+		spi_slave_interface_config_t slvcfg = {};
+		
+		// 2. Set fields ONE BY ONE (no designator order issues!)
 		buscfg.mosi_io_num = mosi_io_num;
 		buscfg.miso_io_num = miso_io_num;
 		buscfg.sclk_io_num = sclk_io_num;
-		buscfg.quadwp_io_num = -1;    // Set unused pins to -1!
-		buscfg.quadhd_io_num = -1;    // Set unused pins to -1!
+		buscfg.quadwp_io_num = -1;
+		buscfg.quadhd_io_num = -1;
 		buscfg.max_transfer_sz = TALKIE_BUFFER_SIZE;
-    	buscfg.intr_flags = 0;           // No special interrupts
-    	buscfg.flags = 0;           // ← MUST be set
 		
-		// https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/spi_master.html
-
-		spi_slave_interface_config_t slvcfg = {};
+		
+		// Newer ESP-IDF versions have these extra fields:
+		buscfg.data4_io_num = -1;
+		buscfg.data5_io_num = -1; 
+		buscfg.data6_io_num = -1;
+		buscfg.data7_io_num = -1;
+		
 		slvcfg.mode = 0;
 		slvcfg.spics_io_num = spics_io_num;
 		slvcfg.queue_size = 1;	// It's just 128 bytes maximum, so, a queue of 1 is all it needs
-
+		slvcfg.post_setup_cb = nullptr;
+		slvcfg.post_trans_cb = nullptr;
+    
+	
 		// DMA channel must be given if > 32 bytes
-		spi_slave_initialize(_host, &buscfg, &slvcfg, 1);  // ← CHANNEL 1
-		queue_cmd();   // always armed
-		_initiated = true;
+		esp_err_t err = spi_slave_initialize(_host, &buscfg, &slvcfg, 1);  // ← CHANNEL 1
+		if (err == ESP_OK) {
+			queue_cmd();
+			_initiated = true;
+		}
 
 		#ifdef BROADCAST_SPI_DEBUG
 			Serial.println("Slave ready");
