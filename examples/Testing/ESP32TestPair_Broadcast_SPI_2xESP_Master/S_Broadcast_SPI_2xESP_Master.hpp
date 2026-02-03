@@ -130,13 +130,6 @@ protected:
 				_reference_time = millis();
 			#endif
 
-			#ifdef BROADCAST_SPI_DEBUG
-			Serial.print(F("\t\t\t\t\tsend1: Sent message: "));
-			Serial.write(json_message._read_buffer(), json_message.get_length());
-			Serial.print(F("\n\t\t\t\t\tsend2: Sent length: "));
-			Serial.println(json_message.get_length());
-			#endif
-			
 			#ifdef BROADCAST_SPI_DEBUG_TIMING
 			Serial.print(" | ");
 			Serial.print(millis() - _reference_time);
@@ -155,6 +148,14 @@ protected:
 				}
 
 				broadcastLength(_spi_cs_pins, _ss_pins_count, (uint8_t)len); // D=0, L=len
+
+				#ifdef BROADCAST_SPI_DEBUG
+				Serial.print(F("\t\t\t\t\tsend1: Sent message: "));
+				Serial.write(json_message._read_buffer(), json_message.get_length());
+				Serial.print(F("\n\t\t\t\t\tsend2: Sent length: "));
+				Serial.println(json_message.get_length());
+				#endif
+			
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
 				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
 				_in_broadcast_slot = true;
