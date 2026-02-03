@@ -54,6 +54,8 @@ protected:
 
 	bool _in_broadcast_slot = false;
 	uint32_t _broadcast_time_us = 0;
+	// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
+	uint32_t _last_beacon_time_us = 0;
 
 
     // Constructor
@@ -69,19 +71,17 @@ protected:
 
 		// Sends once per pin, avoids getting stuck in processing many pins
 		static uint8_t actual_pin_index = 0;
-		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-		static uint32_t last_beacon_time_us = micros();
 
 		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
 			_in_broadcast_slot = false;
 		}
 
 		// Master gives priority to broadcast send, NOT to receive
-		if (!_in_broadcast_slot && _initiated) {
+		if (_initiated) {
 			
 			// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-			if (micros() - last_beacon_time_us > 100) {
-				last_beacon_time_us = micros();	// Avoid calling the beacon right away
+			if (micros() - _last_beacon_time_us > 100) {
+				_last_beacon_time_us = micros();	// Avoid calling the beacon right away
 
 				#ifdef BROADCAST_SPI_DEBUG_TIMING
 				_reference_time = millis();
@@ -158,6 +158,7 @@ protected:
 			
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
 				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
+				_last_beacon_time_us = _broadcast_time_us;	// Avoid calling the beacon right away
 				_in_broadcast_slot = true;
 
 			} else {
