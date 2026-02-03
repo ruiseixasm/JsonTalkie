@@ -77,17 +77,17 @@ protected:
 			_in_broadcast_slot = false;
 		}
 
-		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
 		// Master gives priority to broadcast send, NOT to receive
-		if (micros() - last_beacon_time_us > 100) {
-			last_beacon_time_us = micros();	// Avoid calling the beacon right away
+		if (!_in_broadcast_slot && _initiated) {
+			
+			// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
+			if (micros() - last_beacon_time_us > 100) {
+				last_beacon_time_us = micros();	// Avoid calling the beacon right away
 
-			#ifdef BROADCAST_SPI_DEBUG_TIMING
-			_reference_time = millis();
-			#endif
-
-			if (!_in_broadcast_slot && _initiated) {
-
+				#ifdef BROADCAST_SPI_DEBUG_TIMING
+				_reference_time = millis();
+				#endif
+			
 				uint8_t l = sendBeacon(_spi_cs_pins[actual_pin_index]);
 				
 				if (l > 0) {
