@@ -220,7 +220,7 @@ public:
 			
 			case MessageValue::TALKIE_MSG_CALL:
 				digitalWrite(LED_BUILTIN, LOW);
-				_self_blink_time = millis();
+				_self_blink_time = (uint16_t)millis();
 				_total_echoes++;
 			break;
 
