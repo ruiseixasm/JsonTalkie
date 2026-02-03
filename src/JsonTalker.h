@@ -564,19 +564,36 @@ public:
 				if (_manifesto) {
 					uint8_t total_actions = _actionsCount();	// This makes the access safe
 					const Action* actions = _getActionsArray();
-					for (uint8_t action_i = 0; action_i < total_actions; ++action_i) {
-						json_message.remove_all_nth_values();	// Makes sure there is space for each new action
-						json_message.set_nth_value_number(0, action_i);
-						
-						if (json_message.set_nth_value_string(1, actions[action_i].name, TALKIE_NAME_LEN) &&
-							json_message.set_nth_value_string(2, actions[action_i].desc, TALKIE_MAX_LEN)) {
-
-							transmitToRepeater(json_message);	// Many-to-One
+					if (json_message.has_nth_value(0)) {
+						uint8_t action_index;
+						char action_name[TALKIE_NAME_LEN];
+						if (json_message.get_key_value_number('0', &action_index)) {
+							action_index = _actionIndex(action_index);
+						} else if (json_message.get_key_value_string('0', action_name)) {
+							action_index = _actionIndex(action_name);
 						}
-					}
-					if (!total_actions) {
-						json_message.set_roger_value(RogerValue::TALKIE_RGR_NIL);
+						if (action_index < 255) {
+							
+							json_message.set_nth_value_number(0, action_index);
+							json_message.set_nth_value_string(1, actions[action_index].name, TALKIE_NAME_LEN);
+							json_message.set_nth_value_string(2, actions[action_index].desc, TALKIE_MAX_LEN);
+						} else {
+							json_message.set_roger_value(RogerValue::TALKIE_RGR_SAY_AGAIN);
+						}
 						transmitToRepeater(json_message);	// One-to-One
+					} else {
+						for (uint8_t action_i = 0; action_i < total_actions; ++action_i) {
+							
+							json_message.set_nth_value_number(0, action_i);
+							json_message.set_nth_value_string(1, actions[action_index].name, TALKIE_NAME_LEN);
+							json_message.set_nth_value_string(2, actions[action_index].desc, TALKIE_MAX_LEN);
+							transmitToRepeater(json_message);	// Many-to-One
+							json_message.remove_all_nth_values();	// Makes sure there is space for each new action
+						}
+						if (!total_actions) {
+							json_message.set_roger_value(RogerValue::TALKIE_RGR_NIL);
+							transmitToRepeater(json_message);	// One-to-One
+						}
 					}
 				} else {
 					json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
