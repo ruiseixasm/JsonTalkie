@@ -80,8 +80,7 @@ protected:
 		if (_initiated) {
 			
 			// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-			if (micros() - _last_beacon_time_us > 100) {
-				_last_beacon_time_us = micros();	// Avoid calling the beacon right away
+			if (micros() - _last_beacon_time_us > 50) {
 
 				#ifdef BROADCAST_SPI_DEBUG_TIMING
 				_reference_time = millis();
@@ -115,6 +114,7 @@ protected:
 					}
 				}
 				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
+				_last_beacon_time_us = micros();	// Avoid calling the beacon right away
 			}
 		}
     }
