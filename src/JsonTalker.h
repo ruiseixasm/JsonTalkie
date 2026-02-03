@@ -563,6 +563,7 @@ public:
 				json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
 				if (_manifesto) {
 					
+					const Action* actions = _getActionsArray();
 					if (json_message.has_action()) {
 						uint8_t index_found_i = json_message.get_action_index();	// returns 255 if not found
 

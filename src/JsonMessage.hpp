@@ -1016,6 +1016,12 @@ public:
 	}
 
 
+	/** @brief Check if action field exists */
+	bool has_action() const {
+		return _get_colon_position('a') > 0;
+	}
+
+
 	/** @brief Check if system field exists */
 	bool has_system() const {
 		return _get_colon_position('s') > 0;
