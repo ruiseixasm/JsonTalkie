@@ -15,7 +15,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // #define SKETCH_DEBUG
 
-#define RED_LED_PIN 2  // Fallback definition if not already defined
+#define BUZZER_PIN 2  // Fallback definition if not already defined
 
 
 #include <JsonTalkie.hpp>
@@ -56,8 +56,8 @@ const MessageRepeater message_repeater(
 
 void setup() {
     // Initialize pins FIRST before anything else
-    pinMode(RED_LED_PIN, OUTPUT);
-    digitalWrite(RED_LED_PIN, LOW); // Start with LED off
+    pinMode(BUZZER_PIN, OUTPUT);
+    digitalWrite(BUZZER_PIN, LOW); // Start with LED off
     
     // Then start Serial
     Serial.begin(115200);
@@ -68,22 +68,15 @@ void setup() {
     #endif
     
     // Add a small LED blink to confirm code is running
-    digitalWrite(RED_LED_PIN, HIGH);
-    delay(100);
-    digitalWrite(RED_LED_PIN, LOW);
-    delay(100);
-    digitalWrite(RED_LED_PIN, HIGH);
-    delay(100);
-    digitalWrite(RED_LED_PIN, LOW);
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(50);
+    digitalWrite(BUZZER_PIN, LOW);
     
     // Setting up broadcast sockets
 
 	#ifdef SKETCH_DEBUG
         Serial.println("Setting up broadcast sockets...");
     #endif
-
-    // Finally, sets the blue led as always HIGH signalling this way to be a SPI Master
-    digitalWrite(RED_LED_PIN, HIGH);
 
 	#ifdef SKETCH_DEBUG
         Serial.println("Setup completed - Ready for JSON communication!");
