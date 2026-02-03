@@ -27,7 +27,6 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #define padding_delay_us 2
 #define border_delay_us 10
-#define ENABLED_BROADCAST_TIME_SLOT
 
 
 class S_Broadcast_SPI_2xESP_Master : public BroadcastSocket {
@@ -150,12 +149,10 @@ protected:
 			
 			if (len > 0) {
 
-				#ifdef ENABLED_BROADCAST_TIME_SLOT
-					while (_in_broadcast_slot) {	// Avoids too many sends too close in time
-						// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
-						if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
-					}
-				#endif
+				while (_in_broadcast_slot) {	// Avoids too many sends too close in time
+					// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
+					if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
+				}
 
 				broadcastLength(_spi_cs_pins, _ss_pins_count, (uint8_t)len); // D=0, L=len
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
