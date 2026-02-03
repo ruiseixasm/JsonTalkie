@@ -293,10 +293,9 @@ public:
 		spi_device_interface_config_t devcfg = {};
 		devcfg.clock_speed_hz = 4000000;  // 4 MHz - Sweet spot!
 		devcfg.mode = 0;
-		devcfg.queue_size = 3;
-		devcfg.spics_io_num = -1,  // DISABLE hardware CS completely! (Broadcast)
-		
-		
+		devcfg.queue_size = 1;		// Only one queue is needed given that the payload is just 128 bytes
+		devcfg.spics_io_num = -1,  	// DISABLE hardware CS completely! (Broadcast)
+
 		spi_bus_initialize(_host, &buscfg, SPI_DMA_CH_AUTO);
 		spi_bus_add_device(_host, &devcfg, &_spi);
 		
