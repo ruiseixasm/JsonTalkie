@@ -23,11 +23,10 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 // Broadcast SPI is fire and forget, so, it is needed to give some time to the Slaves catch up with the next send from the Master
-#define broadcast_time_spacing_us 300	// Gives some time to all Slaves to process the received broadcast before a next one
+#define broadcast_time_spacing_us 500	// Gives some time to all Slaves to process the received broadcast before a next one
 
 #define padding_delay_us 2
 #define border_delay_us 10
-#define ENABLED_BROADCAST_TIME_SLOT
 
 
 class S_Broadcast_SPI_2xESP_Master : public BroadcastSocket {
@@ -54,7 +53,7 @@ protected:
 	uint8_t _data_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
 
 	bool _in_broadcast_slot = false;
-	uint32_t _broadcast_time_us;
+	uint32_t _broadcast_time_us = 0;
 
 
     // Constructor
@@ -68,69 +67,54 @@ protected:
     // Socket processing is always Half-Duplex because there is just one buffer to receive and other to send
     void _receive() override {
 
-		static uint8_t stacked_transmissions = 0;
+		// Sends once per pin, avoids getting stuck in processing many pins
+		static uint8_t actual_pin_index = 0;
+		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
+		static uint32_t last_beacon_time_us = micros();
+
 		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
 			_in_broadcast_slot = false;
 		}
 
-		// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
-		if (!_in_broadcast_slot) {
-
-			// Sends once per pin, avoids getting stuck in processing many pins
-			static uint8_t actual_pin_index = 0;
+		// Master gives priority to broadcast send, NOT to receive
+		if (!_in_broadcast_slot && _initiated) {
+			
 			// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-			static uint32_t last_beacon_time = micros();
+			if (micros() - last_beacon_time_us > 100) {
+				last_beacon_time_us = micros();	// Avoid calling the beacon right away
 
-			if (micros() - last_beacon_time > 100) {
-				last_beacon_time = micros();	// Avoid calling the beacon right away
+				#ifdef BROADCAST_SPI_DEBUG_TIMING
+				_reference_time = millis();
+				#endif
+			
+				uint8_t l = sendBeacon(_spi_cs_pins[actual_pin_index]);
+				
+				if (l > 0) {
 
-				if (_initiated) {
+					uint8_t match_l = sendBeacon(_spi_cs_pins[actual_pin_index], l);
+					if (match_l == l) {	// Avoid noise triggering
 
-					#ifdef BROADCAST_SPI_DEBUG_TIMING
-					_reference_time = millis();
-					#endif
+						receivePayload(_spi_cs_pins[actual_pin_index], l);
 
-					uint8_t l = sendBeacon(_spi_cs_pins[actual_pin_index]);
-					
-					if (l > 0) {
-
-						uint8_t match_l = sendBeacon(_spi_cs_pins[actual_pin_index], l);
-						if (match_l == l) {	// Avoid noise triggering
-
-							receivePayload(_spi_cs_pins[actual_pin_index], l);
-
-							#ifdef BROADCAST_SPI_DEBUG
-								Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
-									_spi_cs_pins[actual_pin_index], 0b10000000 | l, l);
-								Serial.print("[From Slave] Received: ");
-								for (int i = 0; i < l; i++) {
-									Serial.print((char)_data_buffer[i]);
-								}
-								Serial.println();
-							#endif
-							
-							#ifdef ENABLED_BROADCAST_TIME_SLOT
-								if (stacked_transmissions < 5) {
-
-									JsonMessage new_message(
-										reinterpret_cast<const char*>( _data_buffer ),
-										static_cast<size_t>( l )
-									);
-									stacked_transmissions++;
-									_startTransmission(new_message);
-									stacked_transmissions--;
-								}
-							#else
-								JsonMessage new_message(
-									reinterpret_cast<const char*>( _data_buffer ),
-									static_cast<size_t>( l )
-								);
-								_startTransmission(new_message);
-							#endif
-						}
+						#ifdef BROADCAST_SPI_DEBUG
+							Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
+								_spi_cs_pins[actual_pin_index], 0b10000000 | l, l);
+							Serial.print("[From Slave] Received: ");
+							for (int i = 0; i < l; i++) {
+								Serial.print((char)_data_buffer[i]);
+							}
+							Serial.println();
+						#endif
+						
+						// No receiving while a send is pending, so, no _json_message corruption is possible
+						JsonMessage new_message(
+							reinterpret_cast<const char*>( _data_buffer ),
+							static_cast<size_t>( l )
+						);
+						_startTransmission(new_message);
 					}
-					actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 				}
+				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 			}
 		}
     }
@@ -165,16 +149,14 @@ protected:
 			
 			if (len > 0) {
 
-				#ifdef ENABLED_BROADCAST_TIME_SLOT
-					while (_in_broadcast_slot) {	// Avoids too many sends too close in time
-						// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
-						if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
-					}
-				#endif
+				while (_in_broadcast_slot) {	// Avoids too many sends too close in time
+					// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
+					if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
+				}
 
 				broadcastLength(_spi_cs_pins, _ss_pins_count, (uint8_t)len); // D=0, L=len
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
-				_broadcast_time_us = micros();	// send time spacing applies after the sending
+				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
 				_in_broadcast_slot = true;
 
 			} else {
@@ -309,10 +291,9 @@ public:
 		spi_device_interface_config_t devcfg = {};
 		devcfg.clock_speed_hz = 4000000;  // 4 MHz - Sweet spot!
 		devcfg.mode = 0;
-		devcfg.queue_size = 3;
-		devcfg.spics_io_num = -1,  // DISABLE hardware CS completely! (Broadcast)
-		
-		
+		devcfg.queue_size = 1;		// Only one queue is needed given that the payload is just 128 bytes
+		devcfg.spics_io_num = -1,  	// DISABLE hardware CS completely! (Broadcast)
+
 		spi_bus_initialize(_host, &buscfg, SPI_DMA_CH_AUTO);
 		spi_bus_add_device(_host, &devcfg, &_spi);
 		
