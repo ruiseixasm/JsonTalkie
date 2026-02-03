@@ -120,6 +120,7 @@ protected:
 							Serial.println("Master ping");
 						#endif
 
+						// An empty ping to keep alive
 						queue_cmd();
 					}
 				}
@@ -218,6 +219,7 @@ protected:
 	
 	void queue_cmd() {
 		_spi_state = WAIT_CMD;
+		_cmd_byte = 0;	// Makes sure it isn't interpreted as a new rx
 		_length_latched = _send_length;	// Avoids a racing to a shared variable (no race) (stable copy)
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_cmd_trans;
