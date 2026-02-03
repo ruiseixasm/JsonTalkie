@@ -562,21 +562,23 @@ public:
 			case MessageValue::TALKIE_MSG_LIST:
 				json_message.set_message_value(MessageValue::TALKIE_MSG_ECHO);
 				if (_manifesto) {
-					uint8_t total_actions = _actionsCount();	// This makes the access safe
-					const Action* actions = _getActionsArray();
-					if (json_message.has_nth_value(0)) {
-						uint8_t action_index = 255;
-						char action_name[TALKIE_NAME_LEN];
-						if (json_message.get_key_value_number('0', &action_index)) {
-							action_index = _actionIndex(action_index);
-						} else if (json_message.get_key_value_string('0', action_name)) {
-							action_index = _actionIndex(action_name);
+					
+					if (json_message.has_action()) {
+						uint8_t index_found_i = json_message.get_action_index();	// returns 255 if not found
+
+						if (index_found_i < 255) {
+							index_found_i = _actionIndex(index_found_i);
+						} else {
+							char action_name[TALKIE_NAME_LEN];
+							if (json_message.get_action_name(action_name, TALKIE_NAME_LEN)) {
+								index_found_i = _actionIndex(action_name);
+							}
 						}
-						if (action_index < 255) {
-							
-							json_message.set_nth_value_number(0, action_index);
-							json_message.set_nth_value_string(1, actions[action_index].name, TALKIE_NAME_LEN);
-							json_message.set_nth_value_string(2, actions[action_index].desc, TALKIE_MAX_LEN);
+						json_message.remove_action();
+						if (index_found_i < 255) {
+							json_message.set_nth_value_number(0, index_found_i);
+							json_message.set_nth_value_string(1, actions[index_found_i].name, TALKIE_NAME_LEN);
+							json_message.set_nth_value_string(2, actions[index_found_i].desc, TALKIE_MAX_LEN);
 						} else {
 							json_message.set_roger_value(RogerValue::TALKIE_RGR_SAY_AGAIN);
 						}

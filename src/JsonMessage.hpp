@@ -1708,6 +1708,12 @@ public:
 	}
 
 
+	/** @brief Remove action field */
+	void remove_action() {
+		_remove_field('a');
+	}
+
+
 	/** @brief Remove roger field */
 	void remove_roger_value() {
 		_remove_field('r');
