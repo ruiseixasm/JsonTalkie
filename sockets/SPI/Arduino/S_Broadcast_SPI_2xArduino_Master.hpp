@@ -111,7 +111,8 @@ protected:
 			_in_broadcast_slot = false;
 		}
 
-		if (micros() - _last_beacon_time_us > 250) {
+		// Master gives priority to broadcast send, NOT to receive
+		if (micros() - _last_beacon_time_us > 250 && !_in_broadcast_slot) {
 			_last_beacon_time_us = (uint16_t)micros();
 
 			if (_spi_instance) {
@@ -168,7 +169,6 @@ protected:
 
 				sendBroadcastSPI(_spi_cs_pins, _ss_pins_count, message_buffer, message_length);
 				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
-				_last_beacon_time_us = _broadcast_time_us;	// Avoid calling the beacon right away
 				_in_broadcast_slot = true;
 				
 				#ifdef BROADCAST_SPI_DEBUG

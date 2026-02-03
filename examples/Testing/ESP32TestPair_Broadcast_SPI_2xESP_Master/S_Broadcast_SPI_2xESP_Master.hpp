@@ -77,7 +77,8 @@ protected:
 		}
 
 		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-		if (micros() - _last_beacon_time_us > 100) {
+		// Master gives priority to broadcast send, NOT to receive
+		if (micros() - _last_beacon_time_us > 100 && !_in_broadcast_slot) {
 			_last_beacon_time_us = micros();	// Avoid calling the beacon right away
 
 			if (_initiated) {
@@ -158,7 +159,6 @@ protected:
 				broadcastLength(_spi_cs_pins, _ss_pins_count, (uint8_t)len); // D=0, L=len
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
 				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
-				_last_beacon_time_us = _broadcast_time_us;	// Avoid calling the beacon right away
 				_in_broadcast_slot = true;
 
 			} else {
