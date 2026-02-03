@@ -593,12 +593,6 @@ protected:
 		
 		if (_spi_instance) {
 
-			// Configure SPI settings
-			_spi_instance->setDataMode(SPI_MODE0);
-			_spi_instance->setBitOrder(MSBFIRST);  // EXPLICITLY SET MSB FIRST!
-			_spi_instance->setFrequency(4000000); 	// 4MHz if needed (optional)
-			// ====================================================
-			
 			// ================== CONFIGURE SS PINS ==================
 			// CRITICAL: Configure all SS pins as outputs and set HIGH
 			for (uint8_t i = 0; i < _ss_pins_count; i++) {
@@ -607,6 +601,12 @@ protected:
 				delayMicroseconds(10); // Small delay between pins
 			}
 
+			// Configure SPI settings
+			_spi_instance->setDataMode(SPI_MODE0);
+			_spi_instance->setBitOrder(MSBFIRST);  // EXPLICITLY SET MSB FIRST!
+			_spi_instance->setFrequency(4000000); 	// 4MHz if needed (optional)
+			// ====================================================
+			
 			_initiated = true;
 			for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
 				if (!acknowledgeSPI(_spi_cs_pins[ss_pin_i])) {

@@ -78,11 +78,6 @@ protected:
 				_names[ss_pin_i][0] = '\0';
 			}
 			if (_spi_instance) {
-				// Initialize SPI
-				_spi_instance->begin();
-				_spi_instance->setClockDivider(SPI_CLOCK_DIV4);    // Only affects the char transmission
-				_spi_instance->setDataMode(SPI_MODE0);
-				_spi_instance->setBitOrder(MSBFIRST);  // EXPLICITLY SET MSB FIRST! (OTHERWISE is LSB)
 
 				// ================== CONFIGURE SS PINS ==================
 				// CRITICAL: Configure all SS pins as outputs and set HIGH
@@ -91,6 +86,12 @@ protected:
 					digitalWrite(_spi_cs_pins[i], HIGH);
 					delayMicroseconds(10); // Small delay between pins
 				}
+				
+				// Initialize SPI
+				_spi_instance->begin();
+				_spi_instance->setClockDivider(SPI_CLOCK_DIV4);    // Only affects the char transmission
+				_spi_instance->setDataMode(SPI_MODE0);
+				_spi_instance->setBitOrder(MSBFIRST);  // EXPLICITLY SET MSB FIRST! (OTHERWISE is LSB)
 
 				_initiated = true;
 				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {

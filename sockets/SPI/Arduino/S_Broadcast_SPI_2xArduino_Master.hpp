@@ -72,13 +72,6 @@ protected:
 		: BroadcastSocket(), _spi_cs_pins(ss_pins), _ss_pins_count(ss_pins_count) {
 		
 			if (_spi_instance) {
-				// Initialize SPI
-				_spi_instance->begin();
-				_spi_instance->setClockDivider(SPI_CLOCK_DIV4);    // Only affects the char transmission
-				_spi_instance->setDataMode(SPI_MODE0);
-				_spi_instance->setBitOrder(MSBFIRST);  // EXPLICITLY SET MSB FIRST! (OTHERWISE is LSB)
-				// Enable the SS pin
-				
 				// ================== CONFIGURE SS PINS ==================
 				// CRITICAL: Configure all SS pins as outputs and set HIGH
 				for (uint8_t i = 0; i < _ss_pins_count; i++) {
@@ -86,6 +79,12 @@ protected:
 					digitalWrite(_spi_cs_pins[i], HIGH);
 					delayMicroseconds(10); // Small delay between pins
 				}
+				// Initialize SPI
+				_spi_instance->begin();
+				_spi_instance->setClockDivider(SPI_CLOCK_DIV4);    // Only affects the char transmission
+				_spi_instance->setDataMode(SPI_MODE0);
+				_spi_instance->setBitOrder(MSBFIRST);  // EXPLICITLY SET MSB FIRST! (OTHERWISE is LSB)
+				// Enable the SS pin
 			}
             _max_delay_ms = 0;  // SPI is sequencial, no need to control out of order packages
         }
