@@ -21,7 +21,7 @@ extern "C" {
 }
 
 
-// #define BROADCAST_SPI_DEBUG
+#define BROADCAST_SPI_DEBUG
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 
@@ -49,13 +49,13 @@ protected:
 	bool _initiated = false;
 	const spi_host_device_t _host;
 
-	spi_slave_transaction_t _transaction_cmd __attribute__((aligned(4)));
-	spi_slave_transaction_t _transaction_rx __attribute__((aligned(4)));
-	spi_slave_transaction_t _transaction_tx __attribute__((aligned(4)));
 	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
 	uint8_t _tx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
 	uint8_t _cmd_byte __attribute__((aligned(4)));
-    uint8_t _length_latched  __attribute__((aligned(4))) = 0;       // persists across calls
+    uint8_t _length_latched __attribute__((aligned(4))) = 0;       // persists across calls
+
+	spi_slave_transaction_t _cmd_trans;
+	spi_slave_transaction_t _data_trans;
 
 	SpiState _spi_state = WAIT_CMD;
 	uint8_t _send_length = 0;
@@ -65,17 +65,6 @@ protected:
     // Constructor
     S_Broadcast_SPI_2xESP_Slave(spi_host_device_t host) : BroadcastSocket(), _host(host) {
             
-		// Full-Duplex
-		_transaction_cmd.length = 1 * 8;	// Bytes to bits
-		_transaction_cmd.rx_buffer = &_cmd_byte;
-		_transaction_cmd.tx_buffer = &_length_latched;	// <-- EXTREMELY IMPORTANT LINE
-		// Half-Duplex
-		_transaction_rx.rx_buffer = _rx_buffer;
-		_transaction_rx.tx_buffer = nullptr;
-		// Half-Duplex
-		_transaction_tx.rx_buffer = nullptr;
-		_transaction_tx.tx_buffer = _tx_buffer;
-
 		_max_delay_ms = 0;  // SPI is sequencial, no need to control out of order packages
 	}
 
@@ -95,6 +84,7 @@ protected:
 
 			/* === SPI "ISR" === */
 
+			// _cmd_byte was set by _transaction_cmd queued via queue_cmd()
 			const bool beacon = (_cmd_byte >> 7) & 0x01;
 			const uint8_t cmd_length = _cmd_byte & 0x7F;
 
@@ -229,22 +219,32 @@ protected:
 	void queue_cmd() {
 		_spi_state = WAIT_CMD;
 		_length_latched = _send_length;	// Avoids a racing to a shared variable (no race) (stable copy)
-		spi_slave_transaction_t *t = &_transaction_cmd;
+		// Full-Duplex
+		spi_slave_transaction_t *t = &_cmd_trans;
+		t->length = 1 * 8;	// Bytes to bits
+		t->rx_buffer = &_cmd_byte;
+		t->tx_buffer = &_length_latched;	// <-- EXTREMELY IMPORTANT LINE
 		// If you see 80 on the Master side it means the Slave wasn't given the time to respond!
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
 
 	void queue_rx(uint8_t len) {
 		_spi_state = RX_PAYLOAD;
-		spi_slave_transaction_t *t = &_transaction_rx;
+		// Half-Duplex
+		spi_slave_transaction_t *t = &_data_trans;
 		t->length    = (size_t)len * 8;
+		t->rx_buffer = _rx_buffer;
+		t->tx_buffer = nullptr;
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
 
 	void queue_tx(uint8_t len) {
 		_spi_state = TX_PAYLOAD;
-		spi_slave_transaction_t *t = &_transaction_tx;
+		// Half-Duplex
+		spi_slave_transaction_t *t = &_data_trans;
 		t->length    = (size_t)len * 8;
+		t->rx_buffer = nullptr;
+		t->tx_buffer = _tx_buffer;
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
 
