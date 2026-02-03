@@ -584,6 +584,7 @@ public:
 						}
 						transmitToRepeater(json_message);	// One-to-One
 					} else {
+						uint8_t total_actions = _actionsCount();	// This makes the access safe
 						for (uint8_t action_i = 0; action_i < total_actions; ++action_i) {
 							
 							json_message.set_nth_value_number(0, action_i);
