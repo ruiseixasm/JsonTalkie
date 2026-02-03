@@ -147,7 +147,6 @@ protected:
 							reinterpret_cast<const char*>( _rx_buffer ),
 							static_cast<size_t>( cmd_length )
 						);
-
 						
 						// Needs the queue a new command, otherwise nothing is processed again (lock)
 						// Real scenario if at this moment a payload is still in the queue to be sent and now
@@ -190,9 +189,6 @@ protected:
 			while (_send_length > 0) {
 
 				if (_stacked_transmissions < 5) {
-					// There is NO need to do any of this
-					// yield();          // or vTaskDelay(1)
-					// vTaskDelay(1);   // ← allows SPI driver + DMA completion
 
 					_receive();	// keeps processing pending messages, mainly the ones pooled to be sent
 					if ((uint16_t)millis() - start_waiting > 1 * 1000) {
