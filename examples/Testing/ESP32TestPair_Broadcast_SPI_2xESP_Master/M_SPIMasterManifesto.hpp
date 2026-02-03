@@ -44,7 +44,7 @@ protected:
 
 	uint32_t _last_blink = 0;
 	uint8_t _yellow_led_on = 0;
-	uint32_t _cyclic_period_ms = 1000;
+	uint32_t _cyclic_period_ms = 60;
 	bool _cyclic_transmission = true;	// true by default
 
 	JsonMessage _toggle_yellow_on_off{

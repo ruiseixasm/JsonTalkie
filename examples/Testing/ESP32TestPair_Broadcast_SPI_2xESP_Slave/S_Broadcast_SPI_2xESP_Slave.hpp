@@ -107,9 +107,9 @@ protected:
 							
 							queue_tx(cmd_length);
 							
-							// #ifdef BROADCAST_SPI_DEBUG
-							// 	Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n", _cmd_byte, beacon, cmd_length);
-							// #endif
+							#ifdef BROADCAST_SPI_DEBUG
+								Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n", _cmd_byte, beacon, cmd_length);
+							#endif
 							
 						} else {
 							queue_cmd();
@@ -119,10 +119,10 @@ protected:
 
 						queue_rx(cmd_length);
 						
-						// #ifdef BROADCAST_SPI_DEBUG
-						// 	Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n",
-						// 		_cmd_byte, beacon, cmd_length);
-						// #endif
+						#ifdef BROADCAST_SPI_DEBUG
+							Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n",
+								_cmd_byte, beacon, cmd_length);
+						#endif
 
 					} else {
 
@@ -138,15 +138,15 @@ protected:
 				case RX_PAYLOAD:
 				{
 
-					// #ifdef BROADCAST_SPI_DEBUG
-					// 	Serial.printf("Received %u bytes: ", cmd_length);
-					// 	for (uint8_t i = 0; i < cmd_length; i++) {
-					// 		char c = _rx_buffer[i];
-					// 		if (c >= 32 && c <= 126) Serial.print(c);
-					// 		else Serial.printf("[%02X]", c);
-					// 	}
-					// 	Serial.println();
-					// #endif
+					#ifdef BROADCAST_SPI_DEBUG
+						Serial.printf("Received %u bytes: ", cmd_length);
+						for (uint8_t i = 0; i < cmd_length; i++) {
+							char c = _rx_buffer[i];
+							if (c >= 32 && c <= 126) Serial.print(c);
+							else Serial.printf("[%02X]", c);
+						}
+						Serial.println();
+					#endif
 
 					if (_stacked_transmissions < 5) {
 
@@ -174,9 +174,9 @@ protected:
 				
 				case TX_PAYLOAD:
 				{
-					// #ifdef BROADCAST_SPI_DEBUG
-					// 	Serial.printf("Sent %u bytes\n", cmd_length);
-					// #endif
+					#ifdef BROADCAST_SPI_DEBUG
+						Serial.printf("Sent %u bytes\n", cmd_length);
+					#endif
 
 					_send_length = 0;	// payload was sent
 					queue_cmd();
