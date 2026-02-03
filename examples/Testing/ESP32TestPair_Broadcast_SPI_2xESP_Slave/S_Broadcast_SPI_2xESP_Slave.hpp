@@ -49,12 +49,13 @@ protected:
 	bool _initiated = false;
 	const spi_host_device_t _host;
 
+	spi_slave_transaction_t _transaction __attribute__((aligned(4)));
 	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
 	uint8_t _tx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
 	uint8_t _cmd_byte __attribute__((aligned(4)));
+    uint8_t _length_latched  __attribute__((aligned(4))) = 0;       // persists across calls
 
 	SpiState _spi_state = WAIT_CMD;
-	spi_slave_transaction_t _transaction;
 	uint8_t _send_length = 0;
 
 	uint8_t _stacked_transmissions = 0;
@@ -221,17 +222,13 @@ protected:
 	
 	void queue_cmd() {
 		_spi_state = WAIT_CMD;
-    	static uint8_t length_latched  __attribute__((aligned(4)));       // persists across calls
+		_length_latched = _send_length;	// Avoids a racing to a shared variable (no race) (stable copy)
 		spi_slave_transaction_t *t = &_transaction;
 		t->length    = 1 * 8;	// Bytes to bits
 		// Full-Duplex
 		t->rx_buffer = &_cmd_byte;
 		// If you see 80 on the Master side it means the Slave wasn't given the time to respond!
-		length_latched = _send_length;	// Avoids a racing to a shared variable (no race) (stable copy)
-		t->tx_buffer = &length_latched;	// <-- EXTREMELY IMPORTANT LINE
-		// THUS, NO NEED TO BE VOLATILE
-		// t->tx_buffer = const_cast<const uint8_t*>(&_send_length);
-		// t->tx_buffer = (const void*)(&_send_length);	// Also works
+		t->tx_buffer = &_length_latched;	// <-- EXTREMELY IMPORTANT LINE
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
 
