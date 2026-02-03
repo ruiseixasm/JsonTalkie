@@ -55,7 +55,6 @@ protected:
 
 	bool _in_broadcast_slot = false;
 	uint32_t _broadcast_time_us = 0;
-	uint32_t _last_beacon_time_us = 0;
 
 
     // Constructor
@@ -71,6 +70,8 @@ protected:
 
 		// Sends once per pin, avoids getting stuck in processing many pins
 		static uint8_t actual_pin_index = 0;
+		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
+		static uint32_t last_beacon_time_us = micros();
 
 		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
 			_in_broadcast_slot = false;
@@ -78,14 +79,14 @@ protected:
 
 		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
 		// Master gives priority to broadcast send, NOT to receive
-		if (micros() - _last_beacon_time_us > 100 && !_in_broadcast_slot) {
-			_last_beacon_time_us = micros();	// Avoid calling the beacon right away
+		if (micros() - last_beacon_time_us > 100) {
+			last_beacon_time_us = micros();	// Avoid calling the beacon right away
 
-			if (_initiated) {
+			#ifdef BROADCAST_SPI_DEBUG_TIMING
+			_reference_time = millis();
+			#endif
 
-				#ifdef BROADCAST_SPI_DEBUG_TIMING
-				_reference_time = millis();
-				#endif
+			if (!_in_broadcast_slot && _initiated) {
 
 				uint8_t l = sendBeacon(_spi_cs_pins[actual_pin_index]);
 				
@@ -114,8 +115,8 @@ protected:
 						_startTransmission(new_message);
 					}
 				}
-				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 			}
+			actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 		}
     }
 
