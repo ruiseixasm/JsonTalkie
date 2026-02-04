@@ -25,8 +25,6 @@ extern "C" {
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 
-#define border_delay_us 10
-
 class S_Broadcast_SPI_2xESP_Slave : public BroadcastSocket {
 public:
 
