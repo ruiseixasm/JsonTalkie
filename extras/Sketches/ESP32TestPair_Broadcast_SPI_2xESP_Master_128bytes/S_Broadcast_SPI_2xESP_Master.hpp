@@ -23,7 +23,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 // Broadcast SPI is fire and forget, so, it is needed to give some time to the Slaves catch up with the next send from the Master
-#define broadcast_time_spacing_us 500	// Gives some time to all Slaves to process the received broadcast before a next one
+#define broadcast_time_slot_us 200	// Gives some time to all Slaves to process the received broadcast before a next one
 
 #define padding_delay_us 2
 #define border_delay_us 10
@@ -73,7 +73,7 @@ protected:
 		// Sends once per pin, avoids getting stuck in processing many pins
 		static uint8_t actual_pin_index = 0;
 
-		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
+		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_slot_us) {
 			_in_broadcast_slot = false;
 		}
 
@@ -136,7 +136,7 @@ protected:
 
 				while (_in_broadcast_slot) {	// Avoids too many sends too close in time
 					// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
-					if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
+					if (micros() - _broadcast_time_us > broadcast_time_slot_us) _in_broadcast_slot = false;
 				}
 
 				#ifdef BROADCAST_SPI_DEBUG
@@ -186,9 +186,7 @@ protected:
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], LOW);
 		}
-		delayMicroseconds(padding_delay_us);
 		spi_device_transmit(_spi, &t);
-		delayMicroseconds(padding_delay_us);
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], HIGH);
 		}
@@ -206,11 +204,8 @@ protected:
 		t.rx_buffer = _rx_buffer;
 		
 		digitalWrite(ss_pin, LOW);
-		delayMicroseconds(padding_delay_us);
 		spi_device_transmit(_spi, &t);
-		delayMicroseconds(padding_delay_us);
 		digitalWrite(ss_pin, HIGH);
-		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 
 		if (_rx_buffer[0] > 0 && _rx_buffer[0] == _rx_buffer[TALKIE_BUFFER_SIZE - 1]) {
 			size_t payload_length = (size_t)_rx_buffer[0];
