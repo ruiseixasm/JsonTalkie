@@ -117,6 +117,10 @@ protected:
 						
 					} else {
 
+						#ifdef BROADCAST_SPI_DEBUG
+							Serial.printf("\n[PING] 0x%02X beacon=%d len=%u\n", rx_length, beacon, rx_length);
+						#endif
+
 						// #ifdef BROADCAST_SPI_DEBUG
 						// 	Serial.println("Master ping");
 						// #endif
