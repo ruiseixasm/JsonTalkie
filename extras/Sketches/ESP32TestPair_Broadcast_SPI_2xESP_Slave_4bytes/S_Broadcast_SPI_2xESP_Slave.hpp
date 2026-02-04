@@ -21,7 +21,7 @@ extern "C" {
 }
 
 
-// #define BROADCAST_SPI_DEBUG
+#define BROADCAST_SPI_DEBUG
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 
@@ -96,25 +96,25 @@ protected:
 					if (beacon) {
 						if (rx_length > 0 && rx_length == _rx_status[1] && rx_length == _rx_status[2] && rx_length == _payload_length) {
 							
-							memcpy(_tx_buffer, _payload_data, _payload_length);  // copies the entire payload
-							queue_tx(_payload_length);
-							
 							#ifdef BROADCAST_SPI_DEBUG
 								Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n", rx_length, beacon, rx_length);
 							#endif
+
+							memcpy(_tx_buffer, _payload_data, _payload_length);  // copies the entire payload
+							queue_tx(_payload_length);
+							
 						} else {
 							queue_cmd();
 						}
 
 					} else if (rx_length > 0 && rx_length == _rx_status[1] && rx_length == _rx_status[2] && rx_length <= TALKIE_BUFFER_SIZE) {
 
-						queue_rx(rx_length);
-						
 						#ifdef BROADCAST_SPI_DEBUG
-							Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n",
-								rx_length, beacon, rx_length);
+							Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n", rx_length, beacon, rx_length);
 						#endif
 
+						queue_rx(rx_length);
+						
 					} else {
 
 						#ifdef BROADCAST_SPI_DEBUG
