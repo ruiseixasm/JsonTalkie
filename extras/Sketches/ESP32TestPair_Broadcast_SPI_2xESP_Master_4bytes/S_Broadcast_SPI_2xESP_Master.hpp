@@ -193,8 +193,8 @@ protected:
 	void broadcastLength(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
 		_tx_status[0] = length;
 		_tx_status[1] = length;
-		_tx_status[2] = 0;	// beacon is 1
-		_tx_status[3] = 0;	// 0 means armed firs time
+		_tx_status[2] = length;
+		_tx_status[3] = 0;	// beacon is 1
 		spi_transaction_t t = {};
 		t.length = 4 * 8;	// Bytes to bits
 		t.tx_buffer = _tx_status;
@@ -237,8 +237,8 @@ protected:
 	bool sendBeacon(int ss_pin, uint8_t length = 0) {
 		_tx_status[0] = length;
 		_tx_status[1] = length;
-		_tx_status[2] = 1;	// beacon is 1
-		_tx_status[3] = 0;	// 0 means armed first time
+		_tx_status[2] = length;
+		_tx_status[3] = 1;	// beacon is 1
 		spi_transaction_t t = {};
 		t.length = 4 * 8;	// Bytes to bits
 		t.tx_buffer = _tx_status;
