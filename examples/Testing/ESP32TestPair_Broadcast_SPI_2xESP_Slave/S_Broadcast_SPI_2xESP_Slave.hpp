@@ -51,8 +51,8 @@ protected:
 
 	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
 	uint8_t _tx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
-	uint8_t _cmd_byte __attribute__((aligned(4)));
-    uint8_t _length_latched __attribute__((aligned(4))) = 0;       // persists across calls
+	volatile uint8_t _cmd_byte __attribute__((aligned(4)));
+    volatile uint8_t _length_latched __attribute__((aligned(4))) = 0;       // persists across calls
 
 	spi_slave_transaction_t _cmd_trans;
 	spi_slave_transaction_t _data_trans;
@@ -224,8 +224,9 @@ protected:
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_cmd_trans;
 		t->length = 1 * 8;	// Bytes to bits
-		t->rx_buffer = &_cmd_byte;
-		t->tx_buffer = &_length_latched;	// <-- EXTREMELY IMPORTANT LINE
+		// Cast away volatile
+        t->rx_buffer = const_cast<uint8_t*>(&_cmd_byte);
+        t->tx_buffer = const_cast<uint8_t*>(&_length_latched);	// <-- EXTREMELY IMPORTANT LINE
 		// If you see 80 on the Master side it means the Slave wasn't given the time to respond!
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
