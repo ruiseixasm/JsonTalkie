@@ -25,6 +25,7 @@ extern "C" {
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 
+#define border_delay_us 10
 
 class S_Broadcast_SPI_2xESP_Slave : public BroadcastSocket {
 public:
@@ -100,7 +101,6 @@ protected:
 								Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n", rx_length, beacon, rx_length);
 							#endif
 
-							memcpy(_tx_buffer, _payload_data, _payload_length);  // copies the entire payload
 							queue_tx(_payload_length);
 							
 						} else {
@@ -109,9 +109,9 @@ protected:
 
 					} else if (rx_length > 0 && rx_length == _rx_status[1] && rx_length == _rx_status[2] && rx_length <= TALKIE_BUFFER_SIZE) {
 
-						#ifdef BROADCAST_SPI_DEBUG
-							Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n", rx_length, beacon, rx_length);
-						#endif
+						// #ifdef BROADCAST_SPI_DEBUG
+						// 	Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n", rx_length, beacon, rx_length);
+						// #endif
 
 						queue_rx(rx_length);
 						
@@ -130,15 +130,15 @@ protected:
 				case RX_PAYLOAD:
 				{
 
-					#ifdef BROADCAST_SPI_DEBUG
-						Serial.printf("Received %u bytes: ", rx_length);
-						for (uint8_t i = 0; i < rx_length; i++) {
-							char c = _rx_buffer[i];
-							if (c >= 32 && c <= 126) Serial.print(c);
-							else Serial.printf("[%02X]", c);
-						}
-						Serial.println();
-					#endif
+					// #ifdef BROADCAST_SPI_DEBUG
+					// 	Serial.printf("Received %u bytes: ", rx_length);
+					// 	for (uint8_t i = 0; i < rx_length; i++) {
+					// 		char c = _rx_buffer[i];
+					// 		if (c >= 32 && c <= 126) Serial.print(c);
+					// 		else Serial.printf("[%02X]", c);
+					// 	}
+					// 	Serial.println();
+					// #endif
 
 					if (_stacked_transmissions < 3) {
 
@@ -166,12 +166,20 @@ protected:
 				
 				case TX_PAYLOAD:
 				{
+					
 					#ifdef BROADCAST_SPI_DEBUG
-						Serial.printf("Sent %u bytes\n", _payload_length);
+						Serial.printf("Sent %u bytes: ", _payload_length);
+						for (uint8_t i = 0; i < _payload_length; i++) {
+							char c = _tx_buffer[i];
+							if (c >= 32 && c <= 126) Serial.print(c);
+							else Serial.printf("[%02X]", c);
+						}
+						Serial.println();
 					#endif
 
 					_payload_length = 0;	// payload was sent
 					_tx_status[3] = 0;	// Mark tx status as new (first beacon)
+					memset(_tx_buffer, 0, sizeof(_tx_buffer));  // clear entire buffer
 					queue_cmd();
 				}
 				break;
@@ -217,6 +225,7 @@ protected:
     // Specific methods associated to ESP SPI as Slave
 	
 	void queue_cmd() {
+		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 		_spi_state = WAIT_CMD;
 		_tx_status[0] = _payload_length;
 		_tx_status[1] = _payload_length;
@@ -235,6 +244,7 @@ protected:
 	}
 
 	void queue_rx(uint8_t len) {
+		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 		_spi_state = RX_PAYLOAD;
 		// Half-Duplex
 		spi_slave_transaction_t *t = &_rx_trans;
@@ -247,6 +257,7 @@ protected:
 	}
 
 	void queue_tx(uint8_t len) {
+		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 		_spi_state = TX_PAYLOAD;
 		_tx_status[0] = 0;
 		_tx_status[1] = 0;
@@ -255,7 +266,7 @@ protected:
 		// Half-Duplex
 		spi_slave_transaction_t *t = &_tx_trans;
 		memset(t, 0, sizeof(_tx_trans));  // clear entire struct
-		memset(_tx_buffer, 0, sizeof(_tx_buffer));  // clear entire buffer
+		memcpy(_tx_buffer, _payload_data, len);  // copies the entire payload
 		t->length    = (size_t)len * 8;
 		t->tx_buffer = _tx_buffer;
 		t->rx_buffer = nullptr;
