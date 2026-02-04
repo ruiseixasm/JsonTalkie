@@ -200,7 +200,7 @@ protected:
 	size_t receivePayload(int ss_pin) {
 		// Values of 0xAA and 0x55 are NOT allowed due to 10101010 binary alternation and consequent electronic ringing
 		_tx_buffer[0] = 0xF0;	// 0xF0 is to receive
-		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = 0xAA;
+		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = _tx_buffer[0];
 		spi_transaction_t t = {};
 		t.length = TALKIE_BUFFER_SIZE * 8;	// Bytes to bits
 		t.tx_buffer = _tx_buffer;
