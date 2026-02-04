@@ -80,7 +80,7 @@ protected:
 		if (_initiated) {
 			
 			// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-			if (micros() - _last_beacon_time_us > 50) {
+			if (micros() - _last_beacon_time_us > 100) {
 
 				#ifdef BROADCAST_SPI_DEBUG_TIMING
 				_reference_time = millis();
