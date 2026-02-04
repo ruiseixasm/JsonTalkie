@@ -50,8 +50,8 @@ protected:
 	const spi_host_device_t _host;
 	
 	spi_device_handle_t _spi;
-	uint8_t _status_tx[4] __attribute__((aligned(4))) = {0};
-	uint8_t _status_rx[4] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_status[4] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_status[4] __attribute__((aligned(4))) = {0};
 	uint8_t _data_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
 	bool _in_broadcast_slot = false;
@@ -95,7 +95,7 @@ protected:
 					// But only reads the existing content if it's its time to be processed (one per cycle)
 					if (sendBeacon(_spi_cs_pins[actual_pin_index]) && ss_pin_i == actual_pin_index) {
 
-						uint8_t length = _status_rx[0];
+						uint8_t length = _rx_status[0];
 						if (length == sendBeacon(_spi_cs_pins[actual_pin_index], length)) {	// Avoid noise triggering
 
 							// Arms the receiving
@@ -191,13 +191,13 @@ protected:
     // Specific methods associated to ESP SPI as Master
 	
 	void broadcastLength(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
-		_status_tx[0] = length;
-		_status_tx[1] = length;
-		_status_tx[2] = 0;	// beacon is 1
-		_status_tx[3] = 0;	// 0 means armed firs time
+		_tx_status[0] = length;
+		_tx_status[1] = length;
+		_tx_status[2] = 0;	// beacon is 1
+		_tx_status[3] = 0;	// 0 means armed firs time
 		spi_transaction_t t = {};
 		t.length = 4 * 8;	// Bytes to bits
-		t.tx_buffer = _status_tx;
+		t.tx_buffer = _tx_status;
 		t.rx_buffer = nullptr;
 
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
@@ -235,14 +235,14 @@ protected:
 
 
 	bool sendBeacon(int ss_pin, uint8_t length = 0) {
-		_status_tx[0] = length;
-		_status_tx[1] = length;
-		_status_tx[2] = 1;	// beacon is 1
-		_status_tx[3] = 0;	// 0 means armed first time
+		_tx_status[0] = length;
+		_tx_status[1] = length;
+		_tx_status[2] = 1;	// beacon is 1
+		_tx_status[3] = 0;	// 0 means armed first time
 		spi_transaction_t t = {};
 		t.length = 4 * 8;	// Bytes to bits
-		t.tx_buffer = _status_tx;
-		t.rx_buffer = _status_rx;
+		t.tx_buffer = _tx_status;
+		t.rx_buffer = _rx_status;
 
 		digitalWrite(ss_pin, LOW);
 		delayMicroseconds(padding_delay_us);
@@ -251,8 +251,8 @@ protected:
 		digitalWrite(ss_pin, HIGH);
 		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 
-		return _status_rx[0] > 0 && _status_rx[0] == _status_rx[1]
-			&& _status_rx[0] == _status_rx[2] && _status_rx[3] == _status_tx[3];
+		return _rx_status[0] > 0 && _rx_status[0] == _rx_status[1]
+			&& _rx_status[0] == _rx_status[2] && _rx_status[3] == _tx_status[3];
 	}
 
 	void receivePayload(int ss_pin, uint8_t length = 0) {

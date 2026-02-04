@@ -49,13 +49,16 @@ protected:
 	bool _initiated = false;
 	const spi_host_device_t _host;
 
-	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
 	uint8_t _tx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
+	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
+	uint8_t _rx_status[4] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_status[4] __attribute__((aligned(4))) = {0};
 	volatile uint8_t _cmd_byte __attribute__((aligned(4)));
     volatile uint8_t _length_latched __attribute__((aligned(4))) = 0;       // persists across calls
 
-	spi_slave_transaction_t _cmd_trans;
-	spi_slave_transaction_t _data_trans;
+	spi_slave_transaction_t _status_trans;
+	spi_slave_transaction_t _rx_trans;
+	spi_slave_transaction_t _tx_trans;
 
 	SpiState _spi_state = WAIT_CMD;
 	uint8_t _send_length = 0;
@@ -221,14 +224,18 @@ protected:
 	
 	void queue_cmd() {
 		_spi_state = WAIT_CMD;
+		_tx_status[0] = _send_length;
+		_tx_status[1] = _send_length;
+		_tx_status[2] = _send_length;
 		_cmd_byte = 0;	// Makes sure it isn't interpreted as a new rx
 		_length_latched = _send_length;	// Avoids a racing to a shared variable (no race) (stable copy)
 		// Full-Duplex
-		spi_slave_transaction_t *t = &_cmd_trans;
-		t->length = 1 * 8;	// Bytes to bits
+		spi_slave_transaction_t *t = &_status_trans;
+		memset(t, 0, sizeof(_status_trans));  // clear entire struct
+		t->length = 4 * 8;	// Bytes to bits
 		// Cast away volatile
-        t->rx_buffer = const_cast<uint8_t*>(&_cmd_byte);
-        t->tx_buffer = const_cast<uint8_t*>(&_length_latched);	// <-- EXTREMELY IMPORTANT LINE
+        t->tx_buffer = _tx_status;
+        t->rx_buffer = _rx_status;
 		// If you see 80 on the Master side it means the Slave wasn't given the time to respond!
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
@@ -236,10 +243,11 @@ protected:
 	void queue_rx(uint8_t len) {
 		_spi_state = RX_PAYLOAD;
 		// Half-Duplex
-		spi_slave_transaction_t *t = &_data_trans;
+		spi_slave_transaction_t *t = &_rx_trans;
+		memset(t, 0, sizeof(_rx_trans));  // clear entire struct
 		t->length    = (size_t)len * 8;
-		t->rx_buffer = _rx_buffer;
 		t->tx_buffer = nullptr;
+		t->rx_buffer = _rx_buffer;
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
 
@@ -248,10 +256,11 @@ protected:
 		_cmd_byte = 0;		// Makes sure it isn't interpreted as a new tx to respond to (duplicated sends)
 		_length_latched = 0;	// Makes sure it's 0 (force it)
 		// Half-Duplex
-		spi_slave_transaction_t *t = &_data_trans;
+		spi_slave_transaction_t *t = &_tx_trans;
+		memset(t, 0, sizeof(_tx_trans));  // clear entire struct
 		t->length    = (size_t)len * 8;
-		t->rx_buffer = nullptr;
 		t->tx_buffer = _tx_buffer;
+		t->rx_buffer = nullptr;
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
 
