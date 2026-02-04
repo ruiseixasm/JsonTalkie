@@ -183,9 +183,12 @@ protected:
     // Specific methods associated to ESP SPI as Slave
 	
 	void queue_transaction() {
-		memcpy(_tx_buffer, _payload_data, _payload_length);  // Continuously copies the entire payload
-		_tx_buffer[0] = _payload_length;
-		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = _payload_length;
+		memset(_tx_buffer, 0, sizeof(_tx_buffer));  // clear entire _tx_buffer first
+		if (_payload_length > 0) {
+			memcpy(_tx_buffer, _payload_data, _payload_length);  // Continuously copies the entire payload
+			_tx_buffer[0] = _payload_length;
+			_tx_buffer[TALKIE_BUFFER_SIZE - 1] = _payload_length;
+		}
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_payload_trans;
 		memset(t, 0, sizeof(_payload_trans));  // clear entire struct
