@@ -242,7 +242,7 @@ protected:
 
 	void queue_tx(uint8_t len) {
 		_spi_state = TX_PAYLOAD;
-		_cmd_byte = 0;	// Makes sure it isn't interpreted as a new tx to respond to (duplicated sends)
+		_cmd_byte = 0;		// Makes sure it isn't interpreted as a new tx to respond to (duplicated sends)
 		// Half-Duplex
 		spi_slave_transaction_t *t = &_data_trans;
 		t->length    = (size_t)len * 8;
