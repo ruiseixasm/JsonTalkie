@@ -50,7 +50,9 @@ protected:
 	const spi_host_device_t _host;
 	
 	spi_device_handle_t _spi;
-	uint8_t _data_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
+	uint8_t _status_tx[4] __attribute__((aligned(4))) = {0};
+	uint8_t _status_rx[4] __attribute__((aligned(4))) = {0};
+	uint8_t _data_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
 	bool _in_broadcast_slot = false;
 	uint32_t _broadcast_time_us = 0;
@@ -90,21 +92,20 @@ protected:
 				// Has to send at least one ping to everyone in order to keep the connection alive (max 300us) !!
 				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
 
-					uint8_t l = sendBeacon(_spi_cs_pins[ss_pin_i]);
-				
 					// But only reads the existing content if it's its time to be processed (one per cycle)
-					if (l > 0 && ss_pin_i == actual_pin_index) {
+					if (sendBeacon(_spi_cs_pins[actual_pin_index]) && ss_pin_i == actual_pin_index) {
 
-						uint8_t match_l = sendBeacon(_spi_cs_pins[actual_pin_index], l);
-						if (match_l == l) {	// Avoid noise triggering
+						uint8_t length = _status_rx[0];
+						if (length == sendBeacon(_spi_cs_pins[actual_pin_index], length)) {	// Avoid noise triggering
 
-							receivePayload(_spi_cs_pins[actual_pin_index], l);
+							// Arms the receiving
+							receivePayload(_spi_cs_pins[actual_pin_index], length);
 
 							#ifdef BROADCAST_SPI_DEBUG
 								Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
-									_spi_cs_pins[actual_pin_index], 0b10000000 | l, l);
+									_spi_cs_pins[actual_pin_index], 0b10000000 | length, length);
 								Serial.print("[From Slave] Received: ");
-								for (int i = 0; i < l; i++) {
+								for (int i = 0; i < length; i++) {
 									Serial.print((char)_data_buffer[i]);
 								}
 								Serial.println();
@@ -113,7 +114,7 @@ protected:
 							// No receiving while a send is pending, so, no _json_message corruption is possible
 							JsonMessage new_message(
 								reinterpret_cast<const char*>( _data_buffer ),
-								static_cast<size_t>( l )
+								static_cast<size_t>( length )
 							);
 							_startTransmission(new_message);
 						}
@@ -190,10 +191,13 @@ protected:
     // Specific methods associated to ESP SPI as Master
 	
 	void broadcastLength(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
-		uint8_t tx_byte __attribute__((aligned(4))) = 0b01111111 & length;
+		_status_tx[0] = length;
+		_status_tx[1] = length;
+		_status_tx[2] = 0;	// beacon is 1
+		_status_tx[3] = 0;	// 0 means armed firs time
 		spi_transaction_t t = {};
-		t.length = 1 * 8;	// Bytes to bits
-		t.tx_buffer = &tx_byte;
+		t.length = 4 * 8;	// Bytes to bits
+		t.tx_buffer = _status_tx;
 		t.rx_buffer = nullptr;
 
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
@@ -230,13 +234,15 @@ protected:
 	}
 
 
-	uint8_t sendBeacon(int ss_pin, uint8_t length = 0) {
-		uint8_t tx_byte __attribute__((aligned(4))) = 0b10000000 | length;
-		uint8_t rx_byte __attribute__((aligned(4))) = 0;
+	bool sendBeacon(int ss_pin, uint8_t length = 0) {
+		_status_tx[0] = length;
+		_status_tx[1] = length;
+		_status_tx[2] = 1;	// beacon is 1
+		_status_tx[3] = 0;	// 0 means armed first time
 		spi_transaction_t t = {};
-		t.length = 1 * 8;	// Bytes to bits
-		t.tx_buffer = &tx_byte;
-		t.rx_buffer = &rx_byte;
+		t.length = 4 * 8;	// Bytes to bits
+		t.tx_buffer = _status_tx;
+		t.rx_buffer = _status_rx;
 
 		digitalWrite(ss_pin, LOW);
 		delayMicroseconds(padding_delay_us);
@@ -245,7 +251,8 @@ protected:
 		digitalWrite(ss_pin, HIGH);
 		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 
-		return rx_byte;
+		return _status_rx[0] > 0 && _status_rx[0] == _status_rx[1]
+			&& _status_rx[0] == _status_rx[2] && _status_rx[3] == _status_tx[3];
 	}
 
 	void receivePayload(int ss_pin, uint8_t length = 0) {
