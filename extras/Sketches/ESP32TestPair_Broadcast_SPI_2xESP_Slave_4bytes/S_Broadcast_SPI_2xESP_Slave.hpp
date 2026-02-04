@@ -85,7 +85,7 @@ protected:
 
 			/* === SPI "ISR" === */
 
-			const bool beacon = (bool)_rx_status[2];
+			const bool beacon = (bool)_rx_status[3];
 			const uint8_t rx_length = _rx_status[0];
 
 			switch (_spi_state) {
@@ -93,7 +93,9 @@ protected:
 				case WAIT_CMD:
 				{
 					if (beacon) {
-						if (rx_length > 0 && rx_length == _rx_status[1] && rx_length == _send_length) {	// beacon
+						if (rx_length > 0
+							&& rx_length == _rx_status[1] && rx_length == _rx_status[2]
+							&& rx_length == _send_length) {	// beacon
 							
 							_tx_status[3] = 0;	// Mark tx status as new
 							queue_tx(_send_length);
@@ -106,7 +108,9 @@ protected:
 							queue_cmd();
 						}
 
-					} else if (rx_length > 0 && rx_length == _rx_status[1] && rx_length <= TALKIE_BUFFER_SIZE) {
+					} else if (rx_length > 0
+						&& rx_length == _rx_status[1] && rx_length == _rx_status[2]
+						&& rx_length <= TALKIE_BUFFER_SIZE) {
 
 						queue_rx(rx_length);
 						
