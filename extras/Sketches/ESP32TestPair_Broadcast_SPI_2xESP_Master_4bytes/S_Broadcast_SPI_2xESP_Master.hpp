@@ -96,7 +96,7 @@ protected:
 					if (sendBeacon(_spi_cs_pins[actual_pin_index]) && ss_pin_i == actual_pin_index) {
 
 						uint8_t length = _rx_status[0];
-						if (length == sendBeacon(_spi_cs_pins[actual_pin_index], length)) {	// Avoid noise triggering
+						if (sendBeacon(_spi_cs_pins[actual_pin_index], length)) {	// Avoid noise triggering
 
 							// Arms the receiving
 							receivePayload(_spi_cs_pins[actual_pin_index], length);
@@ -252,7 +252,7 @@ protected:
 		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 
 		return _rx_status[0] > 0 && _rx_status[0] == _rx_status[1]
-			&& _rx_status[0] == _rx_status[2] && _rx_status[3] == _tx_status[3];
+			&& _rx_status[0] == _rx_status[2] && _rx_status[3] == 0;
 	}
 
 	void receivePayload(int ss_pin, uint8_t length = 0) {
