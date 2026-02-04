@@ -179,7 +179,7 @@ protected:
 		_data_buffer[0] = length;
 		_data_buffer[TALKIE_BUFFER_SIZE - 1] = length;
 		spi_transaction_t t = {};
-		t.length = 128 * 8;	// Bytes to bits
+		t.length = TALKIE_BUFFER_SIZE * 8;	// Bytes to bits
 		t.tx_buffer = _data_buffer;
 		t.rx_buffer = nullptr;
 
@@ -192,6 +192,7 @@ protected:
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], HIGH);
 		}
+		memset(_data_buffer, 0, sizeof(_data_buffer));  // clear sent data
 		// Border already included in the broadcast time slot
 	}
 
@@ -200,7 +201,7 @@ protected:
 		_data_buffer[0] = 0xAA;	// 0xAA is to receive
 		_data_buffer[TALKIE_BUFFER_SIZE - 1] = 0xAA;
 		spi_transaction_t t = {};
-		t.length = 128 * 8;	// Bytes to bits
+		t.length = TALKIE_BUFFER_SIZE * 8;	// Bytes to bits
 		t.tx_buffer = nullptr;
 		t.rx_buffer = _data_buffer;
 		
