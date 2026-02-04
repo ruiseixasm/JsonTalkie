@@ -169,6 +169,7 @@ protected:
 						Serial.printf("Sent %u bytes\n", _send_length);
 					#endif
 
+					_length_latched = 0;	// Force it
 					_send_length = 0;	// payload was sent
 					queue_cmd();
 				}
