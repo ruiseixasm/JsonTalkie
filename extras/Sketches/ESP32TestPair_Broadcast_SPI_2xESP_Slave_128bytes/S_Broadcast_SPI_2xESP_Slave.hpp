@@ -75,20 +75,21 @@ protected:
 				if (_rx_buffer[0] <= TALKIE_BUFFER_SIZE) {
 					if (_rx_buffer[0] > 0) {
 
-						// #ifdef BROADCAST_SPI_DEBUG
-						// 	Serial.printf("Received %u bytes: ", rx_length);
-						// 	for (uint8_t i = 0; i < rx_length; i++) {
-						// 		char c = _rx_buffer[i];
-						// 		if (c >= 32 && c <= 126) Serial.print(c);
-						// 		else Serial.printf("[%02X]", c);
-						// 	}
-						// 	Serial.println();
-						// #endif
+						size_t payload_length = (size_t)_rx_buffer[0];
+						_rx_buffer[0] = '{';
+						_rx_buffer[TALKIE_BUFFER_SIZE - 1] = '}';
+
+						#ifdef BROADCAST_SPI_DEBUG
+							Serial.printf("Received %u bytes: ", payload_length);
+							for (uint8_t i = 0; i < payload_length; i++) {
+								char c = _rx_buffer[i];
+								if (c >= 32 && c <= 126) Serial.print(c);
+								else Serial.printf("[%02X]", c);
+							}
+							Serial.println();
+						#endif
 
 						if (_stacked_transmissions < 3) {
-							size_t payload_length = (size_t)_rx_buffer[0];
-							_rx_buffer[0] = '{';
-							_rx_buffer[TALKIE_BUFFER_SIZE - 1] = '}';
 							JsonMessage new_message(
 								reinterpret_cast<const char*>( _rx_buffer ), payload_length
 							);
@@ -96,11 +97,14 @@ protected:
 							// Needs the queue a new command, otherwise nothing is processed again (lock)
 							// Real scenario if at this moment a payload is still in the queue to be sent and now
 							// has no queue to be picked up
+							memset(_tx_buffer, 0, sizeof(_tx_buffer));  // clear entire buffer
 							queue_transaction();	// After the reading above to avoid _rx_buffer corruption
 							
 							_stacked_transmissions++;
 							_startTransmission(new_message);
 							_stacked_transmissions--;
+
+							return;
 						}
 					}
 				} else if (_rx_buffer[0] == 0xAA) {
@@ -116,9 +120,9 @@ protected:
 					#endif
 
 					_payload_length = 0;	// payload was sent
-					memset(_tx_buffer, 0, sizeof(_tx_buffer));  // clear entire buffer
 				}
 			}
+			memset(_tx_buffer, 0, sizeof(_tx_buffer));  // clear entire buffer
 			// Always queues a new transaction
 			queue_transaction();
 		}
