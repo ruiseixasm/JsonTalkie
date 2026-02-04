@@ -21,7 +21,7 @@ extern "C" {
 }
 
 
-#define BROADCAST_SPI_DEBUG
+// #define BROADCAST_SPI_DEBUG
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 
@@ -79,15 +79,15 @@ protected:
 						_rx_buffer[0] = '{';
 						_rx_buffer[TALKIE_BUFFER_SIZE - 1] = '}';
 
-						// #ifdef BROADCAST_SPI_DEBUG
-						// 	Serial.printf("Received %u bytes: ", payload_length);
-						// 	for (uint8_t i = 0; i < payload_length; i++) {
-						// 		char c = _rx_buffer[i];
-						// 		if (c >= 32 && c <= 126) Serial.print(c);
-						// 		else Serial.printf("[%02X]", c);
-						// 	}
-						// 	Serial.println();
-						// #endif
+						#ifdef BROADCAST_SPI_DEBUG
+							Serial.printf("Received %u bytes: ", payload_length);
+							for (uint8_t i = 0; i < payload_length; i++) {
+								char c = _rx_buffer[i];
+								if (c >= 32 && c <= 126) Serial.print(c);
+								else Serial.printf("[%02X]", c);
+							}
+							Serial.println();
+						#endif
 
 						if (_stacked_transmissions < 3) {
 							JsonMessage new_message(
@@ -129,15 +129,15 @@ protected:
 					}
 				} else {
 					
-					// #ifdef BROADCAST_SPI_DEBUG
-					// 	Serial.printf("Other [%02X]: ", _tx_buffer[0]);
-					// 	for (uint8_t i = 0; i < TALKIE_BUFFER_SIZE; i++) {
-					// 		char c = _tx_buffer[i];
-					// 		if (c >= 32 && c <= 126) Serial.print(c);
-					// 		else Serial.printf("[%02X]", c);
-					// 	}
-					// 	Serial.println();
-					// #endif
+					#ifdef BROADCAST_SPI_DEBUG
+						Serial.printf("Other [%02X]: ", _tx_buffer[0]);
+						for (uint8_t i = 0; i < TALKIE_BUFFER_SIZE; i++) {
+							char c = _tx_buffer[i];
+							if (c >= 32 && c <= 126) Serial.print(c);
+							else Serial.printf("[%02X]", c);
+						}
+						Serial.println();
+					#endif
 
 				}
 			}
@@ -185,7 +185,6 @@ protected:
     // Specific methods associated to ESP SPI as Slave
 	
 	void queue_transaction() {
-		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 		memcpy(_tx_buffer, _payload_data, _payload_length);  // Continuously copies the entire payload
 		_tx_buffer[0] = _payload_length;
 		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = _payload_length;
