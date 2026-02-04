@@ -50,7 +50,8 @@ protected:
 	const spi_host_device_t _host;
 	
 	spi_device_handle_t _spi;
-	uint8_t _data_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
 	bool _in_broadcast_slot = false;
 	uint32_t _broadcast_time_us = 0;
@@ -96,13 +97,13 @@ protected:
 							_spi_cs_pins[actual_pin_index], 0b10000000 | length, length);
 						Serial.print("[From Slave] Received: ");
 						for (int i = 0; i < length; i++) {
-							Serial.print((char)_data_buffer[i]);
+							Serial.print((char)_rx_buffer[i]);
 						}
 						Serial.println();
 					#endif
 					
 					// No receiving while a send is pending, so, no _json_message corruption is possible
-					JsonMessage new_message(reinterpret_cast<const char*>( _data_buffer ), payload_length);
+					JsonMessage new_message(reinterpret_cast<const char*>( _rx_buffer ), payload_length);
 					_startTransmission(new_message);
 				}
 				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
@@ -127,7 +128,7 @@ protected:
 			#endif
 
 			size_t len = json_message.serialize_json(
-				reinterpret_cast<char*>( _data_buffer ),
+				reinterpret_cast<char*>( _tx_buffer ),
 				TALKIE_BUFFER_SIZE
 			);
 			
@@ -176,11 +177,11 @@ protected:
 	void broadcastPayload(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
 
 		if (length > TALKIE_BUFFER_SIZE) return;
-		_data_buffer[0] = length;
-		_data_buffer[TALKIE_BUFFER_SIZE - 1] = length;
+		_tx_buffer[0] = length;
+		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = length;
 		spi_transaction_t t = {};
 		t.length = TALKIE_BUFFER_SIZE * 8;	// Bytes to bits
-		t.tx_buffer = _data_buffer;
+		t.tx_buffer = _tx_buffer;
 		t.rx_buffer = nullptr;
 
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
@@ -192,18 +193,18 @@ protected:
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], HIGH);
 		}
-		memset(_data_buffer, 0, sizeof(_data_buffer));  // clear sent data
+		memset(_tx_buffer, 0, sizeof(_tx_buffer));  // clear sent data
 		// Border already included in the broadcast time slot
 	}
 
 	size_t receivePayload(int ss_pin) {
-		
-		_data_buffer[0] = 0xAA;	// 0xAA is to receive
-		_data_buffer[TALKIE_BUFFER_SIZE - 1] = 0xAA;
+		// Values of 0xAA and 0x55 are NOT allowed due to 10101010 binary alternation and consequent electronic ringing
+		_tx_buffer[0] = 0xF0;	// 0xF0 is to receive
+		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = 0xAA;
 		spi_transaction_t t = {};
 		t.length = TALKIE_BUFFER_SIZE * 8;	// Bytes to bits
-		t.tx_buffer = nullptr;
-		t.rx_buffer = _data_buffer;
+		t.tx_buffer = _tx_buffer;
+		t.rx_buffer = _rx_buffer;
 		
 		digitalWrite(ss_pin, LOW);
 		delayMicroseconds(padding_delay_us);
@@ -212,10 +213,10 @@ protected:
 		digitalWrite(ss_pin, HIGH);
 		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 
-		if (_data_buffer[0] > 0 && _data_buffer[0] == _data_buffer[TALKIE_BUFFER_SIZE - 1]) {
-			size_t payload_length = (size_t)_data_buffer[0];
-			_data_buffer[0] = '{';
-			_data_buffer[TALKIE_BUFFER_SIZE - 1] = '}';
+		if (_rx_buffer[0] > 0 && _rx_buffer[0] == _rx_buffer[TALKIE_BUFFER_SIZE - 1]) {
+			size_t payload_length = (size_t)_rx_buffer[0];
+			_rx_buffer[0] = '{';
+			_rx_buffer[TALKIE_BUFFER_SIZE - 1] = '}';
 			return payload_length;
 		}
 		return 0;

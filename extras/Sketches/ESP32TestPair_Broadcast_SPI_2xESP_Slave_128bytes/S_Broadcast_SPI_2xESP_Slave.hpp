@@ -44,8 +44,8 @@ protected:
 	bool _initiated = false;
 	const spi_host_device_t _host;
 
-	uint8_t _tx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
-	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
+	uint8_t _tx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	spi_slave_transaction_t _payload_trans __attribute__((aligned(4)));
 
 	char _payload_data[TALKIE_BUFFER_SIZE];
@@ -107,7 +107,7 @@ protected:
 							return;
 						}
 					}
-				} else if (_rx_buffer[0] == 0xAA) {
+				} else if (_rx_buffer[0] == 0xF0) {
 
 					#ifdef BROADCAST_SPI_DEBUG
 						Serial.printf("Sent %u bytes: ", _payload_length);
@@ -120,6 +120,18 @@ protected:
 					#endif
 
 					_payload_length = 0;	// payload was sent
+				} else {
+					
+					#ifdef BROADCAST_SPI_DEBUG
+						Serial.printf("Ping [%02X]: ", _tx_buffer[0]);
+						for (uint8_t i = 0; i < TALKIE_BUFFER_SIZE; i++) {
+							char c = _tx_buffer[i];
+							if (c >= 32 && c <= 126) Serial.print(c);
+							else Serial.printf("[%02X]", c);
+						}
+						Serial.println();
+					#endif
+
 				}
 			}
 			memset(_tx_buffer, 0, sizeof(_tx_buffer));  // clear entire buffer
