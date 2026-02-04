@@ -50,8 +50,6 @@ protected:
 	const spi_host_device_t _host;
 	
 	spi_device_handle_t _spi;
-	uint8_t _tx_status[4] __attribute__((aligned(4))) = {0};
-	uint8_t _rx_status[4] __attribute__((aligned(4))) = {0};
 	uint8_t _data_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
 	bool _in_broadcast_slot = false;
@@ -89,32 +87,23 @@ protected:
 				_reference_time = millis();
 				#endif
 			
-				// But only reads the existing content if it's its time to be processed (one per cycle)
-				if (sendBeacon(_spi_cs_pins[actual_pin_index]) && actual_pin_index == actual_pin_index) {
+				// Arms the receiving
+				size_t payload_length = receivePayload(_spi_cs_pins[actual_pin_index]);
+				if (payload_length > 0) {
 
-					uint8_t length = _rx_status[0];
-					if (sendBeacon(_spi_cs_pins[actual_pin_index], length)) {	// Avoid noise triggering
-
-						// Arms the receiving
-						receivePayload(_spi_cs_pins[actual_pin_index], length);
-
-						#ifdef BROADCAST_SPI_DEBUG
-							Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
-								_spi_cs_pins[actual_pin_index], 0b10000000 | length, length);
-							Serial.print("[From Slave] Received: ");
-							for (int i = 0; i < length; i++) {
-								Serial.print((char)_data_buffer[i]);
-							}
-							Serial.println();
-						#endif
-						
-						// No receiving while a send is pending, so, no _json_message corruption is possible
-						JsonMessage new_message(
-							reinterpret_cast<const char*>( _data_buffer ),
-							static_cast<size_t>( length )
-						);
-						_startTransmission(new_message);
-					}
+					#ifdef BROADCAST_SPI_DEBUG
+						Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
+							_spi_cs_pins[actual_pin_index], 0b10000000 | length, length);
+						Serial.print("[From Slave] Received: ");
+						for (int i = 0; i < length; i++) {
+							Serial.print((char)_data_buffer[i]);
+						}
+						Serial.println();
+					#endif
+					
+					// No receiving while a send is pending, so, no _json_message corruption is possible
+					JsonMessage new_message(reinterpret_cast<const char*>( _data_buffer ), payload_length);
+					_startTransmission(new_message);
 				}
 				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 			}
@@ -148,8 +137,6 @@ protected:
 					// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
 					if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
 				}
-
-				broadcastLength(_spi_cs_pins, _ss_pins_count, (uint8_t)len); // D=0, L=len
 
 				#ifdef BROADCAST_SPI_DEBUG
 				Serial.print(F("\t\t\t\t\tsend1: Sent message: "));
@@ -186,34 +173,13 @@ protected:
 	
     // Specific methods associated to ESP SPI as Master
 	
-	void broadcastLength(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
-		_tx_status[0] = length;
-		_tx_status[1] = length;
-		_tx_status[2] = length;
-		_tx_status[3] = 0;	// beacon is 1
-		spi_transaction_t t = {};
-		t.length = 4 * 8;	// Bytes to bits
-		t.tx_buffer = _tx_status;
-		t.rx_buffer = nullptr;
-
-		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
-			digitalWrite(ss_pins[ss_pin_i], LOW);
-		}
-		delayMicroseconds(padding_delay_us);
-		spi_device_transmit(_spi, &t);
-		delayMicroseconds(padding_delay_us);
-		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
-			digitalWrite(ss_pins[ss_pin_i], HIGH);
-		}
-		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
-	}
-
 	void broadcastPayload(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
 
 		if (length > TALKIE_BUFFER_SIZE) return;
-		
+		_data_buffer[0] = length;
+		_data_buffer[TALKIE_BUFFER_SIZE - 1] = length;
 		spi_transaction_t t = {};
-		t.length = (size_t)length * 8;	// Bytes to bits
+		t.length = 128 * 8;	// Bytes to bits
 		t.tx_buffer = _data_buffer;
 		t.rx_buffer = nullptr;
 
@@ -229,34 +195,12 @@ protected:
 		// Border already included in the broadcast time slot
 	}
 
-
-	bool sendBeacon(int ss_pin, uint8_t length = 0) {
-		_tx_status[0] = length;
-		_tx_status[1] = length;
-		_tx_status[2] = length;
-		_tx_status[3] = 1;	// beacon is 1
-		spi_transaction_t t = {};
-		t.length = 4 * 8;	// Bytes to bits
-		t.tx_buffer = _tx_status;
-		t.rx_buffer = _rx_status;
-
-		digitalWrite(ss_pin, LOW);
-		delayMicroseconds(padding_delay_us);
-		spi_device_transmit(_spi, &t);
-		delayMicroseconds(padding_delay_us);
-		digitalWrite(ss_pin, HIGH);
-		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
-
-		return _rx_status[0] > 0 && _rx_status[0] == _rx_status[1]
-			&& _rx_status[0] == _rx_status[2] && _rx_status[3] == 0;
-	}
-
-	void receivePayload(int ss_pin, uint8_t length = 0) {
+	size_t receivePayload(int ss_pin) {
 		
-		if (length > TALKIE_BUFFER_SIZE) return;
-		
+		_data_buffer[0] = 0xAA;	// 0xAA is to receive
+		_data_buffer[TALKIE_BUFFER_SIZE - 1] = 0xAA;
 		spi_transaction_t t = {};
-		t.length = (size_t)length * 8;	// Bytes to bits
+		t.length = 128 * 8;	// Bytes to bits
 		t.tx_buffer = nullptr;
 		t.rx_buffer = _data_buffer;
 		
@@ -266,6 +210,14 @@ protected:
 		delayMicroseconds(padding_delay_us);
 		digitalWrite(ss_pin, HIGH);
 		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
+
+		if (_data_buffer[0] > 0 && _data_buffer[0] == _data_buffer[TALKIE_BUFFER_SIZE - 1]) {
+			size_t payload_length = (size_t)_data_buffer[0];
+			_data_buffer[0] = '{';
+			_data_buffer[TALKIE_BUFFER_SIZE - 1] = '}';
+			return payload_length;
+		}
+		return 0;
 	}
 
 
