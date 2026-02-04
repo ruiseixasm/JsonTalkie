@@ -93,25 +93,18 @@ protected:
 				case WAIT_CMD:
 				{
 					if (beacon) {
-						if (rx_length > 0) {
-							if (rx_length == _rx_status[1] && rx_length == _rx_status[2] && rx_length == _send_length) {	// beacon
+						if (rx_length > 0 && rx_length == _rx_status[1] && rx_length == _rx_status[2] && rx_length == _send_length) {
 							
-								queue_tx(_send_length);
-								
-								#ifdef BROADCAST_SPI_DEBUG
-									Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n", rx_length, beacon, rx_length);
-								#endif
-							} else {
-								queue_cmd();
-							}
+							queue_tx(_send_length);
+							
+							#ifdef BROADCAST_SPI_DEBUG
+								Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n", rx_length, beacon, rx_length);
+							#endif
 						} else {
-							_tx_status[3] = 0;	// Mark tx status as new (first beacon)
 							queue_cmd();
 						}
 
-					} else if (rx_length > 0
-						&& rx_length == _rx_status[1] && rx_length == _rx_status[2]
-						&& rx_length <= TALKIE_BUFFER_SIZE) {
+					} else if (rx_length > 0 && rx_length == _rx_status[1] && rx_length == _rx_status[2] && rx_length <= TALKIE_BUFFER_SIZE) {
 
 						queue_rx(rx_length);
 						
@@ -176,6 +169,7 @@ protected:
 					#endif
 
 					_send_length = 0;	// payload was sent
+					_tx_status[3] = 0;	// Mark tx status as new (first beacon)
 					queue_cmd();
 				}
 				break;

@@ -93,17 +93,17 @@ protected:
 				for (uint8_t ss_pin_i = 0; ss_pin_i < _ss_pins_count; ss_pin_i++) {
 
 					// But only reads the existing content if it's its time to be processed (one per cycle)
-					if (sendBeacon(_spi_cs_pins[actual_pin_index]) && ss_pin_i == actual_pin_index) {
+					if (sendBeacon(_spi_cs_pins[ss_pin_i]) && ss_pin_i == actual_pin_index) {
 
 						uint8_t length = _rx_status[0];
-						if (sendBeacon(_spi_cs_pins[actual_pin_index], length)) {	// Avoid noise triggering
+						if (sendBeacon(_spi_cs_pins[ss_pin_i], length)) {	// Avoid noise triggering
 
 							// Arms the receiving
-							receivePayload(_spi_cs_pins[actual_pin_index], length);
+							receivePayload(_spi_cs_pins[ss_pin_i], length);
 
 							#ifdef BROADCAST_SPI_DEBUG
 								Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
-									_spi_cs_pins[actual_pin_index], 0b10000000 | length, length);
+									_spi_cs_pins[ss_pin_i], 0b10000000 | length, length);
 								Serial.print("[From Slave] Received: ");
 								for (int i = 0; i < length; i++) {
 									Serial.print((char)_data_buffer[i]);
