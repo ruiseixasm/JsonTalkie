@@ -79,15 +79,15 @@ protected:
 						_rx_buffer[0] = '{';
 						_rx_buffer[TALKIE_BUFFER_SIZE - 1] = '}';
 
-						#ifdef BROADCAST_SPI_DEBUG
-							Serial.printf("Received %u bytes: ", payload_length);
-							for (uint8_t i = 0; i < payload_length; i++) {
-								char c = _rx_buffer[i];
-								if (c >= 32 && c <= 126) Serial.print(c);
-								else Serial.printf("[%02X]", c);
-							}
-							Serial.println();
-						#endif
+						// #ifdef BROADCAST_SPI_DEBUG
+						// 	Serial.printf("Received %u bytes: ", payload_length);
+						// 	for (uint8_t i = 0; i < payload_length; i++) {
+						// 		char c = _rx_buffer[i];
+						// 		if (c >= 32 && c <= 126) Serial.print(c);
+						// 		else Serial.printf("[%02X]", c);
+						// 	}
+						// 	Serial.println();
+						// #endif
 
 						if (_stacked_transmissions < 3) {
 							JsonMessage new_message(
@@ -109,28 +109,35 @@ protected:
 					}
 				} else if (_rx_buffer[0] == 0xF0) {
 
-					#ifdef BROADCAST_SPI_DEBUG
-						Serial.printf("Sent %u bytes: ", _payload_length);
-						for (uint8_t i = 0; i < _payload_length; i++) {
-							char c = _tx_buffer[i];
-							if (c >= 32 && c <= 126) Serial.print(c);
-							else Serial.printf("[%02X]", c);
-						}
-						Serial.println();
-					#endif
+					size_t payload_length = (size_t)_tx_buffer[0];
+					if (payload_length > 0) {
 
-					_payload_length = 0;	// payload was sent
+						_tx_buffer[0] = '{';
+						_tx_buffer[TALKIE_BUFFER_SIZE - 1] = '}';
+						_payload_length = 0;	// payload was sent
+
+						#ifdef BROADCAST_SPI_DEBUG
+							Serial.printf("Sent %u bytes: ", payload_length);
+							for (uint8_t i = 0; i < payload_length; i++) {
+								char c = _tx_buffer[i];
+								if (c >= 32 && c <= 126) Serial.print(c);
+								else Serial.printf("[%02X]", c);
+							}
+							Serial.println();
+						#endif
+
+					}
 				} else {
 					
-					#ifdef BROADCAST_SPI_DEBUG
-						Serial.printf("Ping [%02X]: ", _tx_buffer[0]);
-						for (uint8_t i = 0; i < TALKIE_BUFFER_SIZE; i++) {
-							char c = _tx_buffer[i];
-							if (c >= 32 && c <= 126) Serial.print(c);
-							else Serial.printf("[%02X]", c);
-						}
-						Serial.println();
-					#endif
+					// #ifdef BROADCAST_SPI_DEBUG
+					// 	Serial.printf("Other [%02X]: ", _tx_buffer[0]);
+					// 	for (uint8_t i = 0; i < TALKIE_BUFFER_SIZE; i++) {
+					// 		char c = _tx_buffer[i];
+					// 		if (c >= 32 && c <= 126) Serial.print(c);
+					// 		else Serial.printf("[%02X]", c);
+					// 	}
+					// 	Serial.println();
+					// #endif
 
 				}
 			}
