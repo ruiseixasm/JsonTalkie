@@ -117,9 +117,9 @@ protected:
 						
 					} else {
 
-						#ifdef BROADCAST_SPI_DEBUG
-							Serial.println("Master ping");
-						#endif
+						// #ifdef BROADCAST_SPI_DEBUG
+						// 	Serial.println("Master ping");
+						// #endif
 
 						// An empty ping to keep alive
 						queue_cmd();
@@ -224,6 +224,8 @@ protected:
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_status_trans;
 		memset(t, 0, sizeof(_status_trans));  // clear entire struct
+		memset(_tx_status, 0, sizeof(_tx_status));  // clear entire status
+		memset(_rx_status, 0, sizeof(_rx_status));  // clear entire status
 		t->length = 4 * 8;	// Bytes to bits
 		// Cast away volatile
         t->tx_buffer = _tx_status;
@@ -237,6 +239,7 @@ protected:
 		// Half-Duplex
 		spi_slave_transaction_t *t = &_rx_trans;
 		memset(t, 0, sizeof(_rx_trans));  // clear entire struct
+		memset(_rx_buffer, 0, sizeof(_rx_buffer));  // clear entire buffer
 		t->length    = (size_t)len * 8;
 		t->tx_buffer = nullptr;
 		t->rx_buffer = _rx_buffer;
@@ -252,6 +255,7 @@ protected:
 		// Half-Duplex
 		spi_slave_transaction_t *t = &_tx_trans;
 		memset(t, 0, sizeof(_tx_trans));  // clear entire struct
+		memset(_tx_buffer, 0, sizeof(_tx_buffer));  // clear entire buffer
 		t->length    = (size_t)len * 8;
 		t->tx_buffer = _tx_buffer;
 		t->rx_buffer = nullptr;
