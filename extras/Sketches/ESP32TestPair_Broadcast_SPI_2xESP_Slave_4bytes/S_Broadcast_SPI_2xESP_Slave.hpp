@@ -59,7 +59,8 @@ protected:
 	spi_slave_transaction_t _tx_trans;
 
 	SpiState _spi_state = WAIT_CMD;
-	uint8_t _send_length = 0;
+	char _payload_data[TALKIE_BUFFER_SIZE];
+	uint8_t _payload_length = 0;
 
 	uint8_t _stacked_transmissions = 0;
 
@@ -93,9 +94,10 @@ protected:
 				case WAIT_CMD:
 				{
 					if (beacon) {
-						if (rx_length > 0 && rx_length == _rx_status[1] && rx_length == _rx_status[2] && rx_length == _send_length) {
+						if (rx_length > 0 && rx_length == _rx_status[1] && rx_length == _rx_status[2] && rx_length == _payload_length) {
 							
-							queue_tx(_send_length);
+							memcpy(_tx_buffer, _payload_data, _payload_length);  // copies the entire payload
+							queue_tx(_payload_length);
 							
 							#ifdef BROADCAST_SPI_DEBUG
 								Serial.printf("\n[CMD] 0x%02X beacon=%d len=%u\n", rx_length, beacon, rx_length);
@@ -165,10 +167,10 @@ protected:
 				case TX_PAYLOAD:
 				{
 					#ifdef BROADCAST_SPI_DEBUG
-						Serial.printf("Sent %u bytes\n", _send_length);
+						Serial.printf("Sent %u bytes\n", _payload_length);
 					#endif
 
-					_send_length = 0;	// payload was sent
+					_payload_length = 0;	// payload was sent
 					_tx_status[3] = 0;	// Mark tx status as new (first beacon)
 					queue_cmd();
 				}
@@ -184,7 +186,7 @@ protected:
 		if (_initiated) {
 			
 			const uint16_t start_waiting = (uint16_t)millis();
-			while (_send_length > 0) {
+			while (_payload_length > 0) {
 
 				if (_stacked_transmissions < 3) {
 
@@ -205,10 +207,7 @@ protected:
 				}
 			}
 			
-			_send_length = (uint8_t)json_message.serialize_json(
-				reinterpret_cast<char*>( _tx_buffer ),
-				TALKIE_BUFFER_SIZE
-			);
+			_payload_length = (uint8_t)json_message.serialize_json(_payload_data, TALKIE_BUFFER_SIZE);
 			return true;
 		}
         return false;
@@ -219,9 +218,9 @@ protected:
 	
 	void queue_cmd() {
 		_spi_state = WAIT_CMD;
-		_tx_status[0] = _send_length;
-		_tx_status[1] = _send_length;
-		_tx_status[2] = _send_length;
+		_tx_status[0] = _payload_length;
+		_tx_status[1] = _payload_length;
+		_tx_status[2] = _payload_length;
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_status_trans;
 		memset(t, 0, sizeof(_status_trans));  // clear entire struct
