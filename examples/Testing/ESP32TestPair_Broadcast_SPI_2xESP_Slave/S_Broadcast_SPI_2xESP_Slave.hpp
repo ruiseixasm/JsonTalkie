@@ -106,7 +106,7 @@ protected:
 							_startTransmission(new_message);
 							_stacked_transmissions--;
 
-							return;
+							return;	// Avoids the queue_transaction() vall bellow
 						}
 					}
 				} else if (_rx_buffer[0] == 0xF0) {
