@@ -115,7 +115,6 @@ protected:
 
 						_tx_buffer[_tx_index][0] = '{';
 						_tx_buffer[_tx_index][TALKIE_BUFFER_SIZE - 1] = '}';
-						_payload_length = 0;	// payload was sent
 
 						#ifdef BROADCAST_SPI_DEBUG
 							Serial.printf("Sent %u bytes: ", payload_length);
@@ -127,6 +126,8 @@ protected:
 							Serial.println();
 						#endif
 
+						_payload_length = 0;	// payload was sent
+						memset(_tx_buffer[_tx_index], 0, sizeof(_tx_buffer[_tx_index]));  // clear entire _tx_buffer first
 					}
 				} else {
 					
@@ -177,6 +178,8 @@ protected:
 			// Both, _tx_buffer and _payload_length, set at the same time
 			char* next_tx_buffer = reinterpret_cast<char*>( _tx_buffer[_tx_index ^ 1] );
 			_payload_length = (uint8_t)json_message.serialize_json(next_tx_buffer, TALKIE_BUFFER_SIZE);
+			_tx_buffer[_tx_index ^ 1][0] = _payload_length;
+			_tx_buffer[_tx_index ^ 1][TALKIE_BUFFER_SIZE - 1] = _payload_length;
 			return true;
 		}
         return false;
@@ -187,12 +190,6 @@ protected:
 	
 	void queue_transaction() {
 		_tx_index ^= 1;	// xor, alternates in this case, 0 ^ 1 == 1 while 1 ^ 1 == 0
-		if (_payload_length > 0) {
-			_tx_buffer[_tx_index][0] = _payload_length;
-			_tx_buffer[_tx_index][TALKIE_BUFFER_SIZE - 1] = _payload_length;
-		} else {
-			memset(_tx_buffer[_tx_index], 0, sizeof(_tx_buffer[_tx_index]));  // clear entire _tx_buffer first
-		}
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_payload_trans;
 		memset(t, 0, sizeof(_payload_trans));  // clear entire struct
