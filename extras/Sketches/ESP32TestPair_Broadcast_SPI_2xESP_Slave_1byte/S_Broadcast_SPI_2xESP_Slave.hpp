@@ -123,6 +123,7 @@ protected:
 						#endif
 
 						_payload_length = 0;	// payload was sent
+						memset(_tx_payload_buffer, 0, sizeof(_tx_payload_buffer));  // clear entire struct
 						_tx_status_index ^= 1;	// Rotate status Byte
 					}
 				}
@@ -146,6 +147,7 @@ protected:
 					);
 						
 					_rx_status_byte = 0;	// Makes suer the receiving by isn't kept as rx_length
+					memset(_rx_payload_buffer, 0, sizeof(_rx_payload_buffer));  // clear entire struct
 					// Needs the queue a new command, otherwise nothing is processed again (lock)
 					// Real scenario if at this moment a payload is still in the queue to be sent and now
 					// has no queue to be picked up
@@ -232,6 +234,7 @@ protected:
 
 	void queue_rx(size_t length = 0) {
 		_spi_state = RX_PAYLOAD;
+		memset(_rx_payload_buffer, 0, sizeof(_rx_payload_buffer));  // clear entire struct
 		// Half-Duplex
 		spi_slave_transaction_t *t = &_data_trans;
 		memset(t, 0, sizeof(_data_trans));  // clear entire struct
