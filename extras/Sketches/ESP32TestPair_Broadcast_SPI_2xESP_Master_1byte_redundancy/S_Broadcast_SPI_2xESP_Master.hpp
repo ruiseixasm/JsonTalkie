@@ -48,8 +48,8 @@ protected:
 	const spi_host_device_t _host;
 	
 	spi_device_handle_t _spi;
-	uint8_t _tx_status_byte __attribute__((aligned(4))) = 0;
-	uint8_t _rx_status_byte __attribute__((aligned(4))) = 0;
+	uint8_t _tx_status_byte[4] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_status_byte[4] __attribute__((aligned(4))) = {0};
 	uint8_t _payload_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
 	bool _in_broadcast_slot = false;
@@ -174,10 +174,10 @@ protected:
 
 		if (length == 0 || length > TALKIE_BUFFER_SIZE) return false;
 
-		_tx_status_byte = (uint8_t)length;
+		memset(_tx_status_byte, length, sizeof(_tx_status_byte));  // Set value in one go
 		spi_transaction_t t = {};
-		t.length = 1 * 8;	// Bytes to bits
-		t.tx_buffer = &_tx_status_byte;
+		t.length = 4 * 8;	// Bytes to bits
+		t.tx_buffer = _tx_status_byte;
 		t.rx_buffer = nullptr;
 
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
@@ -212,20 +212,30 @@ protected:
 	}
 
 
-	size_t sendBeacon(int ss_pin) {
+	static bool all_bytes_equal(const uint8_t* buf, size_t size) {
+		for (size_t i = 1; i < size; ++i) {
+			if (buf[i] != buf[0]) return false;
+		}
+		return true;
+	}
 
-		_tx_status_byte = 0;	// This marks it as a beacon
+
+	size_t sendBeacon(int ss_pin) {
+		// This marks it as a beacon
+		memset(_tx_status_byte, 0, sizeof(_tx_status_byte));  // Set value in one go
 		spi_transaction_t t = {};
-		t.length = 1 * 8;	// Bytes to bits
-		t.tx_buffer = &_tx_status_byte;
-		t.rx_buffer = &_rx_status_byte;
+		t.length = 4 * 8;	// Bytes to bits
+		t.tx_buffer = _tx_status_byte;
+		t.rx_buffer = _rx_status_byte;
 
 		digitalWrite(ss_pin, LOW);
 		spi_device_transmit(_spi, &t);
 		digitalWrite(ss_pin, HIGH);
 		
-		if (_rx_status_byte > TALKIE_BUFFER_SIZE) return 0;
-		return (size_t)_rx_status_byte;
+		if (_rx_status_byte[0] < TALKIE_BUFFER_SIZE + 1 && all_bytes_equal(_rx_status_byte, sizeof(_rx_status_byte))) {
+			return (size_t)_rx_status_byte[0];
+		}
+		return 0;
 	}
 	
 
