@@ -74,8 +74,8 @@ protected:
 
 			// At this point a queued element is consumed, as to queue a new one afterwards !
 			if (_rx_buffer[0] == _rx_buffer[TALKIE_BUFFER_SIZE - 1]) {
-				if (_rx_buffer[0] > 0) {
-					if (_rx_buffer[0] < TALKIE_BUFFER_SIZE + 1) {
+				if (_rx_buffer[0] < TALKIE_BUFFER_SIZE + 1) {
+					if (_rx_buffer[0] > 0) {
 
 						size_t payload_length = (size_t)_rx_buffer[0];
 						_rx_buffer[0] = '{';
@@ -108,8 +108,7 @@ protected:
 							return;	// Avoids the queue_transaction() vall bellow
 						}
 					}
-
-				} else {
+				} else if (_rx_buffer[0] == 0xF0) {
 
 					size_t payload_length = (size_t)_tx_buffer[_tx_index][0];
 					if (payload_length > 0) {
@@ -130,6 +129,18 @@ protected:
 						_payload_length = 0;	// payload was sent
 						memset(_tx_buffer[_tx_index], 0, sizeof(_tx_buffer[_tx_index]));  // clear entire _tx_buffer first
 					}
+				} else {
+					
+					#ifdef BROADCAST_SPI_DEBUG
+						Serial.printf("Other [%02X]: ", _tx_buffer[_tx_index][0]);
+						for (uint8_t i = 0; i < TALKIE_BUFFER_SIZE; i++) {
+							char c = _tx_buffer[_tx_index][i];
+							if (c >= 32 && c <= 126) Serial.print(c);
+							else Serial.printf("[%02X]", c);
+						}
+						Serial.println();
+					#endif
+
 				}
 			}
 			// Always queues a new transaction
