@@ -207,7 +207,6 @@ protected:
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], HIGH);
 		}
-		memset(_payload_buffer, 0, sizeof(_payload_buffer));  // clear sent data
 		// Border already included in the broadcast time slot
 		return true;
 	}

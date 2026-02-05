@@ -115,7 +115,7 @@ protected:
 						#ifdef BROADCAST_SPI_DEBUG
 							Serial.printf("Sent %u bytes: ", tx_length);
 							for (uint8_t i = 0; i < tx_length; i++) {
-								char c = _tx_buffer[_tx_status_index][i];
+								char c = _tx_payload_buffer[i];
 								if (c >= 32 && c <= 126) Serial.print(c);
 								else Serial.printf("[%02X]", c);
 							}
@@ -130,8 +130,20 @@ protected:
 				
 				case RX_PAYLOAD:
 				{
+					
+					#ifdef BROADCAST_SPI_DEBUG
+						Serial.printf("Received %u bytes: ", rx_length);
+						for (uint8_t i = 0; i < rx_length; i++) {
+							char c = _rx_payload_buffer[i];
+							if (c >= 32 && c <= 126) Serial.print(c);
+							else Serial.printf("[%02X]", c);
+						}
+						Serial.println();
+					#endif
+
 					if (_stacked_transmissions < 3) {
 						
+						_rx_status_byte = 0;	// Makes suer the receiving by isn't kept as rx_length
 						queue_status();	// Safe to star before given tha tit's a different buffer (just a byte)
 						JsonMessage new_message(
 							reinterpret_cast<const char*>( _rx_payload_buffer ), rx_length
