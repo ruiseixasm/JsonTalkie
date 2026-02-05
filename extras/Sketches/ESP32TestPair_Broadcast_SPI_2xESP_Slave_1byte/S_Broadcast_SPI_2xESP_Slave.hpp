@@ -54,8 +54,10 @@ protected:
 	// payload from being transmitted again.
 	uint8_t _tx_payload_buffer[2][TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	uint8_t _rx_payload_buffer[2][TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
-	uint8_t _tx_status_byte[2] __attribute__((aligned(4))) = {0};
-	uint8_t _rx_status_byte[2] __attribute__((aligned(4))) = {0};
+	// In order for each one be aligned at 4, each one shall have 4 bytes long,
+	// despite whe only use the first byte of each
+	uint8_t _tx_status_byte[2][4] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_status_byte[2][4] __attribute__((aligned(4))) = {0};	// <-- aligned
 	uint8_t _tx_index = 0;
 	uint8_t _rx_index = 0;
 
@@ -82,8 +84,8 @@ protected:
 				return;
 			}
 
-			const size_t tx_length = (size_t)_tx_status_byte[_tx_index];
-			const size_t rx_length = (size_t)_rx_status_byte[_rx_index];
+			const size_t tx_length = (size_t)_tx_status_byte[_tx_index][0];
+			const size_t rx_length = (size_t)_rx_status_byte[_rx_index][0];
 
 
 			/* === SPI "ISR" === */
@@ -123,8 +125,8 @@ protected:
 							Serial.println();
 						#endif
 
+						_tx_index ^= 1;			// Rotate TX index
 						_payload_length = 0;	// payload was sent
-						_tx_index ^= 1;	// Rotate status Byte
 					}
 				}
 				break;
@@ -144,12 +146,13 @@ protected:
 
 					if (_stacked_transmissions < 3) {
 						
-						_rx_status_byte[_rx_index] = 0;	// Makes suer the receiving by isn't kept as rx_length
-						queue_status();	// Safe to star before given tha tit's a different buffer (just a byte)
 						JsonMessage new_message(
 							reinterpret_cast<const char*>( _rx_payload_buffer[_tx_index] ), rx_length
 						);
 						
+						_rx_index ^= 1;			// Rotate RX index
+						queue_status();	// Safe to star before given tha tit's a different buffer (just a byte)
+
 						_stacked_transmissions++;
 						_startTransmission(new_message);
 						_stacked_transmissions--;
@@ -203,14 +206,14 @@ protected:
 	
 	void queue_status() {
 		_spi_state = WAIT_STATUS;
-		_tx_status_byte[_tx_index] = (uint8_t)_payload_length;
+		_tx_status_byte[_tx_index][0] = (uint8_t)_payload_length;
 
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_data_trans;
 		memset(t, 0, sizeof(_data_trans));  // clear entire struct
 		t->length    = 1 * 8;
-		t->tx_buffer = &_tx_status_byte[_tx_index];
-		t->rx_buffer = &_rx_status_byte[_rx_index];
+		t->tx_buffer = _tx_status_byte[_tx_index];
+		t->rx_buffer = _rx_status_byte[_rx_index];
 
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
