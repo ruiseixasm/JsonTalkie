@@ -47,9 +47,9 @@ protected:
 	// Alternating the buffer address guarantees a new DMA descriptor and prevents the previous
 	// payload from being transmitted again.
 	uint8_t _tx_buffer[2][TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
-	uint8_t _tx_index = 0;
 	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	spi_slave_transaction_t _payload_trans __attribute__((aligned(4)));
+	uint8_t _tx_index = 0;	// Better alignment afterwards
 
 	uint8_t _payload_length = 0;
 	uint8_t _stacked_transmissions = 0;
@@ -108,7 +108,7 @@ protected:
 							return;	// Avoids the queue_transaction() vall bellow
 						}
 					}
-					
+
 				} else {
 
 					size_t payload_length = (size_t)_tx_buffer[_tx_index][0];
