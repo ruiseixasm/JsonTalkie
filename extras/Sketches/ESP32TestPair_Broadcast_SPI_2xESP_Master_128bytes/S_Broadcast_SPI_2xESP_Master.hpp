@@ -23,7 +23,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 // Broadcast SPI is fire and forget, so, it is needed to give some time to the Slaves catch up with the next send from the Master
-#define broadcast_time_slot_us 300	// Gives some time to all Slaves to process the received broadcast before a next one
+#define broadcast_time_slot_us 500	// Gives some time to all Slaves to process the received broadcast before a next one
 #define beacon_time_slot_us 100		// Avoids too frequent beacons (used to collect data from the SPI Slaves)
 
 
@@ -146,7 +146,6 @@ protected:
 			
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
 				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
-				_last_beacon_time_us = _broadcast_time_us;	// Avoid calling the beacon right away
 				_in_broadcast_slot = true;
 
 			} else {
@@ -194,7 +193,6 @@ protected:
 	}
 
 	size_t receivePayload(int ss_pin) {
-		// Values of 0xAA and 0x55 are NOT allowed due to 10101010 binary alternation and consequent electronic ringing
 		_tx_buffer[0] = 0xF0;	// 0xF0 is to receive
 		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = _tx_buffer[0];
 		spi_transaction_t t = {};

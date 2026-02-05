@@ -25,8 +25,6 @@ extern "C" {
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 
-#define border_delay_us 10
-
 class S_Broadcast_SPI_2xESP_Slave : public BroadcastSocket {
 public:
 
@@ -44,11 +42,15 @@ protected:
 	bool _initiated = false;
 	const spi_host_device_t _host;
 
-	uint8_t _tx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	// Two TX buffers are required because the SPI slave driver uses DMA and does not copy TX data.
+	// DMA descriptors are built from the tx_buffer pointer at queue time and may be reused.
+	// Alternating the buffer address guarantees a new DMA descriptor and prevents the previous
+	// payload from being transmitted again.
+	uint8_t _tx_buffer[2][TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_index = 0;
 	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	spi_slave_transaction_t _payload_trans __attribute__((aligned(4)));
 
-	char _payload_data[TALKIE_BUFFER_SIZE];
 	uint8_t _payload_length = 0;
 	uint8_t _stacked_transmissions = 0;
 
@@ -72,7 +74,7 @@ protected:
 
 			// At this point a queued element is consumed, as to queue a new one afterwards !
 			if (_rx_buffer[0] == _rx_buffer[TALKIE_BUFFER_SIZE - 1]) {
-				if (_rx_buffer[0] <= TALKIE_BUFFER_SIZE) {
+				if (_rx_buffer[0] < TALKIE_BUFFER_SIZE + 1) {
 					if (_rx_buffer[0] > 0) {
 
 						size_t payload_length = (size_t)_rx_buffer[0];
@@ -97,42 +99,42 @@ protected:
 							// Needs the queue a new command, otherwise nothing is processed again (lock)
 							// Real scenario if at this moment a payload is still in the queue to be sent and now
 							// has no queue to be picked up
-							memset(_tx_buffer, 0, sizeof(_tx_buffer));  // clear entire buffer
 							queue_transaction();	// After the reading above to avoid _rx_buffer corruption
 							
 							_stacked_transmissions++;
 							_startTransmission(new_message);
 							_stacked_transmissions--;
 
-							return;
+							return;	// Avoids the queue_transaction() vall bellow
 						}
 					}
 				} else if (_rx_buffer[0] == 0xF0) {
 
-					size_t payload_length = (size_t)_tx_buffer[0];
+					size_t payload_length = (size_t)_tx_buffer[_tx_index][0];
 					if (payload_length > 0) {
 
-						_tx_buffer[0] = '{';
-						_tx_buffer[TALKIE_BUFFER_SIZE - 1] = '}';
-						_payload_length = 0;	// payload was sent
+						_tx_buffer[_tx_index][0] = '{';
+						_tx_buffer[_tx_index][TALKIE_BUFFER_SIZE - 1] = '}';
 
 						#ifdef BROADCAST_SPI_DEBUG
 							Serial.printf("Sent %u bytes: ", payload_length);
 							for (uint8_t i = 0; i < payload_length; i++) {
-								char c = _tx_buffer[i];
+								char c = _tx_buffer[_tx_index][i];
 								if (c >= 32 && c <= 126) Serial.print(c);
 								else Serial.printf("[%02X]", c);
 							}
 							Serial.println();
 						#endif
 
+						_payload_length = 0;	// payload was sent
+						memset(_tx_buffer[_tx_index], 0, sizeof(_tx_buffer[_tx_index]));  // clear entire _tx_buffer first
 					}
 				} else {
 					
 					#ifdef BROADCAST_SPI_DEBUG
-						Serial.printf("Other [%02X]: ", _tx_buffer[0]);
+						Serial.printf("Other [%02X]: ", _tx_buffer[_tx_index][0]);
 						for (uint8_t i = 0; i < TALKIE_BUFFER_SIZE; i++) {
-							char c = _tx_buffer[i];
+							char c = _tx_buffer[_tx_index][i];
 							if (c >= 32 && c <= 126) Serial.print(c);
 							else Serial.printf("[%02X]", c);
 						}
@@ -141,7 +143,6 @@ protected:
 
 				}
 			}
-			memset(_tx_buffer, 0, sizeof(_tx_buffer));  // clear entire buffer
 			// Always queues a new transaction
 			queue_transaction();
 		}
@@ -174,8 +175,11 @@ protected:
 					return false;
 				}
 			}
-			
-			_payload_length = (uint8_t)json_message.serialize_json(_payload_data, TALKIE_BUFFER_SIZE);
+			// Both, _tx_buffer and _payload_length, set at the same time
+			char* next_tx_buffer = reinterpret_cast<char*>( _tx_buffer[_tx_index ^ 1] );
+			_payload_length = (uint8_t)json_message.serialize_json(next_tx_buffer, TALKIE_BUFFER_SIZE);
+			_tx_buffer[_tx_index ^ 1][0] = _payload_length;
+			_tx_buffer[_tx_index ^ 1][TALKIE_BUFFER_SIZE - 1] = _payload_length;
 			return true;
 		}
         return false;
@@ -185,14 +189,12 @@ protected:
     // Specific methods associated to ESP SPI as Slave
 	
 	void queue_transaction() {
-		memcpy(_tx_buffer, _payload_data, _payload_length);  // Continuously copies the entire payload
-		_tx_buffer[0] = _payload_length;
-		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = _payload_length;
+		_tx_index ^= 1;	// xor, alternates in this case, 0 ^ 1 == 1 while 1 ^ 1 == 0
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_payload_trans;
 		memset(t, 0, sizeof(_payload_trans));  // clear entire struct
 		t->length    = TALKIE_BUFFER_SIZE * 8;
-		t->tx_buffer = _tx_buffer;
+		t->tx_buffer = _tx_buffer[_tx_index];
 		t->rx_buffer = _rx_buffer;
 		// If you see 80 on the Master side it means the Slave wasn't given the time to respond!
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
