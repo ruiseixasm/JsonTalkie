@@ -55,7 +55,7 @@ protected:
 	uint8_t _tx_payload_buffer[2][TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	uint8_t _rx_payload_buffer[2][TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	uint8_t _tx_status_byte[2] __attribute__((aligned(4))) = {0};
-	uint8_t _rx_status_byte __attribute__((aligned(4))) = 0;
+	uint8_t _rx_status_byte[2] __attribute__((aligned(4))) = {0};
 	uint8_t _tx_index = 0;
 	uint8_t _rx_index = 0;
 
@@ -83,7 +83,7 @@ protected:
 			}
 
 			const size_t tx_length = (size_t)_tx_status_byte[_tx_index];
-			const size_t rx_length = (size_t)_rx_status_byte;
+			const size_t rx_length = (size_t)_rx_status_byte[_rx_index];
 
 
 			/* === SPI "ISR" === */
@@ -144,7 +144,7 @@ protected:
 
 					if (_stacked_transmissions < 3) {
 						
-						_rx_status_byte = 0;	// Makes suer the receiving by isn't kept as rx_length
+						_rx_status_byte[_rx_index] = 0;	// Makes suer the receiving by isn't kept as rx_length
 						queue_status();	// Safe to star before given tha tit's a different buffer (just a byte)
 						JsonMessage new_message(
 							reinterpret_cast<const char*>( _rx_payload_buffer[_tx_index] ), rx_length
@@ -210,7 +210,7 @@ protected:
 		memset(t, 0, sizeof(_data_trans));  // clear entire struct
 		t->length    = 1 * 8;
 		t->tx_buffer = &_tx_status_byte[_tx_index];
-		t->rx_buffer = &_rx_status_byte;
+		t->rx_buffer = &_rx_status_byte[_rx_index];
 
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
