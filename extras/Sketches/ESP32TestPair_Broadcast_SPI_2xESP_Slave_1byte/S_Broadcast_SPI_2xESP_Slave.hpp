@@ -141,20 +141,22 @@ protected:
 						Serial.println();
 					#endif
 
+					JsonMessage new_message(
+						reinterpret_cast<const char*>( _rx_payload_buffer ), rx_length
+					);
+						
+					_rx_status_byte = 0;	// Makes suer the receiving by isn't kept as rx_length
+					// Needs the queue a new command, otherwise nothing is processed again (lock)
+					// Real scenario if at this moment a payload is still in the queue to be sent and now
+					// has no queue to be picked up
+					queue_status();	// After the reading above to avoid _rx_buffer corruption
+
 					if (_stacked_transmissions < 3) {
-						
-						_rx_status_byte = 0;	// Makes suer the receiving by isn't kept as rx_length
-						queue_status();	// Safe to star before given tha tit's a different buffer (just a byte)
-						JsonMessage new_message(
-							reinterpret_cast<const char*>( _rx_payload_buffer ), rx_length
-						);
-						
 						_stacked_transmissions++;
 						_startTransmission(new_message);
 						_stacked_transmissions--;
-
-						return;	// Avoids the queue_status() call bellow (no repetition)
 					}
+					return;	// Avoids the queue_status() call bellow (no repetition)
 				}
 				break;
 			}
