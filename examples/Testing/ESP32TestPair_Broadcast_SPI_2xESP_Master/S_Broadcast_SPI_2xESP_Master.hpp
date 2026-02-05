@@ -23,10 +23,8 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 // Broadcast SPI is fire and forget, so, it is needed to give some time to the Slaves catch up with the next send from the Master
-#define broadcast_time_spacing_us 500	// Gives some time to all Slaves to process the received broadcast before a next one
-
-#define padding_delay_us 2
-#define border_delay_us 10
+#define broadcast_time_slot_us 300	// Gives some time to all Slaves to process the received broadcast before a next one
+#define beacon_time_slot_us 100		// Avoids too frequent beacons (used to collect data from the SPI Slaves)
 
 
 class S_Broadcast_SPI_2xESP_Master : public BroadcastSocket {
@@ -73,15 +71,15 @@ protected:
 		// Sends once per pin, avoids getting stuck in processing many pins
 		static uint8_t actual_pin_index = 0;
 
-		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
+		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_slot_us) {
 			_in_broadcast_slot = false;
 		}
 
-		// Master gives priority to broadcast send, NOT to receive
-		if (_initiated) {
+		// Master gives priority to broadcast send, NOT to receive, so, it respects the broadcast time slot
+		if (!_in_broadcast_slot && _initiated) {
 			
 			// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-			if (micros() - _last_beacon_time_us > 100) {
+			if (micros() - _last_beacon_time_us > beacon_time_slot_us) {
 				_last_beacon_time_us = micros();	// Avoid calling the beacon right away
 
 				#ifdef BROADCAST_SPI_DEBUG_TIMING
@@ -136,7 +134,7 @@ protected:
 
 				while (_in_broadcast_slot) {	// Avoids too many sends too close in time
 					// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
-					if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
+					if (micros() - _broadcast_time_us > broadcast_time_slot_us) _in_broadcast_slot = false;
 				}
 
 				#ifdef BROADCAST_SPI_DEBUG
@@ -148,7 +146,6 @@ protected:
 			
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
 				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
-				_last_beacon_time_us = _broadcast_time_us;	// Avoid calling the beacon right away
 				_in_broadcast_slot = true;
 
 			} else {
@@ -187,9 +184,7 @@ protected:
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], LOW);
 		}
-		delayMicroseconds(padding_delay_us);
 		spi_device_transmit(_spi, &t);
-		delayMicroseconds(padding_delay_us);
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], HIGH);
 		}
@@ -207,11 +202,8 @@ protected:
 		t.rx_buffer = _rx_buffer;
 		
 		digitalWrite(ss_pin, LOW);
-		delayMicroseconds(padding_delay_us);
 		spi_device_transmit(_spi, &t);
-		delayMicroseconds(padding_delay_us);
 		digitalWrite(ss_pin, HIGH);
-		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
 
 		if (_rx_buffer[0] > 0 && _rx_buffer[0] == _rx_buffer[TALKIE_BUFFER_SIZE - 1]) {
 			size_t payload_length = (size_t)_rx_buffer[0];
@@ -258,7 +250,7 @@ public:
 		devcfg.queue_size = 1;		// Only one queue is needed given that the payload is just 128 bytes
 		devcfg.spics_io_num = -1,  	// DISABLE hardware CS completely! (Broadcast)
 
-		spi_bus_initialize(_host, &buscfg, 1);	// Makes sure uses channel 1 (128 > 32 bytes) (Not SPI_DMA_CH_AUTO)
+		spi_bus_initialize(_host, &buscfg, SPI_DMA_CH_AUTO);
 		spi_bus_add_device(_host, &devcfg, &_spi);
 		
 		_initiated = true;
