@@ -173,7 +173,7 @@ protected:
 	
 	void broadcastPayload(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
 
-		if (length > TALKIE_BUFFER_SIZE) return;
+		if (length > TALKIE_BUFFER_SIZE || length == 0) return;
 		_tx_buffer[0] = length;
 		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = length;
 		spi_transaction_t t = {};
@@ -193,7 +193,7 @@ protected:
 	}
 
 	size_t receivePayload(int ss_pin) {
-		_tx_buffer[0] = 0xF0;	// 0xF0 is to receive
+		_tx_buffer[0] = 0;	// 0 is to receive
 		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = _tx_buffer[0];
 		spi_transaction_t t = {};
 		t.length = TALKIE_BUFFER_SIZE * 8;	// Bytes to bits
