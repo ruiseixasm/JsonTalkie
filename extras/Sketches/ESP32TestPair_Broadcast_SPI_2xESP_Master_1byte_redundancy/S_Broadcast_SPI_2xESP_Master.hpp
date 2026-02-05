@@ -222,7 +222,6 @@ protected:
 
 
 	size_t receiveLength(int ss_pin) {
-		// This marks it as a beacon
 		memset(_tx_payload_length, 0, sizeof(_tx_payload_length));  // Set value in one go
 		spi_transaction_t t = {};
 		t.length = 4 * 8;	// Bytes to bits
