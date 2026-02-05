@@ -50,7 +50,7 @@ protected:
 	spi_device_handle_t _spi;
 	uint8_t _tx_status_byte __attribute__((aligned(4))) = 0;
 	uint8_t _rx_status_byte __attribute__((aligned(4))) = 0;
-	uint8_t _data_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _payload_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
 	bool _in_broadcast_slot = false;
 	uint32_t _broadcast_time_us = 0;
@@ -97,13 +97,13 @@ protected:
 							_spi_cs_pins[actual_pin_index], 0b10000000 | payload_length, payload_length);
 						Serial.print("[From Slave] Received: ");
 						for (int i = 0; i < payload_length; i++) {
-							Serial.print((char)_data_buffer[i]);
+							Serial.print((char)_payload_buffer[i]);
 						}
 						Serial.println();
 					#endif
 					
 					// No receiving while a send is pending, so, no _json_message corruption is possible
-					JsonMessage new_message(reinterpret_cast<const char*>( _data_buffer ), payload_length);
+					JsonMessage new_message(reinterpret_cast<const char*>( _payload_buffer ), payload_length);
 					_startTransmission(new_message);
 				}
 				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
@@ -128,7 +128,7 @@ protected:
 			#endif
 
 			size_t length = json_message.serialize_json(
-				reinterpret_cast<char*>( _data_buffer ),
+				reinterpret_cast<char*>( _payload_buffer ),
 				TALKIE_BUFFER_SIZE
 			);
 			
@@ -197,7 +197,7 @@ protected:
 
 		spi_transaction_t t = {};
 		t.length = length * 8;	// Bytes to bits
-		t.tx_buffer = _data_buffer;
+		t.tx_buffer = _payload_buffer;
 		t.rx_buffer = nullptr;
 
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
@@ -207,7 +207,7 @@ protected:
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], HIGH);
 		}
-		memset(_data_buffer, 0, sizeof(_data_buffer));  // clear sent data
+		memset(_payload_buffer, 0, sizeof(_payload_buffer));  // clear sent data
 		// Border already included in the broadcast time slot
 		return true;
 	}
@@ -234,7 +234,7 @@ protected:
 		spi_transaction_t t = {};
 		t.length = length * 8;	// Bytes to bits
 		t.tx_buffer = nullptr;
-		t.rx_buffer = _data_buffer;
+		t.rx_buffer = _payload_buffer;
 		
 		digitalWrite(ss_pin, LOW);
 		spi_device_transmit(_spi, &t);

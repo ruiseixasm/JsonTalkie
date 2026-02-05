@@ -46,11 +46,18 @@ protected:
 	// DMA descriptors are built from the tx_buffer pointer at queue time and may be reused.
 	// Alternating the buffer address guarantees a new DMA descriptor and prevents the previous
 	// payload from being transmitted again.
-	uint8_t _tx_buffer[2][TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
-	uint8_t _tx_index = 0;
-	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
-	spi_slave_transaction_t _payload_trans __attribute__((aligned(4)));
+	uint8_t _tx_status_byte[2] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_status_byte __attribute__((aligned(4))) = 0;
+	uint8_t _payload_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
+
+
+	uint8_t _tx_buffer[2][TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_status_index = 0;
+	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+
+
+	spi_slave_transaction_t _data_trans __attribute__((aligned(4)));
 	uint8_t _payload_length = 0;
 	uint8_t _stacked_transmissions = 0;
 
@@ -99,27 +106,27 @@ protected:
 							// Needs the queue a new command, otherwise nothing is processed again (lock)
 							// Real scenario if at this moment a payload is still in the queue to be sent and now
 							// has no queue to be picked up
-							queue_transaction();	// After the reading above to avoid _rx_buffer corruption
+							queue_tx();	// After the reading above to avoid _rx_buffer corruption
 							
 							_stacked_transmissions++;
 							_startTransmission(new_message);
 							_stacked_transmissions--;
 
-							return;	// Avoids the queue_transaction() vall bellow
+							return;	// Avoids the queue_tx() vall bellow
 						}
 					}
 				} else if (_rx_buffer[0] == 0xF0) {
 
-					size_t payload_length = (size_t)_tx_buffer[_tx_index][0];
+					size_t payload_length = (size_t)_tx_buffer[_tx_status_index][0];
 					if (payload_length > 0) {
 
-						_tx_buffer[_tx_index][0] = '{';
-						_tx_buffer[_tx_index][TALKIE_BUFFER_SIZE - 1] = '}';
+						_tx_buffer[_tx_status_index][0] = '{';
+						_tx_buffer[_tx_status_index][TALKIE_BUFFER_SIZE - 1] = '}';
 
 						#ifdef BROADCAST_SPI_DEBUG
 							Serial.printf("Sent %u bytes: ", payload_length);
 							for (uint8_t i = 0; i < payload_length; i++) {
-								char c = _tx_buffer[_tx_index][i];
+								char c = _tx_buffer[_tx_status_index][i];
 								if (c >= 32 && c <= 126) Serial.print(c);
 								else Serial.printf("[%02X]", c);
 							}
@@ -127,14 +134,14 @@ protected:
 						#endif
 
 						_payload_length = 0;	// payload was sent
-						memset(_tx_buffer[_tx_index], 0, sizeof(_tx_buffer[_tx_index]));  // clear entire _tx_buffer first
+						memset(_tx_buffer[_tx_status_index], 0, sizeof(_tx_buffer[_tx_status_index]));  // clear entire _tx_buffer first
 					}
 				} else {
 					
 					#ifdef BROADCAST_SPI_DEBUG
-						Serial.printf("Other [%02X]: ", _tx_buffer[_tx_index][0]);
+						Serial.printf("Other [%02X]: ", _tx_buffer[_tx_status_index][0]);
 						for (uint8_t i = 0; i < TALKIE_BUFFER_SIZE; i++) {
-							char c = _tx_buffer[_tx_index][i];
+							char c = _tx_buffer[_tx_status_index][i];
 							if (c >= 32 && c <= 126) Serial.print(c);
 							else Serial.printf("[%02X]", c);
 						}
@@ -144,7 +151,7 @@ protected:
 				}
 			}
 			// Always queues a new transaction
-			queue_transaction();
+			queue_tx();
 		}
 	}
 
@@ -176,10 +183,10 @@ protected:
 				}
 			}
 			// Both, _tx_buffer and _payload_length, set at the same time
-			char* next_tx_buffer = reinterpret_cast<char*>( _tx_buffer[_tx_index ^ 1] );
+			char* next_tx_buffer = reinterpret_cast<char*>( _tx_buffer[_tx_status_index ^ 1] );
 			_payload_length = (uint8_t)json_message.serialize_json(next_tx_buffer, TALKIE_BUFFER_SIZE);
-			_tx_buffer[_tx_index ^ 1][0] = _payload_length;
-			_tx_buffer[_tx_index ^ 1][TALKIE_BUFFER_SIZE - 1] = _payload_length;
+			_tx_buffer[_tx_status_index ^ 1][0] = _payload_length;
+			_tx_buffer[_tx_status_index ^ 1][TALKIE_BUFFER_SIZE - 1] = _payload_length;
 			return true;
 		}
         return false;
@@ -188,15 +195,44 @@ protected:
 	
     // Specific methods associated to ESP SPI as Slave
 	
-	void queue_transaction() {
-		_tx_index ^= 1;	// xor, alternates in this case, 0 ^ 1 == 1 while 1 ^ 1 == 0
+	void queue_status(size_t length = 0) {
+		_tx_status_byte[_tx_status_index] = 0;
+		if (length > 0) {
+			_tx_status_index ^= 1;	// xor, alternates in this case, 0 ^ 1 == 1 while 1 ^ 1 == 0
+			_tx_status_byte[_tx_status_index] = length;
+		}
+
 		// Full-Duplex
-		spi_slave_transaction_t *t = &_payload_trans;
-		memset(t, 0, sizeof(_payload_trans));  // clear entire struct
-		t->length    = TALKIE_BUFFER_SIZE * 8;
-		t->tx_buffer = _tx_buffer[_tx_index];
-		t->rx_buffer = _rx_buffer;
-		// If you see 80 on the Master side it means the Slave wasn't given the time to respond!
+		spi_slave_transaction_t *t = &_data_trans;
+		memset(t, 0, sizeof(_data_trans));  // clear entire struct
+		t->length    = 1 * 8;
+		t->tx_buffer = &_tx_status_byte[_tx_status_index];
+		t->rx_buffer = &_rx_status_byte;
+
+		spi_slave_queue_trans(_host, t, portMAX_DELAY);
+	}
+
+
+	void queue_tx(size_t length = 0) {
+		// Half-Duplex
+		spi_slave_transaction_t *t = &_data_trans;
+		memset(t, 0, sizeof(_data_trans));  // clear entire struct
+		t->length    = length * 8;
+		t->tx_buffer = _payload_buffer;
+		t->rx_buffer = nullptr;
+		
+		spi_slave_queue_trans(_host, t, portMAX_DELAY);
+	}
+
+
+	void queue_rx(size_t length = 0) {
+		// Half-Duplex
+		spi_slave_transaction_t *t = &_data_trans;
+		memset(t, 0, sizeof(_data_trans));  // clear entire struct
+		t->length    = length * 8;
+		t->tx_buffer = nullptr;
+		t->rx_buffer = _payload_buffer;
+		
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
 
@@ -244,7 +280,7 @@ public:
 		// DMA channel must be given if > 32 bytes
 		esp_err_t err = spi_slave_initialize(_host, &buscfg, &slvcfg, 1);  // ← CHANNEL 1
 		if (err == ESP_OK) {
-			queue_transaction();
+			queue_tx();
 			_initiated = true;
 		}
 
