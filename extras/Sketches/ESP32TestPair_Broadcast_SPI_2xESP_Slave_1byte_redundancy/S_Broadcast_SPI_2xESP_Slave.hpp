@@ -21,7 +21,7 @@ extern "C" {
 }
 
 
-// #define BROADCAST_SPI_DEBUG
+#define BROADCAST_SPI_DEBUG
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 
@@ -84,88 +84,92 @@ protected:
 
 		if (_initiated) {
 			
-			// Checks if the queued element was consumed and needs to be processed, otherwise, return
-    		spi_slave_transaction_t *ret = nullptr;
-			if (spi_slave_get_trans_result(_host, &ret, 0) != ESP_OK) {
-				return;
-			}
+			do {
 
-			const size_t tx_length = get_valid_length(_tx_payload_length[_tx_payload_index]);
-			const size_t rx_length = get_valid_length(_rx_payload_length);
-
-
-			/* === SPI "ISR" === */
-
-			switch (_spi_state) {
-
-				case WAIT_STATUS:
-				{
-					if (rx_length > 0) {
-						queue_rx(rx_length);
-						return;
-					} else if (tx_length > 0) {
-						queue_tx(tx_length);
-						return;
-					}
+				// Checks if the queued element was consumed and needs to be processed, otherwise, return
+				spi_slave_transaction_t *ret = nullptr;
+				if (spi_slave_get_trans_result(_host, &ret, 0) != ESP_OK) {
+					continue;
 				}
-				break;
-				
-				case TX_PAYLOAD:
-				{
-					if (tx_length > 0) {
 
-						#ifdef BROADCAST_SPI_DEBUG
-							Serial.printf("Sent %u bytes: ", tx_length);
-							for (uint8_t i = 0; i < tx_length; i++) {
-								char c = _tx_payload_buffer[i];
-								if (c >= 32 && c <= 126) Serial.print(c);
-								else Serial.printf("[%02X]", c);
-							}
-							Serial.println();
-						#endif
+				const size_t tx_length = get_valid_length(_tx_payload_length[_tx_payload_index]);
+				const size_t rx_length = get_valid_length(_rx_payload_length);
 
-						_payload_length = 0;	// payload was sent
-						memset(_tx_payload_buffer, 0, sizeof(_tx_payload_buffer));  // clear entire struct
-						_tx_payload_index ^= 1;	// Rotate status Byte
-					}
-				}
-				break;
-				
-				case RX_PAYLOAD:
-				{
-					if (rx_length > 0) {
-						#ifdef BROADCAST_SPI_DEBUG
-							Serial.printf("Received %u bytes: ", rx_length);
-							for (uint8_t i = 0; i < rx_length; i++) {
-								char c = _rx_payload_buffer[i];
-								if (c >= 32 && c <= 126) Serial.print(c);
-								else Serial.printf("[%02X]", c);
-							}
-							Serial.println();
-						#endif
 
-						JsonMessage new_message(
-							reinterpret_cast<const char*>( _rx_payload_buffer ), rx_length
-						);
-						
-						memset(_rx_payload_length, 0, sizeof(_rx_payload_length));  // clear entire status
-						memset(_rx_payload_buffer, 0, sizeof(_rx_payload_buffer));  // clear entire buffer
-						// Needs the queue a new command, otherwise nothing is processed again (lock)
-						// Real scenario if at this moment a payload is still in the queue to be sent and now
-						// has no queue to be picked up
-						queue_length();	// After the reading above to avoid _rx_buffer corruption
+				/* === SPI "ISR" === */
 
-						if (_stacked_transmissions < 3) {
-							_stacked_transmissions++;
-							_startTransmission(new_message);
-							_stacked_transmissions--;
+				switch (_spi_state) {
+
+					case WAIT_STATUS:
+					{
+						if (rx_length > 0) {
+							queue_rx(rx_length);
+							return;
+						} else if (tx_length > 0) {
+							queue_tx(tx_length);
+							return;
 						}
-						return;	// Avoids the queue_length() call bellow (no repetition)
 					}
+					break;
+					
+					case TX_PAYLOAD:
+					{
+						if (tx_length > 0) {
+
+							#ifdef BROADCAST_SPI_DEBUG
+								Serial.printf("Sent %u bytes: ", tx_length);
+								for (uint8_t i = 0; i < tx_length; i++) {
+									char c = _tx_payload_buffer[i];
+									if (c >= 32 && c <= 126) Serial.print(c);
+									else Serial.printf("[%02X]", c);
+								}
+								Serial.println();
+							#endif
+
+							_payload_length = 0;	// payload was sent
+							memset(_tx_payload_buffer, 0, sizeof(_tx_payload_buffer));  // clear entire struct
+							_tx_payload_index ^= 1;	// Rotate status Byte
+						}
+					}
+					break;
+					
+					case RX_PAYLOAD:
+					{
+						if (rx_length > 0) {
+							#ifdef BROADCAST_SPI_DEBUG
+								Serial.printf("Received %u bytes: ", rx_length);
+								for (uint8_t i = 0; i < rx_length; i++) {
+									char c = _rx_payload_buffer[i];
+									if (c >= 32 && c <= 126) Serial.print(c);
+									else Serial.printf("[%02X]", c);
+								}
+								Serial.println();
+							#endif
+
+							JsonMessage new_message(
+								reinterpret_cast<const char*>( _rx_payload_buffer ), rx_length
+							);
+							
+							memset(_rx_payload_length, 0, sizeof(_rx_payload_length));  // clear entire status
+							memset(_rx_payload_buffer, 0, sizeof(_rx_payload_buffer));  // clear entire buffer
+							// Needs the queue a new command, otherwise nothing is processed again (lock)
+							// Real scenario if at this moment a payload is still in the queue to be sent and now
+							// has no queue to be picked up
+							queue_length();	// After the reading above to avoid _rx_buffer corruption
+
+							if (_stacked_transmissions < 3) {
+								_stacked_transmissions++;
+								_startTransmission(new_message);
+								_stacked_transmissions--;
+							}
+							return;	// Avoids the queue_length() call bellow (no repetition)
+						}
+					}
+					break;
 				}
-				break;
-			}
-			queue_length();
+				queue_length();
+
+			} while (_spi_state == RX_PAYLOAD);	// Gives priority to receive data
 		}
 	}
 
