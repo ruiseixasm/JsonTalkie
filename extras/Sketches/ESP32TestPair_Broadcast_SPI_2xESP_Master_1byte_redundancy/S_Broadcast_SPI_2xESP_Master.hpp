@@ -25,7 +25,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // Broadcast SPI is fire and forget, so, it is needed to give some time to the Slaves catch up with the next send from the Master
 #define broadcast_time_slot_us 500	// Gives some time to all Slaves to process the received broadcast before a next one
 #define beacon_time_slot_us 100		// Avoids too frequent beacons (used to collect data from the SPI Slaves)
-#define send_length_tail_us 10		// Gives time for the Slave to pick up the payload
+#define send_length_tail_us 30		// Gives time for the Slave to pick up the payload
 
 
 class S_Broadcast_SPI_2xESP_Master : public BroadcastSocket {
@@ -188,6 +188,7 @@ protected:
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], HIGH);
 		}
+		delayMicroseconds(send_length_tail_us);
 		return true;
 	}
 	

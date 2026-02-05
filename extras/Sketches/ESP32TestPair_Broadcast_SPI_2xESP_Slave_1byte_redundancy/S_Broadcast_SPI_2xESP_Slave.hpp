@@ -63,6 +63,9 @@ protected:
 	size_t _payload_length = 0;
 	uint8_t _stacked_transmissions = 0;
 
+	size_t _tx_length = 0;
+	size_t _rx_length = 0;
+
     // Constructor
     S_Broadcast_SPI_2xESP_Slave(spi_host_device_t host) : BroadcastSocket(), _host(host) {
             
@@ -92,9 +95,6 @@ protected:
 					continue;
 				}
 
-				const size_t tx_length = get_valid_length(_tx_payload_length[_tx_payload_index]);
-				const size_t rx_length = get_valid_length(_rx_payload_length);
-
 
 				/* === SPI "ISR" === */
 
@@ -102,11 +102,14 @@ protected:
 
 					case WAIT_STATUS:
 					{
-						if (rx_length > 0) {
-							queue_rx(rx_length);
+						_tx_length = get_valid_length(_tx_payload_length[_tx_payload_index]);
+						_rx_length = get_valid_length(_rx_payload_length);
+
+						if (_rx_length > 0) {
+							queue_rx();
 							return;
-						} else if (tx_length > 0) {
-							queue_tx(tx_length);
+						} else if (_tx_length > 0) {
+							queue_tx();
 							return;
 						}
 					}
@@ -114,11 +117,11 @@ protected:
 					
 					case TX_PAYLOAD:
 					{
-						if (tx_length > 0) {
+						if (_tx_length > 0) {
 
 							#ifdef BROADCAST_SPI_DEBUG
-								Serial.printf("Sent %u bytes: ", tx_length);
-								for (uint8_t i = 0; i < tx_length; i++) {
+								Serial.printf("Sent %u bytes: ", _tx_length);
+								for (uint8_t i = 0; i < _tx_length; i++) {
 									char c = _tx_payload_buffer[i];
 									if (c >= 32 && c <= 126) Serial.print(c);
 									else Serial.printf("[%02X]", c);
@@ -135,10 +138,10 @@ protected:
 					
 					case RX_PAYLOAD:
 					{
-						if (rx_length > 0) {
+						if (_rx_length > 0) {
 							#ifdef BROADCAST_SPI_DEBUG
-								Serial.printf("Received %u bytes: ", rx_length);
-								for (uint8_t i = 0; i < rx_length; i++) {
+								Serial.printf("Received %u bytes: ", _rx_length);
+								for (uint8_t i = 0; i < _rx_length; i++) {
 									char c = _rx_payload_buffer[i];
 									if (c >= 32 && c <= 126) Serial.print(c);
 									else Serial.printf("[%02X]", c);
@@ -147,7 +150,7 @@ protected:
 							#endif
 
 							JsonMessage new_message(
-								reinterpret_cast<const char*>( _rx_payload_buffer ), rx_length
+								reinterpret_cast<const char*>( _rx_payload_buffer ), _rx_length
 							);
 							
 							memset(_rx_payload_length, 0, sizeof(_rx_payload_length));  // clear entire status
@@ -229,12 +232,12 @@ protected:
 	}
 
 
-	void queue_tx(size_t length = 0) {
+	void queue_tx() {
 		_spi_state = TX_PAYLOAD;
 		// Half-Duplex
 		spi_slave_transaction_t *t = &_data_trans;
 		memset(t, 0, sizeof(_data_trans));  // clear entire struct
-		t->length    = length * 8;
+		t->length    = _tx_length * 8;
 		t->tx_buffer = _tx_payload_buffer;
 		t->rx_buffer = nullptr;
 		
@@ -242,13 +245,13 @@ protected:
 	}
 
 
-	void queue_rx(size_t length = 0) {
+	void queue_rx() {
 		_spi_state = RX_PAYLOAD;
 		memset(_rx_payload_buffer, 0, sizeof(_rx_payload_buffer));  // clear entire struct
 		// Half-Duplex
 		spi_slave_transaction_t *t = &_data_trans;
 		memset(t, 0, sizeof(_data_trans));  // clear entire struct
-		t->length    = length * 8;
+		t->length    = _rx_length * 8;
 		t->tx_buffer = nullptr;
 		t->rx_buffer = _rx_payload_buffer;
 		
