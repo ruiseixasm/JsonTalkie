@@ -52,14 +52,14 @@ protected:
 	// DMA descriptors are built from the tx_buffer pointer at queue time and may be reused.
 	// Alternating the buffer address guarantees a new DMA descriptor and prevents the previous
 	// payload from being transmitted again.
-	uint8_t _tx_status_byte[2][4] __attribute__((aligned(4))) = {0};
-	uint8_t _tx_status_index = 0;
-	uint8_t _rx_status_byte[4] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_payload_index = 0;
+	uint8_t _tx_payload_length[2][4] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_payload_length[4] __attribute__((aligned(4))) = {0};
 	uint8_t _tx_payload_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	uint8_t _rx_payload_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	spi_slave_transaction_t _data_trans __attribute__((aligned(4)));
 
 	SpiState _spi_state = WAIT_STATUS;
-	spi_slave_transaction_t _data_trans __attribute__((aligned(4)));
 	size_t _payload_length = 0;
 	uint8_t _stacked_transmissions = 0;
 
@@ -70,11 +70,12 @@ protected:
 	}
 
 
-	static bool all_bytes_equal(const uint8_t* buf, size_t size) {
+	static size_t get_valid_length(const uint8_t* buf, size_t size = 4) {
+		if (buf[0] > TALKIE_BUFFER_SIZE) return 0;
 		for (size_t i = 1; i < size; ++i) {
-			if (buf[i] != buf[0]) return false;
+			if (buf[i] != buf[0]) return 0;
 		}
-		return true;
+		return (size_t)buf[0];
 	}
 
 
@@ -89,14 +90,8 @@ protected:
 				return;
 			}
 
-			size_t tx_length = (size_t)_tx_status_byte[_tx_status_index][0];
-			size_t rx_length = (size_t)_rx_status_byte[0];
-			if (!all_bytes_equal(_tx_status_byte[_tx_status_index], sizeof(_tx_status_byte[_tx_status_index]))) {
-				tx_length = 0;
-			}
-			if (!all_bytes_equal(_rx_status_byte, sizeof(_rx_status_byte))) {
-				rx_length = 0;
-			}
+			const size_t tx_length = get_valid_length(_tx_payload_length[_tx_payload_index]);
+			const size_t rx_length = get_valid_length(_rx_payload_length);
 
 
 			/* === SPI "ISR" === */
@@ -105,19 +100,12 @@ protected:
 
 				case WAIT_STATUS:
 				{
-					if (rx_length == 0) {	// It's a beacon
-
-						if (tx_length > 0) {
-							queue_tx(tx_length);
-							return;
-						}
-
-					} else if (rx_length < TALKIE_BUFFER_SIZE + 1) {
-
-						if (rx_length > 0) {
-							queue_rx(rx_length);
-							return;
-						}
+					if (rx_length > 0) {
+						queue_rx(rx_length);
+						return;
+					} else if (tx_length > 0) {
+						queue_tx(tx_length);
+						return;
 					}
 				}
 				break;
@@ -138,45 +126,46 @@ protected:
 
 						_payload_length = 0;	// payload was sent
 						memset(_tx_payload_buffer, 0, sizeof(_tx_payload_buffer));  // clear entire struct
-						_tx_status_index ^= 1;	// Rotate status Byte
+						_tx_payload_index ^= 1;	// Rotate status Byte
 					}
 				}
 				break;
 				
 				case RX_PAYLOAD:
 				{
-					
-					#ifdef BROADCAST_SPI_DEBUG
-						Serial.printf("Received %u bytes: ", rx_length);
-						for (uint8_t i = 0; i < rx_length; i++) {
-							char c = _rx_payload_buffer[i];
-							if (c >= 32 && c <= 126) Serial.print(c);
-							else Serial.printf("[%02X]", c);
+					if (rx_length > 0) {
+						#ifdef BROADCAST_SPI_DEBUG
+							Serial.printf("Received %u bytes: ", rx_length);
+							for (uint8_t i = 0; i < rx_length; i++) {
+								char c = _rx_payload_buffer[i];
+								if (c >= 32 && c <= 126) Serial.print(c);
+								else Serial.printf("[%02X]", c);
+							}
+							Serial.println();
+						#endif
+
+						JsonMessage new_message(
+							reinterpret_cast<const char*>( _rx_payload_buffer ), rx_length
+						);
+						
+						memset(_rx_payload_length, 0, sizeof(_rx_payload_length));  // clear entire status
+						memset(_rx_payload_buffer, 0, sizeof(_rx_payload_buffer));  // clear entire buffer
+						// Needs the queue a new command, otherwise nothing is processed again (lock)
+						// Real scenario if at this moment a payload is still in the queue to be sent and now
+						// has no queue to be picked up
+						queue_length();	// After the reading above to avoid _rx_buffer corruption
+
+						if (_stacked_transmissions < 3) {
+							_stacked_transmissions++;
+							_startTransmission(new_message);
+							_stacked_transmissions--;
 						}
-						Serial.println();
-					#endif
-
-					JsonMessage new_message(
-						reinterpret_cast<const char*>( _rx_payload_buffer ), rx_length
-					);
-					
-					memset(_rx_status_byte, 0, sizeof(_rx_status_byte));  // clear entire status
-					memset(_rx_payload_buffer, 0, sizeof(_rx_payload_buffer));  // clear entire buffer
-					// Needs the queue a new command, otherwise nothing is processed again (lock)
-					// Real scenario if at this moment a payload is still in the queue to be sent and now
-					// has no queue to be picked up
-					queue_status();	// After the reading above to avoid _rx_buffer corruption
-
-					if (_stacked_transmissions < 3) {
-						_stacked_transmissions++;
-						_startTransmission(new_message);
-						_stacked_transmissions--;
+						return;	// Avoids the queue_length() call bellow (no repetition)
 					}
-					return;	// Avoids the queue_status() call bellow (no repetition)
 				}
 				break;
 			}
-			queue_status();
+			queue_length();
 		}
 	}
 
@@ -218,19 +207,19 @@ protected:
 	
     // Specific methods associated to ESP SPI as Slave
 	
-	void queue_status() {
+	void queue_length() {
 		_spi_state = WAIT_STATUS;
-		memset(_tx_status_byte[_tx_status_index],
+		memset(_tx_payload_length[_tx_payload_index],
 			(uint8_t)_payload_length,
-			sizeof(_tx_status_byte[_tx_status_index])
+			sizeof(_tx_payload_length[_tx_payload_index])
 		);  // Sets entire status in one go
 
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_data_trans;
 		memset(t, 0, sizeof(_data_trans));  // clear entire struct
 		t->length    = 4 * 8;
-		t->tx_buffer = _tx_status_byte[_tx_status_index];
-		t->rx_buffer = _rx_status_byte;
+		t->tx_buffer = _tx_payload_length[_tx_payload_index];
+		t->rx_buffer = _rx_payload_length;
 
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
@@ -306,7 +295,7 @@ public:
 		// DMA channel must be given if > 32 bytes
 		esp_err_t err = spi_slave_initialize(_host, &buscfg, &slvcfg, 1);  // ← CHANNEL 1
 		if (err == ESP_OK) {
-			queue_status();
+			queue_length();
 			_initiated = true;
 		}
 

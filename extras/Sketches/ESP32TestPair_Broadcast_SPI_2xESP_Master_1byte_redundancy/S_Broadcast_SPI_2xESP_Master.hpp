@@ -48,8 +48,8 @@ protected:
 	const spi_host_device_t _host;
 	
 	spi_device_handle_t _spi;
-	uint8_t _tx_status_byte[4] __attribute__((aligned(4))) = {0};
-	uint8_t _rx_status_byte[4] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_payload_length[4] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_payload_length[4] __attribute__((aligned(4))) = {0};
 	uint8_t _payload_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
 	bool _in_broadcast_slot = false;
@@ -88,7 +88,7 @@ protected:
 				#endif
 			
 				// Arms the receiving
-				size_t payload_length = sendBeacon(_spi_cs_pins[actual_pin_index]);
+				size_t payload_length = receiveLength(_spi_cs_pins[actual_pin_index]);
 				if (payload_length > 0) {
 
 					receivePayload(_spi_cs_pins[actual_pin_index], payload_length);
@@ -174,10 +174,10 @@ protected:
 
 		if (length == 0 || length > TALKIE_BUFFER_SIZE) return false;
 
-		memset(_tx_status_byte, length, sizeof(_tx_status_byte));  // Set value in one go
+		memset(_tx_payload_length, length, sizeof(_tx_payload_length));  // Set value in one go
 		spi_transaction_t t = {};
 		t.length = 4 * 8;	// Bytes to bits
-		t.tx_buffer = _tx_status_byte;
+		t.tx_buffer = _tx_payload_length;
 		t.rx_buffer = nullptr;
 
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
@@ -212,30 +212,28 @@ protected:
 	}
 
 
-	static bool all_bytes_equal(const uint8_t* buf, size_t size) {
+	static size_t get_valid_length(const uint8_t* buf, size_t size = 4) {
+		if (buf[0] > TALKIE_BUFFER_SIZE) return 0;
 		for (size_t i = 1; i < size; ++i) {
-			if (buf[i] != buf[0]) return false;
+			if (buf[i] != buf[0]) return 0;
 		}
-		return true;
+		return (size_t)buf[0];
 	}
 
 
-	size_t sendBeacon(int ss_pin) {
+	size_t receiveLength(int ss_pin) {
 		// This marks it as a beacon
-		memset(_tx_status_byte, 0, sizeof(_tx_status_byte));  // Set value in one go
+		memset(_tx_payload_length, 0, sizeof(_tx_payload_length));  // Set value in one go
 		spi_transaction_t t = {};
 		t.length = 4 * 8;	// Bytes to bits
-		t.tx_buffer = _tx_status_byte;
-		t.rx_buffer = _rx_status_byte;
+		t.tx_buffer = _tx_payload_length;
+		t.rx_buffer = _rx_payload_length;
 
 		digitalWrite(ss_pin, LOW);
 		spi_device_transmit(_spi, &t);
 		digitalWrite(ss_pin, HIGH);
 		
-		if (_rx_status_byte[0] < TALKIE_BUFFER_SIZE + 1 && all_bytes_equal(_rx_status_byte, sizeof(_rx_status_byte))) {
-			return (size_t)_rx_status_byte[0];
-		}
-		return 0;
+		return get_valid_length(_rx_payload_length);
 	}
 	
 
