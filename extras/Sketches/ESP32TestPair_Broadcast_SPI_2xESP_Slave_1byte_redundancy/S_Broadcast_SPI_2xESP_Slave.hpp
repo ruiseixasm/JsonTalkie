@@ -52,9 +52,9 @@ protected:
 	// DMA descriptors are built from the tx_buffer pointer at queue time and may be reused.
 	// Alternating the buffer address guarantees a new DMA descriptor and prevents the previous
 	// payload from being transmitted again.
-	uint8_t _tx_status_byte[2] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_status_byte[2][4] __attribute__((aligned(4))) = {0};
 	uint8_t _tx_status_index = 0;
-	uint8_t _rx_status_byte __attribute__((aligned(4))) = 0;
+	uint8_t _rx_status_byte[4] __attribute__((aligned(4))) = {0};
 	uint8_t _tx_payload_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	uint8_t _rx_payload_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
@@ -70,6 +70,14 @@ protected:
 	}
 
 
+	static bool all_bytes_equal(const uint8_t* buf, size_t size) {
+		for (size_t i = 1; i < size; ++i) {
+			if (buf[i] != buf[0]) return false;
+		}
+		return true;
+	}
+
+
     // Socket processing is always Half-Duplex because there is just one buffer to receive and other to send
     void _receive() override {
 
@@ -81,8 +89,14 @@ protected:
 				return;
 			}
 
-			const size_t tx_length = (size_t)_tx_status_byte[_tx_status_index];
-			const size_t rx_length = (size_t)_rx_status_byte;
+			size_t tx_length = (size_t)_tx_status_byte[_tx_status_index][0];
+			size_t rx_length = (size_t)_rx_status_byte[0];
+			if (!all_bytes_equal(_tx_status_byte[_tx_status_index], sizeof(_tx_status_byte[_tx_status_index]))) {
+				tx_length = 0;
+			}
+			if (!all_bytes_equal(_rx_status_byte, sizeof(_rx_status_byte))) {
+				rx_length = 0;
+			}
 
 
 			/* === SPI "ISR" === */
@@ -145,9 +159,9 @@ protected:
 					JsonMessage new_message(
 						reinterpret_cast<const char*>( _rx_payload_buffer ), rx_length
 					);
-						
-					_rx_status_byte = 0;	// Makes suer the receiving by isn't kept as rx_length
-					memset(_rx_payload_buffer, 0, sizeof(_rx_payload_buffer));  // clear entire struct
+					
+					memset(_rx_status_byte, 0, sizeof(_rx_status_byte));  // clear entire status
+					memset(_rx_payload_buffer, 0, sizeof(_rx_payload_buffer));  // clear entire buffer
 					// Needs the queue a new command, otherwise nothing is processed again (lock)
 					// Real scenario if at this moment a payload is still in the queue to be sent and now
 					// has no queue to be picked up
@@ -206,14 +220,17 @@ protected:
 	
 	void queue_status() {
 		_spi_state = WAIT_STATUS;
-		_tx_status_byte[_tx_status_index] = (uint8_t)_payload_length;
+		memset(_tx_status_byte[_tx_status_index],
+			(uint8_t)_payload_length,
+			sizeof(_tx_status_byte[_tx_status_index])
+		);  // Sets entire status in one go
 
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_data_trans;
 		memset(t, 0, sizeof(_data_trans));  // clear entire struct
-		t->length    = 1 * 8;
-		t->tx_buffer = &_tx_status_byte[_tx_status_index];
-		t->rx_buffer = &_rx_status_byte;
+		t->length    = 4 * 8;
+		t->tx_buffer = _tx_status_byte[_tx_status_index];
+		t->rx_buffer = _rx_status_byte;
 
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
