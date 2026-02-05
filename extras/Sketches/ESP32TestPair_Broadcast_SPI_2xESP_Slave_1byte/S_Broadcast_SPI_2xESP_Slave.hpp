@@ -52,11 +52,12 @@ protected:
 	// DMA descriptors are built from the tx_buffer pointer at queue time and may be reused.
 	// Alternating the buffer address guarantees a new DMA descriptor and prevents the previous
 	// payload from being transmitted again.
+	uint8_t _tx_payload_buffer[2][TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_payload_buffer[2][TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	uint8_t _tx_status_byte[2] __attribute__((aligned(4))) = {0};
-	uint8_t _tx_status_index = 0;
 	uint8_t _rx_status_byte __attribute__((aligned(4))) = 0;
-	uint8_t _tx_payload_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
-	uint8_t _rx_payload_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_index = 0;
+	uint8_t _rx_index = 0;
 
 	SpiState _spi_state = WAIT_STATUS;
 	spi_slave_transaction_t _data_trans __attribute__((aligned(4)));
@@ -81,7 +82,7 @@ protected:
 				return;
 			}
 
-			const size_t tx_length = (size_t)_tx_status_byte[_tx_status_index];
+			const size_t tx_length = (size_t)_tx_status_byte[_tx_index];
 			const size_t rx_length = (size_t)_rx_status_byte;
 
 
@@ -115,7 +116,7 @@ protected:
 						#ifdef BROADCAST_SPI_DEBUG
 							Serial.printf("Sent %u bytes: ", tx_length);
 							for (uint8_t i = 0; i < tx_length; i++) {
-								char c = _tx_payload_buffer[i];
+								char c = _tx_payload_buffer[_tx_index][i];
 								if (c >= 32 && c <= 126) Serial.print(c);
 								else Serial.printf("[%02X]", c);
 							}
@@ -123,7 +124,7 @@ protected:
 						#endif
 
 						_payload_length = 0;	// payload was sent
-						_tx_status_index ^= 1;	// Rotate status Byte
+						_tx_index ^= 1;	// Rotate status Byte
 					}
 				}
 				break;
@@ -134,7 +135,7 @@ protected:
 					#ifdef BROADCAST_SPI_DEBUG
 						Serial.printf("Received %u bytes: ", rx_length);
 						for (uint8_t i = 0; i < rx_length; i++) {
-							char c = _rx_payload_buffer[i];
+							char c = _rx_payload_buffer[_tx_index][i];
 							if (c >= 32 && c <= 126) Serial.print(c);
 							else Serial.printf("[%02X]", c);
 						}
@@ -146,7 +147,7 @@ protected:
 						_rx_status_byte = 0;	// Makes suer the receiving by isn't kept as rx_length
 						queue_status();	// Safe to star before given tha tit's a different buffer (just a byte)
 						JsonMessage new_message(
-							reinterpret_cast<const char*>( _rx_payload_buffer ), rx_length
+							reinterpret_cast<const char*>( _rx_payload_buffer[_tx_index] ), rx_length
 						);
 						
 						_stacked_transmissions++;
@@ -190,7 +191,7 @@ protected:
 				}
 			}
 			// Both, _tx_buffer and _payload_length, set at the same time
-			char* payload_buffer = reinterpret_cast<char*>( _tx_payload_buffer );
+			char* payload_buffer = reinterpret_cast<char*>( _tx_payload_buffer[_tx_index] );
 			_payload_length = json_message.serialize_json(payload_buffer, TALKIE_BUFFER_SIZE);
 			return true;
 		}
@@ -202,13 +203,13 @@ protected:
 	
 	void queue_status() {
 		_spi_state = WAIT_STATUS;
-		_tx_status_byte[_tx_status_index] = (uint8_t)_payload_length;
+		_tx_status_byte[_tx_index] = (uint8_t)_payload_length;
 
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_data_trans;
 		memset(t, 0, sizeof(_data_trans));  // clear entire struct
 		t->length    = 1 * 8;
-		t->tx_buffer = &_tx_status_byte[_tx_status_index];
+		t->tx_buffer = &_tx_status_byte[_tx_index];
 		t->rx_buffer = &_rx_status_byte;
 
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
@@ -221,7 +222,7 @@ protected:
 		spi_slave_transaction_t *t = &_data_trans;
 		memset(t, 0, sizeof(_data_trans));  // clear entire struct
 		t->length    = length * 8;
-		t->tx_buffer = _tx_payload_buffer;
+		t->tx_buffer = _tx_payload_buffer[_tx_index];
 		t->rx_buffer = nullptr;
 		
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
@@ -235,7 +236,7 @@ protected:
 		memset(t, 0, sizeof(_data_trans));  // clear entire struct
 		t->length    = length * 8;
 		t->tx_buffer = nullptr;
-		t->rx_buffer = _rx_payload_buffer;
+		t->rx_buffer = _rx_payload_buffer[_tx_index];
 		
 		spi_slave_queue_trans(_host, t, portMAX_DELAY);
 	}
