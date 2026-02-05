@@ -51,7 +51,6 @@ protected:
 	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	spi_slave_transaction_t _payload_trans __attribute__((aligned(4)));
 
-	char _payload_data[TALKIE_BUFFER_SIZE];
 	uint8_t _payload_length = 0;
 	uint8_t _stacked_transmissions = 0;
 
@@ -75,7 +74,7 @@ protected:
 
 			// At this point a queued element is consumed, as to queue a new one afterwards !
 			if (_rx_buffer[0] == _rx_buffer[TALKIE_BUFFER_SIZE - 1]) {
-				if (_rx_buffer[0] <= TALKIE_BUFFER_SIZE) {
+				if (_rx_buffer[0] < TALKIE_BUFFER_SIZE + 1) {
 					if (_rx_buffer[0] > 0) {
 
 						size_t payload_length = (size_t)_rx_buffer[0];
@@ -175,8 +174,9 @@ protected:
 					return false;
 				}
 			}
-			
-			_payload_length = (uint8_t)json_message.serialize_json(_payload_data, TALKIE_BUFFER_SIZE);
+			// Both, _tx_buffer and _payload_length, set at the same time
+			char* next_tx_buffer = reinterpret_cast<char*>( _tx_buffer[_tx_index ^ 1] );
+			_payload_length = (uint8_t)json_message.serialize_json(next_tx_buffer, TALKIE_BUFFER_SIZE);
 			return true;
 		}
         return false;
@@ -187,11 +187,11 @@ protected:
 	
 	void queue_transaction() {
 		_tx_index ^= 1;	// xor, alternates in this case, 0 ^ 1 == 1 while 1 ^ 1 == 0
-		memset(_tx_buffer[_tx_index], 0, sizeof(_tx_buffer[_tx_index]));  // clear entire _tx_buffer first
 		if (_payload_length > 0) {
-			memcpy(_tx_buffer[_tx_index], _payload_data, _payload_length);  // Continuously copies the entire payload
 			_tx_buffer[_tx_index][0] = _payload_length;
 			_tx_buffer[_tx_index][TALKIE_BUFFER_SIZE - 1] = _payload_length;
+		} else {
+			memset(_tx_buffer[_tx_index], 0, sizeof(_tx_buffer[_tx_index]));  // clear entire _tx_buffer first
 		}
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_payload_trans;
