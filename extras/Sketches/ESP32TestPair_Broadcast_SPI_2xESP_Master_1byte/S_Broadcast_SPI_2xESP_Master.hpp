@@ -88,14 +88,15 @@ protected:
 				#endif
 			
 				// Arms the receiving
-				size_t payload_length = receivePayload(_spi_cs_pins[actual_pin_index]);
+				size_t payload_length = sendBeacon(_spi_cs_pins[actual_pin_index]);
 				if (payload_length > 0) {
 
+					receivePayload(_spi_cs_pins[actual_pin_index], payload_length);
 					#ifdef BROADCAST_SPI_DEBUG
 						Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
-							_spi_cs_pins[actual_pin_index], 0b10000000 | length, length);
+							_spi_cs_pins[actual_pin_index], 0b10000000 | payload_length, payload_length);
 						Serial.print("[From Slave] Received: ");
-						for (int i = 0; i < length; i++) {
+						for (int i = 0; i < payload_length; i++) {
 							Serial.print((char)_data_buffer[i]);
 						}
 						Serial.println();
@@ -126,12 +127,12 @@ protected:
 			Serial.print(millis() - _reference_time);
 			#endif
 
-			size_t len = json_message.serialize_json(
+			size_t length = json_message.serialize_json(
 				reinterpret_cast<char*>( _data_buffer ),
 				TALKIE_BUFFER_SIZE
 			);
 			
-			if (len > 0) {
+			if (length > 0) {
 
 				while (_in_broadcast_slot) {	// Avoids too many sends too close in time
 					// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
@@ -145,17 +146,16 @@ protected:
 				Serial.println(json_message.get_length());
 				#endif
 			
-				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
-				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
-				_in_broadcast_slot = true;
-
-			} else {
-				return false;
+				if (broadcastLength(_spi_cs_pins, _ss_pins_count, length) && broadcastPayload(_spi_cs_pins, _ss_pins_count, length)) {
+					_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
+					_in_broadcast_slot = true;
+					return true;
+				}
 			}
 			
 			#ifdef BROADCAST_SPI_DEBUG
-				Serial.printf("\n[From Master] Slave: 0x%02X Beacon=0 L=%d\n", len, len);
-				Serial.printf("[To Slave] Sent %d bytes\n", len);
+				Serial.printf("\n[From Master] Slave: 0x%02X Beacon=0 L=%d\n", length, length);
+				Serial.printf("[To Slave] Sent %d bytes\n", length);
 				Serial.println(F("\t\t\t\t\tsend4: --> Broadcast sent to all pins -->"));
 			#endif
 
@@ -163,22 +163,40 @@ protected:
 				Serial.print(" | ");
 				Serial.print(millis() - _reference_time);
 			#endif
-
-			return true;
 		}
         return false;
     }
 
 	
     // Specific methods associated to ESP SPI as Master
-	
-	void broadcastPayload(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
 
-		if (length > TALKIE_BUFFER_SIZE) return;
-		_data_buffer[0] = length;
-		_data_buffer[TALKIE_BUFFER_SIZE - 1] = length;
+	bool broadcastLength(const int* ss_pins, uint8_t ss_pins_count, size_t length) {
+
+		if (length == 0 || length > TALKIE_BUFFER_SIZE) return false;
+
+		_tx_status_byte = (uint8_t)length;
 		spi_transaction_t t = {};
-		t.length = TALKIE_BUFFER_SIZE * 8;	// Bytes to bits
+		t.length = 1 * 8;	// Bytes to bits
+		t.tx_buffer = &_tx_status_byte;
+		t.rx_buffer = nullptr;
+
+		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
+			digitalWrite(ss_pins[ss_pin_i], LOW);
+		}
+		spi_device_transmit(_spi, &t);
+		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
+			digitalWrite(ss_pins[ss_pin_i], HIGH);
+		}
+		return true;
+	}
+	
+
+	bool broadcastPayload(const int* ss_pins, uint8_t ss_pins_count, size_t length) {
+
+		if (length > TALKIE_BUFFER_SIZE) return false;
+
+		spi_transaction_t t = {};
+		t.length = length * 8;	// Bytes to bits
 		t.tx_buffer = _data_buffer;
 		t.rx_buffer = nullptr;
 
@@ -191,27 +209,36 @@ protected:
 		}
 		memset(_data_buffer, 0, sizeof(_data_buffer));  // clear sent data
 		// Border already included in the broadcast time slot
+		return true;
 	}
 
-	size_t receivePayload(int ss_pin) {
-		_data_buffer[0] = 0xF0;	// 0xF0 is to receive
-		_data_buffer[TALKIE_BUFFER_SIZE - 1] = _data_buffer[0];
+
+	size_t sendBeacon(int ss_pin) {
+
+		_tx_status_byte = 0;	// This marks it as a beacon
 		spi_transaction_t t = {};
-		t.length = TALKIE_BUFFER_SIZE * 8;	// Bytes to bits
-		t.tx_buffer = _data_buffer;
+		t.length = 1 * 8;	// Bytes to bits
+		t.tx_buffer = &_tx_status_byte;
+		t.rx_buffer = &_rx_status_byte;
+
+		digitalWrite(ss_pin, LOW);
+		spi_device_transmit(_spi, &t);
+		digitalWrite(ss_pin, HIGH);
+		
+		if (_rx_status_byte > TALKIE_BUFFER_SIZE) return 0;
+		return (size_t)_rx_status_byte;
+	}
+	
+
+	void receivePayload(int ss_pin, size_t length) {
+		spi_transaction_t t = {};
+		t.length = length * 8;	// Bytes to bits
+		t.tx_buffer = nullptr;
 		t.rx_buffer = _data_buffer;
 		
 		digitalWrite(ss_pin, LOW);
 		spi_device_transmit(_spi, &t);
 		digitalWrite(ss_pin, HIGH);
-
-		if (_data_buffer[0] > 0 && _data_buffer[0] == _data_buffer[TALKIE_BUFFER_SIZE - 1]) {
-			size_t payload_length = (size_t)_data_buffer[0];
-			_data_buffer[0] = '{';
-			_data_buffer[TALKIE_BUFFER_SIZE - 1] = '}';
-			return payload_length;
-		}
-		return 0;
 	}
 
 
