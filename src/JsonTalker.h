@@ -227,6 +227,7 @@ private:
 		// It's a Recovery message, already prepared
 		if (&json_message == &_recovery_message.message) return true;	// It's a resend
 
+		MessageValue message_value = json_message.get_message_value();
 		if (json_message.is_to_name(_name)) {
 			
 			#ifdef JSON_TALKER_DEBUG
@@ -244,13 +245,12 @@ private:
 			#endif
 
 		} else if (!json_message.is_from_name(_name)) {
-			if (!json_message.has_to()) {	// This to isn't self name (_name)
-				json_message.replace_from_with_to();
+			if (message_value == MessageValue::TALKIE_MSG_ECHO) {	// It's an echo, so, Talker was target, even if not by name
+				json_message.swap_from_with_to();
 			}
 			if (!json_message.set_from_name(_name)) return false;	// Unable to set FROM (must have)
 		}
 
-		MessageValue message_value = json_message.get_message_value();
 		if (message_value < MessageValue::TALKIE_MSG_ECHO) {
 
 			#ifdef JSON_TALKER_DEBUG
