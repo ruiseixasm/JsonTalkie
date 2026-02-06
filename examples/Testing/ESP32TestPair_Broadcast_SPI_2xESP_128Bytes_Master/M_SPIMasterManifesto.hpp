@@ -63,10 +63,10 @@ protected:
 	};
 
 	// For burst
+	#define burst_amount 20
 	uint16_t _original_message_id = 0;
 	uint8_t _burst_toggles = 0;
 	uint16_t _start_calls = 0;
-	uint16_t _finish_calls = 0;
 	bool _original_cyclic_transmission = true;
 	BurstState _burst_state = DORMANT;
 	uint32_t _burst_spacing_us = 0;
@@ -131,8 +131,8 @@ public:
 				talker.transmitToRepeater(_toggle_yellow_on_off);
 				_total_calls++;
 			}
-		} else if (_bursting) {
-			_bursting = false;
+		} else if (_burst_state == BURSTING) {
+			_burst_state = WAIT_CALLS;
 			// Get the SPI Slave actual calls
 			JsonMessage get_calls{
 				MessageValue::TALKIE_MSG_SYSTEM,
@@ -254,9 +254,27 @@ public:
 
 			case MessageValue::TALKIE_MSG_SYSTEM:
 				if (json_message.has_nth_value_number(0)) {
-					_start_calls = json_message.get_nth_value_number(0);
-					_bursting = true;
-					_burst_toggles = 20;
+					if (_burst_state == WAIT_CALLS) {
+						_burst_state = DORMANT;
+						_cyclic_transmission = _original_cyclic_transmission;
+						uint16_t received_calls = json_message.get_nth_value_number(0) - _start_calls;
+						JsonMessage report_burst{
+							MessageValue::TALKIE_MSG_ECHO,
+							BroadcastValue::TALKIE_BC_REMOTE
+						};
+						report_burst.set_identity(_original_message_id);
+						report_burst.set_nth_value_number(0, received_calls);
+						if (received_calls == burst_amount)	{
+							report_burst.set_nth_value_string(1, "OK");
+						} else {
+							report_burst.set_nth_value_string(1, "FAIL");
+						}
+						talker.transmitToRepeater(report_burst);
+					} else {
+						_burst_state = BURSTING;
+						_start_calls = json_message.get_nth_value_number(0);
+						_burst_toggles = burst_amount;
+					}
 				}
 			break;
 
