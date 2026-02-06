@@ -64,7 +64,9 @@ protected:
 
 	// For burst
 	#define burst_amount 20
+	BroadcastValue _original_message_broadcast = BroadcastValue::TALKIE_BC_NONE;
 	uint16_t _original_message_id = 0;
+	char _original_message_from_name[TALKIE_NAME_LEN] = {'\0'};
 	uint8_t _burst_toggles = 0;
 	uint16_t _start_calls = 0;
 	bool _original_cyclic_transmission = true;
@@ -79,12 +81,12 @@ protected:
 
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
-    Action calls[8] = {
+    Action calls[7] = {
 		{"period", "Sets cycle period milliseconds"},
 		{"enable", "Enables 1sec cyclic transmission"},
 		{"disable", "Disables 1sec cyclic transmission"},
 		{"calls", "Gets total calls and their echoes"},
-		{"burst", "Sends many messages at once"},
+		{"burst", "Tests slave, many messages at once"},
 		{"spacing", "Burst spacing in microseconds"},
 		{"ping", "Ping talkers by name or channel"}
     };
@@ -139,6 +141,7 @@ public:
 				BroadcastValue::TALKIE_BC_LOCAL
 			};
 			get_calls.set_system_value(SystemValue::TALKIE_SYS_CALLS);
+			get_calls.set_to_name("slave");
 			talker.transmitToRepeater(get_calls);
 		}
 	}
@@ -184,13 +187,16 @@ public:
 			{
 				_original_cyclic_transmission = _cyclic_transmission;
 				_cyclic_transmission = false;
+				_original_message_broadcast = json_message.get_broadcast_value();
 				_original_message_id = json_message.get_identity();
+				json_message.get_from_name(_original_message_from_name);
 				// Get the SPI Slave actual calls
 				JsonMessage get_calls{
 					MessageValue::TALKIE_MSG_SYSTEM,
 					BroadcastValue::TALKIE_BC_LOCAL
 				};
 				get_calls.set_system_value(SystemValue::TALKIE_SYS_CALLS);
+				get_calls.set_to_name("slave");
 				talker.transmitToRepeater(get_calls);
 				return true;
 			}
@@ -262,6 +268,8 @@ public:
 							MessageValue::TALKIE_MSG_ECHO,
 							BroadcastValue::TALKIE_BC_REMOTE
 						};
+						report_burst.set_broadcast_value(_original_message_broadcast);
+						report_burst.set_to_name(_original_message_from_name);
 						report_burst.set_identity(_original_message_id);
 						report_burst.set_nth_value_number(0, received_calls);
 						if (received_calls == burst_amount)	{
