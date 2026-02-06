@@ -24,7 +24,7 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <JsonTalkie.hpp>
 // ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
 #include "S_SocketSerial.hpp"
-#include "S_Broadcast_SPI_2xESP_Master.hpp"
+#include "S_Broadcast_SPI_2xESP_128Bytes_Master.hpp"
 #include "M_SPIMasterManifesto.hpp"
 
 
@@ -43,7 +43,7 @@ auto& serial_socket = S_SocketSerial::instance();
 #define HSPI_CS 15
 // ALWAYS MAKE SURE YOU ARE CONNECTED ALL AND EACH SLAVE PIN !!!
 const int spi_pins[] = {4, HSPI_CS, 16};
-auto& spi_socket = S_Broadcast_SPI_2xESP_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
+auto& spi_socket = S_Broadcast_SPI_2xESP_128Bytes_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 
 
 // SETTING THE REPEATER

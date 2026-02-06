@@ -20,17 +20,20 @@ extern "C" {
     #include "driver/spi_slave.h"
 }
 
+// This socket only allows a buffer size up to 128Bytes
+#define SPI_SOCKET_BUFFER_SIZE 128
+
 
 // #define BROADCAST_SPI_DEBUG
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 
-class S_Broadcast_SPI_2xESP_Slave : public BroadcastSocket {
+class S_Broadcast_SPI_2xESP_128Bytes_Slave : public BroadcastSocket {
 public:
 
 	// The Socket class description shouldn't be greater than 35 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*10) = 35
-    const char* class_description() const override { return "Broadcast_SPI_2xESP_Slave"; }
+    const char* class_description() const override { return "Broadcast_SPI_2xESP_128Bytes_Slave"; }
 
 
 	#ifdef BROADCAST_SPI_DEBUG_TIMING
@@ -46,8 +49,8 @@ protected:
 	// DMA descriptors are built from the tx_buffer pointer at queue time and may be reused.
 	// Alternating the buffer address guarantees a new DMA descriptor and prevents the previous
 	// payload from being transmitted again.
-	uint8_t _tx_buffer[2][TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
-	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_buffer[2][SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_buffer[SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	spi_slave_transaction_t _payload_trans __attribute__((aligned(4)));
 	uint8_t _tx_index = 0;	// Better alignment afterwards
 
@@ -55,7 +58,7 @@ protected:
 	uint8_t _stacked_transmissions = 0;
 
     // Constructor
-    S_Broadcast_SPI_2xESP_Slave(spi_host_device_t host) : BroadcastSocket(), _host(host) {
+    S_Broadcast_SPI_2xESP_128Bytes_Slave(spi_host_device_t host) : BroadcastSocket(), _host(host) {
             
 		_max_delay_ms = 0;  // SPI is sequencial, no need to control out of order packages
 	}
@@ -73,13 +76,13 @@ protected:
 			}
 
 			// At this point a queued element is consumed, as to queue a new one afterwards !
-			if (_rx_buffer[0] == _rx_buffer[TALKIE_BUFFER_SIZE - 1]) {
-				if (_rx_buffer[0] < TALKIE_BUFFER_SIZE + 1) {
+			if (_rx_buffer[0] == _rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1]) {
+				if (_rx_buffer[0] < SPI_SOCKET_BUFFER_SIZE + 1) {
 					if (_rx_buffer[0] > 0) {
 
 						size_t payload_length = (size_t)_rx_buffer[0];
 						_rx_buffer[0] = '{';
-						_rx_buffer[TALKIE_BUFFER_SIZE - 1] = '}';
+						_rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = '}';
 
 						#ifdef BROADCAST_SPI_DEBUG
 							Serial.printf("Received %u bytes: ", payload_length);
@@ -114,7 +117,7 @@ protected:
 					if (payload_length > 0) {
 
 						_tx_buffer[_tx_index][0] = '{';
-						_tx_buffer[_tx_index][TALKIE_BUFFER_SIZE - 1] = '}';
+						_tx_buffer[_tx_index][SPI_SOCKET_BUFFER_SIZE - 1] = '}';
 
 						#ifdef BROADCAST_SPI_DEBUG
 							Serial.printf("Sent %u bytes: ", payload_length);
@@ -133,7 +136,7 @@ protected:
 					
 					#ifdef BROADCAST_SPI_DEBUG
 						Serial.printf("Other [%02X]: ", _tx_buffer[_tx_index][0]);
-						for (uint8_t i = 0; i < TALKIE_BUFFER_SIZE; i++) {
+						for (uint8_t i = 0; i < SPI_SOCKET_BUFFER_SIZE; i++) {
 							char c = _tx_buffer[_tx_index][i];
 							if (c >= 32 && c <= 126) Serial.print(c);
 							else Serial.printf("[%02X]", c);
@@ -177,9 +180,9 @@ protected:
 			}
 			// Both, _tx_buffer and _payload_length, set at the same time
 			char* next_tx_buffer = reinterpret_cast<char*>( _tx_buffer[_tx_index ^ 1] );
-			_payload_length = (uint8_t)json_message.serialize_json(next_tx_buffer, TALKIE_BUFFER_SIZE);
+			_payload_length = (uint8_t)json_message.serialize_json(next_tx_buffer, SPI_SOCKET_BUFFER_SIZE);
 			_tx_buffer[_tx_index ^ 1][0] = _payload_length;
-			_tx_buffer[_tx_index ^ 1][TALKIE_BUFFER_SIZE - 1] = _payload_length;
+			_tx_buffer[_tx_index ^ 1][SPI_SOCKET_BUFFER_SIZE - 1] = _payload_length;
 			return true;
 		}
         return false;
@@ -193,7 +196,7 @@ protected:
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_payload_trans;
 		memset(t, 0, sizeof(_payload_trans));  // clear entire struct
-		t->length    = TALKIE_BUFFER_SIZE * 8;
+		t->length    = SPI_SOCKET_BUFFER_SIZE * 8;
 		t->tx_buffer = _tx_buffer[_tx_index];
 		t->rx_buffer = _rx_buffer;
 		// If you see 80 on the Master side it means the Slave wasn't given the time to respond!
@@ -204,8 +207,8 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_Broadcast_SPI_2xESP_Slave& instance(spi_host_device_t host = HSPI_HOST) {
-        static S_Broadcast_SPI_2xESP_Slave instance(host);
+    static S_Broadcast_SPI_2xESP_128Bytes_Slave& instance(spi_host_device_t host = HSPI_HOST) {
+        static S_Broadcast_SPI_2xESP_128Bytes_Slave instance(host);
 
         return instance;
     }
@@ -225,7 +228,7 @@ public:
 		buscfg.sclk_io_num = sclk_io_num;
 		buscfg.quadwp_io_num = -1;
 		buscfg.quadhd_io_num = -1;
-		buscfg.max_transfer_sz = TALKIE_BUFFER_SIZE;
+		buscfg.max_transfer_sz = SPI_SOCKET_BUFFER_SIZE;
 		
 		
 		// Newer ESP-IDF versions have these extra fields:

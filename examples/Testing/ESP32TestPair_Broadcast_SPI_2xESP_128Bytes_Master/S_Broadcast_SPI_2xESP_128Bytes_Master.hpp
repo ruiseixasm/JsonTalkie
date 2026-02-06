@@ -18,6 +18,8 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <BroadcastSocket.h>
 #include "driver/spi_master.h"
 
+// This socket only allows a buffer size up to 128Bytes
+#define SPI_SOCKET_BUFFER_SIZE 128
 
 // #define BROADCAST_SPI_DEBUG
 // #define BROADCAST_SPI_DEBUG_TIMING
@@ -27,12 +29,12 @@ https://github.com/ruiseixasm/JsonTalkie
 #define beacon_time_slot_us 100		// Avoids too frequent beacons (used to collect data from the SPI Slaves)
 
 
-class S_Broadcast_SPI_2xESP_Master : public BroadcastSocket {
+class S_Broadcast_SPI_2xESP_128Bytes_Master : public BroadcastSocket {
 public:
 
 	// The Socket class description shouldn't be greater than 35 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*10) = 35
-    const char* class_description() const override { return "Broadcast_SPI_2xESP_Master"; }
+    const char* class_description() const override { return "Broadcast_SPI_2xESP_128Bytes_Master"; }
 
 
 	#ifdef BROADCAST_SPI_DEBUG_TIMING
@@ -48,8 +50,8 @@ protected:
 	const spi_host_device_t _host;
 	
 	spi_device_handle_t _spi;
-	uint8_t _tx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
-	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_buffer[SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_buffer[SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
 	bool _in_broadcast_slot = false;
 	uint32_t _broadcast_time_us = 0;
@@ -58,7 +60,7 @@ protected:
 
 
     // Constructor
-    S_Broadcast_SPI_2xESP_Master(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host)
+    S_Broadcast_SPI_2xESP_128Bytes_Master(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host)
 		: BroadcastSocket(), _spi_cs_pins(ss_pins), _ss_pins_count(ss_pins_count), _host(host) {
             
 		_max_delay_ms = 0;  // SPI is sequencial, no need to control out of order packages
@@ -127,7 +129,7 @@ protected:
 
 			size_t len = json_message.serialize_json(
 				reinterpret_cast<char*>( _tx_buffer ),
-				TALKIE_BUFFER_SIZE
+				SPI_SOCKET_BUFFER_SIZE
 			);
 			
 			if (len > 0) {
@@ -173,11 +175,11 @@ protected:
 	
 	void broadcastPayload(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
 
-		if (length > TALKIE_BUFFER_SIZE) return;
+		if (length > SPI_SOCKET_BUFFER_SIZE) return;
 		_tx_buffer[0] = length;
-		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = length;
+		_tx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = length;
 		spi_transaction_t t = {};
-		t.length = TALKIE_BUFFER_SIZE * 8;	// Bytes to bits
+		t.length = SPI_SOCKET_BUFFER_SIZE * 8;	// Bytes to bits
 		t.tx_buffer = _tx_buffer;
 		t.rx_buffer = nullptr;
 
@@ -194,9 +196,9 @@ protected:
 
 	size_t receivePayload(int ss_pin) {
 		_tx_buffer[0] = 0xF0;	// 0xF0 is to receive
-		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = _tx_buffer[0];
+		_tx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = _tx_buffer[0];
 		spi_transaction_t t = {};
-		t.length = TALKIE_BUFFER_SIZE * 8;	// Bytes to bits
+		t.length = SPI_SOCKET_BUFFER_SIZE * 8;	// Bytes to bits
 		t.tx_buffer = _tx_buffer;
 		t.rx_buffer = _rx_buffer;
 		
@@ -204,10 +206,10 @@ protected:
 		spi_device_transmit(_spi, &t);
 		digitalWrite(ss_pin, HIGH);
 
-		if (_rx_buffer[0] > 0 && _rx_buffer[0] == _rx_buffer[TALKIE_BUFFER_SIZE - 1]) {
+		if (_rx_buffer[0] > 0 && _rx_buffer[0] == _rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1]) {
 			size_t payload_length = (size_t)_rx_buffer[0];
 			_rx_buffer[0] = '{';
-			_rx_buffer[TALKIE_BUFFER_SIZE - 1] = '}';
+			_rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = '}';
 			return payload_length;
 		}
 		return 0;
@@ -217,8 +219,8 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_Broadcast_SPI_2xESP_Master& instance(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host = HSPI_HOST) {
-        static S_Broadcast_SPI_2xESP_Master instance(ss_pins, ss_pins_count, host);
+    static S_Broadcast_SPI_2xESP_128Bytes_Master& instance(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host = HSPI_HOST) {
+        static S_Broadcast_SPI_2xESP_128Bytes_Master instance(ss_pins, ss_pins_count, host);
 
         return instance;
     }
@@ -239,7 +241,7 @@ public:
 		buscfg.sclk_io_num = sclk_io_num;
 		buscfg.quadwp_io_num = -1;
 		buscfg.quadhd_io_num = -1;
-		buscfg.max_transfer_sz = TALKIE_BUFFER_SIZE;
+		buscfg.max_transfer_sz = SPI_SOCKET_BUFFER_SIZE;
 		
 		// https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/spi_master.html
 
