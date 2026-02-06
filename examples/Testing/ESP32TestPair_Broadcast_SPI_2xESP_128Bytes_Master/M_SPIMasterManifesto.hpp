@@ -192,11 +192,12 @@ public:
 				json_message.get_from_name(_original_message_from_name);
 				// Used the Roger message as the echo message avoiding this way
 				// the SPI Master losing time with the Serial communication
-				json_message.set_identity();	// Sets a new identity
 				json_message.set_message_value(MessageValue::TALKIE_MSG_SYSTEM);
 				json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
 				json_message.set_system_value(SystemValue::TALKIE_SYS_CALLS);
+				json_message.set_from_name(talker.get_name());	// Avoids the swapping
 				json_message.set_to_name("slave");
+				// No need to transmit the message, the normal ROGER reply does that for us!
 				return true;
 			}
 			break;
@@ -218,7 +219,6 @@ public:
 
 				// 2. Repurpose it to be a LOCAL PING
 				json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
-				json_message.remove_identity();
 				if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_STRING) {
 					char value_name[TALKIE_NAME_LEN];
 					if (json_message.get_nth_value_string(0, value_name, TALKIE_NAME_LEN)) {

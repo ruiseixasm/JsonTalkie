@@ -245,7 +245,7 @@ private:
 			#endif
 
 		} else if (!json_message.is_from_name(_name)) {
-			if (message_value == MessageValue::TALKIE_MSG_ECHO) {	// It's an echo, so, Talker was target, even if not by name
+			if (message_value >= MessageValue::TALKIE_MSG_ECHO) {	// It's an echo, so, Talker was target, even if not by name
 				json_message.swap_from_with_to();
 			}
 			if (!json_message.set_from_name(_name)) return false;	// Unable to set FROM (must have)
