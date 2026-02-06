@@ -236,10 +236,11 @@ private:
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
 
-			if (!(json_message.set_from_name(_name) && json_message.set_identity())) {
+			uint16_t identity = (uint16_t)millis();
+			if (!(json_message.set_from_name(_name) && json_message.set_identity(identity))) {
 				return false;	// Makes sure it can set MUST have fields
 			}
-			_trace_message.identity = json_message.get_identity();
+			_trace_message.identity = identity;	// Faster this way
 			_trace_message.message_value = json_message.get_message_value();
 			_trace_message.active = true;
 
