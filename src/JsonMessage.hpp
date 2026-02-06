@@ -1999,14 +1999,6 @@ public:
 
 
     /**
-     * @brief Replace 'from' with 'to' fields
-     */
-	void replace_from_with_to() {
-		return replace_key('f', 't');
-	}
-
-
-    /**
      * @brief Swap 'to' with 'from' fields
      */
 	void swap_to_with_from() {
@@ -2034,7 +2026,7 @@ public:
 			}
 		}
 	}
-	
+
 
     /**
      * @brief Swaps 'M' with 'm' fields, converting this way to a regular message
