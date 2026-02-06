@@ -1983,17 +1983,26 @@ public:
 
 
     /**
-     * @brief Swap 'from' with 'to' fields
+     * @brief Replaces a key with a different key
+     * @param old_key Old key to be replaced
+     * @param new_key New key to be inplace of the replaced key
+     * @return true if it was able to replace the key
      */
-	void swap_from_with_to() {
-		size_t key_from_position = _get_key_position('f');
-		if (key_from_position) {
-			size_t key_to_position = _get_key_position('t');
-			_json_payload[key_from_position] = 't';
-			if (key_to_position) {
-				_json_payload[key_to_position] = 'f';
-			}
+	bool replace_key(char old_key, char new_key) {
+		size_t key_position = _get_key_position(old_key);
+		if (key_position) {
+			_json_payload[key_position] = new_key;
+			return true;
 		}
+		return false;
+	}
+
+
+    /**
+     * @brief Replace 'from' with 'to' fields
+     */
+	void replace_from_with_to() {
+		return replace_key('f', 't');
 	}
 
 
@@ -2017,22 +2026,6 @@ public:
      */
 	bool convert_recovery_message_to_message() {
 		return replace_key('M', 'm');
-	}
-
-
-    /**
-     * @brief Replaces a key with a different key
-     * @param old_key Old key to be replaced
-     * @param new_key New key to be inplace of the replaced key
-     * @return true if it was able to replace the key
-     */
-	bool replace_key(char old_key, char new_key) {
-		size_t key_position = _get_key_position(old_key);
-		if (key_position) {
-			_json_payload[key_position] = new_key;
-			return true;
-		}
-		return false;
 	}
 
 };

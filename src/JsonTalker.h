@@ -245,7 +245,7 @@ private:
 
 		} else if (!json_message.is_from_name(_name)) {
 			if (!json_message.has_to()) {	// This to isn't self name (_name)
-				json_message.swap_from_with_to();
+				json_message.replace_from_with_to();
 			}
 			if (!json_message.set_from_name(_name)) return false;	// Unable to set FROM (must have)
 		}
