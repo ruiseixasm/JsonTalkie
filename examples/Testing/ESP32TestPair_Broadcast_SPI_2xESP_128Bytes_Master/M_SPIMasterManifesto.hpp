@@ -190,14 +190,13 @@ public:
 				_original_message_broadcast = json_message.get_broadcast_value();
 				_original_message_id = json_message.get_identity();
 				json_message.get_from_name(_original_message_from_name);
-				// Get the SPI Slave actual calls
-				JsonMessage get_calls{
-					MessageValue::TALKIE_MSG_SYSTEM,
-					BroadcastValue::TALKIE_BC_LOCAL
-				};
-				get_calls.set_system_value(SystemValue::TALKIE_SYS_CALLS);
-				get_calls.set_to_name("slave");
-				talker.transmitToRepeater(get_calls);
+				// Used the Roger message as the echo message avoiding this way
+				// the SPI Master losing time with the Serial communication
+				json_message.set_identity();	// Sets a new identity
+				json_message.set_message_value(MessageValue::TALKIE_MSG_SYSTEM);
+				json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
+				json_message.set_system_value(SystemValue::TALKIE_SYS_CALLS);
+				json_message.set_to_name("slave");
 				return true;
 			}
 			break;
