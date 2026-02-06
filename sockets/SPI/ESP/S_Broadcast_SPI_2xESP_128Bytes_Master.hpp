@@ -18,23 +18,23 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <BroadcastSocket.h>
 #include "driver/spi_master.h"
 
+// This socket only allows a buffer size up to 128Bytes
+#define SPI_SOCKET_BUFFER_SIZE 128
 
 // #define BROADCAST_SPI_DEBUG
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 // Broadcast SPI is fire and forget, so, it is needed to give some time to the Slaves catch up with the next send from the Master
-#define broadcast_time_spacing_us 500	// Gives some time to all Slaves to process the received broadcast before a next one
-
-#define padding_delay_us 2
-#define border_delay_us 10
+#define broadcast_time_slot_us 500	// Gives some time to all Slaves to process the received broadcast before a next one
+#define beacon_time_slot_us 100		// Avoids too frequent beacons (used to collect data from the SPI Slaves)
 
 
-class S_Broadcast_SPI_2xESP_Master : public BroadcastSocket {
+class S_Broadcast_SPI_2xESP_128Bytes_Master : public BroadcastSocket {
 public:
 
 	// The Socket class description shouldn't be greater than 35 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*10) = 35
-    const char* class_description() const override { return "Broadcast_SPI_2xESP_Master"; }
+    const char* class_description() const override { return "Broadcast_SPI_2xESP_128Bytes_Master"; }
 
 
 	#ifdef BROADCAST_SPI_DEBUG_TIMING
@@ -50,14 +50,17 @@ protected:
 	const spi_host_device_t _host;
 	
 	spi_device_handle_t _spi;
-	uint8_t _data_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4)));
+	uint8_t _tx_buffer[SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_buffer[SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
 	bool _in_broadcast_slot = false;
 	uint32_t _broadcast_time_us = 0;
+	// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
+	uint32_t _last_beacon_time_us = 0;
 
 
     // Constructor
-    S_Broadcast_SPI_2xESP_Master(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host)
+    S_Broadcast_SPI_2xESP_128Bytes_Master(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host)
 		: BroadcastSocket(), _spi_cs_pins(ss_pins), _ss_pins_count(ss_pins_count), _host(host) {
             
 		_max_delay_ms = 0;  // SPI is sequencial, no need to control out of order packages
@@ -69,50 +72,39 @@ protected:
 
 		// Sends once per pin, avoids getting stuck in processing many pins
 		static uint8_t actual_pin_index = 0;
-		// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-		static uint32_t last_beacon_time_us = micros();
 
-		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
+		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_slot_us) {
 			_in_broadcast_slot = false;
 		}
 
-		// Master gives priority to broadcast send, NOT to receive
+		// Master gives priority to broadcast send, NOT to receive, so, it respects the broadcast time slot
 		if (!_in_broadcast_slot && _initiated) {
 			
 			// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
-			if (micros() - last_beacon_time_us > 100) {
-				last_beacon_time_us = micros();	// Avoid calling the beacon right away
+			if (micros() - _last_beacon_time_us > beacon_time_slot_us) {
+				_last_beacon_time_us = micros();	// Avoid calling the beacon right away
 
 				#ifdef BROADCAST_SPI_DEBUG_TIMING
 				_reference_time = millis();
 				#endif
 			
-				uint8_t l = sendBeacon(_spi_cs_pins[actual_pin_index]);
-				
-				if (l > 0) {
+				// Arms the receiving
+				size_t payload_length = receivePayload(_spi_cs_pins[actual_pin_index]);
+				if (payload_length > 0) {
 
-					uint8_t match_l = sendBeacon(_spi_cs_pins[actual_pin_index], l);
-					if (match_l == l) {	// Avoid noise triggering
-
-						receivePayload(_spi_cs_pins[actual_pin_index], l);
-
-						#ifdef BROADCAST_SPI_DEBUG
-							Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
-								_spi_cs_pins[actual_pin_index], 0b10000000 | l, l);
-							Serial.print("[From Slave] Received: ");
-							for (int i = 0; i < l; i++) {
-								Serial.print((char)_data_buffer[i]);
-							}
-							Serial.println();
-						#endif
-						
-						// No receiving while a send is pending, so, no _json_message corruption is possible
-						JsonMessage new_message(
-							reinterpret_cast<const char*>( _data_buffer ),
-							static_cast<size_t>( l )
-						);
-						_startTransmission(new_message);
-					}
+					#ifdef BROADCAST_SPI_DEBUG
+						Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
+							_spi_cs_pins[actual_pin_index], 0b10000000 | length, length);
+						Serial.print("[From Slave] Received: ");
+						for (int i = 0; i < length; i++) {
+							Serial.print((char)_rx_buffer[i]);
+						}
+						Serial.println();
+					#endif
+					
+					// No receiving while a send is pending, so, no _json_message corruption is possible
+					JsonMessage new_message(reinterpret_cast<const char*>( _rx_buffer ), payload_length);
+					_startTransmission(new_message);
 				}
 				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 			}
@@ -130,31 +122,30 @@ protected:
 				_reference_time = millis();
 			#endif
 
-			#ifdef BROADCAST_SPI_DEBUG
-			Serial.print(F("\t\t\t\t\tsend1: Sent message: "));
-			Serial.write(json_message._read_buffer(), json_message.get_length());
-			Serial.print(F("\n\t\t\t\t\tsend2: Sent length: "));
-			Serial.println(json_message.get_length());
-			#endif
-			
 			#ifdef BROADCAST_SPI_DEBUG_TIMING
 			Serial.print(" | ");
 			Serial.print(millis() - _reference_time);
 			#endif
 
 			size_t len = json_message.serialize_json(
-				reinterpret_cast<char*>( _data_buffer ),
-				TALKIE_BUFFER_SIZE
+				reinterpret_cast<char*>( _tx_buffer ),
+				SPI_SOCKET_BUFFER_SIZE
 			);
 			
 			if (len > 0) {
 
 				while (_in_broadcast_slot) {	// Avoids too many sends too close in time
 					// Broadcast has priority over receiving, so, no beacons are sent during broadcast time slot!
-					if (micros() - _broadcast_time_us > broadcast_time_spacing_us) _in_broadcast_slot = false;
+					if (micros() - _broadcast_time_us > broadcast_time_slot_us) _in_broadcast_slot = false;
 				}
 
-				broadcastLength(_spi_cs_pins, _ss_pins_count, (uint8_t)len); // D=0, L=len
+				#ifdef BROADCAST_SPI_DEBUG
+				Serial.print(F("\t\t\t\t\tsend1: Sent message: "));
+				Serial.write(json_message._read_buffer(), json_message.get_length());
+				Serial.print(F("\n\t\t\t\t\tsend2: Sent length: "));
+				Serial.println(json_message.get_length());
+				#endif
+			
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
 				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
 				_in_broadcast_slot = true;
@@ -182,88 +173,54 @@ protected:
 	
     // Specific methods associated to ESP SPI as Master
 	
-	void broadcastLength(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
-		uint8_t tx_byte __attribute__((aligned(4))) = 0b01111111 & length;
-		spi_transaction_t t = {};
-		t.length = 1 * 8;	// Bytes to bits
-		t.tx_buffer = &tx_byte;
-		t.rx_buffer = nullptr;
-
-		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
-			digitalWrite(ss_pins[ss_pin_i], LOW);
-		}
-		delayMicroseconds(padding_delay_us);
-		spi_device_transmit(_spi, &t);
-		delayMicroseconds(padding_delay_us);
-		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
-			digitalWrite(ss_pins[ss_pin_i], HIGH);
-		}
-		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
-	}
-
 	void broadcastPayload(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
 
-		if (length > TALKIE_BUFFER_SIZE) return;
-		
+		if (length > SPI_SOCKET_BUFFER_SIZE) return;
+		_tx_buffer[0] = length;
+		_tx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = length;
 		spi_transaction_t t = {};
-		t.length = (size_t)length * 8;	// Bytes to bits
-		t.tx_buffer = _data_buffer;
+		t.length = SPI_SOCKET_BUFFER_SIZE * 8;	// Bytes to bits
+		t.tx_buffer = _tx_buffer;
 		t.rx_buffer = nullptr;
 
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], LOW);
 		}
-		delayMicroseconds(padding_delay_us);
 		spi_device_transmit(_spi, &t);
-		delayMicroseconds(padding_delay_us);
 		for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 			digitalWrite(ss_pins[ss_pin_i], HIGH);
 		}
+		memset(_tx_buffer, 0, sizeof(_tx_buffer));  // clear sent data
 		// Border already included in the broadcast time slot
 	}
 
-
-	uint8_t sendBeacon(int ss_pin, uint8_t length = 0) {
-		uint8_t tx_byte __attribute__((aligned(4))) = 0b10000000 | length;
-		uint8_t rx_byte __attribute__((aligned(4))) = 0;
+	size_t receivePayload(int ss_pin) {
+		_tx_buffer[0] = 0xF0;	// 0xF0 is to receive
+		_tx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = _tx_buffer[0];
 		spi_transaction_t t = {};
-		t.length = 1 * 8;	// Bytes to bits
-		t.tx_buffer = &tx_byte;
-		t.rx_buffer = &rx_byte;
-
-		digitalWrite(ss_pin, LOW);
-		delayMicroseconds(padding_delay_us);
-		spi_device_transmit(_spi, &t);
-		delayMicroseconds(padding_delay_us);
-		digitalWrite(ss_pin, HIGH);
-		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
-
-		return rx_byte;
-	}
-
-	void receivePayload(int ss_pin, uint8_t length = 0) {
-		
-		if (length > TALKIE_BUFFER_SIZE) return;
-		
-		spi_transaction_t t = {};
-		t.length = (size_t)length * 8;	// Bytes to bits
-		t.tx_buffer = nullptr;
-		t.rx_buffer = _data_buffer;
+		t.length = SPI_SOCKET_BUFFER_SIZE * 8;	// Bytes to bits
+		t.tx_buffer = _tx_buffer;
+		t.rx_buffer = _rx_buffer;
 		
 		digitalWrite(ss_pin, LOW);
-		delayMicroseconds(padding_delay_us);
 		spi_device_transmit(_spi, &t);
-		delayMicroseconds(padding_delay_us);
 		digitalWrite(ss_pin, HIGH);
-		delayMicroseconds(border_delay_us);	// Needs a small delay of separation in order to the CS pins be able to cycle
+
+		if (_rx_buffer[0] > 0 && _rx_buffer[0] == _rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1]) {
+			size_t payload_length = (size_t)_rx_buffer[0];
+			_rx_buffer[0] = '{';
+			_rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = '}';
+			return payload_length;
+		}
+		return 0;
 	}
 
 
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_Broadcast_SPI_2xESP_Master& instance(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host = HSPI_HOST) {
-        static S_Broadcast_SPI_2xESP_Master instance(ss_pins, ss_pins_count, host);
+    static S_Broadcast_SPI_2xESP_128Bytes_Master& instance(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host = HSPI_HOST) {
+        static S_Broadcast_SPI_2xESP_128Bytes_Master instance(ss_pins, ss_pins_count, host);
 
         return instance;
     }
@@ -284,7 +241,7 @@ public:
 		buscfg.sclk_io_num = sclk_io_num;
 		buscfg.quadwp_io_num = -1;
 		buscfg.quadhd_io_num = -1;
-		buscfg.max_transfer_sz = TALKIE_BUFFER_SIZE;
+		buscfg.max_transfer_sz = SPI_SOCKET_BUFFER_SIZE;
 		
 		// https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/spi_master.html
 
