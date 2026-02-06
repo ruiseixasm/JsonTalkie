@@ -10,16 +10,25 @@
  * Hardware:
  * - An ESP8266, ESP8285 or ESP32 board with a built-in LED (LED_BUILTIN)
  *
+ * Sockets:
+ * - S_BroadcastESP_WiFi
+ * 
+ * Manifestos:
+ * - M_BlueManifesto
+ * - M_Esp66Manifesto
+ * - M_MessageTester
+ * - M_Spy
+ * 
  * Created: 2026-01-15
  */
 
 
 #include <JsonTalkie.hpp>
 #include "S_BroadcastESP_WiFi.hpp"
-#include "M_Spy.hpp"
 #include "M_BlueManifesto.hpp"
-#include "M_MessageTester.hpp"
 #include "M_Esp66Manifesto.hpp"
+#include "M_MessageTester.hpp"
+#include "M_Spy.hpp"
 
 
 const char ssid[] = "wifiName";
