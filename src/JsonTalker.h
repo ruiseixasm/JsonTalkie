@@ -228,30 +228,7 @@ private:
 		if (&json_message == &_recovery_message.message) return true;	// It's a resend
 
 		MessageValue message_value = json_message.get_message_value();
-		if (json_message.is_to_name(_name)) {
-			
-			#ifdef JSON_TALKER_DEBUG
-			Serial.print(F("\t\t\t\t_prepareMessage1.1: IS TO NAME:"));
-			json_message.write_to(Serial);
-			Serial.println();  // optional: just to add a newline after the JSON
-			#endif
-
-			json_message.swap_to_with_from();
-			
-			#ifdef JSON_TALKER_DEBUG
-			Serial.print(F("\t\t\t\t_prepareMessage1.1: SWAPPED MESSAGE:"));
-			json_message.write_to(Serial);
-			Serial.println();  // optional: just to add a newline after the JSON
-			#endif
-
-		} else if (!json_message.is_from_name(_name)) {
-			if (message_value >= MessageValue::TALKIE_MSG_ECHO) {	// It's an echo, so, Talker was target, even if not by name
-				json_message.swap_from_with_to();
-			}
-			if (!json_message.set_from_name(_name)) return false;	// Unable to set FROM (must have)
-		}
-
-		if (message_value < MessageValue::TALKIE_MSG_ECHO) {
+		if (message_value < MessageValue::TALKIE_MSG_ECHO) {	// Self Talker generated
 
 			#ifdef JSON_TALKER_DEBUG
 			Serial.print(F("\t\t\t\t_prepareMessage1.3: Setting a new identifier (i) for :"));
@@ -259,13 +236,36 @@ private:
 			Serial.println();  // optional: just to add a newline after the JSON
 			#endif
 
-			if (!json_message.set_identity()) return false;
+			if (!(json_message.set_from_name(_name) && json_message.set_identity())) {
+				return false;	// Makes sure it can set MUST have fields
+			}
 			_trace_message.identity = json_message.get_identity();
 			_trace_message.message_value = json_message.get_message_value();
 			_trace_message.active = true;
 
-		} else {	// errors and echoes
+		} else {	// errors and echoes responses, NOT Self Talker generated
 			
+			if (json_message.is_to_name(_name)) {
+				
+				#ifdef JSON_TALKER_DEBUG
+				Serial.print(F("\t\t\t\t_prepareMessage1.1: IS TO NAME:"));
+				json_message.write_to(Serial);
+				Serial.println();  // optional: just to add a newline after the JSON
+				#endif
+
+				json_message.swap_to_with_from();
+				
+				#ifdef JSON_TALKER_DEBUG
+				Serial.print(F("\t\t\t\t_prepareMessage1.1: SWAPPED MESSAGE:"));
+				json_message.write_to(Serial);
+				Serial.println();  // optional: just to add a newline after the JSON
+				#endif
+
+			} else if (!json_message.is_from_name(_name)) {
+				json_message.swap_from_with_to();
+				if (!json_message.set_from_name(_name)) return false;	// Unable to set FROM (must have)
+			}
+
 			#ifdef JSON_TALKER_DEBUG
 			Serial.print(F("\t\t\t\t_prepareMessage1.4: Keeping the same identifier (i): "));
 			json_message.write_to(Serial);
