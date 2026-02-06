@@ -39,7 +39,7 @@ public:
 
 protected:
 
-	enum SpiState {
+	enum SpiState : uint8_t {
 		WAIT_STATUS,
 		TX_PAYLOAD,
 		RX_PAYLOAD

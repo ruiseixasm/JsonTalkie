@@ -52,10 +52,23 @@ protected:
 		BroadcastValue::TALKIE_BC_LOCAL
 	};
 
+	// For calls
     uint16_t _total_calls = 0;
     uint16_t _total_echoes = 0;
 
+	enum BurstState : uint8_t {
+		DORMANT,
+		WAIT_CALLS,
+		BURSTING
+	};
+
+	// For burst
+	uint16_t _original_message_id = 0;
 	uint8_t _burst_toggles = 0;
+	uint16_t _start_calls = 0;
+	uint16_t _finish_calls = 0;
+	bool _original_cyclic_transmission = true;
+	BurstState _burst_state = DORMANT;
 	uint32_t _burst_spacing_us = 0;
 	uint32_t _last_burst_us = 0;
 
@@ -71,7 +84,6 @@ protected:
 		{"enable", "Enables 1sec cyclic transmission"},
 		{"disable", "Disables 1sec cyclic transmission"},
 		{"calls", "Gets total calls and their echoes"},
-		{"reset", "Resets the totals counter"},
 		{"burst", "Sends many messages at once"},
 		{"spacing", "Burst spacing in microseconds"},
 		{"ping", "Ping talkers by name or channel"}
@@ -106,17 +118,28 @@ public:
 			}
 		}
 
-		if (_burst_toggles > 0 && micros() - _last_burst_us > _burst_spacing_us) {
-			_burst_toggles--;
-			
-			if (_yellow_led_on++ % 2) {
-				_toggle_yellow_on_off.set_action_name("off");
-			} else {
-				_toggle_yellow_on_off.set_action_name("on");
+		if (_burst_toggles > 0) {
+			if (micros() - _last_burst_us > _burst_spacing_us) {
+				_last_burst_us = micros();
+				_burst_toggles--;
+				
+				if (_yellow_led_on++ % 2) {
+					_toggle_yellow_on_off.set_action_name("off");
+				} else {
+					_toggle_yellow_on_off.set_action_name("on");
+				}
+				talker.transmitToRepeater(_toggle_yellow_on_off);
+				_total_calls++;
 			}
-			talker.transmitToRepeater(_toggle_yellow_on_off);
-			_total_calls++;
-			_last_burst_us = micros();
+		} else if (_bursting) {
+			_bursting = false;
+			// Get the SPI Slave actual calls
+			JsonMessage get_calls{
+				MessageValue::TALKIE_MSG_SYSTEM,
+				BroadcastValue::TALKIE_BC_LOCAL
+			};
+			get_calls.set_system_value(SystemValue::TALKIE_SYS_CALLS);
+			talker.transmitToRepeater(get_calls);
 		}
 	}
 
@@ -148,27 +171,32 @@ public:
 			break;
 				
 			case 3:
+				if (json_message.has_nth_value_number(0)) {
+					_total_calls = 0;
+					_total_echoes = 0;
+				}
 				json_message.set_nth_value_number(0, _total_calls);
 				json_message.set_nth_value_number(1, _total_echoes);
 				return true;
 			break;
 			
-			case 4:
-				_total_calls = 0;
-				_total_echoes = 0;
-				json_message.set_nth_value_number(0, _total_calls);
-				json_message.set_nth_value_number(1, _total_echoes);
-				return true;
-			break;
-			
-			case 5:
+			case 4:	// Burst
 			{
-				_burst_toggles = 20;
+				_original_cyclic_transmission = _cyclic_transmission;
+				_cyclic_transmission = false;
+				_original_message_id = json_message.get_identity();
+				// Get the SPI Slave actual calls
+				JsonMessage get_calls{
+					MessageValue::TALKIE_MSG_SYSTEM,
+					BroadcastValue::TALKIE_BC_LOCAL
+				};
+				get_calls.set_system_value(SystemValue::TALKIE_SYS_CALLS);
+				talker.transmitToRepeater(get_calls);
 				return true;
 			}
 			break;
 			
-			case 6:
+			case 5:
 				if (json_message.has_nth_value_number(0)) {
 					_burst_spacing_us = json_message.get_nth_value_number(0);
 				} else {
@@ -177,7 +205,7 @@ public:
 				return true;
 			break;
 				
-			case 7:
+			case 6:
 			{
 				// 1. Start by collecting info from message
 				json_message.get_from_name(_original_talker);
@@ -222,6 +250,14 @@ public:
 				digitalWrite(LED_BUILTIN, LOW);
 				_self_blink_time = (uint16_t)millis();
 				_total_echoes++;
+			break;
+
+			case MessageValue::TALKIE_MSG_SYSTEM:
+				if (json_message.has_nth_value_number(0)) {
+					_start_calls = json_message.get_nth_value_number(0);
+					_bursting = true;
+					_burst_toggles = 20;
+				}
 			break;
 
 			case MessageValue::TALKIE_MSG_PING:
