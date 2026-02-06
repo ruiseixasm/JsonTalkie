@@ -1,16 +1,31 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    ESP32_EthernetENC_Arduino_Broadcast_SPI_Master.ino
+ * @author  Rui Seixas Monteiro
+ * @brief   An Ethernet connected ESP32 that routes messages via SPI to two Arduino Nanos.
+ *
+ * This sketch demonstrates how you can control two Nano boards with an ESP32 via SPI.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie
+ * 
+ * Hardware:
+ * - One ESP32 board and two Arduino Nano boards selected with the SS pins 4 and 16
+ * 
+ * CAUTION:
+ * - Because this is a Master Broadcast Socket, the SS pins are low simultaneously when messages
+ *   are being sent by it, so, each Arduino Nano MISO pin (12) shall have a resistor of around 500 Ohms
+ *   connected to it to avoid short circuiting those common Nano pins while the SPI Master is broadcasting.
+ *
+ * Sockets:
+ * - S_Broadcast_SPI_ESP_Arduino_Master
+ * - S_EthernetENC_Broadcast
+ * 
+ * Manifestos:
+ * - M_LedManifesto
+ * - M_MessageTester
+ * - M_Spy
+ * 
+ * Created: 2026-02-06
+ */
 
 // To upload a sketch to an ESP32, when the "......." appears press the button BOOT for a while
 
@@ -22,11 +37,11 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #include <JsonTalkie.hpp>
 // ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
-#include "S_EthernetENC_Broadcast.hpp"
 #include "S_Broadcast_SPI_ESP_Arduino_Master.hpp"
-#include "M_Spy.hpp"
+#include "S_EthernetENC_Broadcast.hpp"
 #include "M_LedManifesto.hpp"
 #include "M_MessageTester.hpp"
+#include "M_Spy.hpp"
 
 
 // TALKERS 
