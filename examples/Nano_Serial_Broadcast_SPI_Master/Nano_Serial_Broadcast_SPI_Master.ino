@@ -1,18 +1,21 @@
 /**
  * @file    Nano_Serial_Broadcast_SPI_Master.ino
  * @author  Rui Seixas Monteiro
- * @brief   An Ethernet ENC28J60 shield connected to an Arduino Mega.
+ * @brief   Two SPI paired Nano boards with one being the Master and the other the Slave.
  *
- * This sketch demonstrates how you can implement the EthernetENC adapted library
- * able to work in Broadcast mode
+ * This sketch demonstrates how you can connect two Arduino boards via SPI where the Master
+ * can be accessed via Serial and is able to control the other Arduino Slave board as SPI Master.
  *
  * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
  * 
  * Hardware:
- * - One Arduino Mega board and an Ethernet ENC28J60 shield
+ * - Two Arduino boards or more if you pretend to work in Broadcast mode (check CAUTION bellow)
  * 
- * NOTE:
- * - In the Arduino Mega, you should set the pin 53 as OUTPUT, and the pin 10 as the CS pin.
+ * CAUTION:
+ * - With this sketch you can have more than one single board as SPI Slave, this happens because the
+ * `S_Broadcast_SPI_2xArduino_Master` socket is a broadcast socket. However, if you choose to work
+ * with multiple Arduino boards as SPI Slave, make sure you connect a resistor of around 500 Ohms to
+ * each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
  *
  * Sockets:
  * - S_Broadcast_SPI_2xArduino_Master
