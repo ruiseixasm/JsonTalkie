@@ -616,6 +616,26 @@ public:
 
 
     /**
+     * @brief Generates an identity number
+     * @return A 16-bit value (0-65535)
+     */
+	static uint16_t generate_identity() {
+		return (uint16_t)millis();
+	}
+
+
+    /**
+     * @brief Generates a timestamp number
+     * @return A 16-bit value (0-65535)
+     * 
+     * @note A `timestamp` is the same thing as an `identity`
+     */
+	static uint16_t generate_timestamp() {
+		return (uint16_t)millis();
+	}
+
+
+    /**
      * @brief Validates a given character to be used in names
      * @param name_char The character belonging to a name
      * @param char_j The name position of the char
