@@ -153,6 +153,12 @@ protected:
 					#endif
 
 				}
+			} else {
+				
+				// To avoid the jump in a non receiving transaction we do an extra rotation to compensate
+				// While _send_length > 0 no one enters, so, this is safe
+				_tx_index ^= 1;	// xor, alternates in this case, 0 ^ 1 == 1 while 1 ^ 1 == 0
+
 			}
 			// Always queues a new transaction
 			queue_transaction();
