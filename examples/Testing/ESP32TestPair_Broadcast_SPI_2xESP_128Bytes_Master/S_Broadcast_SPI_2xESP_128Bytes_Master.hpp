@@ -109,7 +109,7 @@ protected:
 				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
 				// Only makes sure the cycle repeats at least after the beacon_time_slot_us
 				if (actual_pin_index == 0) {
-					_last_beacon_time_us = (uint16_t)micros();
+					_last_beacon_time_us = micros();
 				}
 			}
 		}
