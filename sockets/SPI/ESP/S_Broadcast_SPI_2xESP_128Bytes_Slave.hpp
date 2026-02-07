@@ -78,6 +78,7 @@ protected:
 			// At this point a queued element is consumed, as to queue a new one afterwards !
 			if (_rx_buffer[0] == _rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1]) {
 				if (_rx_buffer[0] < SPI_SOCKET_BUFFER_SIZE + 1) {
+
 					if (_rx_buffer[0] > 0) {
 
 						size_t payload_length = (size_t)_rx_buffer[0];

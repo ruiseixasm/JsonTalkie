@@ -73,6 +73,8 @@ protected:
 
 	JsonMessage _json_message;
 
+	// Sends once per pin, avoids getting stuck in processing many pins
+	uint8_t _actual_pin_index = 0;	// pin 0 has always priority
 	bool _in_broadcast_slot = false;
 	uint32_t _broadcast_time_us = 0;
 	uint32_t _last_beacon_time_us = 0;
@@ -105,9 +107,6 @@ protected:
     // Socket processing is always Half-Duplex because there is just one buffer to receive and other to send
     void _receive() override {
 
-		// Sends once per pin, avoids getting stuck in processing many pins
-		static uint8_t actual_pin_index = 0;
-		
 		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_spacing_us) {
 			_in_broadcast_slot = false;
 		}
@@ -122,15 +121,15 @@ protected:
 				#endif
 				
 				char* message_buffer = _json_message._write_buffer();
-				size_t length = receiveSPI(_spi_cs_pins[actual_pin_index], message_buffer);
+				size_t length = receiveSPI(_spi_cs_pins[_actual_pin_index], message_buffer);
 				if (length > 0) {
 					// No receiving while a send is pending, so, no _json_message corruption is possible
 					_json_message._set_length(length);
 					_startTransmission(_json_message);
 				}
-				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
+				_actual_pin_index = (_actual_pin_index + 1) % _ss_pins_count;
 				// Only makes sure the cycle repeats at least after the beacon_time_slot_us
-				if (actual_pin_index == 0) {
+				if (_actual_pin_index == 0) {
 					_last_beacon_time_us = micros();
 				}
 			}
@@ -174,6 +173,7 @@ protected:
 				sendBroadcastSPI(_spi_cs_pins, _ss_pins_count, message_buffer, message_length);
 				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
 				_last_beacon_time_us = _broadcast_time_us;
+				_actual_pin_index = 0;
 				_in_broadcast_slot = true;
 				
 				#ifdef BROADCAST_SPI_DEBUG
