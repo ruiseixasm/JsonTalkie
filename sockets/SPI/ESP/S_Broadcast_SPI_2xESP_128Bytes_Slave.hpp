@@ -54,7 +54,7 @@ protected:
 	spi_slave_transaction_t _payload_trans __attribute__((aligned(4)));
 	uint8_t _tx_index = 0;	// Better alignment afterwards
 
-	uint8_t _payload_length = 0;
+	uint8_t _send_length = 0;
 	uint8_t _stacked_transmissions = 0;
 
     // Constructor
@@ -78,6 +78,10 @@ protected:
 			// At this point a queued element is consumed, as to queue a new one afterwards !
 			if (_rx_buffer[0] == _rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1]) {
 				if (_rx_buffer[0] < SPI_SOCKET_BUFFER_SIZE + 1) {
+
+					// To avoid the jump in a non receiving transaction we do an extra rotation to compensate
+					// While _send_length > 0 no one enters, so, this is safe
+					_tx_index ^= 1;	// xor, alternates in this case, 0 ^ 1 == 1 while 1 ^ 1 == 0
 
 					if (_rx_buffer[0] > 0) {
 
@@ -129,11 +133,15 @@ protected:
 							Serial.println();
 						#endif
 
-						_payload_length = 0;	// payload was sent
+						_send_length = 0;	// payload was sent
 						memset(_tx_buffer[_tx_index], 0, sizeof(_tx_buffer[_tx_index]));  // clear entire _tx_buffer first
 					}
 				} else {
 					
+					// To avoid the jump in a non receiving transaction we do an extra rotation to compensate
+					// While _send_length > 0 no one enters, so, this is safe
+					_tx_index ^= 1;	// xor, alternates in this case, 0 ^ 1 == 1 while 1 ^ 1 == 0
+
 					#ifdef BROADCAST_SPI_DEBUG
 						Serial.printf("Other [%02X]: ", _tx_buffer[_tx_index][0]);
 						for (uint8_t i = 0; i < SPI_SOCKET_BUFFER_SIZE; i++) {
@@ -158,7 +166,7 @@ protected:
 		if (_initiated) {
 			
 			const uint16_t start_waiting = (uint16_t)millis();
-			while (_payload_length > 0) {
+			while (_send_length > 0) {
 
 				if (_stacked_transmissions < 3) {
 
@@ -178,11 +186,11 @@ protected:
 					return false;
 				}
 			}
-			// Both, _tx_buffer and _payload_length, set at the same time
+			// Both, _tx_buffer and _send_length, set at the same time
 			char* next_tx_buffer = reinterpret_cast<char*>( _tx_buffer[_tx_index ^ 1] );
-			_payload_length = (uint8_t)json_message.serialize_json(next_tx_buffer, SPI_SOCKET_BUFFER_SIZE);
-			_tx_buffer[_tx_index ^ 1][0] = _payload_length;
-			_tx_buffer[_tx_index ^ 1][SPI_SOCKET_BUFFER_SIZE - 1] = _payload_length;
+			_send_length = (uint8_t)json_message.serialize_json(next_tx_buffer, SPI_SOCKET_BUFFER_SIZE);
+			_tx_buffer[_tx_index ^ 1][0] = _send_length;
+			_tx_buffer[_tx_index ^ 1][SPI_SOCKET_BUFFER_SIZE - 1] = _send_length;
 			return true;
 		}
         return false;
