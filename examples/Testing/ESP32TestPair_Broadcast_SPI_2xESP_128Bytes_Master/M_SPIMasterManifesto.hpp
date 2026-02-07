@@ -234,7 +234,7 @@ public:
 				talker.transmitToRepeater(_toggle_yellow_on_off);
 				_total_calls++;
 			}
-		} else if (_burst_state == BURSTING) {
+		} else if (_burst_state == BURSTING && micros() - _last_burst_us > 10 * 1000) {	// Give 10 milliseconds to rest
 			_burst_state = WAIT_ECHO;
 			// Get the SPI Slave actual calls
 			JsonMessage get_calls{
