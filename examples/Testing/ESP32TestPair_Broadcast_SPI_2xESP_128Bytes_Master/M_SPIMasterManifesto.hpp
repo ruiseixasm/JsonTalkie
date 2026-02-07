@@ -62,21 +62,19 @@ protected:
 		BURSTING
 	};
 
-	// For burst
-	#define burst_amount 20
+	// For ping
+	char _original_message_from_name[TALKIE_NAME_LEN] = {'\0'};
 	BroadcastValue _original_message_broadcast = BroadcastValue::TALKIE_BC_NONE;
 	uint16_t _original_message_id = 0;
-	char _original_message_from_name[TALKIE_NAME_LEN] = {'\0'};
+
+	// For burst
+	#define burst_amount 20
 	uint8_t _burst_toggles = 0;
 	uint16_t _start_calls = 0;
 	bool _original_cyclic_transmission = true;
 	BurstState _burst_state = DORMANT;
 	uint32_t _burst_spacing_us = 0;
 	uint32_t _last_burst_us = 0;
-
-	// For ping
-	char _original_talker[TALKIE_NAME_LEN];
-	uint16_t _trace_message_timestamp;
 
 
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
@@ -187,9 +185,9 @@ public:
 			{
 				_original_cyclic_transmission = _cyclic_transmission;
 				_cyclic_transmission = false;
+				json_message.get_from_name(_original_message_from_name);
 				_original_message_broadcast = json_message.get_broadcast_value();
 				_original_message_id = json_message.get_identity();
-				json_message.get_from_name(_original_message_from_name);
 				// Used the Roger message as the echo message avoiding this way
 				// the SPI Master losing time with the Serial communication
 				json_message.set_message_value(MessageValue::TALKIE_MSG_SYSTEM);
@@ -215,8 +213,9 @@ public:
 			case 6:
 			{
 				// 1. Start by collecting info from message
-				json_message.get_from_name(_original_talker);
-				_trace_message_timestamp = json_message.get_identity();
+				json_message.get_from_name(_original_message_from_name);
+				_original_message_broadcast = json_message.get_broadcast_value();
+				_original_message_id = json_message.get_identity();
 
 				// 2. Repurpose it to be a LOCAL PING
 				json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
@@ -270,6 +269,7 @@ public:
 						};
 						report_burst.set_broadcast_value(_original_message_broadcast);
 						report_burst.set_to_name(_original_message_from_name);
+						report_burst.set_from_name(talker.get_name());	// It's an echo
 						report_burst.set_identity(_original_message_id);
 						report_burst.set_nth_value_number(0, received_calls);
 						if (received_calls == burst_amount)	{
@@ -298,15 +298,15 @@ public:
 				json_message.set_nth_value_string(1, from_name);
 
 				// Prepares headers for the original REMOTE sender
-				json_message.set_to_name(_original_talker);
+				json_message.set_to_name(_original_message_from_name);
 				json_message.set_from_name(talker.get_name());
 
 				// Emulates the REMOTE original call
-				json_message.set_identity(_trace_message_timestamp);
+				json_message.set_identity(_original_message_id);
 
 				// It's already an ECHO message, it's because of that that entered here
 				// Finally answers to the REMOTE caller by repeating all other json fields
-				json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
+				json_message.set_broadcast_value(_original_message_broadcast);
 				talker.transmitToRepeater(json_message);
 			}
 			break;
