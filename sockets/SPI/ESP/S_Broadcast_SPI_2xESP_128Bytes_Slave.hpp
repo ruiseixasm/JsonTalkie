@@ -134,7 +134,7 @@ protected:
 						#endif
 
 						_send_length = 0;	// payload was sent
-						memset(_tx_buffer[_tx_index], 0, sizeof(_tx_buffer[_tx_index]));  // clear entire _tx_buffer first
+						memset(_tx_buffer[_tx_index], 0, SPI_SOCKET_BUFFER_SIZE);  // clear entire _tx_buffer first
 					}
 				} else {
 					
