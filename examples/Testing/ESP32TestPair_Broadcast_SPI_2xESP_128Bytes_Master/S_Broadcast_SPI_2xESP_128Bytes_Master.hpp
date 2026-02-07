@@ -106,7 +106,9 @@ protected:
 					_startTransmission(new_message);
 				}
 				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
-				_last_beacon_time_us = micros();	// Avoid calling the beacon right away
+				if (actual_pin_index == 0) {
+					_last_beacon_time_us = micros();	// Avoid calling the same beacon right away
+				}
 			}
 		}
     }
