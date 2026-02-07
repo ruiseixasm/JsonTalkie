@@ -79,6 +79,10 @@ protected:
 			if (_rx_buffer[0] == _rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1]) {
 				if (_rx_buffer[0] < SPI_SOCKET_BUFFER_SIZE + 1) {
 
+					// To avoid the jump in a non receiving transaction we do an extra rotation to compensate
+					// While payload_length > 0 no one enters, so, this is safe
+					_tx_index ^= 1;	// xor, alternates in this case, 0 ^ 1 == 1 while 1 ^ 1 == 0
+
 					if (_rx_buffer[0] > 0) {
 
 						size_t payload_length = (size_t)_rx_buffer[0];
@@ -134,6 +138,10 @@ protected:
 					}
 				} else {
 					
+					// To avoid the jump in a non receiving transaction we do an extra rotation to compensate
+					// While payload_length > 0 no one enters, so, this is safe
+					_tx_index ^= 1;	// xor, alternates in this case, 0 ^ 1 == 1 while 1 ^ 1 == 0
+
 					#ifdef BROADCAST_SPI_DEBUG
 						Serial.printf("Other [%02X]: ", _tx_buffer[_tx_index][0]);
 						for (uint8_t i = 0; i < SPI_SOCKET_BUFFER_SIZE; i++) {
