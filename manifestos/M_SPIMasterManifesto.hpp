@@ -44,7 +44,7 @@ protected:
 
 	uint32_t _last_blink = 0;
 	uint8_t _yellow_led_on = 0;
-	uint32_t _cyclic_period_ms = 1000;
+	uint32_t _cyclic_period_ms = 60;
 	bool _cyclic_transmission = true;	// true by default
 
 	JsonMessage _toggle_yellow_on_off{
@@ -52,27 +52,38 @@ protected:
 		BroadcastValue::TALKIE_BC_LOCAL
 	};
 
+	// For calls
     uint16_t _total_calls = 0;
     uint16_t _total_echoes = 0;
 
-	uint8_t _burst_toggles = 0;
-	uint32_t _burst_spacing_us = 0;
-	uint32_t _last_burst_us = 0;
+	enum BurstState : uint8_t {
+		DORMANT,
+		WAIT_ECHO,
+		BURSTING
+	};
 
 	// For ping
-	char _original_talker[TALKIE_NAME_LEN];
-	uint16_t _trace_message_timestamp;
+	char _original_message_from_name[TALKIE_NAME_LEN] = {'\0'};
+	BroadcastValue _original_message_broadcast = BroadcastValue::TALKIE_BC_NONE;
+	uint16_t _original_message_id = 0;
+
+	// For burst
+	#define burst_amount 20
+	uint8_t _burst_toggles = 0;
+	uint16_t _start_calls = 0;
+	bool _original_cyclic_transmission = true;
+	BurstState _burst_state = DORMANT;
+	uint32_t _burst_spacing_us = 0;
+	uint32_t _last_burst_us = 0;
 
 
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
-    Action calls[8] = {
+    Action calls[6] = {
 		{"period", "Sets cycle period milliseconds"},
-		{"enable", "Enables 1sec cyclic transmission"},
-		{"disable", "Disables 1sec cyclic transmission"},
+		{"enabled", "Checks, enable or disable cycles"},
 		{"calls", "Gets total calls and their echoes"},
-		{"reset", "Resets the totals counter"},
-		{"burst", "Sends many messages at once"},
+		{"burst", "Tests slave, many messages at once"},
 		{"spacing", "Burst spacing in microseconds"},
 		{"ping", "Ping talkers by name or channel"}
     };
@@ -83,6 +94,110 @@ public:
 
     // Size methods
     uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+
+    
+    // Index-based operations (simplified examples)
+    bool _actionByIndex(uint8_t index, JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
+    	(void)talker_match;	// Silence unused parameter warning
+
+		// Actual implementation would do something based on index
+		switch(index) {
+
+			case 0:
+				if (json_message.has_nth_value_number(0)) {
+					_cyclic_period_ms = json_message.get_nth_value_number(0);
+				} else {
+					json_message.set_nth_value_number(0, _cyclic_period_ms);
+				}
+				return true;
+			break;
+				
+			case 1:
+				if (json_message.has_nth_value_number(0)) {
+					if(json_message.get_nth_value_number(0)) {
+						_cyclic_transmission = true;
+					} else {
+						_cyclic_transmission = false;
+					}
+				} else {
+					json_message.set_nth_value_number(0, (uint32_t)_cyclic_transmission);
+				}
+				return true;
+			break;
+				
+			case 2:
+				if (json_message.has_nth_value_number(0)) {
+					_total_calls = 0;
+					_total_echoes = 0;
+				}
+				json_message.set_nth_value_number(0, _total_calls);
+				json_message.set_nth_value_number(1, _total_echoes);
+				return true;
+			break;
+			
+			case 3:	// Burst
+			{
+				_original_cyclic_transmission = _cyclic_transmission;
+				_cyclic_transmission = false;
+				json_message.get_from_name(_original_message_from_name);
+				_original_message_broadcast = json_message.get_broadcast_value();
+				_original_message_id = json_message.get_identity();
+				// Used the Roger message as the echo message avoiding this way
+				// the SPI Master losing time with the Serial communication
+				json_message.set_message_value(MessageValue::TALKIE_MSG_SYSTEM);
+				json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
+				json_message.set_system_value(SystemValue::TALKIE_SYS_CALLS);
+				// TO BE REVIEWED, IT SHOULDN'T BE NECESSARY
+				json_message.set_from_name(talker.get_name());	// Avoids the swapping
+				json_message.set_to_name("slave");
+				// No need to transmit the message, the normal ROGER reply does that for us!
+				return true;
+			}
+			break;
+			
+			case 4:
+				if (json_message.has_nth_value_number(0)) {
+					_burst_spacing_us = json_message.get_nth_value_number(0);
+				} else {
+					json_message.set_nth_value_number(0, _burst_spacing_us);
+				}
+				return true;
+			break;
+				
+			case 5:
+			{
+				// 1. Start by collecting info from message
+				json_message.get_from_name(_original_message_from_name);
+				_original_message_broadcast = json_message.get_broadcast_value();
+				_original_message_id = json_message.get_identity();
+
+				// 2. Repurpose it to be a LOCAL PING
+				json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
+				json_message.remove_to();	// MAkes sure To is removed, otherwise it will be sent to me
+				if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_STRING) {
+					char value_name[TALKIE_NAME_LEN];
+					if (json_message.get_nth_value_string(0, value_name, TALKIE_NAME_LEN)) {
+						json_message.set_to_name(value_name);
+					}
+				} else if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_INTEGER) {
+					json_message.set_to_channel((uint8_t)json_message.get_nth_value_number(0));
+				}
+				json_message.remove_nth_value(0);
+				// TO BE REVIEWED, IT SHOULDN'T BE NECESSARY
+				json_message.set_from_name(talker.get_name());	// Avoids the swapping
+
+				// 3. Sends the message LOCALLY
+				json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
+				// No need to transmit the message, the normal ROGER reply does that for us!
+				
+				return true;
+			}
+			break;
+
+			default: break;
+		}
+		return false;
+	}
 
 
 	void _loop(JsonTalker& talker) override {
@@ -106,110 +221,32 @@ public:
 			}
 		}
 
-		if (_burst_toggles > 0 && micros() - _last_burst_us > _burst_spacing_us) {
-			_burst_toggles--;
-			
-			if (_yellow_led_on++ % 2) {
-				_toggle_yellow_on_off.set_action_name("off");
-			} else {
-				_toggle_yellow_on_off.set_action_name("on");
-			}
-			talker.transmitToRepeater(_toggle_yellow_on_off);
-			_total_calls++;
-			_last_burst_us = micros();
-		}
-	}
-
-    
-    // Index-based operations (simplified examples)
-    bool _actionByIndex(uint8_t index, JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
-    	(void)talker_match;	// Silence unused parameter warning
-
-		// Actual implementation would do something based on index
-		switch(index) {
-
-			case 0:
-				if (json_message.has_nth_value_number(0)) {
-					_cyclic_period_ms = json_message.get_nth_value_number(0);
+		if (_burst_toggles > 0) {
+			if (micros() - _last_burst_us > _burst_spacing_us) {
+				_last_burst_us = micros();
+				_burst_toggles--;
+				
+				if (_yellow_led_on++ % 2) {
+					_toggle_yellow_on_off.set_action_name("off");
 				} else {
-					json_message.set_nth_value_number(0, _cyclic_period_ms);
+					_toggle_yellow_on_off.set_action_name("on");
 				}
-				return true;
-			break;
-				
-			case 1:
-				_cyclic_transmission = true;
-				return true;
-			break;
-				
-			case 2:
-				_cyclic_transmission = false;
-				return true;
-			break;
-				
-			case 3:
-				json_message.set_nth_value_number(0, _total_calls);
-				json_message.set_nth_value_number(1, _total_echoes);
-				return true;
-			break;
-			
-			case 4:
-				_total_calls = 0;
-				_total_echoes = 0;
-				json_message.set_nth_value_number(0, _total_calls);
-				json_message.set_nth_value_number(1, _total_echoes);
-				return true;
-			break;
-			
-			case 5:
-			{
-				_burst_toggles = 20;
-				return true;
+				talker.transmitToRepeater(_toggle_yellow_on_off);
+				_total_calls++;
 			}
-			break;
-			
-			case 6:
-				if (json_message.has_nth_value_number(0)) {
-					_burst_spacing_us = json_message.get_nth_value_number(0);
-				} else {
-					json_message.set_nth_value_number(0, _burst_spacing_us);
-				}
-				return true;
-			break;
-				
-			case 7:
-			{
-				// 1. Start by collecting info from message
-				json_message.get_from_name(_original_talker);
-				_trace_message_timestamp = json_message.get_identity();
-
-				// 2. Repurpose it to be a LOCAL PING
-				json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
-				json_message.remove_identity();
-				if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_STRING) {
-					char value_name[TALKIE_NAME_LEN];
-					if (json_message.get_nth_value_string(0, value_name, TALKIE_NAME_LEN)) {
-						json_message.set_to_name(value_name);
-					}
-				} else if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_INTEGER) {
-					json_message.set_to_channel((uint8_t)json_message.get_nth_value_number(0));
-				} else {	// Removes the original TO
-					json_message.remove_to();	// Without TO works as broadcast
-				}
-				json_message.remove_nth_value(0);
-				json_message.set_from_name(talker.get_name());	// Avoids the swapping
-
-				// 3. Sends the message LOCALLY
-				json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
-				// No need to transmit the message, the normal ROGER reply does that for us!
-				
-				return true;
-			}
-			break;
-
-			default: break;
+		} else if (_burst_state == BURSTING && micros() - _last_burst_us > 10 * 1000) {	// Give 10 milliseconds to rest
+			_burst_state = WAIT_ECHO;
+			// Get the SPI Slave actual calls
+			JsonMessage get_calls{
+				MessageValue::TALKIE_MSG_SYSTEM,
+				BroadcastValue::TALKIE_BC_LOCAL
+			};
+			get_calls.set_system_value(SystemValue::TALKIE_SYS_CALLS);
+			get_calls.set_to_name("slave");
+			// TO BE REVIEWED, IT SHOULDN'T BE NECESSARY
+			get_calls.set_from_name(talker.get_name());	// Avoids the swapping
+			talker.transmitToRepeater(get_calls);
 		}
-		return false;
 	}
 
 
@@ -224,6 +261,35 @@ public:
 				_total_echoes++;
 			break;
 
+			case MessageValue::TALKIE_MSG_SYSTEM:
+				if (json_message.has_nth_value_number(0)) {
+					if (_burst_state == WAIT_ECHO) {
+						_burst_state = DORMANT;
+						_cyclic_transmission = _original_cyclic_transmission;
+						uint16_t received_calls = json_message.get_nth_value_number(0) - _start_calls;
+						JsonMessage report_burst{
+							MessageValue::TALKIE_MSG_ECHO,
+							BroadcastValue::TALKIE_BC_REMOTE
+						};
+						report_burst.set_broadcast_value(_original_message_broadcast);
+						report_burst.set_to_name(_original_message_from_name);
+						report_burst.set_from_name(talker.get_name());	// It's an echo
+						report_burst.set_identity(_original_message_id);
+						report_burst.set_nth_value_number(0, received_calls);
+						if (received_calls == burst_amount)	{
+							report_burst.set_nth_value_string(1, "OK");
+						} else {
+							report_burst.set_nth_value_string(1, "FAIL");
+						}
+						talker.transmitToRepeater(report_burst);
+					} else {
+						_burst_state = BURSTING;
+						_start_calls = json_message.get_nth_value_number(0);
+						_burst_toggles = burst_amount;
+					}
+				}
+			break;
+
 			case MessageValue::TALKIE_MSG_PING:
 			{
 				// In condition to calculate the delay right away, no need to extra messages
@@ -236,15 +302,15 @@ public:
 				json_message.set_nth_value_string(1, from_name);
 
 				// Prepares headers for the original REMOTE sender
-				json_message.set_to_name(_original_talker);
+				json_message.set_to_name(_original_message_from_name);
 				json_message.set_from_name(talker.get_name());
 
 				// Emulates the REMOTE original call
-				json_message.set_identity(_trace_message_timestamp);
+				json_message.set_identity(_original_message_id);
 
 				// It's already an ECHO message, it's because of that that entered here
 				// Finally answers to the REMOTE caller by repeating all other json fields
-				json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_REMOTE);
+				json_message.set_broadcast_value(_original_message_broadcast);
 				talker.transmitToRepeater(json_message);
 			}
 			break;
