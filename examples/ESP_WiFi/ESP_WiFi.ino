@@ -5,7 +5,7 @@
  *
  * This sketch demonstrates how you can remotely turn on and off the board led.
  *
- * @see https://github.com/ruiseixasm/JsonTalkie
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
  * 
  * Hardware:
  * - An ESP8266, ESP8285 or ESP32 board with a built-in LED (LED_BUILTIN)

@@ -1,16 +1,30 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    Mega_Ethernet.ino
+ * @author  Rui Seixas Monteiro
+ * @brief   An Ethernet (W5500 or W5100) shield mounted on an Arduino Mega.
+ *
+ * This sketch uses the shield with the chip W5500 or W5100.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
+ * 
+ * Hardware:
+ * - One Arduino Mega and a W5500 or W5100 shield
+ * 
+ * NOTE:
+ * - While the Ethernet shield is mounted on the Mega, you will not be able to upload any sketch to it,
+ *   the easies way to do it, is to unplug the USB cable while the compilation is being done and plug it
+ *   in again before the uploading starts, like half way of the total process, then the upload process
+ *   works every single time.
+ *
+ * Sockets:
+ * - S_BroadcastSocket_Ethernet
+ * 
+ * Manifestos:
+ * - M_MegaManifesto
+ * - M_CallerManifesto
+ * 
+ * Created: 2026-02-07
+ */
 
 // Needed for the SPI module connection
 #include <SPI.h>

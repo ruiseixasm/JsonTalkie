@@ -5,7 +5,7 @@
  *
  * This sketch demonstrates how you can control two Nano boards with an ESP32 via SPI.
  *
- * @see https://github.com/ruiseixasm/JsonTalkie
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
  * 
  * Hardware:
  * - One ESP32 board and two Arduino Nano boards selected with the SS pins 4 and 16
