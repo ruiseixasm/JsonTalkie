@@ -152,6 +152,7 @@ protected:
 			
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
 				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
+				_last_beacon_time_us = _broadcast_time_us;
 				_in_broadcast_slot = true;
 
 			} else {

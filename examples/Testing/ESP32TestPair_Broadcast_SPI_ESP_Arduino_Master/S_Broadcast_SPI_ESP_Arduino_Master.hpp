@@ -162,6 +162,7 @@ protected:
 
 				sendBroadcastSPI(_spi_cs_pins, _ss_pins_count, message_buffer, message_length);
 				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
+				_last_beacon_time_us = _broadcast_time_us;
 				_in_broadcast_slot = true;
 				
 				#ifdef BROADCAST_SPI_DEBUG
