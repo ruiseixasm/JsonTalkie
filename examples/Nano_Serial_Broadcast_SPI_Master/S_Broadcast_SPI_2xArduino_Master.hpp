@@ -28,7 +28,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // Broadcast SPI is fire and forget, so, it is needed to give some time to the Slaves catch up with the next send from the Master
 #define broadcast_time_spacing_us 700	// Gives some time to all Slaves to process the received broadcast before a next one
-#define beacon_time_slot_us 225		// Avoids too frequent beacons (used to collect data from the SPI Slaves)
+#define beacon_time_slot_us 250		// Avoids too frequent beacons (used to collect data from the SPI Slaves)
 
 #define send_delay_us 10
 #define receive_delay_us 18
