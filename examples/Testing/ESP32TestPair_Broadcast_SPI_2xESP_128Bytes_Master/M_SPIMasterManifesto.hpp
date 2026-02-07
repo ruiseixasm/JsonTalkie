@@ -58,7 +58,7 @@ protected:
 
 	enum BurstState : uint8_t {
 		DORMANT,
-		WAIT_CALLS,
+		WAIT_ECHO,
 		BURSTING
 	};
 
@@ -95,54 +95,6 @@ public:
 
     // Size methods
     uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
-
-
-	void _loop(JsonTalker& talker) override {
-		
-		if ((uint16_t)millis() - _self_blink_time > 50) {	// turns off for 50 milliseconds
-			
-			digitalWrite(LED_BUILTIN, HIGH);
-		}
-
-		if (millis() - _last_blink > _cyclic_period_ms) {
-			_last_blink = millis();
-
-			if (_cyclic_transmission) {
-				if (_yellow_led_on++ % 2) {
-					_toggle_yellow_on_off.set_action_name("off");
-				} else {
-					_toggle_yellow_on_off.set_action_name("on");
-				}
-				talker.transmitToRepeater(_toggle_yellow_on_off);
-				_total_calls++;
-			}
-		}
-
-		if (_burst_toggles > 0) {
-			if (micros() - _last_burst_us > _burst_spacing_us) {
-				_last_burst_us = micros();
-				_burst_toggles--;
-				
-				if (_yellow_led_on++ % 2) {
-					_toggle_yellow_on_off.set_action_name("off");
-				} else {
-					_toggle_yellow_on_off.set_action_name("on");
-				}
-				talker.transmitToRepeater(_toggle_yellow_on_off);
-				_total_calls++;
-			}
-		} else if (_burst_state == BURSTING) {
-			_burst_state = WAIT_CALLS;
-			// Get the SPI Slave actual calls
-			JsonMessage get_calls{
-				MessageValue::TALKIE_MSG_SYSTEM,
-				BroadcastValue::TALKIE_BC_LOCAL
-			};
-			get_calls.set_system_value(SystemValue::TALKIE_SYS_CALLS);
-			get_calls.set_to_name("slave");
-			talker.transmitToRepeater(get_calls);
-		}
-	}
 
     
     // Index-based operations (simplified examples)
@@ -246,6 +198,56 @@ public:
 	}
 
 
+	void _loop(JsonTalker& talker) override {
+		
+		if ((uint16_t)millis() - _self_blink_time > 50) {	// turns off for 50 milliseconds
+			
+			digitalWrite(LED_BUILTIN, HIGH);
+		}
+
+		if (millis() - _last_blink > _cyclic_period_ms) {
+			_last_blink = millis();
+
+			if (_cyclic_transmission) {
+				if (_yellow_led_on++ % 2) {
+					_toggle_yellow_on_off.set_action_name("off");
+				} else {
+					_toggle_yellow_on_off.set_action_name("on");
+				}
+				talker.transmitToRepeater(_toggle_yellow_on_off);
+				_total_calls++;
+			}
+		}
+
+		if (_burst_toggles > 0) {
+			if (micros() - _last_burst_us > _burst_spacing_us) {
+				_last_burst_us = micros();
+				_burst_toggles--;
+				
+				if (_yellow_led_on++ % 2) {
+					_toggle_yellow_on_off.set_action_name("off");
+				} else {
+					_toggle_yellow_on_off.set_action_name("on");
+				}
+				talker.transmitToRepeater(_toggle_yellow_on_off);
+				_total_calls++;
+			}
+		} else if (_burst_state == BURSTING) {
+			_burst_state = WAIT_ECHO;
+			// Get the SPI Slave actual calls
+			JsonMessage get_calls{
+				MessageValue::TALKIE_MSG_SYSTEM,
+				BroadcastValue::TALKIE_BC_LOCAL
+			};
+			get_calls.set_system_value(SystemValue::TALKIE_SYS_CALLS);
+			get_calls.set_to_name("slave");
+			// TO BE REVIEWED, IT SHOULDN'T BE NECESSARY
+			get_calls.set_from_name(talker.get_name());	// Avoids the swapping
+			talker.transmitToRepeater(get_calls);
+		}
+	}
+
+
     void _echo(JsonTalker& talker, JsonMessage& json_message, MessageValue message_value, TalkerMatch talker_match) override {
 		(void)talker_match;	// Silence unused parameter warning
 
@@ -259,7 +261,7 @@ public:
 
 			case MessageValue::TALKIE_MSG_SYSTEM:
 				if (json_message.has_nth_value_number(0)) {
-					if (_burst_state == WAIT_CALLS) {
+					if (_burst_state == WAIT_ECHO) {
 						_burst_state = DORMANT;
 						_cyclic_transmission = _original_cyclic_transmission;
 						uint16_t received_calls = json_message.get_nth_value_number(0) - _start_calls;
