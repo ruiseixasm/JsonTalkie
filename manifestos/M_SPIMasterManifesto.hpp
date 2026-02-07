@@ -202,12 +202,12 @@ public:
 
 	void _loop(JsonTalker& talker) override {
 		
-		if ((uint16_t)millis() - _self_blink_time > 50) {	// turns off for 50 milliseconds
+		if ((uint16_t)millis() - _self_blink_time >= 50) {	// turns off for 50 milliseconds
 			
 			digitalWrite(LED_BUILTIN, HIGH);
 		}
 
-		if (millis() - _last_blink > _cyclic_period_ms) {
+		if (millis() - _last_blink >= _cyclic_period_ms) {	// Has to be >= to avoid extra millisecond
 			_last_blink = millis();
 
 			if (_cyclic_transmission) {
@@ -222,7 +222,7 @@ public:
 		}
 
 		if (_burst_toggles > 0) {
-			if (micros() - _last_burst_us > _burst_spacing_us) {
+			if (micros() - _last_burst_us >= _burst_spacing_us) {
 				_last_burst_us = micros();
 				_burst_toggles--;
 				
@@ -233,7 +233,7 @@ public:
 				}
 				talker.transmitToRepeater(_toggle_yellow_on_off);
 			}
-		} else if (_burst_state == BURSTING && micros() - _last_burst_us > 10 * 1000) {	// Give 10 milliseconds to rest
+		} else if (_burst_state == BURSTING && micros() - _last_burst_us >= 10 * 1000) {	// Give 10 milliseconds to rest
 			_burst_state = WAIT_ECHO;
 			// Get the SPI Slave actual calls
 			JsonMessage get_calls{
