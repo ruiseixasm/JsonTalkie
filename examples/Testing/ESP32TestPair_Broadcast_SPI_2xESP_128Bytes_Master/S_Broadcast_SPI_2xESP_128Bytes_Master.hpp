@@ -82,7 +82,7 @@ protected:
 			
 			// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
 			// Only for just 1 pin makes sense consider a beacon delay
-			if (_ss_pins_count > 1 || micros() - _last_beacon_time_us > beacon_time_slot_us) {
+			if (micros() - _last_beacon_time_us > beacon_time_slot_us) {
 
 				#ifdef BROADCAST_SPI_DEBUG_TIMING
 				_reference_time = millis();
@@ -107,7 +107,10 @@ protected:
 					_startTransmission(new_message);
 				}
 				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
-				_last_beacon_time_us = micros();	// Avoid calling the same beacon right away
+				// Only makes sure the cycle repeats at least after the beacon_time_slot_us
+				if (actual_pin_index == 0) {
+					_last_beacon_time_us = (uint16_t)micros();
+				}
 			}
 		}
     }
