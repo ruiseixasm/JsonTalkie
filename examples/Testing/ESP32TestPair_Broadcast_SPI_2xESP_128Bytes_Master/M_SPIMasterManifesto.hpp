@@ -79,10 +79,9 @@ protected:
 
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
-    Action calls[7] = {
+    Action calls[6] = {
 		{"period", "Sets cycle period milliseconds"},
-		{"enable", "Enables 1sec cyclic transmission"},
-		{"disable", "Disables 1sec cyclic transmission"},
+		{"enabled", "Checks, enable or disable cycles"},
 		{"calls", "Gets total calls and their echoes"},
 		{"burst", "Tests slave, many messages at once"},
 		{"spacing", "Burst spacing in microseconds"},
@@ -114,16 +113,19 @@ public:
 			break;
 				
 			case 1:
-				_cyclic_transmission = true;
+				if (json_message.has_nth_value_number(0)) {
+					if(json_message.get_nth_value_number(0)) {
+						_cyclic_transmission = true;
+					} else {
+						_cyclic_transmission = false;
+					}
+				} else {
+					json_message.set_nth_value_number(0, (uint32_t)_cyclic_transmission);
+				}
 				return true;
 			break;
 				
 			case 2:
-				_cyclic_transmission = false;
-				return true;
-			break;
-				
-			case 3:
 				if (json_message.has_nth_value_number(0)) {
 					_total_calls = 0;
 					_total_echoes = 0;
@@ -133,7 +135,7 @@ public:
 				return true;
 			break;
 			
-			case 4:	// Burst
+			case 3:	// Burst
 			{
 				_original_cyclic_transmission = _cyclic_transmission;
 				_cyclic_transmission = false;
@@ -153,7 +155,7 @@ public:
 			}
 			break;
 			
-			case 5:
+			case 4:
 				if (json_message.has_nth_value_number(0)) {
 					_burst_spacing_us = json_message.get_nth_value_number(0);
 				} else {
@@ -162,7 +164,7 @@ public:
 				return true;
 			break;
 				
-			case 6:
+			case 5:
 			{
 				// 1. Start by collecting info from message
 				json_message.get_from_name(_original_message_from_name);
