@@ -271,6 +271,7 @@ protected:
 			for (uint8_t ss_pin_i = 0; ss_pin_i < ss_pins_count; ss_pin_i++) {
 				digitalWrite(ss_pins[ss_pin_i], HIGH);
 			}
+			delayMicroseconds(send_delay_us);
 			
         	return true;
 		}
@@ -336,6 +337,7 @@ protected:
 			close_transmission:
             delayMicroseconds(5);
             digitalWrite(ss_pin, HIGH);
+			delayMicroseconds(receive_delay_us);
         }
         return length;
     }
