@@ -41,7 +41,16 @@ JsonTalker t_duo = JsonTalker(t_duo_name, t_duo_desc, &duo_manifesto);
 // Singleton requires the & (to get a reference variable)
 auto& serial_socket = S_SocketSerial::instance();
 #define HSPI_CS 15
-// ALWAYS MAKE SURE YOU ARE CONNECTED ALL AND EACH SLAVE PIN !!!
+/**
+ * CAUTION:
+ * - For more than one single board as SPI Slave, make sure you connect a resistor of around 500 Ohms to
+ * each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
+ * 
+ * [1st Slave Arduino MISO] ----[500Ω]----┐
+ * [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master Arduino MISO]
+ * [3rd Slave Arduino MISO] ----[500Ω]----┘
+ *
+ */
 const int spi_pins[] = {4, HSPI_CS, 16};
 auto& spi_socket = S_Broadcast_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 

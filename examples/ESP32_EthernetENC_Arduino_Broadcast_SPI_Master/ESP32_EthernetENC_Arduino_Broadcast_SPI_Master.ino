@@ -68,6 +68,16 @@ JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
 // SOCKETS
 // Singleton requires the & (to get a reference variable)
 auto& ethernet_socket = S_EthernetENC_Broadcast::instance();
+/**
+ * CAUTION:
+ * - For more than one single board as SPI Slave, make sure you connect a resistor of around 500 Ohms to
+ * each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
+ * 
+ * [1st Slave Arduino MISO] ----[500Ω]----┐
+ * [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master Arduino MISO]
+ * [3rd Slave Arduino MISO] ----[500Ω]----┘
+ *
+ */
 const int spi_pins[] = {4, 16};	// To which each Arduino CS pin is connected on the ESP32
 auto& spi_socket = S_Broadcast_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 
