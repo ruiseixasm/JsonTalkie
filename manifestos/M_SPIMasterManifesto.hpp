@@ -147,8 +147,7 @@ public:
 				json_message.set_message_value(MessageValue::TALKIE_MSG_SYSTEM);
 				json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
 				json_message.set_system_value(SystemValue::TALKIE_SYS_CALLS);
-				// TO BE REVIEWED, IT SHOULDN'T BE NECESSARY
-				json_message.set_from_name(talker.get_name());	// Avoids the swapping
+				// Because it is NOT an echo message anymore, no swapping of 'from' with 'to' happens
 				json_message.set_to_name("slave");
 				// No need to transmit the message, the normal ROGER reply does that for us!
 				return true;
@@ -174,6 +173,7 @@ public:
 				// 2. Repurpose it to be a LOCAL PING
 				json_message.set_message_value(MessageValue::TALKIE_MSG_PING);
 				json_message.remove_to();	// MAkes sure To is removed, otherwise it will be sent to me
+				// Because it is NOT an echo message anymore, no swapping of 'from' with 'to' happens
 				if (json_message.get_nth_value_type(0) == ValueType::TALKIE_VT_STRING) {
 					char value_name[TALKIE_NAME_LEN];
 					if (json_message.get_nth_value_string(0, value_name, TALKIE_NAME_LEN)) {
@@ -183,8 +183,6 @@ public:
 					json_message.set_to_channel((uint8_t)json_message.get_nth_value_number(0));
 				}
 				json_message.remove_nth_value(0);
-				// TO BE REVIEWED, IT SHOULDN'T BE NECESSARY
-				json_message.set_from_name(talker.get_name());	// Avoids the swapping
 
 				// 3. Sends the message LOCALLY
 				json_message.set_broadcast_value(BroadcastValue::TALKIE_BC_LOCAL);
@@ -241,9 +239,8 @@ public:
 				BroadcastValue::TALKIE_BC_LOCAL
 			};
 			get_calls.set_system_value(SystemValue::TALKIE_SYS_CALLS);
+			// Because it is NOT an echo message anymore, no swapping of 'from' with 'to' happens
 			get_calls.set_to_name("slave");
-			// TO BE REVIEWED, IT SHOULDN'T BE NECESSARY
-			get_calls.set_from_name(talker.get_name());	// Avoids the swapping
 			talker.transmitToRepeater(get_calls);
 		}
 	}
