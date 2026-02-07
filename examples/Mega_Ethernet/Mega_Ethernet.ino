@@ -12,9 +12,9 @@
  * 
  * NOTE:
  * - While the Ethernet shield is mounted on the Mega, you will not be able to upload any sketch to it,
- *   the easies way to do it, is to unplug the USB cable while the compilation is being done and plug it
- *   in again before the uploading starts, like half way of the total process, then the upload process
- *   works every single time.
+ *   the easiest way to do it, is to unplug the USB cable from the Mega while the compilation is being done
+ *   and plug it in again before the uploading starts, like half way of the total process, then the upload
+ *   process works every single time.
  *
  * Sockets:
  * - S_BroadcastSocket_Ethernet
