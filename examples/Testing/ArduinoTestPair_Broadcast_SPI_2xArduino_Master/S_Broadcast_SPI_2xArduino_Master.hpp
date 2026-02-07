@@ -111,16 +111,16 @@ protected:
 			_in_broadcast_slot = false;
 		}
 
-		// Master gives priority to broadcast send, NOT to receive
-		if (micros() - _last_beacon_time_us > 250 && !_in_broadcast_slot) {
-			_last_beacon_time_us = (uint16_t)micros();
-
-			if (_spi_instance) {
-
+		if (_spi_instance) {
+			
+			// Master gives priority to broadcast send, NOT to receive
+			// Only for just 1 pin makes sense consider a beacon delay
+			if (_ss_pins_count > 1 || micros() - _last_beacon_time_us > 250) {
+				
 				#ifdef BROADCAST_SPI_ARDUINO2X_MASTER_DEBUG_TIMING
 				_reference_time = millis();
 				#endif
-
+				
 				char* message_buffer = _json_message._write_buffer();
 				size_t length = receiveSPI(_spi_cs_pins[actual_pin_index], message_buffer);
 				if (length > 0) {
@@ -129,6 +129,7 @@ protected:
 					_startTransmission(_json_message);
 				}
 				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
+				_last_beacon_time_us = (uint16_t)micros();
 			}
 		}
     }
