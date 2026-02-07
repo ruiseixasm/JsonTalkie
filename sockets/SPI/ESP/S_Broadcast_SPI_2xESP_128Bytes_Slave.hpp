@@ -116,10 +116,9 @@ protected:
 					size_t payload_length = (size_t)_tx_buffer[_tx_index][0];
 					if (payload_length > 0) {
 
-						_tx_buffer[_tx_index][0] = '{';
-						_tx_buffer[_tx_index][SPI_SOCKET_BUFFER_SIZE - 1] = '}';
-
 						#ifdef BROADCAST_SPI_DEBUG
+							_tx_buffer[_tx_index][0] = '{';
+							_tx_buffer[_tx_index][SPI_SOCKET_BUFFER_SIZE - 1] = '}';
 							Serial.printf("Sent %u bytes: ", payload_length);
 							for (uint8_t i = 0; i < payload_length; i++) {
 								char c = _tx_buffer[_tx_index][i];
