@@ -28,6 +28,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // Broadcast SPI is fire and forget, so, it is needed to give some time to the Slaves catch up with the next send from the Master
 #define broadcast_time_spacing_us 700	// Gives some time to all Slaves to process the received broadcast before a next one
+#define beacon_time_slot_us 250		// Avoids too frequent beacons (used to collect data from the SPI Slaves)
 
 #define send_delay_us 10
 #define receive_delay_us 18
@@ -115,7 +116,7 @@ protected:
 			
 			// Master gives priority to broadcast send, NOT to receive
 			// Only for just 1 pin makes sense consider a beacon delay
-			if (_ss_pins_count > 1 || micros() - _last_beacon_time_us > 250) {
+			if (_ss_pins_count > 1 || micros() - _last_beacon_time_us > beacon_time_slot_us) {
 				
 				#ifdef BROADCAST_SPI_ARDUINO2X_MASTER_DEBUG_TIMING
 				_reference_time = millis();
