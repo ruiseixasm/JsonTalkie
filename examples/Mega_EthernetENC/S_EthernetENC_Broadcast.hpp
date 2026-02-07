@@ -15,6 +15,8 @@ https://github.com/ruiseixasm/JsonTalkie
 #define ETHERNETENC_BROADCAST_HPP
 
 
+// Needed for the SPI module connection
+#include <SPI.h>
 #include <BroadcastSocket.h>
 #include <EthernetENC_Broadcast.h>	// Go to: https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
 #include <EthernetENC_BroadcastUdp.h>

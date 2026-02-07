@@ -25,10 +25,6 @@
  * Created: 2026-02-07
  */
 
-// Needed for the SPI module connection
-#include <SPI.h>
-
-
 #include <JsonTalkie.hpp>
 // ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
 #include "S_EthernetENC_Broadcast.hpp"

@@ -1,32 +1,43 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
-
+/**
+ * @file    Nano_Serial_Broadcast_SPI_Master.ino
+ * @author  Rui Seixas Monteiro
+ * @brief   An Ethernet ENC28J60 shield connected to an Arduino Mega.
+ *
+ * This sketch demonstrates how you can implement the EthernetENC adapted library
+ * able to work in Broadcast mode
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
+ * 
+ * Hardware:
+ * - One Arduino Mega board and an Ethernet ENC28J60 shield
+ * 
+ * NOTE:
+ * - In the Arduino Mega, you should set the pin 53 as OUTPUT, and the pin 10 as the CS pin.
+ *
+ * Sockets:
+ * - S_Broadcast_SPI_2xArduino_Master
+ * - S_SocketSerial
+ * 
+ * Manifestos:
+ * - M_BuzzerManifesto
+ * 
+ * Created: 2026-02-07
+ */
 
 #include <JsonTalkie.hpp>
-#include "M_BuzzerManifesto.hpp"
-#include "S_SocketSerial.hpp"
 #include "S_Broadcast_SPI_2xArduino_Master.hpp"
+#include "S_SocketSerial.hpp"
+#include "M_BuzzerManifesto.hpp"
 
 
-const char talker_name[] = "multiple";
-const char talker_desc[] = "I'm a multiple talker";
+const char talker_name[] = "broadcast";
+const char talker_desc[] = "I'm a broadcast talker";
 M_BuzzerManifesto buzzer_manifesto;
 JsonTalker talker = JsonTalker(talker_name, talker_desc, &buzzer_manifesto);
 
 // Singleton requires the & (to get a reference variable)
 auto& serial_socket = S_SocketSerial::instance();
-int spi_pins[] = {SS};
+const int spi_pins[] = {SS};	// In this case it's a single SS pin being used because are just two boards paired
 auto& spi_socket = S_Broadcast_SPI_2xArduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 
 // SETTING THE REPEATER
