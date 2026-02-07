@@ -100,7 +100,7 @@ auto& ethernet_socket = S_EthernetENC_Broadcast::instance();
  * [3rd Slave Arduino MISO] ----[500Ω]----┘
  *
  */
-int spi_pins[] = {4, 16};
+const int spi_pins[] = {4, 16};
 auto& spi_socket = S_Basic_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 
 
