@@ -7,6 +7,7 @@
  * can be accessed via Serial and is able to control the other Arduino Slave board as SPI Master.
  *
  * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
  * 
  * Hardware:
  * - Two Arduino boards or more if you pretend to work in Broadcast mode (check CAUTION bellow)
