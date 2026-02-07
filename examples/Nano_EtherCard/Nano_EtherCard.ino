@@ -1,19 +1,27 @@
 /**
  * @file    TalkieEtherCard.ino
  * @author  Rui Seixas Monteiro
- * @brief   A very light script able to work in low memory Arduino boards.
+ * @brief   An Ethernet ENC28J60 shield connected to an Arduino Uno Nano.
  *
- * This sketch demonstrates how you can remotely trigger a buzzer and configure
- * it's duration in milliseconds remotely too.
+ * This sketch is intended to be used by Arduino boards with low memory that ara unable to use
+ * the better library `EthernetENC_Broadcast`
  *
- * @see https://github.com/ruiseixasm/JsonTalkie
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
  * 
  * Hardware:
- * - Any Arduino board with a buzzer on pin 3 (you may change it bellow)
+ * - One Arduino Uno or Nano board and an Ethernet ENC28J60 shield
+ * 
+ * NOTE:
+ * - In the Arduino Uno or Nano, the SS pin is already defined in the `SS` macro constant.
  *
- * Created: 2026-01-15
+ * Sockets:
+ * - S_BroadcastSocket_EtherCard
+ * 
+ * Manifestos:
+ * - M_BlackManifesto
+ * 
+ * Created: 2026-02-07
  */
-
 
 #include <JsonTalkie.hpp>
 #include "S_BroadcastSocket_EtherCard.h"
