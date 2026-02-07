@@ -53,6 +53,8 @@ protected:
 	uint8_t _tx_buffer[SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	uint8_t _rx_buffer[SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
+	// Sends once per pin, avoids getting stuck in processing many pins
+	uint8_t _actual_pin_index = 0;	// pin 0 has always priority
 	bool _in_broadcast_slot = false;
 	uint32_t _broadcast_time_us = 0;
 	// Too many SPI sends to the Slaves asking if there is something to send will overload them, so, a timeout is needed
@@ -70,9 +72,6 @@ protected:
     // Socket processing is always Half-Duplex because there is just one buffer to receive and other to send
     void _receive() override {
 
-		// Sends once per pin, avoids getting stuck in processing many pins
-		static uint8_t actual_pin_index = 0;
-
 		if (_in_broadcast_slot && micros() - _broadcast_time_us > broadcast_time_slot_us) {
 			_in_broadcast_slot = false;
 		}
@@ -89,12 +88,12 @@ protected:
 				#endif
 			
 				// Arms the receiving
-				size_t payload_length = receivePayload(_spi_cs_pins[actual_pin_index]);
+				size_t payload_length = receivePayload(_spi_cs_pins[_actual_pin_index]);
 				if (payload_length > 0) {
 
 					#ifdef BROADCAST_SPI_DEBUG
 						Serial.printf("[From Beacon to pin %d] Slave: 0x%02X Beacon=1 L=%d\n",
-							_spi_cs_pins[actual_pin_index], 0b10000000 | length, length);
+							_spi_cs_pins[_actual_pin_index], 0b10000000 | length, length);
 						Serial.print("[From Slave] Received: ");
 						for (int i = 0; i < length; i++) {
 							Serial.print((char)_rx_buffer[i]);
@@ -106,9 +105,9 @@ protected:
 					JsonMessage new_message(reinterpret_cast<const char*>( _rx_buffer ), payload_length);
 					_startTransmission(new_message);
 				}
-				actual_pin_index = (actual_pin_index + 1) % _ss_pins_count;
+				_actual_pin_index = (_actual_pin_index + 1) % _ss_pins_count;
 				// Only makes sure the cycle repeats at least after the beacon_time_slot_us
-				if (actual_pin_index == 0) {
+				if (_actual_pin_index == 0) {
 					_last_beacon_time_us = micros();
 				}
 			}
@@ -153,6 +152,7 @@ protected:
 				broadcastPayload(_spi_cs_pins, _ss_pins_count, (uint8_t)len);
 				_broadcast_time_us = micros();	// send time spacing applies after the sending (avoids bursting)
 				_last_beacon_time_us = _broadcast_time_us;
+				_actual_pin_index = 0;
 				_in_broadcast_slot = true;
 
 			} else {
