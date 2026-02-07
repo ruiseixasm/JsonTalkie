@@ -1,16 +1,29 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    Mega_EthernetENC.ino
+ * @author  Rui Seixas Monteiro
+ * @brief   An Ethernet ENC28J60 shield connected to an Arduino Mega.
+ *
+ * This sketch demonstrates how you can implement the EthernetENC adapted library
+ * able to work in Broadcast mode
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/extras/EthernetENC_Broadcast
+ * 
+ * Hardware:
+ * - One Arduino Mega board and an Ethernet ENC28J60 shield
+ * 
+ * NOTE:
+ * - In the Arduino Mega, you should set the pin 53 as OUTPUT, and the pin 10 as the CS pin.
+ *
+ * Sockets:
+ * - S_Broadcast_SPI_ESP_Arduino_Master
+ * - S_EthernetENC_Broadcast
+ * 
+ * Manifestos:
+ * - M_MegaManifesto
+ * 
+ * Created: 2026-02-07
+ */
 
 // Needed for the SPI module connection
 #include <SPI.h>
@@ -32,7 +45,7 @@ JsonTalker* downlinked_talkers[] = { &mega };    // Only an array of pointers pr
 auto& ethernet_socket = S_EthernetENC_Broadcast::instance();
 BroadcastSocket* uplinked_sockets[] = { &ethernet_socket };	// list of pointers
 
-MessageRepeater message_repeater(
+const MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
 		downlinked_talkers, sizeof(downlinked_talkers)/sizeof(JsonTalker*)
 	);

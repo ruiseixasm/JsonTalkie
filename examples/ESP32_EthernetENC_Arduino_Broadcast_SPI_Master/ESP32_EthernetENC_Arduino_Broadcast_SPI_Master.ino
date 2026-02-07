@@ -1,11 +1,12 @@
 /**
  * @file    ESP32_EthernetENC_Arduino_Broadcast_SPI_Master.ino
  * @author  Rui Seixas Monteiro
- * @brief   An Ethernet connected ESP32 that routes messages via SPI to two Arduino Nanos.
+ * @brief   An Ethernet ENC28J60 module connected to an ESP32 that routes messages via SPI to two Arduino Nanos.
  *
  * This sketch demonstrates how you can control two Nano boards with an ESP32 via SPI.
  *
  * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/extras/EthernetENC_Broadcast
  * 
  * Hardware:
  * - One ESP32 board and two Arduino Nano boards selected with the SS pins 4 and 16
@@ -67,7 +68,7 @@ JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
 // SOCKETS
 // Singleton requires the & (to get a reference variable)
 auto& ethernet_socket = S_EthernetENC_Broadcast::instance();
-int spi_pins[] = {4, 16};
+const int spi_pins[] = {4, 16};	// To which each Arduino CS pin is connected on the ESP32
 auto& spi_socket = S_Broadcast_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 
 
