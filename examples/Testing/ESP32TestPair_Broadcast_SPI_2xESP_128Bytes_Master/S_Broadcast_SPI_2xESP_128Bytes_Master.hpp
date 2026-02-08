@@ -213,7 +213,7 @@ protected:
 		spi_device_transmit(_spi, &t);
 		digitalWrite(ss_pin, HIGH);
 
-		if (_rx_buffer[0] > 0 && _rx_buffer[0] == _rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1]) {
+		if (_rx_buffer[0] > 0 && _rx_buffer[0] == _rx_buffer[1]) {
 			size_t payload_length = (size_t)_rx_buffer[0];
 			_rx_buffer[0] = '{';
 			_rx_buffer[1] = '"';
