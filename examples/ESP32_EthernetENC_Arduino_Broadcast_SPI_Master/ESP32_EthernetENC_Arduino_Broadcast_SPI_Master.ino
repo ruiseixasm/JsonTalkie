@@ -16,6 +16,10 @@
  *   are being sent by it, so, each Arduino Nano MISO pin (12) shall have a resistor of around 500 Ohms
  *   connected to it to avoid short circuiting those common Nano pins while the SPI Master is broadcasting.
  *
+ *   [1st Slave Arduino MISO] ----[500Ω]----┐
+ *   [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master Arduino MISO]
+ *   [3rd Slave Arduino MISO] ----[500Ω]----┘
+ *
  * Sockets:
  * - S_Broadcast_SPI_ESP_Arduino_Master
  * - S_EthernetENC_Broadcast
@@ -71,11 +75,11 @@ auto& ethernet_socket = S_EthernetENC_Broadcast::instance();
 /**
  * CAUTION:
  * - For more than one single board as SPI Slave, make sure you connect a resistor of around 500 Ohms to
- * each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
+ *   each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
  * 
- * [1st Slave Arduino MISO] ----[500Ω]----┐
- * [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master Arduino MISO]
- * [3rd Slave Arduino MISO] ----[500Ω]----┘
+ *   [1st Slave Arduino MISO] ----[500Ω]----┐
+ *   [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master Arduino MISO]
+ *   [3rd Slave Arduino MISO] ----[500Ω]----┘
  *
  */
 const int spi_pins[] = {4, 16};	// To which each Arduino CS pin is connected on the ESP32
