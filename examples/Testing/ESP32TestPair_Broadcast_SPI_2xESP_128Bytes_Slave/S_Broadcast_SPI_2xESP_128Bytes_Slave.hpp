@@ -76,15 +76,18 @@ protected:
 			}
 
 			// At this point a queued element is consumed, as to queue a new one afterwards !
-			if (_rx_buffer[0] == _rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1]) {
+			// It's a JSON message... {"...}
+			if (_rx_buffer[0] == _rx_buffer[1]) {
 				
 				if (_rx_buffer[0] < SPI_SOCKET_BUFFER_SIZE + 1) {
 
 					if (_rx_buffer[0] > 0) {
 
 						size_t payload_length = (size_t)_rx_buffer[0];
+						// It's a JSON data string
 						_rx_buffer[0] = '{';
-						_rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = '}';
+						_rx_buffer[1] = '"';
+						_rx_buffer[payload_length - 1] = '}';
 
 						#ifdef BROADCAST_SPI_DEBUG
 							Serial.printf("Received %u bytes: ", payload_length);
@@ -120,7 +123,8 @@ protected:
 
 						#ifdef BROADCAST_SPI_DEBUG
 							_tx_buffer[_tx_index][0] = '{';
-							_tx_buffer[_tx_index][SPI_SOCKET_BUFFER_SIZE - 1] = '}';
+							_tx_buffer[_tx_index][1] = '"';
+							_tx_buffer[_tx_index][payload_length - 1] = '}';
 							Serial.printf("Sent %u bytes: ", payload_length);
 							for (uint8_t i = 0; i < payload_length; i++) {
 								char c = _tx_buffer[_tx_index][i];
@@ -132,6 +136,7 @@ protected:
 
 						_send_length = 0;	// payload was sent
 						memset(_tx_buffer[_tx_index], 0, SPI_SOCKET_BUFFER_SIZE);  // clear entire _tx_buffer first
+						_tx_buffer[_tx_index][SPI_SOCKET_BUFFER_SIZE - 1] = _tx_index;
 					}
 				} else {
 					
@@ -179,11 +184,13 @@ protected:
 					return false;
 				}
 			}
+			uint8_t next_tx_index = _tx_index ^ 1;
 			// Both, _tx_buffer and _send_length, set at the same time
-			char* next_tx_buffer = reinterpret_cast<char*>( _tx_buffer[_tx_index ^ 1] );
+			char* next_tx_buffer = reinterpret_cast<char*>( _tx_buffer[next_tx_index] );
 			_send_length = (uint8_t)json_message.serialize_json(next_tx_buffer, SPI_SOCKET_BUFFER_SIZE);
-			_tx_buffer[_tx_index ^ 1][0] = _send_length;
-			_tx_buffer[_tx_index ^ 1][SPI_SOCKET_BUFFER_SIZE - 1] = _send_length;
+			_tx_buffer[next_tx_index][0] = _send_length;
+			_tx_buffer[next_tx_index][1] = _send_length;
+			_tx_buffer[next_tx_index][SPI_SOCKET_BUFFER_SIZE - 1] = next_tx_index;
 			return true;
 		}
         return false;
