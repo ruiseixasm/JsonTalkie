@@ -182,7 +182,8 @@ protected:
 
 		if (length > SPI_SOCKET_BUFFER_SIZE) return;
 		_tx_buffer[0] = length;
-		_tx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = length;
+		_tx_buffer[1] = length;
+		_tx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = 0;
 		spi_transaction_t t = {};
 		t.length = SPI_SOCKET_BUFFER_SIZE * 8;	// Bytes to bits
 		t.tx_buffer = _tx_buffer;
@@ -201,7 +202,7 @@ protected:
 
 	size_t receivePayload(int ss_pin) {
 		_tx_buffer[0] = 0xF0;	// 0xF0 is to receive
-		_tx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = _tx_buffer[0];
+		_tx_buffer[1] = _tx_buffer[0];
 		spi_transaction_t t = {};
 		t.length = SPI_SOCKET_BUFFER_SIZE * 8;	// Bytes to bits
 		t.tx_buffer = _tx_buffer;
@@ -211,10 +212,11 @@ protected:
 		spi_device_transmit(_spi, &t);
 		digitalWrite(ss_pin, HIGH);
 
-		if (_rx_buffer[0] > 0 && _rx_buffer[0] == _rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1]) {
+		if (_rx_buffer[0] > 0 && _rx_buffer[0] == _rx_buffer[1]) {
 			size_t payload_length = (size_t)_rx_buffer[0];
 			_rx_buffer[0] = '{';
-			_rx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = '}';
+			_rx_buffer[1] = '"';
+			_rx_buffer[payload_length - 1] = '}';
 			return payload_length;
 		}
 		return 0;
