@@ -203,7 +203,6 @@ protected:
 	size_t receivePayload(int ss_pin) {
 		_tx_buffer[0] = 0xF0;	// 0xF0 is to receive
 		_tx_buffer[1] = _tx_buffer[0];
-		_tx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = 0;
 		spi_transaction_t t = {};
 		t.length = SPI_SOCKET_BUFFER_SIZE * 8;	// Bytes to bits
 		t.tx_buffer = _tx_buffer;
