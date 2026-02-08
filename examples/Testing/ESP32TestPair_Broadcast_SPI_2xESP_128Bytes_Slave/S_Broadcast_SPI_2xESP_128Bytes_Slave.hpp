@@ -51,8 +51,8 @@ protected:
 	// payload from being transmitted again.
 	uint8_t _tx_buffer[2][SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	uint8_t _rx_buffer[SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
-	// A transaction doesn't need to be aligned, but also needs to be alternated just like the _tx_buffer
-	spi_slave_transaction_t _payload_trans[2];
+	// A transaction doesn't need to be aligned
+	spi_slave_transaction_t _payload_trans;
 	uint8_t _tx_index = 0;	// Better alignment afterwards
 
 	uint8_t _send_length = 0;
@@ -203,7 +203,7 @@ protected:
 	void queue_transaction() {
 		_tx_index ^= 1;	// xor, alternates in this case, 0 ^ 1 == 1 while 1 ^ 1 == 0
 		// Full-Duplex
-		spi_slave_transaction_t *t = &_payload_trans[_tx_index];
+		spi_slave_transaction_t *t = &_payload_trans;
 		memset(t, 0, sizeof(*t));  // clear entire struct (*t is a structure, not an array)
 		t->length    = SPI_SOCKET_BUFFER_SIZE * 8;
 		t->tx_buffer = _tx_buffer[_tx_index];
