@@ -20,9 +20,6 @@ extern "C" {
     #include "driver/spi_slave.h"
 }
 
-// This socket only allows a buffer size up to 128Bytes
-#define SPI_SOCKET_BUFFER_SIZE 128
-
 
 // #define BROADCAST_SPI_DEBUG
 // #define BROADCAST_SPI_DEBUG_TIMING
@@ -49,8 +46,8 @@ protected:
 	// DMA descriptors are built from the tx_buffer pointer at queue time and may be reused.
 	// Alternating the buffer address guarantees a new DMA descriptor and prevents the previous
 	// payload from being transmitted again.
-	uint8_t _tx_buffer[2][SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
-	uint8_t _rx_buffer[SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_buffer[2][TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 	// A transaction doesn't need to be aligned
 	spi_slave_transaction_t _payload_trans;
 	uint8_t _tx_index = 0;	// Better alignment afterwards
@@ -78,72 +75,17 @@ protected:
 
 			// At this point a queued element is consumed, as to queue a new one afterwards !
 			// It's a JSON message... {"...}
-			if (_rx_buffer[0] == _rx_buffer[1]) {
-				
-				if (_rx_buffer[0] < SPI_SOCKET_BUFFER_SIZE + 1) {
+			if (_rx_buffer[TALKIE_BUFFER_SIZE - 1] == 0xF0) {
 
-					if (_rx_buffer[0] > 0) {
+				size_t payload_length = (size_t)_tx_buffer[_tx_index][0];
+				if (payload_length > 0) {
 
-						size_t payload_length = (size_t)_rx_buffer[0];
-						// It's a JSON data string
-						_rx_buffer[0] = '{';
-						_rx_buffer[1] = '"';
-						_rx_buffer[payload_length - 1] = '}';
-
-						#ifdef BROADCAST_SPI_DEBUG
-							Serial.printf("Received %u bytes: ", payload_length);
-							for (uint8_t i = 0; i < payload_length; i++) {
-								char c = _rx_buffer[i];
-								if (c >= 32 && c <= 126) Serial.print(c);
-								else Serial.printf("[%02X]", c);
-							}
-							Serial.println();
-						#endif
-
-						if (_stacked_transmissions < 3) {
-							JsonMessage new_message(
-								reinterpret_cast<const char*>( _rx_buffer ), payload_length
-							);
-							
-							// Needs the queue a new command, otherwise nothing is processed again (lock)
-							// Real scenario if at this moment a payload is still in the queue to be sent and now
-							// has no queue to be picked up
-							queue_transaction();	// After the reading above to avoid _rx_buffer corruption
-							
-							_stacked_transmissions++;
-							_startTransmission(new_message);
-							_stacked_transmissions--;
-
-							return;	// Avoids the queue_transaction() vall bellow
-						}
-					}
-				} else if (_rx_buffer[0] == 0xF0) {
-
-					size_t payload_length = (size_t)_tx_buffer[_tx_index][0];
-					if (payload_length > 0) {
-
-						#ifdef BROADCAST_SPI_DEBUG
-							_tx_buffer[_tx_index][0] = '{';
-							_tx_buffer[_tx_index][1] = '"';
-							_tx_buffer[_tx_index][payload_length - 1] = '}';
-							Serial.printf("Sent %u bytes: ", payload_length);
-							for (uint8_t i = 0; i < payload_length; i++) {
-								char c = _tx_buffer[_tx_index][i];
-								if (c >= 32 && c <= 126) Serial.print(c);
-								else Serial.printf("[%02X]", c);
-							}
-							Serial.println();
-						#endif
-
-						_send_length = 0;	// payload was sent
-						memset(_tx_buffer[_tx_index], 0, SPI_SOCKET_BUFFER_SIZE);  // clear entire _tx_buffer first
-						_tx_buffer[_tx_index][SPI_SOCKET_BUFFER_SIZE - 1] = _tx_index;
-					}
-				} else {
-					
 					#ifdef BROADCAST_SPI_DEBUG
-						Serial.printf("Other [%02X]: ", _tx_buffer[_tx_index][0]);
-						for (uint8_t i = 0; i < SPI_SOCKET_BUFFER_SIZE; i++) {
+						_tx_buffer[_tx_index][0] = '{';
+						_tx_buffer[_tx_index][1] = '"';
+						_tx_buffer[_tx_index][payload_length - 1] = '}';
+						Serial.printf("Sent %u bytes: ", payload_length);
+						for (uint8_t i = 0; i < payload_length; i++) {
 							char c = _tx_buffer[_tx_index][i];
 							if (c >= 32 && c <= 126) Serial.print(c);
 							else Serial.printf("[%02X]", c);
@@ -151,6 +93,44 @@ protected:
 						Serial.println();
 					#endif
 
+					_send_length = 0;	// payload was sent
+					memset(_tx_buffer[_tx_index], 0, TALKIE_BUFFER_SIZE);  // clear entire _tx_buffer first
+					_tx_buffer[_tx_index][TALKIE_BUFFER_SIZE - 1] = _tx_index;
+				}
+
+			} else if (_rx_buffer[0] > 0 && _rx_buffer[0] == _rx_buffer[1] && _rx_buffer[0] < TALKIE_BUFFER_SIZE + 1) {
+				
+				size_t payload_length = (size_t)_rx_buffer[0];
+				// It's a JSON data string
+				_rx_buffer[0] = '{';
+				_rx_buffer[1] = '"';
+				_rx_buffer[payload_length - 1] = '}';
+
+				#ifdef BROADCAST_SPI_DEBUG
+					Serial.printf("Received %u bytes: ", payload_length);
+					for (uint8_t i = 0; i < payload_length; i++) {
+						char c = _rx_buffer[i];
+						if (c >= 32 && c <= 126) Serial.print(c);
+						else Serial.printf("[%02X]", c);
+					}
+					Serial.println();
+				#endif
+
+				if (_stacked_transmissions < 3) {
+					JsonMessage new_message(
+						reinterpret_cast<const char*>( _rx_buffer ), payload_length
+					);
+					
+					// Needs the queue a new command, otherwise nothing is processed again (lock)
+					// Real scenario if at this moment a payload is still in the queue to be sent and now
+					// has no queue to be picked up
+					queue_transaction();	// After the reading above to avoid _rx_buffer corruption
+					
+					_stacked_transmissions++;
+					_startTransmission(new_message);
+					_stacked_transmissions--;
+
+					return;	// Avoids the queue_transaction() vall bellow
 				}
 			}
 			// Always queues a new transaction
@@ -188,10 +168,10 @@ protected:
 			uint8_t next_tx_index = _tx_index ^ 1;
 			// Both, _tx_buffer and _send_length, set at the same time
 			char* next_tx_buffer = reinterpret_cast<char*>( _tx_buffer[next_tx_index] );
-			_send_length = (uint8_t)json_message.serialize_json(next_tx_buffer, SPI_SOCKET_BUFFER_SIZE);
+			_send_length = (uint8_t)json_message.serialize_json(next_tx_buffer, TALKIE_BUFFER_SIZE);
 			_tx_buffer[next_tx_index][0] = _send_length;
 			_tx_buffer[next_tx_index][1] = _send_length;
-			_tx_buffer[next_tx_index][SPI_SOCKET_BUFFER_SIZE - 1] = next_tx_index;
+			_tx_buffer[next_tx_index][TALKIE_BUFFER_SIZE - 1] = next_tx_index;
 			return true;
 		}
         return false;
@@ -205,7 +185,7 @@ protected:
 		// Full-Duplex
 		spi_slave_transaction_t *t = &_payload_trans;
 		memset(t, 0, sizeof(*t));  // clear entire struct (*t is a structure, not an array)
-		t->length    = SPI_SOCKET_BUFFER_SIZE * 8;
+		t->length    = TALKIE_BUFFER_SIZE * 8;
 		t->tx_buffer = _tx_buffer[_tx_index];
 		t->rx_buffer = _rx_buffer;
 		// If you see 80 on the Master side it means the Slave wasn't given the time to respond!
@@ -237,7 +217,7 @@ public:
 		buscfg.sclk_io_num = sclk_io_num;
 		buscfg.quadwp_io_num = -1;
 		buscfg.quadhd_io_num = -1;
-		buscfg.max_transfer_sz = SPI_SOCKET_BUFFER_SIZE;
+		buscfg.max_transfer_sz = TALKIE_BUFFER_SIZE;
 		
 		
 		// Newer ESP-IDF versions have these extra fields:

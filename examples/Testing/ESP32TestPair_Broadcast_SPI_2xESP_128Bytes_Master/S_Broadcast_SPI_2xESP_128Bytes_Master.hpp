@@ -18,8 +18,6 @@ https://github.com/ruiseixasm/JsonTalkie
 #include <BroadcastSocket.h>
 #include "driver/spi_master.h"
 
-// This socket only allows a buffer size up to 128Bytes
-#define SPI_SOCKET_BUFFER_SIZE 128
 
 // #define BROADCAST_SPI_DEBUG
 // #define BROADCAST_SPI_DEBUG_TIMING
@@ -50,8 +48,8 @@ protected:
 	const spi_host_device_t _host;
 	
 	spi_device_handle_t _spi;
-	uint8_t _tx_buffer[SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
-	uint8_t _rx_buffer[SPI_SOCKET_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _tx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
+	uint8_t _rx_buffer[TALKIE_BUFFER_SIZE] __attribute__((aligned(4))) = {0};
 
 	// Sends once per pin, avoids getting stuck in processing many pins
 	uint8_t _actual_pin_index = 0;	// pin 0 has always priority
@@ -132,7 +130,7 @@ protected:
 
 			size_t len = json_message.serialize_json(
 				reinterpret_cast<char*>( _tx_buffer ),
-				SPI_SOCKET_BUFFER_SIZE
+				TALKIE_BUFFER_SIZE
 			);
 			
 			if (len > 0) {
@@ -180,12 +178,12 @@ protected:
 	
 	void broadcastPayload(const int* ss_pins, uint8_t ss_pins_count, uint8_t length) {
 
-		if (length > SPI_SOCKET_BUFFER_SIZE) return;
+		if (length > TALKIE_BUFFER_SIZE) return;
 		_tx_buffer[0] = length;
 		_tx_buffer[1] = length;
-		_tx_buffer[SPI_SOCKET_BUFFER_SIZE - 1] = 0;
+		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = 0;
 		spi_transaction_t t = {};
-		t.length = SPI_SOCKET_BUFFER_SIZE * 8;	// Bytes to bits
+		t.length = TALKIE_BUFFER_SIZE * 8;	// Bytes to bits
 		t.tx_buffer = _tx_buffer;
 		t.rx_buffer = nullptr;
 
@@ -201,10 +199,9 @@ protected:
 	}
 
 	size_t receivePayload(int ss_pin) {
-		_tx_buffer[0] = 0xF0;	// 0xF0 is to receive
-		_tx_buffer[1] = _tx_buffer[0];
+		_tx_buffer[TALKIE_BUFFER_SIZE - 1] = 0xF0;	// 0xF0 is to receive
 		spi_transaction_t t = {};
-		t.length = SPI_SOCKET_BUFFER_SIZE * 8;	// Bytes to bits
+		t.length = TALKIE_BUFFER_SIZE * 8;	// Bytes to bits
 		t.tx_buffer = _tx_buffer;
 		t.rx_buffer = _rx_buffer;
 		
@@ -248,7 +245,7 @@ public:
 		buscfg.sclk_io_num = sclk_io_num;
 		buscfg.quadwp_io_num = -1;
 		buscfg.quadhd_io_num = -1;
-		buscfg.max_transfer_sz = SPI_SOCKET_BUFFER_SIZE;
+		buscfg.max_transfer_sz = TALKIE_BUFFER_SIZE;
 		
 		// https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/spi_master.html
 
