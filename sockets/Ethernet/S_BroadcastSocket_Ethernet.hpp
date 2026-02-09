@@ -1,16 +1,16 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    S_BroadcastSocket_Ethernet.hpp
+ * @author  Rui Seixas Monteiro
+ * @brief   A Broadcast Socket for W5500 or W5100 shields normally associated with Arduino Mega, more memory required.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
+ * 
+ * Hardware:
+ * - A W5500 or W5100 shield coupled with an Arduino Mega or similar configuration
+ * 
+ * Created: 2026-02-09
+ */
+
 #ifndef BROADCAST_SOCKET_ETHERNET_HPP
 #define BROADCAST_SOCKET_ETHERNET_HPP
 

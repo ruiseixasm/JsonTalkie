@@ -1,16 +1,17 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    S_BroadcastSocket_EtherCard.h
+ * @author  Rui Seixas Monteiro
+ * @brief   A Broadcast Socket for ENC28J60 shields that requires low memory but is unable to Unicast,
+ * 			ideal for Arduino Uno and Nano.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
+ * 
+ * Hardware:
+ * - An ENC28J60 shield coupled with an Arduino Uno or Nano
+ * 
+ * Created: 2026-02-09
+ */
+
 #ifndef BROADCAST_SOCKET_ETHERCARD_H
 #define BROADCAST_SOCKET_ETHERCARD_H
 
