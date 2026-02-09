@@ -1,16 +1,18 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    S_Basic_SPI_2xArduino_Master.hpp
+ * @author  Rui Seixas Monteiro
+ * @brief   This socket is able to send SPI data just to a single Arduino SPI Slave.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
+ * 
+ * Because this socket is capable of only work with a single SPI Slave, then there is no need for the MISO resistor.
+ * 
+ * Hardware:
+ * - Two Arduino boards to communicate with each other.
+ * 
+ * Created: 2026-02-09
+ */
+
 #ifndef SPI_ARDUINO_ARDUINO_MASTER_HPP
 #define SPI_ARDUINO_ARDUINO_MASTER_HPP
 

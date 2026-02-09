@@ -1,7 +1,8 @@
 /**
  * @file    S_Basic_SPI_2xArduino_Master_Multiple.hpp
  * @author  Rui Seixas Monteiro
- * @brief   This socket sends SPI data in a sequencial way, avoiding this ways the Broadcast issues.
+ * @brief   This socket is able to send SPI data in a sequencial way to multiple SPI Slaves, by being sequencial,
+ * 			avoids the need of the MISO resistors needed for the SPI Broadcast sockets.
  *
  * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
  * 
