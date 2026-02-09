@@ -49,7 +49,7 @@ auto& serial_socket = S_SocketSerial::instance();
 #define HSPI_CS 15
 /**
  * CAUTION:
- * - For more than one single board as SPI Slave, make sure you connect a resistor of around 500 Ohms to
+ * - For more than one single board as SPI Slave, make sure you connect a resistor of **around 500 Ohms** to
  *   each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
  * 
  *   [1st Slave Arduino MISO] ----[500Ω]----┐

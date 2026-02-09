@@ -15,8 +15,8 @@
  * CAUTION:
  * - With this sketch you can have more than one single board as SPI Slave, this happens because the
  *   SPI Sockets are broadcast sockets that send messages in Broadcast mode. So, if you choose to work
- *   with multiple ESP32 boards as SPI Slaves, make sure you connect a resistor of around 500 Ohms to
- *   each SPI Slave MISO pin, in the case of the ESP32 Nano and Uno is the pin 12!
+ *   with multiple ESP32 boards as SPI Slaves, make sure you connect a resistor of **around 500 Ohms** to
+ *   each SPI Slave MISO pin, in the case of the ESP32 is the pin 12 or 19 for HSPI or VSPI respectively!
  * 
  *   [1st Slave ESP32 MISO] ----[500Ω]----┐
  *   [2nd Slave ESP32 MISO] ----[500Ω]----┼---- [Master ESP32 MISO]
@@ -62,7 +62,7 @@ auto& serial_socket = S_SocketSerial::instance();
 #define HSPI_CS 15
 /**
  * CAUTION:
- * - For more than one single board as SPI Slave, make sure you connect a resistor of around 500 Ohms to
+ * - For more than one single board as SPI Slave, make sure you connect a resistor of **around 500 Ohms** to
  *   each SPI Slave MISO pin, in the case of the ESP32 Nano and Uno is the pin 12!
  * 
  *   [1st Slave ESP32 MISO] ----[500Ω]----┐

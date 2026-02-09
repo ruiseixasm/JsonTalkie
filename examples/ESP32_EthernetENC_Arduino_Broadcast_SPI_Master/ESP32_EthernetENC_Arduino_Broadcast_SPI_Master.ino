@@ -13,7 +13,7 @@
  * 
  * CAUTION:
  * - Because this is a Master Broadcast Socket, the SS pins are low simultaneously when messages
- *   are being sent by it, so, each Arduino Nano MISO pin (12) shall have a resistor of around 500 Ohms
+ *   are being sent by it, so, each Arduino Nano MISO pin (12) shall have a resistor of **around 500 Ohms**
  *   connected to it to avoid short circuiting those common Nano pins while the SPI Master is broadcasting.
  *
  *   [1st Slave Arduino MISO] ----[500Ω]----┐
@@ -73,7 +73,7 @@ JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
 auto& ethernet_socket = S_EthernetENC_Broadcast::instance();
 /**
  * CAUTION:
- * - For more than one single board as SPI Slave, make sure you connect a resistor of around 500 Ohms to
+ * - For more than one single board as SPI Slave, make sure you connect a resistor of **around 500 Ohms** to
  *   each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
  * 
  *   [1st Slave Arduino MISO] ----[500Ω]----┐

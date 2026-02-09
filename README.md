@@ -92,7 +92,7 @@ JsonTalker t_tester = JsonTalker(t_tester_name, t_tester_desc, &message_tester);
 auto& ethernet_socket = S_EthernetENC_Broadcast::instance();
 /**
  * CAUTION:
- * - For more than one single board as SPI Slave, make sure you connect a resistor of around 500 Ohms to
+ * - For more than one single board as SPI Slave, make sure you connect a resistor of **around 500 Ohms** to
  *   each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
  * 
  *   [1st Slave Arduino MISO] ----[500Ω]----┐

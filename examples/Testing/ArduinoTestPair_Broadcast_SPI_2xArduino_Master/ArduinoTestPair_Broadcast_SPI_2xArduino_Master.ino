@@ -15,7 +15,7 @@
  * CAUTION:
  * - With this sketch you can have more than one single board as SPI Slave, this happens because the
  *   SPI Sockets are broadcast sockets that send messages in Broadcast mode. So, if you choose to work
- *   with multiple Arduino boards as SPI Slaves, make sure you connect a resistor of around 500 Ohms to
+ *   with multiple Arduino boards as SPI Slaves, make sure you connect a resistor of **around 500 Ohms** to
  *   each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
  * 
  *   [1st Slave Arduino MISO] ----[500Ω]----┐
@@ -57,7 +57,7 @@ JsonTalker t_duo = JsonTalker(t_duo_name, t_duo_desc, &duo_manifesto);
 auto& serial_socket = S_SocketSerial::instance();
 /**
  * CAUTION:
- * - For more than one single board as SPI Slave, make sure you connect a resistor of around 500 Ohms to
+ * - For more than one single board as SPI Slave, make sure you connect a resistor of **around 500 Ohms** to
  *   each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
  * 
  *   [1st Slave Arduino MISO] ----[500Ω]----┐
