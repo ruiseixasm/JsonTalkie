@@ -1,17 +1,35 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
-
+/**
+ * @file    ArduinoTestPair_Broadcast_SPI_Arduino_Slave.ino
+ * @author  Rui Seixas Monteiro
+ * @brief   This is an Arduino SPI Slave testing sketch.
+ *
+ * This sketch is intended to test the socket `S_Broadcast_SPI_Arduino_Slave` that is targeted for the
+ * Arduino board as SPI Slave to receive messages from a SPI paired Arduino SPI Master.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
+ * 
+ * Hardware:
+ * - One Arduino board as SPI Slave plus one more Arduino board as SPI Master (check CAUTION bellow)
+ * 
+ * CAUTION:
+ * - With this sketch you can have more than one single board as SPI Slave, this happens because the
+ *   SPI Sockets are broadcast sockets that send messages in Broadcast mode. So, if you choose to work
+ *   with multiple Arduino boards as SPI Slaves, make sure you connect a resistor of around 500 Ohms to
+ *   each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
+ * 
+ *   [1st Slave Arduino MISO] ----[500Ω]----┐
+ *   [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master Arduino MISO]
+ *   [3rd Slave Arduino MISO] ----[500Ω]----┘
+ *
+ * Sockets:
+ * - S_Broadcast_SPI_Arduino_Slave
+ * 
+ * Manifestos:
+ * - M_LedManifesto
+ * 
+ * Created: 2026-02-09
+ */
 
 // #define SKETCH_DEBUG
 

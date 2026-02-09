@@ -1,16 +1,36 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    ESP32TestPair_Broadcast_SPI_2xESP_128Bytes_Master.ino
+ * @author  Rui Seixas Monteiro
+ * @brief   This is an ESP32 SPI Master testing sketch.
+ *
+ * This sketch is intended to test the socket `S_Broadcast_SPI_2xESP_128Bytes_Master` that is targeted for the
+ * ESP32 board as SPI Master to control one or more ESP32 boards as SPI Slaves.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
+ * 
+ * Hardware:
+ * - One ESP32 board as SPI Master plus one or more ESP32 boards as SPI Slaves (check CAUTION bellow)
+ * 
+ * CAUTION:
+ * - With this sketch you can have more than one single board as SPI Slave, this happens because the
+ *   SPI Sockets are broadcast sockets that send messages in Broadcast mode. So, if you choose to work
+ *   with multiple ESP32 boards as SPI Slaves, make sure you connect a resistor of around 500 Ohms to
+ *   each SPI Slave MISO pin, in the case of the ESP32 Nano and Uno is the pin 12!
+ * 
+ *   [1st Slave ESP32 MISO] ----[500Ω]----┐
+ *   [2nd Slave ESP32 MISO] ----[500Ω]----┼---- [Master ESP32 MISO]
+ *   [3rd Slave ESP32 MISO] ----[500Ω]----┘
+ *
+ * Sockets:
+ * - S_Broadcast_SPI_2xESP_128Bytes_Master
+ * - S_SocketSerial
+ * 
+ * Manifestos:
+ * - M_SPIMasterManifesto
+ * 
+ * Created: 2026-02-09
+ */
 
 
 // #define SKETCH_DEBUG
@@ -23,8 +43,8 @@ https://github.com/ruiseixasm/JsonTalkie
 
 #include <JsonTalkie.hpp>
 // ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
-#include "S_SocketSerial.hpp"
 #include "S_Broadcast_SPI_2xESP_128Bytes_Master.hpp"
+#include "S_SocketSerial.hpp"
 #include "M_SPIMasterManifesto.hpp"
 
 
@@ -44,11 +64,11 @@ auto& serial_socket = S_SocketSerial::instance();
 /**
  * CAUTION:
  * - For more than one single board as SPI Slave, make sure you connect a resistor of around 500 Ohms to
- *   each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
+ *   each SPI Slave MISO pin, in the case of the ESP32 Nano and Uno is the pin 12!
  * 
- *   [1st Slave Arduino MISO] ----[500Ω]----┐
- *   [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master Arduino MISO]
- *   [3rd Slave Arduino MISO] ----[500Ω]----┘
+ *   [1st Slave ESP32 MISO] ----[500Ω]----┐
+ *   [2nd Slave ESP32 MISO] ----[500Ω]----┼---- [Master ESP32 MISO]
+ *   [3rd Slave ESP32 MISO] ----[500Ω]----┘
  *
  */
 const int spi_pins[] = {4, HSPI_CS, 16};

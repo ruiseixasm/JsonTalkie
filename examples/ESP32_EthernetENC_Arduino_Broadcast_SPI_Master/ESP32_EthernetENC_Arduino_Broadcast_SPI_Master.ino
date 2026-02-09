@@ -17,7 +17,7 @@
  *   connected to it to avoid short circuiting those common Nano pins while the SPI Master is broadcasting.
  *
  *   [1st Slave Arduino MISO] ----[500Ω]----┐
- *   [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master Arduino MISO]
+ *   [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master ESP32 MISO]
  *   [3rd Slave Arduino MISO] ----[500Ω]----┘
  *
  * Sockets:
