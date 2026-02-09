@@ -1971,6 +1971,34 @@ public:
 	}
 
 
+    /**
+     * @brief Set nth value as 16-bit number
+     * @param nth Index 0-9
+     * @param number Numeric value
+     * @return true if successful
+     */
+	bool set_nth_value_number(uint8_t nth, uint16_t number) {
+		if (nth < 10) {
+			return _set_value_number('0' + nth, (uint32_t)number);
+		}
+		return false;
+	}
+
+
+    /**
+     * @brief Set nth value as 8-bit number
+     * @param nth Index 0-9
+     * @param number Numeric value
+     * @return true if successful
+     */
+	bool set_nth_value_number(uint8_t nth, uint8_t number) {
+		if (nth < 10) {
+			return _set_value_number('0' + nth, (uint32_t)number);
+		}
+		return false;
+	}
+
+
 	// The Manifesto class description shouldn't be greater than 54 chars
 	// {"m":7,"b":1,"i":58485,"f":"","t":"","0":"","c":11266} <-- 128 - (54 + 2*10) = 54
 
