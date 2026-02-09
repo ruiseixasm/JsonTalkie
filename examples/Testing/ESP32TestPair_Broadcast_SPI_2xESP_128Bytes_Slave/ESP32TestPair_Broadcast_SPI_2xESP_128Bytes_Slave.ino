@@ -22,7 +22,6 @@ https://github.com/ruiseixasm/JsonTalkie
 #endif
 
 #include <JsonTalkie.hpp>
-// ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
 #include "S_Broadcast_SPI_2xESP_128Bytes_Slave.hpp"
 #include "M_LedManifesto.hpp"
 

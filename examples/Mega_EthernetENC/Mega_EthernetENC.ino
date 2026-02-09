@@ -26,8 +26,7 @@
  */
 
 #include <JsonTalkie.hpp>
-// ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
-#include "S_EthernetENC_Broadcast.hpp"
+#include "S_EthernetENC_Broadcast.hpp"	// ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
 #include "M_MegaManifesto.hpp"
 
 

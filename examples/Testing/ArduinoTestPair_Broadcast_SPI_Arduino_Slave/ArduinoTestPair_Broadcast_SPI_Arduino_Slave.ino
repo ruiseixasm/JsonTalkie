@@ -34,7 +34,6 @@
 // #define SKETCH_DEBUG
 
 #include <JsonTalkie.hpp>
-// ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
 #include "S_Broadcast_SPI_Arduino_Slave.h"
 #include "M_LedManifesto.hpp"
 

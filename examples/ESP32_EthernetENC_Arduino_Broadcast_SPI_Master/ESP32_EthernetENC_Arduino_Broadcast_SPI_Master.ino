@@ -41,9 +41,8 @@
 #endif
 
 #include <JsonTalkie.hpp>
-// ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
 #include "S_Broadcast_SPI_ESP_Arduino_Master.hpp"
-#include "S_EthernetENC_Broadcast.hpp"
+#include "S_EthernetENC_Broadcast.hpp"	// ONLY THE CHANGED LIBRARY ALLOWS THE RECEPTION OF BROADCASTED UDP PACKAGES TO 255.255.255.255
 #include "M_LedManifesto.hpp"
 #include "M_MessageTester.hpp"
 #include "M_Spy.hpp"
