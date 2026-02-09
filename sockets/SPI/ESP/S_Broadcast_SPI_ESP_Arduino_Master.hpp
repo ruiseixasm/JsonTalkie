@@ -15,9 +15,9 @@
  *   with multiple Arduino boards as SPI Slaves, make sure you connect a resistor of **around 500 Ohms** to
  *   each SPI Slave MISO pin, in the case of the Arduino Uno and Nano is the pin 12!
  *
- *   [1st Slave ESP32 MISO] ----[500Ω]----┐
- *   [2nd Slave ESP32 MISO] ----[500Ω]----┼---- [Master ESP32 MISO]
- *   [3rd Slave ESP32 MISO] ----[500Ω]----┘
+ *   [1st Slave Arduino MISO] ----[500Ω]----┐
+ *   [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master ESP32 MISO]
+ *   [3rd Slave Arduino MISO] ----[500Ω]----┘
  *
  * Created: 2026-02-09
  */
