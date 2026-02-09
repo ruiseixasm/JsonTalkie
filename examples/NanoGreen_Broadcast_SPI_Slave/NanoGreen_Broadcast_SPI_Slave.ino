@@ -15,7 +15,7 @@
  * - With this sketch you can have more than one single board as SPI Slave, this happens because the
  *   SPI Sockets are broadcast sockets that send messages in Broadcast mode. So, if you choose to work
  *   with multiple Arduino boards as SPI Slaves, make sure you connect a resistor of **around 500 Ohms** to
- *   each SPI Slave MISO pin, in the case of the Arduino Nano and Uno is the pin 12!
+ *   each SPI Slave MISO pin, in the case of the Arduino Uno and Nano is the pin 12!
  * 
  *   [1st Slave Arduino MISO] ----[500Ω]----┐
  *   [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master Arduino MISO]
