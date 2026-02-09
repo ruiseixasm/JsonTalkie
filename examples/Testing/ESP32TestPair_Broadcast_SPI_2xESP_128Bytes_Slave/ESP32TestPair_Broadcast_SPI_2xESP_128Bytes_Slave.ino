@@ -1,16 +1,35 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    ESP32TestPair_Broadcast_SPI_2xESP_128Bytes_Slave.ino
+ * @author  Rui Seixas Monteiro
+ * @brief   This is an ESP32 SPI Slave testing sketch.
+ *
+ * This sketch is intended to test the socket `S_Broadcast_SPI_2xESP_128Bytes_Slave` that is targeted for the
+ * ESP32 board as SPI Slave to be controlled by an ESP32 board as SPI Master.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
+ * 
+ * Hardware:
+ * - One ESP32 board as SPI Slave plus one ESP32 board as SPI Master (check CAUTION bellow)
+ * 
+ * CAUTION:
+ * - With this sketch you can have more than one single board as SPI Slave, this happens because the
+ *   SPI Sockets are broadcast sockets that send messages in Broadcast mode. So, if you choose to work
+ *   with multiple ESP32 boards as SPI Slaves, make sure you connect a resistor of **around 500 Ohms** to
+ *   each SPI Slave MISO pin, in the case of the ESP32 is the pin 12 or 19 for HSPI or VSPI respectively!
+ * 
+ *   [1st Slave ESP32 MISO] ----[500Ω]----┐
+ *   [2nd Slave ESP32 MISO] ----[500Ω]----┼---- [Master ESP32 MISO]
+ *   [3rd Slave ESP32 MISO] ----[500Ω]----┘
+ *
+ * Sockets:
+ * - S_Broadcast_SPI_2xESP_128Bytes_Slave
+ * 
+ * Manifestos:
+ * - M_LedManifesto
+ * 
+ * Created: 2026-02-09
+ */
 
 
 // #define SKETCH_DEBUG
