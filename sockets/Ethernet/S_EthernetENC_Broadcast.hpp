@@ -1,5 +1,5 @@
 /**
- * @file    S_BroadcastSocket_EtherCard.h
+ * @file    S_EthernetENC_Broadcast.h
  * @author  Rui Seixas Monteiro
  * @brief   A Broadcast Socket for ENC28J60 shields that requires able to Unicast, requires more memory,
  * 			so, not suitable for Arduino Uno or Nano.
