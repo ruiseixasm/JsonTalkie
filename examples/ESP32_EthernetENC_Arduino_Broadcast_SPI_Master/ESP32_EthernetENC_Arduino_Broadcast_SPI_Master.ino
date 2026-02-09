@@ -12,7 +12,7 @@
  * - One ESP32 board and two Arduino Nano boards selected with the SS pins 4 and 16
  * 
  * CAUTION:
- * - Because this is a Master Broadcast Socket, the SS pins are low simultaneously when messages
+ * - Because this is related to a SPI Master Broadcast Socket, the SS pins are low simultaneously when messages
  *   are being sent by it, so, each Arduino Nano MISO pin (12) shall have a resistor of **around 500 Ohms**
  *   connected to it to avoid short circuiting those common Nano pins while the SPI Master is broadcasting.
  *

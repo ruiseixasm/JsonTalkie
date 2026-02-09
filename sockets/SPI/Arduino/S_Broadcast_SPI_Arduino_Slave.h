@@ -1,16 +1,26 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    S_Broadcast_SPI_Arduino_Slave.h
+ * @author  Rui Seixas Monteiro
+ * @brief   A Broadcast Socket for an Arduino to work as a SPI Slave, by receiving Broadcasted messages,
+ * 			it means that it to have the protection resistor in the MISO pin referred bellow.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
+ * 
+ * Hardware:
+ * - Two or more Arduino boards to communicate with each other.
+ * 
+ * CAUTION:
+ * - Because this is related to a SPI Master Broadcast Socket, the SS pins are low simultaneously when messages
+ *   are being sent by it, so, each Arduino Nano MISO pin (12) shall have a resistor of **around 500 Ohms**
+ *   connected to it to avoid short circuiting those common Nano pins while the SPI Master is broadcasting.
+ *
+ *   [1st Slave Arduino MISO] ----[500Ω]----┐
+ *   [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master Arduino MISO]
+ *   [3rd Slave Arduino MISO] ----[500Ω]----┘
+ *
+ * Created: 2026-02-09
+ */
+
 #ifndef BROADCAST_SPI_ARDUINO_SLAVE_HPP
 #define BROADCAST_SPI_ARDUINO_SLAVE_HPP
 
