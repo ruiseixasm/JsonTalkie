@@ -104,7 +104,7 @@ private:
     const char* _desc;      // Description of the Device
 	TalkerManifesto* _manifesto = nullptr;
     uint8_t _channel = 255;	// Channel 255 means NO channel response
-    bool _muted_calls = false;
+    MuteValue _mute_value = MuteValue::TALKIE_MV_NONE;
 	TraceMessage _trace_message;
 	RecoveryMessage _recovery_message;
 
@@ -247,6 +247,8 @@ private:
 
 		} else {	// errors and echoes responses, NOT Self Talker generated
 			
+			if (_mute_value == MuteValue::TALKIE_MV_ALL) return false;	// All muted, returns no echo or error
+
 			if (json_message.is_to_name(_name)) {
 				
 				#ifdef JSON_TALKER_DEBUG
@@ -404,12 +406,10 @@ public:
 	
 	
     /**
-     * @brief Get the muted state of the Talker
-     * @return Returns true if muted (muted calls)
-     * 
-     * @note This only mutes the echoes from the calls
+     * @brief Get the mute value of the Talker
+     * @return Returns the mute value, NONE, CALLS or ALL
      */
-	bool get_muted() const { return _muted_calls; }
+	MuteValue get_muted() const { return _mute_value; }
 
 
     /**
@@ -460,12 +460,10 @@ public:
 
 
     /**
-     * @brief Set the Talker as muted or not muted
-     * @param muted If true it mutes the call's echoes
-     * 
-     * @note This only mutes the echoes from the calls
+     * @brief Set the Talker mute value (level of muting)
+     * @param mute_value The mute level concering the echoes and error
      */
-    void set_mute(bool muted) { _muted_calls = muted; }
+    void set_mute(MuteValue mute_value) { _mute_value = mute_value; }
 
 	
     /**
@@ -535,7 +533,7 @@ public:
 						json_message.set_roger_value(RogerValue::TALKIE_RGR_NO_JOY);
 					}
 					// In the end sends back the processed message (single message, one-to-one)
-					if (!_muted_calls) transmitToRepeater(json_message);
+					if (_mute_value == MuteValue::TALKIE_MV_NONE) transmitToRepeater(json_message);
 				}
 				break;
 			
@@ -649,8 +647,13 @@ public:
 							break;
 
 						case SystemValue::TALKIE_SYS_MUTE:
-							if (!json_message.get_nth_value_boolean(0, &_muted_calls)) {
-								json_message.set_nth_value_number(0, (uint32_t)_muted_calls);
+							{
+								uint8_t mute_value_level = 0;
+								if (json_message.get_nth_value_number(0, &mute_value_level)) {
+									_mute_value = (MuteValue)mute_value_level;
+								} else {
+									json_message.set_nth_value_number(0, (uint32_t)_mute_value);
+								}
 							}
 							break;
 
