@@ -54,6 +54,7 @@ using TalkerMatch 		= TalkieCodes::TalkerMatch;
 using BroadcastValue 	= TalkieCodes::BroadcastValue;
 using MessageValue 		= TalkieCodes::MessageValue;
 using SystemValue 		= TalkieCodes::SystemValue;
+using MuteValue 		= TalkieCodes::MuteValue;
 using RogerValue 		= TalkieCodes::RogerValue;
 using ErrorValue 		= TalkieCodes::ErrorValue;
 using ValueType 		= TalkieCodes::ValueType;

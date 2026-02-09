@@ -151,6 +151,17 @@ struct TalkieCodes {
 
 
     /**
+     * @enum MuteValue
+     * @brief Associated to the type of muting being set
+     */
+    enum MuteValue : uint8_t {
+        TALKIE_MV_NONE,		///< Sends all replies like echoes or errors
+        TALKIE_MV_CALLS,    ///< Mutes all call echoes
+        TALKIE_MV_ALL      	///< Mutes all replies like echoes or errors
+    };
+
+
+    /**
      * @enum RogerValue
      * @brief Standardized response codes (acknowledgments)
      * 
