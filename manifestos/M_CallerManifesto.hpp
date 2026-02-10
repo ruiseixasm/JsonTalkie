@@ -1,7 +1,7 @@
 /**
  * @file    M_CallerManifesto.hpp
  * @author  Rui Seixas Monteiro
- * @brief   A Manifesto targeted to an Arduino with a `M_BuzzerManifesto` manifesto, this triggers the buzzer
+ * @brief   A Manifesto targeted to an Arduino with a `M_BlackManifesto` manifesto, this triggers the buzzer
  * 			in the targeted board for each 60 minutes, where the present minute can be given in order to sync
  * 			it with the real time.
  *
