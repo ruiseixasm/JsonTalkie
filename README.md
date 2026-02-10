@@ -59,7 +59,7 @@ You may include more than one Manifesto or Socket, like so:
 #include "S_BroadcastESP_WiFi.hpp"
 #include "S_Basic_SPI_ESP_Arduino_Master.hpp"
 #include "M_Spy.hpp"
-#include "M_BlueManifesto.hpp"
+#include "M_LedManifesto.hpp"
 #include "M_MessageTester.hpp"
 #include "M_Esp66Manifesto.hpp"
 ```
