@@ -60,8 +60,6 @@ public:
 
 protected:
 
-    bool _is_led_on = false;	// keep track of the led state, by default it's off
-
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
 	// The Action pair name and description shouldn't be greater than 40 chars
@@ -69,16 +67,18 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action calls[3] = {
+    Action actions[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
 		{"state", "The actual state of the led"}
     };
     
+    bool _is_led_on = false;	// keep track of the led state, by default it's off
+
 public:
     
-    const Action* _getActionsArray() const override { return calls; }
-    uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+    const Action* _getActionsArray() const override { return actions; }
+    uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 
 
     // Index-based operations (simplified examples)
