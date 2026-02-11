@@ -87,7 +87,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action calls[6] = {
+    Action actions[6] = {
 		{"period", "Sets cycle period milliseconds"},
 		{"enabled", "Checks, enable or disable cycles"},
 		{"calls", "Gets total calls and their echoes"},
@@ -98,10 +98,10 @@ protected:
     
 public:
 
-    const Action* _getActionsArray() const override { return calls; }
+    const Action* _getActionsArray() const override { return actions; }
 
     // Size methods
-    uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+    uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 
     
     // Index-based operations (simplified examples)

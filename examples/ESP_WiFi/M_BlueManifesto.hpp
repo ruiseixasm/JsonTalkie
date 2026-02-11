@@ -66,8 +66,8 @@ protected:
     
 public:
     
-    const Action* _getActionsArray() const override { return calls; }
-    uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+    const Action* _getActionsArray() const override { return actions; }
+    uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 
 
     // Index-based operations (simplified examples)

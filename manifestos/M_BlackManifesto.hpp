@@ -37,9 +37,6 @@ public:
 
 protected:
 
-    uint16_t _buzz_duration_ms = 100;
-	uint16_t _buzz_start = 0;
-
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
 	// The Action pair name and description shouldn't be greater than 40 chars
@@ -47,17 +44,20 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action calls[2] = {
+    Action actions[2] = {
 		{"buzz", "Buzz for a while"},
 		{"ms", "Gets and sets the buzzing duration"}
     };
     
+    uint16_t _buzz_duration_ms = 100;
+	uint16_t _buzz_start = 0;
+
 public:
 
-    const Action* _getActionsArray() const override { return calls; }
+    const Action* _getActionsArray() const override { return actions; }
 
     // Size methods
-    uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+    uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 
 
 	void _loop(JsonTalker& talker) override {

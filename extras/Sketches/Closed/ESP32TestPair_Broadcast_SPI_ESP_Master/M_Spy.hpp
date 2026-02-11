@@ -42,7 +42,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action calls[3] = {
+    Action actions[3] = {
 		{"ping", "Ping talkers by name or channel"},
 		{"ping_self", "I can even ping myself"},
 		{"call", "Able to do [<talker> <action>]"}
@@ -50,10 +50,10 @@ protected:
     
 public:
 
-    const Action* _getActionsArray() const override { return calls; }
+    const Action* _getActionsArray() const override { return actions; }
 
     // Size methods
-    uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+    uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 
 
     // Action implementations - MUST be implemented by derived

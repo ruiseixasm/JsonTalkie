@@ -41,6 +41,21 @@ public:
 
 protected:
 
+	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
+
+	// The Action pair name and description shouldn't be greater than 40 chars
+	// {"m":7,"b":1,"i":6442,"f":"","t":"","0":255,"1":"","2":"","c":25870} <-- 128 - (68 + 2*10) = 40
+
+	// ------------- MAXIMUM SIZE RULER --------------|
+	//	 "name", "123456789012345678901234567890123456"
+    Action actions[5] = {
+		{"active", "Gets or sets the active status"},
+		{"minutes", "Gets or sets the actual minutes"},
+		{"state", "The actual state of the led"},
+		{"enable", "Enables 1sec cyclic transmission"},
+		{"disable", "Disables 1sec cyclic transmission"}
+    };
+    
 	bool _active_caller = false;
 	// Avoids the initial triggering
 	uint32_t _time_to_call = 60UL * 60 * 1000;
@@ -51,20 +66,12 @@ protected:
 	uint8_t _green_led_on = 0;
 	bool _cyclic_transmission = false;
 
-    Action calls[5] = {
-		{"active", "Gets or sets the active status"},
-		{"minutes", "Gets or sets the actual minutes"},
-		{"state", "The actual state of the led"},
-		{"enable", "Enables 1sec cyclic transmission"},
-		{"disable", "Disables 1sec cyclic transmission"}
-    };
-    
 public:
     
-    const Action* _getActionsArray() const override { return calls; }
+    const Action* _getActionsArray() const override { return actions; }
 
     // Size methods
-    uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+    uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 
 
     // Index-based operations (simplified examples)

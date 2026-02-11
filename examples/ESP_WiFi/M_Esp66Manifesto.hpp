@@ -51,7 +51,7 @@ protected:
 	uint8_t _green_led_on = 0;
 	bool _cyclic_transmission = false;
 
-    Action calls[5] = {
+    Action actions[5] = {
 		{"active", "Gets or sets the active status"},
 		{"minutes", "Gets or sets the actual minutes"},
 		{"state", "The actual state of the led"},
@@ -61,10 +61,10 @@ protected:
     
 public:
     
-    const Action* _getActionsArray() const override { return calls; }
+    const Action* _getActionsArray() const override { return actions; }
 
     // Size methods
-    uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+    uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 
 
     // Index-based operations (simplified examples)
