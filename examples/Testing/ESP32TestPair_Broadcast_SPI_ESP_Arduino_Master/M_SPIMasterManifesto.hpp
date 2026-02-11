@@ -1,16 +1,20 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    M_SPIMasterManifesto.hpp
+ * @author  Rui Seixas Monteiro
+ * @brief   A Manifesto intended to test different types of SPI Sockets in the SPI Master side.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
+ * 
+ * Actions:
+ *  - Extensive number of tests named and described in the `calls` variable bellow.
+ * 
+ * Hardware:
+ * - Any type of Arduino compatible board will work.
+ * 
+ * Created: 2026-02-11
+ */
+
 #ifndef DUO_TESTER_MANIFESTO_HPP
 #define DUO_TESTER_MANIFESTO_HPP
 
