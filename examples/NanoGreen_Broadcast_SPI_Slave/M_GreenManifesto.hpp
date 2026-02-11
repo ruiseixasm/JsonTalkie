@@ -30,8 +30,8 @@ public:
 
 protected:
 
-	// The Action pair name and description shouldn't be greater than 30 chars
-	// {"m":7,"b":1,"i":6442,"f":"","t":"","0":255,"1":"","2":"","c":25870} <-- 128 - (68 + 2*15) = 30
+	// The Action pair name and description shouldn't be greater than 40 chars
+	// {"m":7,"b":1,"i":6442,"f":"","t":"","0":255,"1":"","2":"","c":25870} <-- 128 - (68 + 2*10) = 40
 
     Action calls[6] = {
 		{"on", "Turns led ON"},
