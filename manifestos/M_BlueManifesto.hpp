@@ -1,7 +1,7 @@
 /**
  * @file    M_BlueManifesto.hpp
  * @author  Rui Seixas Monteiro
- * @brief   A Manifesto targeted to an ESP32 board that controls its onboard blue led.
+ * @brief   A Manifesto targeted to an Arduino or ESP32 board that controls its onboard blue led.
  *
  * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos
  * 
@@ -21,7 +21,7 @@
 
 #include <TalkerManifesto.hpp>
 
-#ifndef LED_BUILTIN
+#ifndef LED_BUILTIN	// For the case of an ESP32 board without the LED_BUILTIN defined
   #define LED_BUILTIN 2  // Fallback definition if not already defined
 #endif
 
@@ -35,7 +35,7 @@ public:
 	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*10) = 42
     const char* class_description() const override { return "BlueManifesto"; }
 
-    M_BlueManifesto(uint8_t led_pin) : TalkerManifesto()
+    M_BlueManifesto() : TalkerManifesto()
 	{
 		pinMode(LED_BUILTIN, OUTPUT);
 	}	// Constructor
