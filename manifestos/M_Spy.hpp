@@ -1,16 +1,22 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    M_Spy.hpp
+ * @author  Rui Seixas Monteiro
+ * @brief   A Manifesto intended to do pings and get values at the local Talkers side.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
+ * 
+ * Actions:
+ *  - ping: Ping local talkers to get the local values without the remote delay
+ *  - ping_self: Pings itself to detect any hardware delays in the board itself
+ *  - call: Gives the ability to do calls from the Talker with the present Manifesto
+ * 
+ * Hardware:
+ * - Any type of Arduino compatible board will work.
+ * 
+ * Created: 2026-02-11
+ */
+
 #ifndef SPY_MANIFESTO_HPP
 #define SPY_MANIFESTO_HPP
 

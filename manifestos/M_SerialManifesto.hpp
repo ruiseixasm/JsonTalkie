@@ -1,16 +1,22 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    M_SerialManifesto.hpp
+ * @author  Rui Seixas Monteiro
+ * @brief   A Manifesto intended to test a Serial Socket connection, but, obviously, is not limited to.
+ * 			It controls the `LED_BUILTIN` led 'on' and 'off'.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos
+ * 
+ * Actions:
+ *  - on: Turns the Green led on
+ *  - off: Turns the Green led off
+ *  - state: Gets the state of the Green led
+ * 
+ * Hardware:
+ * - Any type of Arduino compatible board will work.
+ * 
+ * Created: 2026-02-10
+ */
+
 #ifndef SERIAL_MANIFESTO_HPP
 #define SERIAL_MANIFESTO_HPP
 
