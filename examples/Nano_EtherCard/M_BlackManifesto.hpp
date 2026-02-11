@@ -1,16 +1,20 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    M_BlackManifesto.hpp
+ * @author  Rui Seixas Monteiro
+ * @brief   A Manifesto targeted to a Black Box that has an Arduino Nano connected to a Buzzer on pin 3.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos
+ * 
+ * Actions:
+ *  - buzz: Triggers the buzzer
+ *  - ms: Sets the duration in milliseconds of the buzzing
+ * 
+ * Hardware:
+ * - An Arduino Nano and a buzzer.
+ * 
+ * Created: 2026-02-10
+ */
+
 #ifndef BLACK_MANIFESTO_HPP
 #define BLACK_MANIFESTO_HPP
 
@@ -116,8 +120,8 @@ public:
 
     void _echo(JsonTalker& talker, JsonMessage& json_message, MessageValue message_value, TalkerMatch talker_match) override {
 		(void)talker;		// Silence unused parameter warning
-		(void)talker_match;	// Silence unused parameter warning
         (void)message_value;	// Silence unused parameter warning
+		(void)talker_match;	// Silence unused parameter warning
 
 		char temp_string[TALKIE_MAX_LEN];
 		json_message.get_from_name(temp_string);

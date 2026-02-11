@@ -1,16 +1,19 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    M_MessageTester.hpp
+ * @author  Rui Seixas Monteiro
+ * @brief   A Manifesto intended to unittest the class `JsonMessage` including edge cases.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos
+ * 
+ * Actions:
+ *  - Extensive number of tests named and described in the `calls` variable bellow.
+ * 
+ * Hardware:
+ * - Any type of Arduino compatible board will work.
+ * 
+ * Created: 2026-02-10
+ */
+
 #ifndef MESSAGE_TESTER_MANIFESTO_HPP
 #define MESSAGE_TESTER_MANIFESTO_HPP
 
@@ -47,7 +50,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action calls[16] = {
+    Action calls[18] = {
 		{"all", "Tests all methods"},
 		{"parse_json", "Test deserialize (fill up)"},
 		{"compare", "Test if it's the same"},
@@ -63,7 +66,9 @@ protected:
 		{"set", "Sets a given field"},
 		{"edge", "Tests edge cases"},
 		{"copy", "Tests the copy constructor"},
-		{"string", "Has a value 0 as string"}
+		{"string", "Has a value 0 as string"},
+		{"oversized", "Tries to set an oversized name"},
+		{"invalid", "Tries to get an oversized name"}
     };
     
 public:
@@ -335,6 +340,23 @@ public:
 			}
 			break;
 				
+			case 16:
+			{
+				const char oversized_name[] = "01234567890";	// 11 sized + '\0'
+				return !json_message.set_nth_value_string(0, oversized_name, TALKIE_NAME_LEN);	// Has to fail
+			}
+			break;
+				
+			case 17:
+			{
+				const char oversized_name[] = "{\"m\":7,\"b\":0,\"f\":\"01234567890\",\"i\":13825,\"t\":\"01234567890\"}";
+				JsonMessage oversized_json_message;
+				oversized_json_message.deserialize_buffer(oversized_name, sizeof(oversized_name) - 1);
+				char from_name[TALKIE_NAME_LEN];
+				return !oversized_json_message.get_from_name(from_name, TALKIE_NAME_LEN);
+			}
+			break;
+
 
             default: return false;
 		}

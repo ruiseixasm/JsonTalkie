@@ -1,16 +1,23 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    M_GreenManifesto.hpp
+ * @author  Rui Seixas Monteiro
+ * @brief   A Manifesto targeted to an Arduino with a Green led on the pin defined by `GREEN_LED`.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos
+ * 
+ * Actions:
+ *  - on: Turns the Green led on
+ *  - off: Turns the Green led off
+ *  - state: Gets the state of the Green led
+ *  - bpm_10: An example of getting and setting a variable in a single action
+ *  - toggle: Toggles a remote Blue led on the Talker 'blue'
+ * 
+ * Hardware:
+ * - Any type of Arduino compatible board will work.
+ * 
+ * Created: 2026-02-10
+ */
+
 #ifndef GREEN_MANIFESTO_HPP
 #define GREEN_MANIFESTO_HPP
 
@@ -37,12 +44,11 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action calls[6] = {
+    Action calls[5] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
 		{"state", "The actual state of the led"},
-		{"bpm_10", "Sets the Tempo in BPM x 10"},
-		{"bpm_10", "Gets the Tempo in BPM x 10"},
+		{"bpm_10", "Gets/Sets the Tempo in BPM x 10"},
 		{"toggle", "Toggles 'blue' led on and off"}
     };
     
@@ -119,15 +125,15 @@ public:
             break;
 			
             case 3:
-                _bpm_10 = json_message.get_nth_value_number(0);
+				if (json_message.has_nth_value_number(0)) {
+					_bpm_10 = json_message.get_nth_value_number(0);
+				} else {
+					json_message.set_nth_value_number(0, _bpm_10);
+				}
                 return true;
-                break;
+            break;
 				
             case 4:
-				json_message.set_nth_value_number(0, _bpm_10);
-				return true;
-
-            case 5:
 			{
 				JsonMessage toggle_blue_on_off(MessageValue::TALKIE_MSG_CALL, BroadcastValue::TALKIE_BC_LOCAL);
 				toggle_blue_on_off.set_to_name("blue");

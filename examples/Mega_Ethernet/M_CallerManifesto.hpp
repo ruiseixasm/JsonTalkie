@@ -1,16 +1,23 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    M_CallerManifesto.hpp
+ * @author  Rui Seixas Monteiro
+ * @brief   A Manifesto targeted to an Arduino with a `M_BlackManifesto` manifesto, this triggers the buzzer
+ * 			in the targeted board for each 60 minutes, where the present minute can be given in order to sync
+ * 			it with the real time.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos
+ * 
+ * Actions:
+ *  - active: Activates the triggering by giving the value 1 or disables it by given the value 0
+ *  - minutes: Sets the actual hourly minute
+ *  - state: Gets the state of the led meaning that the triggering of the buzzer was replied with an echo
+ * 
+ * Hardware:
+ * - Any type of Arduino compatible board will work.
+ * 
+ * Created: 2026-02-10
+ */
+
 #ifndef CALLER_MANIFESTO_HPP
 #define CALLER_MANIFESTO_HPP
 
@@ -39,13 +46,6 @@ protected:
 	uint32_t _time_to_live = 0;
     bool _is_led_on = false;	// keep track of the led state, by default it's off
 
-	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
-
-	// The Action pair name and description shouldn't be greater than 40 chars
-	// {"m":7,"b":1,"i":6442,"f":"","t":"","0":255,"1":"","2":"","c":25870} <-- 128 - (68 + 2*10) = 40
-
-	// ------------- MAXIMUM SIZE RULER --------------|
-	//	 "name", "123456789012345678901234567890123456"
     Action calls[3] = {
 		{"active", "Gets or sets the active status"},
 		{"minutes", "Gets or sets the actual minutes"},

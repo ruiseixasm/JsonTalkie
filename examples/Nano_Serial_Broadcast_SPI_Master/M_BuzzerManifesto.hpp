@@ -1,16 +1,23 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    M_BuzzerManifesto.hpp
+ * @author  Rui Seixas Monteiro
+ * @brief   A Manifesto targeted to an Arduino Nano connected to a Buzzer on pin 2 that also,
+ * 			turns on and off the green light on a Talker named 'green' in a cyclic fashion.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos
+ * 
+ * Actions:
+ *  - buzz: Triggers the buzzer
+ *  - ms: Sets the duration in milliseconds of the buzzing
+ *  - enable: Enables the 1 second cycle of truning the green led on and off
+ *  - disable: Disables the 1 second cycle of truning the green led on and off
+ * 
+ * Hardware:
+ * - An Arduino Nano and a buzzer.
+ * 
+ * Created: 2026-02-10
+ */
+
 #ifndef BUZZER_MANIFESTO_HPP
 #define BUZZER_MANIFESTO_HPP
 
@@ -62,7 +69,7 @@ public:
 
 
 	void _loop(JsonTalker& talker) override {
-        (void)talker;		// Silence unused parameter warning
+		
 		if ((uint16_t)millis() - _buzz_start > _buzz_duration_ms) {
 			#ifdef BUZZ_PIN
 			digitalWrite(BUZZ_PIN, LOW);
