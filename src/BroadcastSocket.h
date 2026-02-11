@@ -44,7 +44,7 @@ https://github.com/ruiseixasm/JsonTalkie
 // #define BROADCASTSOCKET_DISABLE_RECOVERY
 
 // Readjust if necessary
-#define MAX_NETWORK_PACKET_LIFETIME_MS 256UL    // 256 milliseconds
+#define MAX_NETWORK_PACKET_LIFETIME_MS 500UL    // 500 milliseconds
 
 using LinkType			= TalkieCodes::LinkType;
 using TalkerMatch 		= TalkieCodes::TalkerMatch;
@@ -504,7 +504,7 @@ protected:
 			MessageValue message_code = json_message.get_message_value();
 			if (message_code == MessageValue::TALKIE_MSG_CALL) {
 
-				uint16_t message_timestamp = json_message.get_timestamp();
+				const uint16_t message_timestamp = json_message.get_timestamp();
 
 				#ifdef BROADCASTSOCKET_DEBUG
 				Serial.print(F("_startTransmission2: Message code requires delay check: "));
@@ -515,42 +515,31 @@ protected:
 				Serial.print(F("_startTransmission3: Remote time: "));
 				Serial.println(message_timestamp);
 				#endif
-			
-				const unsigned long local_time = millis();
 				
 				if (_control_timing) {
 					
-					const uint16_t remote_delay = _last_message_timestamp - message_timestamp;  // Package received after
-
-					if (remote_delay > 0 && remote_delay < MAX_NETWORK_PACKET_LIFETIME_MS) {    // Out of order package
-						const uint16_t allowed_delay = static_cast<uint16_t>(_max_delay_ms);
-						const uint16_t local_delay = local_time - _last_local_time;
+					const int32_t remote_delay = (int32_t)_last_message_timestamp - (int32_t)message_timestamp;  // Package received after
+					if (remote_delay >= _max_delay_ms) {
 						#ifdef BROADCASTSOCKET_DEBUG
-						Serial.print(F("_startTransmission4: Local delay: "));
-						Serial.println(local_delay);
+						Serial.print(F("_startTransmission5: Out of time package (remote delay): "));
+						Serial.println(remote_delay);
 						#endif
-						if (remote_delay > allowed_delay || local_delay > allowed_delay) {
-							#ifdef BROADCASTSOCKET_DEBUG
-							Serial.print(F("_startTransmission5: Out of time package (remote delay): "));
-							Serial.println(remote_delay);
-							#endif
-							
-							JsonMessage error_message(MessageValue::TALKIE_MSG_ERROR, json_message.get_broadcast_value());
-							error_message.set_error_value(ErrorValue::TALKIE_ERR_DELAY);
-							char from_name[TALKIE_NAME_LEN];
-							json_message.get_to_name(from_name, TALKIE_NAME_LEN);
-							error_message.set_to_name(from_name);
-							error_message.set_identity(json_message.get_identity());	// Already validated with checksum
-							// Error messages can be anonymous messages without "from_name"
-							_finishTransmission(error_message);
-							++_drops_count;
-							return;
-						}
+						
+						JsonMessage error_message(MessageValue::TALKIE_MSG_ERROR, json_message.get_broadcast_value());
+						error_message.set_error_value(ErrorValue::TALKIE_ERR_DELAY);
+						char from_name[TALKIE_NAME_LEN];
+						json_message.get_to_name(from_name, TALKIE_NAME_LEN);
+						error_message.set_to_name(from_name);
+						error_message.set_identity(json_message.get_identity());	// Already validated with checksum
+						// Error messages can be anonymous messages without "from_name"
+						_finishTransmission(error_message);
+						++_drops_count;
+						return;
 					}
 				}
-				_last_local_time = local_time;
-				_last_message_timestamp = message_timestamp;
 				_control_timing = true;
+				_last_message_timestamp = message_timestamp;
+				_last_local_time = millis();
 			}
 		}
 
