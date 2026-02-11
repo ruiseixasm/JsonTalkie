@@ -1,16 +1,26 @@
-/*
-JsonTalkie - Json Talkie is intended for direct IoT communication.
-Original Copyright (c) 2025 Rui Seixas Monteiro. All right reserved.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-https://github.com/ruiseixasm/JsonTalkie
-*/
+/**
+ * @file    S_Broadcast_SPI_2xESP_128Bytes_Master.hpp
+ * @author  Rui Seixas Monteiro
+ * @brief   A Broadcast Socket for an ESP32 to work as a SPI Master, by being Broadcast it means
+ * 			that the SPI Slaves have to have the protection resistor in the MISO pin referred bellow.
+ *
+ * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets
+ * 
+ * Hardware:
+ * - Two or more ESP32 boards to communicate with each other.
+ * 
+ * CAUTION:
+ * - This SPI Socket is a broadcast socket that send messages in Broadcast mode. So, if you choose to work
+ *   with multiple ESP32 boards as SPI Slaves, make sure you connect a resistor of **around 500 Ohms** to
+ *   each SPI Slave MISO pin, in the case of the ESP32 is the pin 12 or 19 for HSPI or VSPI respectively!
+ *
+ *   [1st Slave ESP32 MISO] ----[500Ω]----┐
+ *   [2nd Slave ESP32 MISO] ----[500Ω]----┼---- [Master ESP32 MISO]
+ *   [3rd Slave ESP32 MISO] ----[500Ω]----┘
+ *
+ * Created: 2026-02-09
+ */
+
 #ifndef BROADCAST_SPI_ESP2X_MASTER_HPP
 #define BROADCAST_SPI_ESP2X_MASTER_HPP
 
