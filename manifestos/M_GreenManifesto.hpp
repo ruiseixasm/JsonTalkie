@@ -13,7 +13,7 @@
  *  - toggle: Toggles a remote Blue led on the Talker 'blue'
  * 
  * Hardware:
- * - Any type of Arduino ncompatible board will work.
+ * - Any type of Arduino compatible board will work.
  * 
  * Created: 2026-02-10
  */

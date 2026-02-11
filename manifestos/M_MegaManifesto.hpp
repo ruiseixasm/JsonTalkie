@@ -15,7 +15,7 @@
  *  - disable: Disables the cyclic 'talk' message to the remote 'buzzer' Talker
  * 
  * Hardware:
- * - Any type of Arduino ncompatible board will work.
+ * - Any type of Arduino compatible board will work.
  * 
  * Created: 2026-02-11
  */

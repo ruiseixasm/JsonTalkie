@@ -13,7 +13,7 @@
  *  - state: Gets the state of the led meaning that the triggering of the buzzer was replied with an echo
  * 
  * Hardware:
- * - Any type of Arduino ncompatible board will work.
+ * - Any type of Arduino compatible board will work.
  * 
  * Created: 2026-02-10
  */

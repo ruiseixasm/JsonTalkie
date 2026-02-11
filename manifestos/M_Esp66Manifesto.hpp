@@ -15,7 +15,7 @@
  *  - disable: Disables the cyclic toggling of the Green led in the remote Arduino Nano
  * 
  * Hardware:
- * - Any type of Arduino ncompatible board will work.
+ * - Any type of Arduino compatible board will work.
  * 
  * Created: 2026-02-10
  */

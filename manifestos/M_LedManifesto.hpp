@@ -11,7 +11,7 @@
  *  - state: Gets the state of the led, 1 for 'on' and 0 for 'off'
  * 
  * Hardware:
- * - Any type of Arduino ncompatible board will work.
+ * - Any type of Arduino compatible board will work.
  * 
  * Created: 2026-02-10
  */
