@@ -518,8 +518,8 @@ protected:
 				
 				if (_control_timing) {
 					
-					const int32_t remote_delay = (int32_t)_last_message_timestamp - (int32_t)message_timestamp;  // Package received after
-					if (remote_delay >= _max_delay_ms) {
+					const uint16_t remote_delay = _last_message_timestamp - message_timestamp;  // Package received after
+					if (remote_delay >= _max_delay_ms && remote_delay < MAX_NETWORK_PACKET_LIFETIME_MS) {
 						#ifdef BROADCASTSOCKET_DEBUG
 						Serial.print(F("_startTransmission5: Out of time package (remote delay): "));
 						Serial.println(remote_delay);
