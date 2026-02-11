@@ -106,6 +106,7 @@ public:
     
     // Index-based operations (simplified examples)
     bool _actionByIndex(uint8_t index, JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
+    	(void)talker;	// Silence unused parameter warning
     	(void)talker_match;	// Silence unused parameter warning
 
 		// Actual implementation would do something based on index
