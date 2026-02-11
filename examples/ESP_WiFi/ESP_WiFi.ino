@@ -35,11 +35,6 @@ const char ssid[] = "wifiName";
 const char password[] = "wifiPassword";
 
 
-#ifndef LED_BUILTIN
-  #define LED_BUILTIN 2  // Fallback definition if not already defined
-#endif
-
-
 // TALKERS 
 
 // The Talker pair name and description shouldn't be greater than 54 chars
