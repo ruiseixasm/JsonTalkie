@@ -34,6 +34,10 @@ Here is a bare minimum example of such implementation that controls a Blue LED:
 
 #include <TalkerManifesto.hpp>
 
+#ifndef LED_BUILTIN	// For the case of an ESP32 board without the LED_BUILTIN defined
+  #define LED_BUILTIN 2  // Fallback definition if not already defined
+#endif
+
 
 class M_BlueManifesto : public TalkerManifesto {
 public:
@@ -42,21 +46,20 @@ public:
 	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*10) = 42
     const char* class_description() const override { return "BlueManifesto"; }
 
-    M_BlueManifesto(uint8_t led_pin) : TalkerManifesto(), _led_pin(led_pin)
+    M_BlueManifesto() : TalkerManifesto()
 	{
-		pinMode(_led_pin, OUTPUT);
+		pinMode(LED_BUILTIN, OUTPUT);
 	}	// Constructor
 
     ~M_BlueManifesto()
 	{	// ~TalkerManifesto() called automatically here
-		digitalWrite(_led_pin, LOW);
-		pinMode(_led_pin, INPUT);
+		digitalWrite(LED_BUILTIN, LOW);
+		pinMode(LED_BUILTIN, INPUT);
 	}	// Destructor
 
 
 protected:
 
-	const uint8_t _led_pin;
     bool _is_led_on = false;	// keep track of the led state, by default it's off
 
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
@@ -69,7 +72,7 @@ protected:
     Action calls[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
-		{"actions", "Total of triggered Actions"}
+		{"state", "The actual state of the led"}
     };
     
 public:
@@ -89,7 +92,7 @@ public:
 			case 0:
 			{
 				if (!_is_led_on) {
-					digitalWrite(_led_pin, HIGH);
+					digitalWrite(LED_BUILTIN, HIGH);
 					_is_led_on = true;
 					return true;
 				} else {
@@ -102,7 +105,7 @@ public:
 			case 1:
 			{
 				if (_is_led_on) {
-				digitalWrite(_led_pin, LOW);
+				digitalWrite(LED_BUILTIN, LOW);
 					_is_led_on = false;
 				} else {
 					json_message.set_nth_value_string(0, "Already Off!");
@@ -111,6 +114,11 @@ public:
 				return true;
 			}
 			break;
+			
+            case 2:
+				json_message.set_nth_value_number(0, (uint32_t)_is_led_on);
+                return true;
+            break;
 				
             default: return false;
 		}

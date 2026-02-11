@@ -55,7 +55,7 @@ JsonTalker t_spy = JsonTalker(t_spy_name, t_spy_desc, &spy_manifesto);
 // Talker (blue led)
 const char l_blue_name[] = "blue2";
 const char l_blue_desc[] = "I turn led Blue on and off";
-M_BlueManifesto blue_manifesto(2);
+M_BlueManifesto blue_manifesto;
 JsonTalker l_blue = JsonTalker(l_blue_name, l_blue_desc, &blue_manifesto);
 
 // Talker (JsonMessage tester)
