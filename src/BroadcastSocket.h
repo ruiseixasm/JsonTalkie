@@ -597,7 +597,7 @@ public:
         // In theory, a UDP packet on a local area network (LAN) could survive
         // for about 4.25 minutes (255 seconds).
         // BUT in practice it won't more that 256 milliseconds given that is a Ethernet LAN
-        if (_control_timing && millis() - _last_local_time > MAX_NETWORK_PACKET_LIFETIME_MS) {
+        if (_control_timing && millis() - _last_local_time >= MAX_NETWORK_PACKET_LIFETIME_MS) {
             _control_timing = false;
         }
 		if (_corrupted_message.active && (uint16_t)millis() - _corrupted_message.received_time > TALKIE_RECOVERY_TTL) {
