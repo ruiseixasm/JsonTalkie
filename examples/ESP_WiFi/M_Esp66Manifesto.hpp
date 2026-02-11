@@ -42,6 +42,13 @@ protected:
 	uint8_t _green_led_on = 0;
 	bool _cyclic_transmission = false;
 
+	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
+
+	// The Action pair name and description shouldn't be greater than 40 chars
+	// {"m":7,"b":1,"i":6442,"f":"","t":"","0":255,"1":"","2":"","c":25870} <-- 128 - (68 + 2*10) = 40
+
+	// ------------- MAXIMUM SIZE RULER --------------|
+	//	 "name", "123456789012345678901234567890123456"
     Action calls[5] = {
 		{"active", "Gets or sets the active status"},
 		{"minutes", "Gets or sets the actual minutes"},

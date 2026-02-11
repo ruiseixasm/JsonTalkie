@@ -39,6 +39,13 @@ protected:
 	uint32_t _time_to_live = 0;
     bool _is_led_on = false;	// keep track of the led state, by default it's off
 
+	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
+
+	// The Action pair name and description shouldn't be greater than 40 chars
+	// {"m":7,"b":1,"i":6442,"f":"","t":"","0":255,"1":"","2":"","c":25870} <-- 128 - (68 + 2*10) = 40
+
+	// ------------- MAXIMUM SIZE RULER --------------|
+	//	 "name", "123456789012345678901234567890123456"
     Action calls[3] = {
 		{"active", "Gets or sets the active status"},
 		{"minutes", "Gets or sets the actual minutes"},
