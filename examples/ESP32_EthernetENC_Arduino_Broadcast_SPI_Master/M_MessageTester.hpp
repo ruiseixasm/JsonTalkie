@@ -50,7 +50,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action calls[18] = {
+    Action actions[18] = {
 		{"all", "Tests all methods"},
 		{"parse_json", "Test deserialize (fill up)"},
 		{"compare", "Test if it's the same"},
@@ -73,10 +73,10 @@ protected:
     
 public:
     
-    const Action* _getActionsArray() const override { return calls; }
+    const Action* _getActionsArray() const override { return actions; }
 
     // Size methods
-    uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+    uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 
 
     // Index-based operations (simplified examples)

@@ -39,13 +39,6 @@ public:
 
 protected:
 
-    uint16_t _buzz_duration_ms = 100;
-	uint16_t _buzz_start = 0;
-
-	uint32_t _last_blink = 0;
-	uint8_t _yellow_led_on = 0;
-	bool _cyclic_transmission = true;	// true by default
-
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
 	// The Action pair name and description shouldn't be greater than 40 chars
@@ -53,19 +46,26 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action calls[4] = {
+    Action actions[4] = {
 		{"buzz", "Buzz for a while"},
 		{"ms", "Gets and sets the buzzing duration"},
 		{"enable", "Enables 1sec cyclic transmission"},
 		{"disable", "Disables 1sec cyclic transmission"}
     };
     
+    uint16_t _buzz_duration_ms = 100;
+	uint16_t _buzz_start = 0;
+
+	uint32_t _last_blink = 0;
+	uint8_t _yellow_led_on = 0;
+	bool _cyclic_transmission = true;	// true by default
+
 public:
 
-    const Action* _getActionsArray() const override { return calls; }
+    const Action* _getActionsArray() const override { return actions; }
 
     // Size methods
-    uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+    uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 
 
 	void _loop(JsonTalker& talker) override {

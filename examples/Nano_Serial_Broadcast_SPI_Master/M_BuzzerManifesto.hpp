@@ -39,13 +39,6 @@ public:
 
 protected:
 
-    uint16_t _buzz_duration_ms = 100;
-	uint16_t _buzz_start = 0;
-
-	uint32_t _last_blink = 0;
-	uint8_t _yellow_led_on = 0;
-	bool _cyclic_transmission = true;	// true by default
-
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
 	// The Action pair name and description shouldn't be greater than 40 chars
@@ -60,6 +53,13 @@ protected:
 		{"disable", "Disables 1sec cyclic transmission"}
     };
     
+    uint16_t _buzz_duration_ms = 100;
+	uint16_t _buzz_start = 0;
+
+	uint32_t _last_blink = 0;
+	uint8_t _yellow_led_on = 0;
+	bool _cyclic_transmission = true;	// true by default
+
 public:
 
     const Action* _getActionsArray() const override { return actions; }

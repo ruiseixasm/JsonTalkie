@@ -44,6 +44,22 @@ public:
 
 protected:
 
+	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
+
+	// The Action pair name and description shouldn't be greater than 40 chars
+	// {"m":7,"b":1,"i":6442,"f":"","t":"","0":255,"1":"","2":"","c":25870} <-- 128 - (68 + 2*10) = 40
+
+	// ------------- MAXIMUM SIZE RULER --------------|
+	//	 "name", "123456789012345678901234567890123456"
+    Action actions[6] = {
+		{"period", "Sets cycle period milliseconds"},
+		{"enabled", "Checks, enable or disable cycles"},
+		{"calls", "Gets total calls and their echoes"},
+		{"burst", "Tests slave, many messages at once"},
+		{"spacing", "Burst spacing in microseconds"},
+		{"ping", "Ping talkers by name or channel"}
+    };
+    
 	uint16_t _self_blink_time = 0;
 
 	uint32_t _last_blink = 0;
@@ -80,22 +96,6 @@ protected:
 	uint32_t _burst_spacing_us = 0;
 	uint32_t _last_burst_us = 0;
 
-	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
-
-	// The Action pair name and description shouldn't be greater than 40 chars
-	// {"m":7,"b":1,"i":6442,"f":"","t":"","0":255,"1":"","2":"","c":25870} <-- 128 - (68 + 2*10) = 40
-
-	// ------------- MAXIMUM SIZE RULER --------------|
-	//	 "name", "123456789012345678901234567890123456"
-    Action actions[6] = {
-		{"period", "Sets cycle period milliseconds"},
-		{"enabled", "Checks, enable or disable cycles"},
-		{"calls", "Gets total calls and their echoes"},
-		{"burst", "Tests slave, many messages at once"},
-		{"spacing", "Burst spacing in microseconds"},
-		{"ping", "Ping talkers by name or channel"}
-    };
-    
 public:
 
     const Action* _getActionsArray() const override { return actions; }

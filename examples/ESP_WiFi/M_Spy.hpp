@@ -38,9 +38,6 @@ public:
 
 protected:
 
-	char _original_talker[TALKIE_NAME_LEN];
-	uint16_t _trace_message_timestamp;
-
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
 	// The Action pair name and description shouldn't be greater than 40 chars
@@ -54,6 +51,9 @@ protected:
 		{"call", "Able to do [<talker> <action>]"}
     };
     
+	char _original_talker[TALKIE_NAME_LEN];
+	uint16_t _trace_message_timestamp;
+
 public:
 
     const Action* _getActionsArray() const override { return actions; }

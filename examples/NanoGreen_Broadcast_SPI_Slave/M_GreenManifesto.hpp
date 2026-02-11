@@ -44,7 +44,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action calls[5] = {
+    Action actions[5] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
 		{"state", "The actual state of the led"},
@@ -59,10 +59,10 @@ protected:
 
 public:
     
-    const Action* _getActionsArray() const override { return calls; }
+    const Action* _getActionsArray() const override { return actions; }
 
     // Size methods
-    uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+    uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 
 
     // Index-based operations (simplified examples)

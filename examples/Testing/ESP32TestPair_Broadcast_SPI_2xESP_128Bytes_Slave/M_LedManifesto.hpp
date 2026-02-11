@@ -45,9 +45,6 @@ public:
 
 protected:
 
-	const uint8_t _led_pin;
-    bool _is_led_on = false;	// keep track of the led state, by default it's off
-
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
 	// The Action pair name and description shouldn't be greater than 40 chars
@@ -61,6 +58,9 @@ protected:
 		{"state", "The actual state of the led"}
     };
     
+	const uint8_t _led_pin;
+    bool _is_led_on = false;	// keep track of the led state, by default it's off
+
 public:
     
     const Action* _getActionsArray() const override { return actions; }
