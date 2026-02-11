@@ -43,4 +43,11 @@
         "istream": "cpp",
         "cstddef": "cpp"
     }
+	// // Code Runner Extension:
+    // ,"code-runner.executorMap": {
+    //     "cpp": "cd $dir && cl /EHsc /std:c++17 $fileName && $dir$fileNameWithoutExt.exe"
+    // },
+    // "code-runner.runInTerminal": true,
+    // "code-runner.saveFileBeforeRun": true,
+    // "code-runner.clearPreviousOutput": true
 }
