@@ -7,7 +7,7 @@ int main() {
 
 	for (uint16_t message_timestamp = 105; message_timestamp > 90; --message_timestamp) {
 		const uint16_t remote_delay = _last_message_timestamp - message_timestamp;  // Package received after
-		if (remote_delay >= _max_delay_ms && remote_delay < 0xFFFF / 2) {
+		if (remote_delay < 0xFFFF / 2 && remote_delay >= _max_delay_ms) {
 			
 			std::cout << "Message timestamp: " << message_timestamp << std::endl;
 		}
