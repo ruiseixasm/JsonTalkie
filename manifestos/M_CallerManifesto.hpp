@@ -128,6 +128,7 @@ public:
 
 	void _loop(JsonTalker& talker) override {
 		uint32_t present_time = millis();
+		// 32 bits is 0xFFFFFFFF (4 bytes)
 		if ((int32_t)(present_time - _time_to_call) >= 0) {
 			if (_active_caller) {
 				JsonMessage call_buzzer;
