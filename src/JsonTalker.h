@@ -27,7 +27,7 @@ https://github.com/ruiseixasm/JsonTalkie
  * 
  * @author Rui Seixas Monteiro
  * @date Created: 2026-01-15
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 #ifndef JSON_TALKER_H
