@@ -303,10 +303,8 @@ private:
 		uint8_t single_digit_number = 0;
 		size_t value_position = _get_value_position(key, colon_position);
 		if (value_position) {
-			char single_digit_char = _json_payload[value_position];
-			if (single_digit_char >= '0' && single_digit_char <= '9') {
-				single_digit_number = single_digit_char - '0';
-			}
+			single_digit_number = _json_payload[value_position] - '0';
+			if (single_digit_number > 9) return 0;
 		}
 		return single_digit_number;
 	}
