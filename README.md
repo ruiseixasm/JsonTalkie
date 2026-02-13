@@ -1,6 +1,8 @@
 # JsonTalkie - Walkie-Talkie based Communication for Arduino (JeT: Json et Talkie)
 
-A lightweight library for Arduino (IoT devices) communication and control using JSON messages over network sockets, with Python companion scripts for host computer interaction.
+A lightweight library for Arduino (IoT devices) communication and control, it uses JSON messages over Broadcast sockets that by working as Broadcast
+ensure the fastest possible **common** reception of the targeted devices. This is a peer-to-peer protocol, so, no central brokers are needed. A good alternative
+to the heavy MQTT protocol.
 
 ## Features
 
