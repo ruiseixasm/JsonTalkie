@@ -301,13 +301,13 @@ private:
      * 
      * @note If key exists, the value is replaced. Otherwise, it's added before closing brace.
      */
-	uint8_t _get_value_single_digit_number(char key, size_t colon_position = 4) {
+	uint8_t _get_value_single_digit_number(char key, size_t colon_position = 4) const {
 		uint8_t single_digit_number = 0;
 		size_t value_position = _get_value_position(key, colon_position);
 		if (value_position) {
 			char single_digit_char = _json_payload[value_position];
 			if (single_digit_char >= '0' && single_digit_char <= '9') {
-				single_digit_number = '0' + single_digit_char;
+				single_digit_number = single_digit_char - '0';
 			}
 		}
 		return single_digit_number;
@@ -1450,7 +1450,7 @@ public:
 	bool get_broadcast_value(BroadcastValue* broadcast_value) const {
 		uint32_t json_number;
 		uint32_t self_number = static_cast<uint32_t>( BroadcastValue::TALKIE_BC_SELF );
-		if (_get_value_single_digit_number('b', &json_number) && json_number <= self_number) {
+		if (_get_value_number('b', &json_number) && json_number <= self_number) {
 			*broadcast_value = static_cast<BroadcastValue>(json_number);
 			return true;
 		}
