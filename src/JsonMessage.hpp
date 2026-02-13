@@ -1347,7 +1347,7 @@ public:
      * @return MessageValue enum, or TALKIE_MSG_NOISE if invalid
      */
 	MessageValue get_message_value() const {
-		return static_cast<MessageValue>( _get_value_number('m') );
+		return static_cast<MessageValue>( _get_value_single_digit_number('m') );
 	}
 
 
@@ -1356,7 +1356,7 @@ public:
      * @return MessageValue enum, or TALKIE_MSG_NOISE if invalid
      */
 	MessageValue get_recover_message_value() const {
-		return static_cast<MessageValue>( _get_value_number('M') );
+		return static_cast<MessageValue>( _get_value_single_digit_number('M') );
 	}
 
 
@@ -1436,7 +1436,7 @@ public:
      * @return BroadcastValue enum, or TALKIE_BC_NONE if invalid
      */
 	BroadcastValue get_broadcast_value() const {
-		return static_cast<BroadcastValue>( _get_value_number('b') );
+		return static_cast<BroadcastValue>( _get_value_single_digit_number('b') );
 	}
 
 
@@ -1450,7 +1450,7 @@ public:
 	bool get_broadcast_value(BroadcastValue* broadcast_value) const {
 		uint32_t json_number;
 		uint32_t self_number = static_cast<uint32_t>( BroadcastValue::TALKIE_BC_SELF );
-		if (_get_value_number('b', &json_number) && json_number <= self_number) {
+		if (_get_value_single_digit_number('b', &json_number) && json_number <= self_number) {
 			*broadcast_value = static_cast<BroadcastValue>(json_number);
 			return true;
 		}
@@ -1463,7 +1463,7 @@ public:
      * @return RogerValue enum, or TALKIE_RGR_NIL if invalid
      */
 	RogerValue get_roger_value() const {
-		return static_cast<RogerValue>( _get_value_number('r') );
+		return static_cast<RogerValue>( _get_value_single_digit_number('r') );
 	}
 
 
@@ -1472,7 +1472,7 @@ public:
      * @return SystemValue enum, or TALKIE_SYS_UNDEFINED if invalid
      */
 	SystemValue get_system_value() const {
-		return static_cast<SystemValue>( _get_value_number('s') );
+		return static_cast<SystemValue>( _get_value_single_digit_number('s') );
 	}
 
 
@@ -1481,7 +1481,7 @@ public:
      * @return ErrorValue enum, or TALKIE_ERR_UNDEFINED if invalid
      */
 	ErrorValue get_error_value() const {
-		return static_cast<ErrorValue>( _get_value_number('e') );
+		return static_cast<ErrorValue>( _get_value_single_digit_number('e') );
 	}
 	
 
