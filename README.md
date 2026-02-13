@@ -611,7 +611,7 @@ class M_CallerManifesto : public TalkerManifesto {
 public:
 
 	// The Manifesto class description shouldn't be greater than 42 chars
-	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*10) = 42
+	// {"m":7,"s":1,"b":1,"f":"","t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*10) = 42
     const char* class_description() const override { return "CallerManifesto"; }
 
     M_CallerManifesto() : TalkerManifesto() {
@@ -622,10 +622,6 @@ public:
 
 protected:
 
-	bool _active_caller = false;
-	uint32_t _time_to_call = 0;
-	uint32_t _time_to_live = 0;
-
 	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
 
 	// The Action pair name and description shouldn't be greater than 40 chars
@@ -633,17 +629,23 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action calls[2] = {
+    Action actions[3] = {
 		{"active", "Gets or sets the active status"},
-		{"minutes", "Gets or sets the actual minutes"}
+		{"minutes", "Gets or sets the actual minutes"},
+		{"state", "The actual state of the led"}
     };
     
+	bool _active_caller = false;
+	uint32_t _time_to_call = 0;
+	uint32_t _time_to_live = 0;
+    bool _is_led_on = false;	// keep track of the led state, by default it's off
+
 public:
     
-    const Action* _getActionsArray() const override { return calls; }
+    const Action* _getActionsArray() const override { return actions; }
 
     // Size methods
-    uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+    uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 
 
     // Index-based operations (simplified examples)
@@ -680,7 +682,7 @@ public:
 
 			case 1:
 			{
-				uint32_t present_time = millis();
+				const uint32_t present_time = millis();
 				if (json_message.has_nth_value_number(0)) {
 					uint32_t milliseconds_to_call = json_message.get_nth_value_number(0) % 60;
 					milliseconds_to_call = (60UL - milliseconds_to_call) * 60 * 1000;
@@ -693,14 +695,22 @@ public:
 				}
 			}
 			break;
+			
+            case 2:
+				json_message.set_nth_value_number(0, (uint32_t)_is_led_on);
+                return true;
+            break;
+				
+            default: break;
 		}
 		return false;
 	}
 
 
 	void _loop(JsonTalker& talker) override {
-		uint32_t present_time = millis();
-		if ((int32_t)(present_time - _time_to_call) >= 0) {
+		const uint32_t present_time = millis();
+		// 32 bits is 0xFFFFFFFF (4 bytes, 8 nibbles) (excludes 'negatives')
+		if (present_time - _time_to_call < 0xFFFFFFFF / 2) {
 			if (_active_caller) {
 				JsonMessage call_buzzer;
 				call_buzzer.set_message_value(MessageValue::TALKIE_MSG_CALL);
@@ -712,8 +722,10 @@ public:
 			// The time needs to be updated regardless of the transmission above
 			_time_to_call += 60UL * 60 * 1000;			// Add 60 minutes
 		}
-		if ((int32_t)(present_time - _time_to_live) >= 0) {
+		// 32 bits is 0xFFFFFFFF (4 bytes, 8 nibbles) (excludes 'negatives')
+		if (present_time - _time_to_live < 0xFFFFFFFF / 2) {
 			digitalWrite(LED_BUILTIN, LOW);
+			_is_led_on = false;
 			_time_to_live = _time_to_call + 1UL * 60 * 1000;	// Add 1 minute extra
 		}
 	}
@@ -725,8 +737,11 @@ public:
         (void)message_value;	// Silence unused parameter warning
         (void)talker_match;	// Silence unused parameter warning
 
-		_time_to_live = _time_to_call + 1UL * 60 * 1000;		// Add 1 minute extra
-		digitalWrite(LED_BUILTIN, HIGH);
+		if (json_message.is_from_name("nano")) {
+			_time_to_live = _time_to_call + 1UL * 60 * 1000;		// Add 1 minute extra
+			digitalWrite(LED_BUILTIN, HIGH);
+			_is_led_on = true;
+		}
     }
     
 };

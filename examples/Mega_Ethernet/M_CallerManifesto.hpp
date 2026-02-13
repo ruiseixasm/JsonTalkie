@@ -101,7 +101,7 @@ public:
 
 			case 1:
 			{
-				uint32_t present_time = millis();
+				const uint32_t present_time = millis();
 				if (json_message.has_nth_value_number(0)) {
 					uint32_t milliseconds_to_call = json_message.get_nth_value_number(0) % 60;
 					milliseconds_to_call = (60UL - milliseconds_to_call) * 60 * 1000;
@@ -127,7 +127,7 @@ public:
 
 
 	void _loop(JsonTalker& talker) override {
-		uint32_t present_time = millis();
+		const uint32_t present_time = millis();
 		if ((int32_t)(present_time - _time_to_call) >= 0) {
 			if (_active_caller) {
 				JsonMessage call_buzzer;
