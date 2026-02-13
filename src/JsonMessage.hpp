@@ -298,8 +298,6 @@ private:
      * @param key Key to get
      * @param colon_position Optional hint for colon position
      * @return By being a single digit number, returns an `uint8_t` number type
-     * 
-     * @note If key exists, the value is replaced. Otherwise, it's added before closing brace.
      */
 	uint8_t _get_value_single_digit_number(char key, size_t colon_position = 4) const {
 		uint8_t single_digit_number = 0;
