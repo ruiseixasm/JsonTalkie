@@ -31,7 +31,7 @@ https://github.com/ruiseixasm/JsonTalkie
  * 
  * @author Rui Seixas Monteiro
  * @date Created: 2026-01-15
- * @version 2.0.0
+ * @version 2.0.1
  */
 
 #ifndef JSON_MESSAGE_HPP
@@ -290,6 +290,27 @@ private:
 			}
 		}
 		return false;
+	}
+
+
+    /**
+     * @brief Get numeric value for a single digit field value
+     * @param key Key to get
+     * @param colon_position Optional hint for colon position
+     * @return By being a single digit number, returns an `uint8_t` number type
+     * 
+     * @note If key exists, the value is replaced. Otherwise, it's added before closing brace.
+     */
+	uint8_t _get_value_single_digit_number(char key, size_t colon_position = 4) {
+		uint8_t single_digit_number = 0;
+		size_t value_position = _get_value_position(key, colon_position);
+		if (value_position) {
+			char single_digit_char = _json_payload[value_position];
+			if (single_digit_char >= '0' && single_digit_char <= '9') {
+				single_digit_number = '0' + single_digit_char;
+			}
+		}
+		return single_digit_number;
 	}
 
 
