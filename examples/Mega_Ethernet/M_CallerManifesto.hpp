@@ -128,7 +128,8 @@ public:
 
 	void _loop(JsonTalker& talker) override {
 		const uint32_t present_time = millis();
-		if ((int32_t)(present_time - _time_to_call) >= 0) {
+		// 32 bits is 0xFFFFFFFF (4 bytes, 8 nibbles) (excludes 'negatives')
+		if (present_time - _time_to_call < 0xFFFFFFFF / 2) {
 			if (_active_caller) {
 				JsonMessage call_buzzer;
 				call_buzzer.set_message_value(MessageValue::TALKIE_MSG_CALL);
@@ -140,7 +141,8 @@ public:
 			// The time needs to be updated regardless of the transmission above
 			_time_to_call += 60UL * 60 * 1000;			// Add 60 minutes
 		}
-		if ((int32_t)(present_time - _time_to_live) >= 0) {
+		// 32 bits is 0xFFFFFFFF (4 bytes, 8 nibbles) (excludes 'negatives')
+		if (present_time - _time_to_live < 0xFFFFFFFF / 2) {
 			digitalWrite(LED_BUILTIN, LOW);
 			_is_led_on = false;
 			_time_to_live = _time_to_call + 1UL * 60 * 1000;	// Add 1 minute extra
