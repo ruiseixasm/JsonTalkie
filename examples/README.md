@@ -24,7 +24,7 @@ This is an Example where the WiFi is used as the Socket interface to the Talker.
 ```
 As you can see above, by always making sure the name is used, no drops occurred, on the other hand, by using a broadcast message, like in the case of a channel, those drops may start to happen, due to the WiFi Broadcast limitations.
 
-in any case, the ping is clearly higher, given the low priority of broadcasted message over WiFi.
+In any case, the ping is clearly higher, given the low priority of broadcasted message over WiFi.
 ```
 >>> channel esp
     [channel esp]              255
