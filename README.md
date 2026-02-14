@@ -263,6 +263,10 @@ This messages are exclusive to the system.
 - **delay** - Gets or sets the maximum delay acceptable to a `call` message before being dropped, guarantees sequence of arrival
 - **errors** - List per socket `index` the amount of errors by this order, `lost`, `recoveries`, `drops` and `fails`, where `recoveries` concern messages
 that were initially lost and then recovered (not `lost`).
+  - *lost* - Corrupted messages that weren't recovered
+  - *recoveries* - Corrupted messages that were recovered
+  - *drops* - Messages that arrived out of order with a delay equal or greater than the maximum set delay
+  - *fails* - Messages that failed to be sent
 
 ### Repeater Rules
 The `MessageRepeater` routes the messages accordingly to its source and message value, the source
