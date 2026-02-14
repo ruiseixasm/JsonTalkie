@@ -8,6 +8,7 @@ to the heavy MQTT protocol.
 
 - Bi-directional Walkie-Talkie based communication between Arduino devices and/or Python [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy).
 - Simple command/response pattern with "Walkie-talkie" style interaction.
+- Broadcasted able communications for immediate common reception from multiple devices at once and in sync.
 - Talker configuration with a Manifesto for self-describing capabilities.
 - Automatic command discovery and documentation.
 - Support for multiple devices on the same network.
@@ -30,7 +31,8 @@ The following points highlight the key architectural and practical differences b
 - On the other hand, JsonTalkie is mainly aimed to speed and low latency, so, the transmission is limitedly guaranteed and very
 dependent on the robustness of the `BroadcastSocket` implementation.
 - MQTT is safer because it implements encryption out of the box, however, JsonTalkie can have the same level of security via `BroadcastSocket` implementation or a VPN.
-- JsonTalkie requires that the Socket being used is able to send in broadcast or emulates the broadcast to all Devices, while the MQTT centers the communication in a Broker.
+- JsonTalkie requires that the Socket being used is able to send in broadcast or emulates the broadcast to all Devices, minimal latency, while the MQTT centers the communication in a Broker
+resulting in communications with higher latency.
 
 ## Installation
 
@@ -52,24 +54,24 @@ To use it you only have to create a **Manifesto** and include it in a Sketch. Yo
 [sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets), and place the respective socket file side-by-side with your sketch, like so:
 ```cpp
 #include <JsonTalkie.hpp>
+#include "S_Broadcast_SPI_Arduino_Slave.h"
 #include "M_BuzzerManifesto.hpp"
-#include "S_Basic_SPI_Arduino_Slave.h"
 ```
 You may include more than one Manifesto or Socket, like so:
 ```cpp
 #include <JsonTalkie.hpp>
 #include "S_BroadcastESP_WiFi.hpp"
-#include "S_Basic_SPI_ESP_Arduino_Master.hpp"
-#include "M_Spy.hpp"
+#include "S_Broadcast_SPI_2xArduino_Master.hpp"
+#include "M_Esp66Manifesto.hpp"
 #include "M_LedManifesto.hpp"
 #include "M_MessageTester.hpp"
-#include "M_Esp66Manifesto.hpp"
+#include "M_Spy.hpp"
 ```
 You may find Manifesto examples in the [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) folder too.
 ### Create the Talkers and initiate the Repeater
 After the includes above you have to create the needed list of instantiations and pass them as pointer to the Repeater, like so:
 ```cpp
-// TALKERS
+// TALKERS 
 // M_Spy Talker
 const char t_spy_name[] = "spy";
 const char t_spy_desc[] = "I'm a M_Spy and I spy the talkers' pings";
@@ -102,8 +104,8 @@ auto& ethernet_socket = S_EthernetENC_Broadcast::instance();
  *   [3rd Slave Arduino MISO] ----[500Ω]----┘
  *
  */
-const int spi_pins[] = {4, 16};
-auto& spi_socket = S_Basic_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
+const int spi_pins[] = {4, 16};	// To which each Arduino CS pin is connected on the ESP32
+auto& spi_socket = S_Broadcast_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 
 
 // SETTING THE REPEATER
