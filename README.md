@@ -265,7 +265,7 @@ This messages are exclusive to the system.
 that were initially lost and then recovered (not `lost`).
   - *lost* - Corrupted messages that weren't recovered
   - *recoveries* - Corrupted messages that were recovered
-  - *drops* - Messages that arrived out of order with a delay equal or greater than the maximum set delay
+  - *drops* - Messages that arrived out of order with a delay equal or greater than the maximum set one
   - *fails* - Messages that failed to be sent
 
 ### Repeater Rules
