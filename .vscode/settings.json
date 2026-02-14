@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+		"Arduinos",
 		"baudrate",
 		"DGRAM",
 		"Echoable",
@@ -12,6 +13,7 @@
 		"Seixas",
 		"simpleaudio",
 		"soundaudio",
+		"VSPI",
 		"Walkie"
 	],
     "files.associations": {
