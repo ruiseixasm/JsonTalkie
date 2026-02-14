@@ -255,15 +255,13 @@ Local messages aren't send to uplinked Sockets, except if they are up bridged.
 
 ### System Value
 This messages are exclusive to the system.
-- **manifesto** - Show the Manifesto class name
+- **manifesto** - Show the Manifesto class name and the Talker linked mode, `1` for Uplinked and `2` for Downlinked.
 - **board** - Board/system information request
-- **sockets** - List Socket class names
-- **mute** - Returns or sets the mute mode to the `call` messages
-- **delay** - Maximum delay acceptable to a `call` message before being dropped
-- **lost** - Packets received that had a bad checksum, corrupted messages not recovered
-- **recoveries** - Packets received that had a bad checksum, but where recovered, not count as lost
-- **drops** - Packets received that are `call` messages and arrived later than the configured maximum delay
-- **fails** - Packets which Socket failed to send
+- **sockets** - List all Sockets, their index, respective description and a decimal number representing link mode and bridge configuration
+(Ex. 11 means uplinked and bridged)
+- **mute** - Gets or sets the mute mode to the `echo` messages with 0, 1 or 2 as `none`, `calls` or `all` respectively, relative to what is to be muted
+- **delay** - Gets or sets the maximum delay acceptable to a `call` message before being dropped, guarantees sequence of arrival
+- **errors** - List per socket index the amount of errors by this order, lost, recoveries, drops and fails
 
 ### Repeater Rules
 The `MessageRepeater` routes the messages accordingly to its source and message value, the source
