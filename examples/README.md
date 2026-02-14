@@ -49,7 +49,30 @@ Then, and only then, you can safely enable the SS pins for each Arduino, like so
 const int spi_pins[] = {4, 16};	// To which each Arduino CS pin is connected on the ESP32
 auto& spi_socket = S_Broadcast_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 ```
-
+The existing `spy` Talker in this sketch lets you ping the existing local Talkers from the ESP32 board itself:
+```
+>>> list spy
+    [call spy 0|ping]          Ping talkers by name or channel
+    [call spy 1|ping_self]     I can even ping myself
+    [call spy 2|call]          Able to do [<talker> <action>]
+>>> call spy ping
+    [call spy ping]            roger           0       test
+    [call spy ping]            roger           1       blue
+    [call spy ping]            roger           6       green
+    [call spy ping]            roger           9       buzzer
+    [call spy ping]            roger           12      yellow
+>>> system blue board
+    [system blue board]        ESP32 (Rev 100) (ID 00002C034DBF8473)
+>>> system green board
+    [system green board]       Arduino Uno/Nano (ATmega328P)
+>>> system blue sockets
+    [system blue sockets]      0       EthernetENC_Broadcast           10
+    [system blue sockets]      1       Broadcast_SPI_ESP_Arduino_Master        20
+>>> system green sockets
+    [system green sockets]     0       Broadcast_SPI_Arduino_Slave     11
+>>>
+```
+The last numbers in front of each socket, means the link type, *up* or *down*, and the *bridged* condition (Ex. 11 means uplinked and bridged).
 ## Mega_Ethernet
 ...
 
