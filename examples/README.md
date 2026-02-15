@@ -3,6 +3,8 @@
 Here is the description and purpose of the Examples above, where given [Sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/spckets)
 and [Manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) are used.
 
+The command line bellow is from the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program.
+
 ## ESP_WiFi
 This is an Example where the WiFi is used as the Socket interface to the Talker. By being an WiFi Socket it has limitations concerning the Broadcast usage, because WiFi has a limit of Broadcasted packages, this means that if oyu send too many Broadcasted commands they will start to drop. In order to send NON Broadcasted commands make sure you add the name of the Talker in each command, like so:
 ```
@@ -74,19 +76,28 @@ The existing `spy` Talker in this sketch lets you ping the existing local Talker
 ```
 The last numbers in front of each socket, means the link type, *up* or *down*, and the *bridged* condition (Ex. 11 means uplinked and bridged).
 ## Mega_Ethernet
-...
+This is a simple sketch that implements the Ethernet Socket concerning the W5500 or W5100 shield.
+It's targeted to the board Arduino Mega because it requires more memory than other type of Sockets.
 
 ## Mega_EthernetENC
-...
+Also an Ethernet Socket, that is targeted to the ENC28J60 shield instead. It requires more
+memory than other Sockets, so, it should be used in high memory boards like the Arduino Mega.
 
 ## Nano_EtherCard
-...
+A low memory Ethernet Socket that is also targeted to the ENC28J60 shield, but by requiring
+less memory, it can be used by the Arduino Uno or Nano. This one isn't able to communicate in
+Unicast mode thought, so, it sends messages always in broadcast mode, meaning, it shouldn't
+be used by WiFi connected devices given that WiFi may drop this types of packages.
 
 ## Nano_Serial
-...
+Exemplifies a very simple type of Socket, the Serial communication one, so it requires very little to start working, on the other hand, it only works with a single slave, so, not a
+truly broadcast socket.
 
 ## Nano_Serial_Broadcast_SPI_Master
-...
+Besides implementing a Serial Socket, it also works as a SPI Master, this way it is possible to
+use command the SPI Master device via Serial in order to communicate with its multiple SPI Master devices, transforming a non broadcasting Socket, the Serial one, into a broadcast
+communication the SPI one.
+
 
 ## NanoBuzzer_Broadcast_SPI_Slave
 ...
