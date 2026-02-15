@@ -151,6 +151,8 @@ public:
         return instance;
     }
 
+    void set_port(uint16_t port) { _port = port; }
+	
 };
 
 

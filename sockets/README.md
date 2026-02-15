@@ -101,7 +101,17 @@ public:
 
 #endif // SOCKET_SERIAL_HPP
 ```
+
 ## Ethernet
+The Ethernet Broadcast Socket uses the UDP protocol and the port 5005 by default, however, you can always set a different UDP port
+if you wish to separate multiple Talkers from each other by aggregating them by UDP port.
+
+You can set a specific UDP port like so:
+```cpp
+
+
+```
+
 ### S_BroadcastSocket_EtherCard
 #### Description
 Lightweight socket intended to be used with low memory boards like the Uno and the Nano, for the ethernet module `ENC28J60`.
@@ -188,6 +198,7 @@ it can be used via Wi-Fi too without the latency referred above, 6 instead of 10
 ```
 #### Dependencies
 This Socket depends on the [Ethernet library](https://github.com/arduino-libraries/Ethernet), so, you need to install it with the Arduino IDE.
+
 ## WiFi
 ### S_BroadcastESP_WiFi
 #### Description
@@ -207,6 +218,7 @@ used to get the Talker address and only then the messages are sent in unicast mo
 the `talk blue` command resulted in the association of the IP address with the Talker's name enabling the unicast `ping blue` command.
 #### Dependencies
 By installing the ESP8266 or ESP32 boards, you already get the WiFi library available.
+
 ## SPI
 SPI is among the most difficult protocols to implement, mainly in the Slave side. This happens because the SPI Arduino Slave is software based and the interrupts
 are done per byte and also they take their time, around, 12us. So, a message of 90 bytes long will take around 1 millisecond to be transmitted, this means that,
@@ -234,6 +246,7 @@ This uses the already installed SPI Arduino library.
 This Socket is targeted to Arduino boards intended to be used as SPI Slaves.
 #### Dependencies
 This uses the already installed SPI Arduino library.
+
 ## Serial
 ### S_SocketSerial
 #### Description

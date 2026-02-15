@@ -109,6 +109,8 @@ void setup() {
     // Makes sure it allows broadcast
     ether.enableBroadcast();
 
+	ethernet_socket.set_port(5005);	// Able to set a specific udp port
+
     Serial.println(F("Socket ready"));
 
     pinMode(buzzer_pin, OUTPUT);
