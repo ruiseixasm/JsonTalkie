@@ -123,12 +123,12 @@ This library has the limitation of not being able to send *unicast* messages, al
 way to avoid it is to mute the Talker and in that way the `call` commands on it don't overload the network.
 ```
 >>> list nano
-        [call nano 0|buzz]         Buzz for a while
-        [call nano 1|ms]           Gets and sets the buzzing duration
+    [call nano 0|buzz]         Buzz for a while
+    [call nano 1|ms]           Gets and sets the buzzing duration
 >>> call nano 0
-        [call nano 0]              roger
+    [call nano 0]              roger
 >>> system nano mute 1
-        [system nano mute]         1
+    [system nano mute]         1
 >>> call nano 0
 >>>
 ```
