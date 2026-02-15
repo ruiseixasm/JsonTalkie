@@ -98,12 +98,13 @@ Besides implementing a Serial Socket, it also works as a SPI Master, this way it
 use command the SPI Master device via Serial in order to communicate with its multiple SPI Master devices, transforming a non broadcasting Socket, the Serial one, into a broadcast
 communication the SPI one.
 
-
 ## NanoBuzzer_Broadcast_SPI_Slave
-...
+A Sketch concerning the Arduino SPI Slave intended to be used together with a Sketch that implements the SPI Master socket like the `Broadcast_SPI_ESP_Arduino_Master` or
+`ArduinoTestPair_Broadcast_SPI_2xArduino_Master`. This sketch controls a Buzzer on pin 2.
 
 ## NanoGreen_Broadcast_SPI_Slave
-...
+A Sketch concerning the Arduino SPI Slave intended to be used together with a Sketch that implements the SPI Master socket like the `Broadcast_SPI_ESP_Arduino_Master` or
+`ArduinoTestPair_Broadcast_SPI_2xArduino_Master`. This sketch controls a Green led on pin 2 and an Yellow led on pin 19.
 
 ## Testing
 These sketches are examples of Socket implementation testing that you can adapt to use for your own Socket implementations.
@@ -162,6 +163,3 @@ This Sketch concerns the testing of each ESP32 SPI Slave controlled by the SPI M
 ### ESP32TestPair_Broadcast_SPI_ESP_Arduino_Master
 This Sketch is homologous to the `ArduinoTestPair_Broadcast_SPI_2xArduino_Master` one, the only difference is that
 it's intended to be uploaded to an ESP32 instead of an Arduino with all the rest being equal.
-
-
-
