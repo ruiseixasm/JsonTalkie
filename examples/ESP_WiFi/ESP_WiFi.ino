@@ -69,11 +69,11 @@ JsonTalker t_esp = JsonTalker(t_esp_name, t_esp_desc, &caller_esp);
 // SOCKETS
 
 // Singleton requires the & (to get a reference variable)
-auto& ethernet_socket = S_BroadcastESP_WiFi::instance();
+auto& wifi_socket = S_BroadcastESP_WiFi::instance();
 
 
 // SETTING THE REPEATER
-BroadcastSocket* uplinked_sockets[] = { &ethernet_socket };
+BroadcastSocket* uplinked_sockets[] = { &wifi_socket };
 JsonTalker* downlinked_talkers[] = { &t_spy, &t_tester, &l_blue, &t_esp };
 const MessageRepeater message_repeater(
 		uplinked_sockets, sizeof(uplinked_sockets)/sizeof(BroadcastSocket*),
@@ -134,8 +134,8 @@ void setup() {
 
     // STEP 5: Setting up broadcast sockets
     Serial.println("Step 4: Setting up broadcast sockets...");
-    ethernet_socket.set_port(PORT);
-    ethernet_socket.set_udp(&udp);
+    wifi_socket.set_port(PORT);
+    wifi_socket.set_udp(&udp);
 
     // Final startup indication
     digitalWrite(LED_BUILTIN, HIGH);

@@ -108,8 +108,12 @@ if you wish to separate multiple Talkers from each other by aggregating them by 
 
 You can set a specific UDP port like so:
 ```cpp
+	ethernet_socket.set_port(5005);	// Able to set a specific udp port
+```
 
-
+Then you can just start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
+```
+python talk.py --socket UDP --port 5005
 ```
 
 ### S_BroadcastSocket_EtherCard
@@ -200,6 +204,19 @@ it can be used via Wi-Fi too without the latency referred above, 6 instead of 10
 This Socket depends on the [Ethernet library](https://github.com/arduino-libraries/Ethernet), so, you need to install it with the Arduino IDE.
 
 ## WiFi
+The WiFi Broadcast Socket uses the UDP protocol and the port 5005 by default, however, you can always set a different UDP port
+if you wish to separate multiple Talkers from each other by aggregating them by UDP port.
+
+You can set a specific UDP port like so:
+```cpp
+	wifi_socket.set_port(5005);	// Able to set a specific udp port
+```
+
+Then you can just start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
+```
+python talk.py --socket UDP --port 5005
+```
+
 ### S_BroadcastESP_WiFi
 #### Description
 This socket is intended to be used with the boards ESP8266 or ESP32 that come with WiFi out of the box.
