@@ -106,22 +106,62 @@ communication the SPI one.
 ...
 
 ## Testing
-...
+These sketches are examples of Socket implementation testing that you can adapt to use for your own Socket implementations.
+
+Because these sketches are do SPI Broadcasting, the hardware shall have the MISO 500 Ohms resistor on each SPI Slave board pin, like so:
+```
+     [1st Slave MISO] ----[500Ω]----┐
+     [2nd Slave MISO] ----[500Ω]----┼---- [Master MISO]
+     [3rd Slave MISO] ----[500Ω]----┘
+```
+
+All of the SPI Master examples bellow, also implement the Serial Socket, so that you can send commands to both, the SPI Master and the SPI Slave.
+
+To connect the Board via Serial you start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
+```
+python talk.py --socket SERIAL --port COM4
+```
+
+Here is an example of the tests done on one of the SPI Sockets implementation via Serial.
+```
+>>> talk
+    [talk master]              I'm the SPI Master
+    [talk slave]               I'm the SPI Slave
+>>> list master
+    [call master 0|period]     Sets cycle period milliseconds
+    [call master 1|enabled]    Checks, enable or disable cycles
+    [call master 2|calls]      Gets total calls and their echoes
+    [call master 3|burst]      Tests slave, many messages at once
+    [call master 4|spacing]    Burst spacing in microseconds
+    [call master 5|ping]       Ping talkers by name or channel
+>>> call master ping
+    [call master ping]         roger           2       slave
+>>> call master calls
+    [call master calls]        roger           669     669
+>>> call master burst
+    [call master burst]        roger           20      OK
+>>> call master calls
+    [call master calls]        roger           968     968
+>>>
+```
+As you can see, the calls have the two values matching, meaning all calls are being successfully replied, and also, the burst testing passes,
+meaning that all successive broadcasted messages are being received by the SPI Slave.
 
 ### ArduinoTestPair_Broadcast_SPI_2xArduino_Master
-...
+This Sketch concerns the testing of an Arduino SPI Master that is intended to control many Arduino SPI Slaves.
 
 ### ArduinoTestPair_Broadcast_SPI_Arduino_Slave
-...
+This Sketch concerns the testing of each Arduino SPI Slave controlled by the SPI Master referred above.
 
 ### ESP32TestPair_Broadcast_SPI_2xESP_128Bytes_Master
-...
+This Sketch concerns the testing of an ESP32 SPI Master that is intended to control many ESP32 SPI Slaves.
 
 ### ESP32TestPair_Broadcast_SPI_2xESP_128Bytes_Slave
-...
+This Sketch concerns the testing of each ESP32 SPI Slave controlled by the SPI Master referred above.
 
 ### ESP32TestPair_Broadcast_SPI_ESP_Arduino_Master
-...
+This Sketch is homologous to the `ArduinoTestPair_Broadcast_SPI_2xArduino_Master` one, the only difference is that
+it's intended to be uploaded to an ESP32 instead of an Arduino with all the rest being equal.
 
 
 
