@@ -265,6 +265,10 @@ This Socket is targeted to Arduino boards intended to be used as SPI Slaves.
 This uses the already installed SPI Arduino library.
 
 ## Serial
+You can just start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
+```
+python talk.py --socket SERIAL --port COM4
+```
 ### S_SocketSerial
 #### Description
 This is the simplest Socket of all, and it's not a Broadcast Socket at all, given that the Serial protocol is one-to-one, so, it's main purpose is just that, for one board to communicate with other, ideal for local communication in the same platform.
