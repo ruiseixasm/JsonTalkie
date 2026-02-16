@@ -103,7 +103,7 @@ public:
 ```
 
 ## Ethernet
-The Ethernet Broadcast Socket uses the UDP protocol and the port 5005 by default, however, you can always set a different UDP port
+The Ethernet Broadcast Socket uses the UDP protocol and the port `5005` by default, however, you can always set a different UDP port
 if you wish to separate multiple Talkers from each other by aggregating them by UDP port.
 
 You can set a specific UDP port like so:
@@ -121,7 +121,7 @@ python talk.py
 ```
 
 ### S_BroadcastSocket_EtherCard
-For this particular Socket a different port than `5005`, the default, has to be set in the constructor, like so:
+For this particular Socket a different port than `5005`, the default one, has to be set in the constructor, like so:
 ```cpp
 auto& ethernet_socket = S_BroadcastSocket_EtherCard::instance(5001);
 ```
@@ -212,7 +212,7 @@ it can be used via Wi-Fi too without the latency referred above, 6 instead of 10
 This Socket depends on the [Ethernet library](https://github.com/arduino-libraries/Ethernet), so, you need to install it with the Arduino IDE.
 
 ## WiFi
-The WiFi Broadcast Socket uses the UDP protocol and the port 5005 by default, however, you can always set a different UDP port
+The WiFi Broadcast Socket uses the UDP protocol and the port `5005` by default, however, you can always set a different UDP port
 if you wish to separate multiple Talkers from each other by aggregating them by UDP port.
 
 You can set a specific UDP port like so:
