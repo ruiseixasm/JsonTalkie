@@ -121,6 +121,10 @@ python talk.py
 ```
 
 ### S_BroadcastSocket_EtherCard
+For this particular Socket a different port than `5005`, the default, has to be set in the constructor, like so:
+```cpp
+auto& ethernet_socket = S_BroadcastSocket_EtherCard::instance(5001);
+```
 #### Description
 Lightweight socket intended to be used with low memory boards like the Uno and the Nano, for the ethernet module `ENC28J60`.
 This library has the limitation of not being able to send *unicast* messages, all its responses are in *broadcast* mode, so, one
