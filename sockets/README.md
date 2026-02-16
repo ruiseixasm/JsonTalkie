@@ -258,7 +258,7 @@ at the same time on their MISO pin, so, if those pins are directly connected, th
 	[2nd Slave MISO] ----[500Ω]----┼---- [Master MISO]
 	[3rd Slave MISO] ----[500Ω]----┘
 ```
-
+The communication is thus done in *half-duplex*, where the SPI Master doesn't read any message while sending and *vice versa*.
 ### ESP32 Master
 #### S_Basic_SPI_ESP_Arduino_Master
 #### Description
