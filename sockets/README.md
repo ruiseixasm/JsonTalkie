@@ -108,12 +108,16 @@ if you wish to separate multiple Talkers from each other by aggregating them by 
 
 You can set a specific UDP port like so:
 ```cpp
-	ethernet_socket.set_port(5005);	// Able to set a specific udp port
+	ethernet_socket.set_port(5001);	// Able to set a specific udp port
 ```
 
 Then you can just start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
 ```
-python talk.py --socket UDP --port 5005
+python talk.py --socket UDP --port 5001
+```
+Otherwise just type:
+```
+python talk.py
 ```
 
 ### S_BroadcastSocket_EtherCard
@@ -209,12 +213,16 @@ if you wish to separate multiple Talkers from each other by aggregating them by 
 
 You can set a specific UDP port like so:
 ```cpp
-	wifi_socket.set_port(5005);	// Able to set a specific udp port
+	wifi_socket.set_port(5001);	// Able to set a specific udp port
 ```
 
 Then you can just start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
 ```
-python talk.py --socket UDP --port 5005
+python talk.py --socket UDP --port 5001
+```
+Otherwise just type:
+```
+python talk.py
 ```
 
 ### S_BroadcastESP_WiFi
