@@ -249,9 +249,16 @@ the `talk blue` command resulted in the association of the IP address with the T
 By installing the ESP8266 or ESP32 boards, you already get the WiFi library available.
 
 ## SPI
-SPI is among the most difficult protocols to implement, mainly in the Slave side. This happens because the SPI Arduino Slave is software based and the interrupts
-are done per byte and also they take their time, around, 12us. So, a message of 90 bytes long will take around 1 millisecond to be transmitted, this means that,
-it is best to target the talkers by name (unicast) than by channel (broadcast) to avoid repeating a single message among multiple Slave sockets.
+The Sockets bellow are intended to work in Broadcast mode, meaning, while the SPI Master is sending a message on its MOSI pin, all SPI Slaves are **simultaneously**
+receiving that same message, this happens because the SPI Master switches its `SS` pin to low on *all* SPI Slave devices. This will result in *all* SPI Slaves responding
+at the same time on their MISO pin, so, if those pins are directly connected, this will damage the SPI Slaves' MISO pin, to avoid it, you have to add a resistor of
+**around 500 Ohms** to each SPI Slave MISO pin, like so:
+```
+	[1st Slave MISO] ----[500Ω]----┐
+	[2nd Slave MISO] ----[500Ω]----┼---- [Master MISO]
+	[3rd Slave MISO] ----[500Ω]----┘
+```
+
 ### ESP32 Master
 #### S_Basic_SPI_ESP_Arduino_Master
 #### Description
