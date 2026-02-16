@@ -33,7 +33,7 @@ public:
 private:
 
 	static JsonMessage _json_message;
-    uint16_t _port = 5005;
+    const uint16_t _port;
     static size_t _data_length;
 	
 	#ifdef ENABLE_DIRECT_ADDRESSING
@@ -79,10 +79,11 @@ private:
 
 
 protected:
+
     // Constructor
-    S_BroadcastSocket_EtherCard() : BroadcastSocket() {
+    S_BroadcastSocket_EtherCard(uint16_t port) : BroadcastSocket(), _port(port) {
 		
-		ether.udpServerListenOnPort(staticCallback, _port);
+		ether.udpServerListenOnPort(staticCallback, port);
 	}
 
 
@@ -146,12 +147,10 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_BroadcastSocket_EtherCard& instance() {
-        static S_BroadcastSocket_EtherCard instance;
+    static S_BroadcastSocket_EtherCard& instance(uint16_t port = 5005) {
+        static S_BroadcastSocket_EtherCard instance(port);
         return instance;
     }
-
-    void set_port(uint16_t port) { _port = port; }
 	
 };
 
