@@ -262,43 +262,33 @@ at the same time on their MISO pin, so, if those pins are directly connected, th
 The communication is thus done in *half-duplex*, where the SPI Master doesn't read any message while sending and *vice versa*. This reflects the nature of the protocol in
 prioritizing the Broadcast type of messages over the Reply ones.
 #### S_Broadcast_SPI_2xArduino_Master
+This Socket is intended to be used in an Arduino board that will work as a SPI Master. By being a Broadcast socket it can connect multiple Arduino Boards as SPI Slaves right away.
 
 #### S_Broadcast_SPI_Arduino_Slave
-
+This Socket is intended to be used in an Arduino board as a SPI Slave.
 
 #### S_Broadcast_SPI_ESP_Arduino_Master
-
+This Socket is intended to be used in an ESP32 board that will work as a SPI Master. The targeted SPI Slaves must be Arduino boards.
 
 #### S_Broadcast_SPI_2xESP_128Bytes_Master
-
+This Socket is intended to be used in an ESP32 board that will work as a SPI Master. The targeted SPI Slaves must also be ESP32 boards.
 
 #### S_Broadcast_SPI_2xESP_128Bytes_Slave
+This Socket is intended to be used in an ESP32 board as a SPI Slave.
 
 
 ### Basic
 The Basic version of the SPI Socket is the one that doesn't work in Broadcast mode, so, in a more traditional way, it sends messages to each SPI Slave one by one, meaning that,
-when yoy have multiple devices as SPI Slaves, the latency starts to add up, this happens because a single message has to be sent to each SPI Slave Device. On the other hand,
-no protection resistor on the MISO pins needs to be used, so, use these Basic sockets if you absolutely can't add the referred 500 Ohms resistor.
-#### S_Basic_SPI_ESP_Arduino_Master
-##### Description
-This Socket allows the communication centered in a single ESP32 master board to many Arduino slave boards.
-##### Dependencies
-This uses the already installed SPI Arduino library.
+when you have multiple devices as SPI Slaves, the latency starts to add up, this happens because a single message has to be sent to each SPI Slave Device individually.
+On the other hand, no protection resistor on the MISO pins needs to be used, so, use these Basic sockets if you absolutely can't add the referred 500 Ohms resistor.
 #### S_Basic_SPI_2xArduino_Master_Multiple
-##### Description
-This Socket allows the communication centered in a single Arduino master board to many Arduino slave boards.
-##### Dependencies
-This uses the already installed SPI Arduino library.
+This Socket allows the communication centered in a single Arduino master board to many Arduino slave boards. This uses the already installed SPI Arduino library.
 #### S_Basic_SPI_2xArduino_Master
-##### Description
-This Socket allows the communication centered in a single Arduino master board to another single Arduino slave board.
-##### Dependencies
-This uses the already installed SPI Arduino library.
+This Socket allows the communication centered in a single Arduino master board to another single Arduino slave board. This uses the already installed SPI Arduino library.
 #### S_Basic_SPI_Arduino_Slave
-##### Description
-This Socket is targeted to Arduino boards intended to be used as SPI Slaves.
-##### Dependencies
-This uses the already installed SPI Arduino library.
+This Socket is targeted to Arduino boards intended to be used as SPI Slaves. This uses the already installed SPI Arduino library.
+#### S_Basic_SPI_ESP_Arduino_Master
+This Socket allows the communication centered in a single ESP32 master board to many Arduino slave boards. This uses the already installed SPI Arduino library.
 
 
 ## Serial
