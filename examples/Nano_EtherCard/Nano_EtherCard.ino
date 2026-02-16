@@ -75,8 +75,8 @@ const char uno_name[] = "uno";
 const char uno_desc[] = "Arduino Uno";
 JsonTalker uno = JsonTalker(uno_name, uno_desc);
 JsonTalker* downlinked_talkers[] = { &nano, &uno };    // Only an array of pointers preserves polymorphism!!
-// Port 5005 explicitly set despite the default being 5005
-auto& ethernet_socket = S_BroadcastSocket_EtherCard::instance(5005);
+// Singleton requires the & (to get a reference variable)
+auto& ethernet_socket = S_BroadcastSocket_EtherCard::instance();
 BroadcastSocket* uplinked_sockets[] = { &ethernet_socket };	// list of pointers
 
 const MessageRepeater message_repeater(
