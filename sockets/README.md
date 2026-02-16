@@ -15,7 +15,7 @@ You can always implement your own socket, by extending the `BroadcastSocket` cla
 The methods above should follow these basic rules:
 - In the `_receive` method you must create a `JsonMessage` and write on it or deserialize on it the data received, on that `new_message` you shall always call the methods `_validate_json` and `_validate_checksum`. After that, it should be called the method `_startTransmission` to process the received data. See example bellow for details;
 - In the `_send` method you must read from the `json_message` buffer with the help of the methods `_read_buffer` and `get_length`.
-### Example
+## Example
 Here is an example of such implementation for the Serial protocol:
 ```cpp
 #ifndef SOCKET_SERIAL_HPP
@@ -249,7 +249,8 @@ the `talk blue` command resulted in the association of the IP address with the T
 By installing the ESP8266 or ESP32 boards, you already get the WiFi library available.
 
 ## SPI
-The Sockets bellow are intended to work in Broadcast mode, meaning, while the SPI Master is sending a message on its MOSI pin, all SPI Slaves are **simultaneously**
+### Broadcast
+These Sockets are intended to work in Broadcast mode, meaning, while the SPI Master is sending a message on its MOSI pin, all SPI Slaves are **simultaneously**
 receiving that same message, this happens because the SPI Master switches its `SS` pin to low on *all* SPI Slave devices. This will result in *all* SPI Slaves responding
 at the same time on their MISO pin, so, if those pins are directly connected, this will damage the SPI Slaves' MISO pin, to avoid it, you have to add a resistor of
 **around 500 Ohms** to each SPI Slave MISO pin, like so:
@@ -260,29 +261,45 @@ at the same time on their MISO pin, so, if those pins are directly connected, th
 ```
 The communication is thus done in *half-duplex*, where the SPI Master doesn't read any message while sending and *vice versa*. This reflects the nature of the protocol in
 prioritizing the Broadcast type of messages over the Reply ones.
-### ESP32 Master
+#### S_Broadcast_SPI_2xArduino_Master
+
+#### S_Broadcast_SPI_Arduino_Slave
+
+
+#### S_Broadcast_SPI_ESP_Arduino_Master
+
+
+#### S_Broadcast_SPI_2xESP_128Bytes_Master
+
+
+#### S_Broadcast_SPI_2xESP_128Bytes_Slave
+
+
+### Basic
+The Basic version of the SPI Socket is the one that doesn't work in Broadcast mode, so, in a more traditional way, it sends messages to each SPI Slave one by one, meaning that,
+when yoy have multiple devices as SPI Slaves, the latency starts to add up, this happens because a single message has to be sent to each SPI Slave Device. On the other hand,
+no protection resistor on the MISO pins needs to be used, so, use these Basic sockets if you absolutely can't add the referred 500 Ohms resistor.
 #### S_Basic_SPI_ESP_Arduino_Master
-#### Description
+##### Description
 This Socket allows the communication centered in a single ESP32 master board to many Arduino slave boards.
-#### Dependencies
+##### Dependencies
 This uses the already installed SPI Arduino library.
-### Arduino Master
 #### S_Basic_SPI_2xArduino_Master_Multiple
-#### Description
+##### Description
 This Socket allows the communication centered in a single Arduino master board to many Arduino slave boards.
-#### Dependencies
+##### Dependencies
 This uses the already installed SPI Arduino library.
 #### S_Basic_SPI_2xArduino_Master
-#### Description
+##### Description
 This Socket allows the communication centered in a single Arduino master board to another single Arduino slave board.
-#### Dependencies
+##### Dependencies
 This uses the already installed SPI Arduino library.
-### Arduino Slave
 #### S_Basic_SPI_Arduino_Slave
-#### Description
+##### Description
 This Socket is targeted to Arduino boards intended to be used as SPI Slaves.
-#### Dependencies
+##### Dependencies
 This uses the already installed SPI Arduino library.
+
 
 ## Serial
 You can just start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
