@@ -118,11 +118,11 @@ const MessageRepeater message_repeater(
 	);
 ```
 ### Keep the Repeater looping
-Finally keep calling the Repeater `loop` method, like so:
+Finally keep calling the Message Repeater `loop` method, like so:
 ```cpp
 void loop() {
     Ethernet.maintain();		// Maintain DHCP lease (important for long-running applications)
-	message_repeater.loop();	// Keep calling the Repeater
+	message_repeater.loop();	// Keep calling the Message Repeater
 }
 ```
 
