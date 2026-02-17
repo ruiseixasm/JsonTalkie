@@ -9,9 +9,9 @@ to the heavy MQTT protocol.
 - Bi-directional Walkie-Talkie based communication between Arduino devices and/or Python [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy).
 - Simple command/response pattern with "Walkie-talkie" style interaction.
 - Broadcasted able communications for immediate common reception from multiple devices at once and in sync.
-- Talker configuration with a Manifesto for self-describing capabilities.
-- Automatic command discovery and documentation.
-- Support for multiple devices on the same network.
+- Talker configuration with a Manifesto for self-describing actions.
+- Automatic talkers discovery and description with the command `talk`.
+- Support for unlimited devices on the same network.
 
 ## Comparison with MQTT
 JsonTalkie is a lightweight messaging framework designed for direct peer-to-peer communication in resource-constrained embedded systems.
@@ -20,7 +20,7 @@ make traditional MQTT implementations unsuitable or unreliable.
 
 Instead of relying on a centralized broker and TCP connections, JsonTalkie uses a decentralized, broadcast-oriented model that can operate over multiple transport layers,
 including UDP, SPI, Serial, and other protocols. This makes it an excellent alternative to MQTT (MQTT alternative) and particularly well suited for Arduino Uno, Arduino Nano,
-ATmega-based boards, and similar devices operating on local networks.
+ATmega-based boards, and other similar devices operating on common networks like a LAN.
 
 The following points highlight the key architectural and practical differences between JsonTalkie and MQTT:
 - The immediate difference is that JsonTalkie is lighter, you can easily use JsonTalkie in an Arduino Nano or Uno with low memory.
@@ -28,11 +28,10 @@ The following points highlight the key architectural and practical differences b
 - MQTT is limited to the TCP/IP protocol while JsonTalkie can be used with any communication protocol, like SPI and Serial.
 - MQTT "cloud" logic is complex in its setup while JsonTalkie is just a matter of including this library and associate it with the needed Manifesto.
 - MQTT is aimed to long distance communication, like the Internet, JsonTalkie is aimed to short distance communication, like a LAN.
-- On the other hand, JsonTalkie is mainly aimed to speed and low latency, so, the transmission is limitedly guaranteed and very
+- Also, JsonTalkie is aimed to speed and low latency, so, the transmission is limitedly guaranteed and very
 dependent on the robustness of the `BroadcastSocket` implementation.
-- MQTT is safer because it implements encryption out of the box, however, JsonTalkie can have the same level of security via `BroadcastSocket` implementation or a VPN.
-- JsonTalkie requires that the Socket being used is able to send in broadcast or emulates the broadcast to all Devices, minimal latency, while the MQTT centers the communication in a Broker
-resulting in communications with higher latency.
+- MQTT is safer because it implements encryption out of the box, however, JsonTalkie can have the same level of security via `BroadcastSocket` interface implementation or a VPN.
+- JsonTalkie requires that the Socket being used is able to send in broadcast to all same network devices, resulting in simultaneous receptions and thus minimal latency, in contrast, the MQTT centers the communication in a Broker resulting in communications with higher latency.
 
 ## Installation
 
