@@ -99,7 +99,7 @@ auto& ethernet_socket = S_EthernetENC_Broadcast::instance();
  *   each SPI Slave MISO pin, in the case of the Arduino Uno and Nano is the pin 12!
  * 
  *   [1st Slave Arduino MISO] ----[500Ω]----┐
- *   [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master Arduino MISO]
+ *   [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master ESP32 MISO]
  *   [3rd Slave Arduino MISO] ----[500Ω]----┘
  *
  */
