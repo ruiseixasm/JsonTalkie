@@ -189,7 +189,7 @@ python talk.py
 
 ## Maximum sizes
 The json message has a maximum size of **128 bytes**, so, definitions like names and descriptions must be limited in size too,
-or miss transmission may occur. This way, the following maximum sizes must be respected to avoid miss transmissions.
+otherwise failure of transmissions may occur. This way, the following maximum sizes must be respected to avoid any failed transmissions.
 ### Names
 - **Talker** - The Talker `name` can't be in any circumstance more than **10 chars**.
 - **Action** - The Action `name` can't be in any circumstance more than **10 chars**.
