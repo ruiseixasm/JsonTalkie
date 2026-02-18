@@ -226,7 +226,8 @@ Talkers and Sockets and Downlinked Talkers and Sockets.
 ### Repeater diagram
 ![The Repeater](repeater.png)
 
-The Repeater works in similar fashion as an HAM radio repeater on the top of a mountain, with a clear distinction of Uplinked and Downlinked communications, where the Uplinked nodes are considered remote nodes and the downlinked nodes are considered local nodes.
+The Repeater works in similar fashion as an HAM radio repeater on the top of a mountain, with a clear distinction of Uplinked and Downlinked communications,
+where the Uplinked sockets are considered remote sockets and the downlinked nodes are considered local nodes.
 ```
 +-------------------------+      +-------------------------+
 | Uplinked Sockets (node) |      | Uplinked Talkers (node) |
@@ -251,6 +252,7 @@ The Repeater works in similar fashion as an HAM radio repeater on the top of a m
      | Manifesto |
      +-----------+
 ```
+The manifesto is what declares and defines the Talker actions.
 ## Message protocol
 The extensive list of all Values is in the structure `TalkieCodes`.
 ### Message Value
@@ -295,7 +297,7 @@ nodes.
 1. All `remote` messages from `down_linked` nodes are routed to the `up_linked` *and* `up_bridged` Sockets (2 to 2);
 1. All `local` messages are routed to all nodes except the `up_linked` Sockets (4 to 4);
 1. All `self` messages from a Talker are routed to that same Talker (1 to 1);
-1. All `none` messages are dropped and thus NOT sent to any node (0 to 0).
+1. All `none` messages are dropped and thus are NOT sent to any node (0 to 0).
 
 In total there are the following 5 types of nodes:
 1. `up_linked` Sockets (not bridged);
