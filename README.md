@@ -328,7 +328,7 @@ These are the attributes of a Talker:
 - **description** - A brief description of the Talker returned in response to the `talk` command
 - **channel** - A channel in order to multiple Talkers be simultaneously targeted among others (broadcasted commands)
 - **manifesto** - The Talker manifesto that sets all its Actions in detail
-The 'name' should be unique mainly in the type of network it is isolated in, remote, local or both.
+The 'name' should be unique mainly in the type of network it is isolated in, `remote`, `local` or both.
 ```
 >>> channel
     [channel spy]              255
