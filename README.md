@@ -205,7 +205,7 @@ in `nth` transmitted strings.
 ### The math
 The maximum length is calculated over the minimum required Json keys, like the ones concerning the `MessageValue` and the `BroadcastValue`, like so:
 ```
-{"m":7,"b":1,"i":58485,"f":"0123456789","t":"0123456789","c":11266}
+{"m":1,"b":1,"i":12345,"f":"1234567890","t":"1234567890","c":12345}
 ```
 The message length above is 67 chars, this means that all extra fields have available a maximum of 61 chars. Given this limit, each field
 adds up the following chars just for the keys:
