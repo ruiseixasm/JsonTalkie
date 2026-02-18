@@ -193,7 +193,8 @@ struct TalkieCodes {
         TALKIE_ERR_TO,        ///< Invalid destination specification
         TALKIE_ERR_DELAY,     ///< Timing/delay violation
         TALKIE_ERR_KEY,       ///< Invalid message key
-        TALKIE_ERR_VALUE      ///< Invalid message value
+        TALKIE_ERR_VALUE,     ///< Invalid message value
+        TALKIE_ERR_MISSING    ///< Missing message
     };
 };
 
