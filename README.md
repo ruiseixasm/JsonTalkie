@@ -361,21 +361,21 @@ Note: The default channel `255` is a deaf channel, meaning, no Talker listens on
 In the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) you can find further description and some manifesto examples for diverse type of actions and Talker methods processing, like echo and error.
 
 A Manifesto **implementation** has the following attributes:
-- **calls** - An array of Actions (name and description)
+- **actions** - An array of Action pairs (name and description)
 
-An example of a calls array:
+An example of a actions array:
 ```cpp
-Action calls[3] = {
+Action actions[3] = {
 	{"on", "Turns led ON"},
 	{"off", "Turns led OFF"},
 	{"actions", "Total of triggered Actions"}
 };
 ```
-Besides the calls, a Manifesto implementation should also have these mandatory methods:
+Besides the actions, a Manifesto implementation should also have these mandatory methods:
 ```cpp
 const char* class_description() const override { return "BlueManifesto"; }
-const Action* _getActionsArray() const override { return calls; }
-uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+const Action* _getActionsArray() const override { return actions; }
+uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 ```
 ## The Broadcast Socket (interface)
 A Broadcast Socket **implementation** shall be able to receive and send in broadcast mode, this ability is required because the Talkers are recognizable by their names shown by the `talk` command, and thus, become able to auto configure the following direct connections (unicast). The broadcast communications are mainly intended to discover talkers or send to a channel (many) instead of talker name (single).
