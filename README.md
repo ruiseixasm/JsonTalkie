@@ -257,13 +257,13 @@ The manifesto is what declares and defines the Talker actions.
 The extensive list of all Values is in the structure `TalkieCodes`.
 ### Message Value
 These are the Message Values (commands):
-- **noise** - Invalid, missing or malformed data
-- **talk** - Lists existent talkers in the network
-- **channel** - Channel management/configuration
+- **noise** - Data not targeted to Talkers or without a `MessageValue`
+- **talk** - Lists existing talkers in the network
+- **channel** - Channel listing or setting
 - **ping** - Network presence check and latency
 - **call** - Action Talker invocation
 - **list** - Lists Talker actions
-- **system** - System control/status messages
+- **system** - System information or configuration
 - **echo** - Messages Echo returns
 - **error** - Error notification
 
@@ -273,6 +273,7 @@ Local messages aren't send to uplinked Sockets, except if they are up bridged.
 - **remote** - Broadcast to remote talkers
 - **local** - Broadcast within local network talkers
 - **self** - Broadcast to self only (loopback)
+The 'self' broadcast exists because otherwise no message is accepted by any Talker if 'from' that same Talker.
 
 ### System Value
 This messages are exclusive to the system.
