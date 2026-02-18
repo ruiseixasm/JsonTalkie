@@ -119,7 +119,7 @@ Because these sketches are do SPI Broadcasting, the hardware shall have the MISO
 All of the SPI Master examples bellow, also implement the Serial Socket, so that you can send commands to both, the SPI Master and the SPI Slave.
 
 To connect the Board via Serial you start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
-```
+```sh
 python talk.py --socket SERIAL --port COM4
 ```
 

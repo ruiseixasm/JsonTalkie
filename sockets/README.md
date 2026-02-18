@@ -112,11 +112,11 @@ You can set a specific UDP port like so:
 ```
 
 Then you can just start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
-```
+```sh
 python talk.py --socket UDP --port 5001
 ```
 Otherwise just type:
-```
+```sh
 python talk.py
 ```
 
@@ -221,11 +221,11 @@ You can set a specific UDP port like so:
 ```
 
 Then you can just start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
-```
+```sh
 python talk.py --socket UDP --port 5001
 ```
 Otherwise just type:
-```
+```sh
 python talk.py
 ```
 
@@ -293,7 +293,7 @@ This Socket allows the communication centered in a single ESP32 master board to 
 
 ## Serial
 You can just start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
-```
+```sh
 python talk.py --socket SERIAL --port COM4
 ```
 ### S_SocketSerial
