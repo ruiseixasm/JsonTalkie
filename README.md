@@ -360,7 +360,8 @@ The 'name' should be unique mainly in the type of network it is isolated in, `re
 ```
 Note: The default channel `255` is a deaf channel, meaning, no Talker listens on it.
 ### Manifesto interface
-In the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) you can find further description and some manifesto examples for diverse type of actions and Talker methods processing, like echo and error.
+In the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) you can find further description and some manifesto examples for
+multiple types of actions, with descriptions and respective methods, together with implementations of the `loop`, `echo` and `error` methods.
 
 A Manifesto **implementation** has the following attributes:
 - **actions** - An array of Action pairs (name and description)
@@ -380,12 +381,14 @@ const Action* _getActionsArray() const override { return actions; }
 uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 ```
 ## The Broadcast Socket (interface)
-A Broadcast Socket **implementation** shall be able to receive and send in broadcast mode, this ability is required because the Talkers are recognizable by their names shown by the `talk` command, and thus, become able to auto configure the following direct connections (unicast). The broadcast communications are mainly intended to discover talkers or send to a channel (many) instead of talker name (single).
+A Broadcast Socket **implementation** in principle shall be able to send in broadcast mode, meaning, its outputted messages shall be received simultaneously by all Talkers.
+This doesn't mean it must be so, it can be a pseudo-broadcasted, meaning it sends to all Talkers but not simultaneously, this is mainly true for protocols like th *I2C* where
+each device can only be target individually and never commonly as a truly broadcasted transmission.
 
 ### Implementation
-In the folders [sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets) you can find further description and many socket examples for diverse type of protocols and even libraries, like Ethernet and SPI protocols.
+In the folders [sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets) you can find further description and many socket examples for multiple types of protocols and even a library like the [EthernetENC_Broadcast](https://github.com/ruiseixasm/EthernetENC_Broadcast) one configured with the Broadcast enabled.
 
-These are the member variables of the `BroadcastSocket`:
+These are the member variables of the `BroadcastSocket` class:
 ```cpp
 	MessageRepeater* _message_repeater = nullptr;
 	LinkType _link_type = LinkType::TALKIE_LT_NONE;
@@ -394,15 +397,34 @@ These are the member variables of the `BroadcastSocket`:
     bool _control_timing = false;
     unsigned long _last_local_time = 0;	// millis() compatible
     uint16_t _last_message_timestamp = 0;
+    uint16_t _lost_count = 0;
     uint16_t _recoveries_count = 0;
     uint16_t _drops_count = 0;
     uint16_t _fails_count = 0;
+	uint8_t _consecutive_errors = 0;	// Avoids a runaway flux of errors
+	
 
-	struct FromTalker {
-		char name[TALKIE_NAME_LEN] = {'\0'};
-		BroadcastValue broadcast = BroadcastValue::TALKIE_BC_NONE;
+    enum CorruptionType : uint8_t {
+		TALKIE_CT_CLEAN,
+		TALKIE_CT_DATA,
+		TALKIE_CT_NAME,
+		TALKIE_CT_CHECKSUM,
+		TALKIE_CT_IDENTITY,
+		TALKIE_CT_UNRECOVERABLE
+    };
+
+	struct CorruptedMessage {
+		CorruptionType corruption_type;
+		BroadcastValue broadcast;
+		
+		size_t length;
+		uint16_t checksum;
+		uint16_t identity;
+		char from_name[TALKIE_NAME_LEN] = {'\0'};
+		uint16_t received_time;
+		bool active = false;
 	};
-	FromTalker _from_talker;
+	CorruptedMessage _corrupted_message;
 ```
 And these are the methods which definition in the socket implementation is mandatory:
 ```cpp
