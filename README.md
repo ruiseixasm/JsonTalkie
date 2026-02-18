@@ -513,8 +513,8 @@ Then you can just type commands
 ## Use Cases
 Besides the simple examples shown above, there are other interesting use cases that are important to consider.
 ### One platform, multiple boards
-The JsonTalkie allows both **remote** and **local** communication depending on the type of linking.
-By local communication one doesn't necessarily mean in the same board, it is possible to have local communication among multiple boards as long as they are in the same *platform*, so, you may have a circuit where different boards communicate with each other via protocols like the SPI.
+The JsonTalkie allows both **remote** and **local** broadcast communications depending on the type of linking.
+By local communication one doesn't necessarily mean in the same board, it is possible to have a local communication among multiple boards as long as they are in the same *platform*, so, you may have a main board where different arduino boards communicating with each other via protocols like the well known SPI protocol.
 ```
 +-----------------------------+                                     +-----------------------------+
 | Ethernet socket (up linked) |                              +------| SPI socket (**up bridged**) |
@@ -535,17 +535,19 @@ By local communication one doesn't necessarily mean in the same board, it is pos
 |                                    Local platform with two boards                               |
 +-------------------------------------------------------------------------------------------------+
 ```
-In the scheme above, the Arduino nano board has its SPI Socket configured as *bridged*, this means
-that not only remote messages are sent trough it, buy *also*, local messages. The SPI Socket in
-the ESP32 board is a down linked one, this means it behaves like a down linked Talker, sending both
-remote and local messages to its Repeater. This way, the SPI link between both SPI Sockets carries
-both remote and local messages, like a bridge.
+In the scheme above, the Arduino nano board has its up linked SPI Broadcast Socket configured as *bridged*, thus *up bridged*,
+this means that not only `remote` messages are sent trough it, buy *also*, `local` messages.
 
-The Repeater automatically sets the up linked sockets as up linked, so, in order to turn an up linked socket into a bridged one, you need to set it in the `setup` function like so:
+On the other hand, the SPI Socket in the ESP32 board is a down linked one, this means it behaves such as a down linked Talker, transmitting both
+`remote` and `local` messages. This way, the SPI link between interconnected SPI Sockets carries
+both, `remote` and `local` messages, like a bridge, meaning, setting it as a bridge on a down linked Socket makes no difference.
+
+By default, the Repeater automatically sets the up linked sockets just as up linked, so, in order to turn an up linked socket into a bridged one,
+you need to set it in the Arduino `setup` function like so:
 ```cpp
     spi_socket.bridgeSocket();  // Now accepts LOCAL messages too
 ```
-With the command `system` it's possible to get the board and the sockets associated to each Talker.
+With the command `system` it's possible to get the the sockets and their respective link type, for instance, `20` for a *down linked* socket.
 ```
 >>> talk
 	[talk spy]           	   I'm a Spy and I spy the talkers' pings
@@ -564,8 +566,8 @@ With the command `system` it's possible to get the board and the sockets associa
     [system green sockets]     0       SPI_Arduino_Slave       11
 >>>
 ```
-Note1: You can have more than two boards in the same *platform*, given that the SPI protocol allows more than a single
-connection.
+Note1: You can have more than two boards on the same *platform*, given that the SPI protocol allows more than a single
+SPI Slave.
 
 Note2: The number after the Socket description has two algorisms, the first one is the link type, 1 for *up_linked*, and the
 seconds one is for the *bridged* condition, where 1 means bridged.
