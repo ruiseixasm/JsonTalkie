@@ -48,7 +48,7 @@ using Action 			= JsonTalker::Action;
  * @brief An Interface to be implemented as a Manifesto to define the Talker's actions
  *
  * The implementation of this class requires de definition of a list of actions like so:
- *     `Action calls[1] = {{"on", "Turns led ON"}};`
+ *     `Action actions[1] = {{"on", "Turns led ON"}};`
  * 
  * The number of chars combined of each `Action`'s pair name and description, shouldn't be greater than 30!
  *
@@ -80,7 +80,7 @@ public:
      * @brief Returns the total number of actions available to call
 	 * 
 	 * The typical method is:
-	 * `uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }`
+	 * `uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }`
      */
 	virtual uint8_t _actionsCount() const = 0;
 
@@ -89,7 +89,7 @@ public:
      * @brief A getter to the actions array defined in the interface implementation
 	 * 
 	 * The typical method is:
-	 * `const Action* _getActionsArray() const override { return calls; }`
+	 * `const Action* _getActionsArray() const override { return actions; }`
      */
     virtual const Action* _getActionsArray() const = 0;
 

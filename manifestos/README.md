@@ -10,13 +10,13 @@ To do so, you must override, at least, the following methods:
 	// The Manifesto class description shouldn't be greater than 42 chars
 	// {"m":7,"f":"","s":1,"b":1,"t":"","i":58485,"0":"","1":1,"c":11266} <-- 128 - (66 + 2*10) = 42
 	const char* class_description() const override { return "LedManifesto"; }
-	const Action* _getActionsArray() const override { return calls; }
-    uint8_t _actionsCount() const override { return sizeof(calls)/sizeof(Action); }
+	const Action* _getActionsArray() const override { return actions; }
+    uint8_t _actionsCount() const override { return sizeof(actions)/sizeof(Action); }
 ```
-As it's possible to be seen, these methods relate to the member variable `calls`,
+As it's possible to be seen, these methods relate to the member variable `actions`,
 that depending on the number of the actions, it shall follow the following structure:
 ```cpp
-    Action calls[3] = {
+    Action actions[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
 		{"actions", "Total of triggered Actions"}
