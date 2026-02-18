@@ -189,7 +189,7 @@ python talk.py
 
 ## Maximum sizes
 The json message has a maximum size of **128 bytes**, so, definitions like names and descriptions must be limited in size too,
-otherwise failure of transmissions may occur. This way, the following maximum sizes must be respected to avoid any failed transmissions.
+otherwise failure of transmissions may occur. This way, the following maximum sizes must be respected to avoid any failed transmission due to it.
 ### Names
 - **Talker** - The Talker `name` can't be in any circumstance more than **10 chars**.
 - **Action** - The Action `name` can't be in any circumstance more than **10 chars**.
@@ -201,6 +201,21 @@ otherwise failure of transmissions may occur. This way, the following maximum si
 - **any** - Any `description` can't be in any circumstance more than **54 chars**, however, in `nth` transmitted strings,
 being less than that doesn't guarantee transmission by itself , in other words, avoid big sized descriptions
 in `nth` transmitted strings.
+
+### The math
+The maximum length is calculated over the minimum required Json keys, like the ones concerning the `MessageValue` and the `BroadcastValue`, like so:
+```
+{"m":7,"b":1,"i":58485,"f":"0123456789","t":"0123456789","c":11266}
+```
+The message length above is 67 chars, this means that all extra fields have available a maximum of 61 chars. Given this limit, each field
+adds up the following chars just for the keys:
+
+- 5 chars just for numerical fields `,"n":`,
+- 7 chars just for string fields `,"s":""`.
+
+Then, on top of the length above for each type of field, you start adding the length for the value itself. This means that for two *16bits*
+numbers, it may be needed to transmit it in a single *32bits* numerical field and manage the bitwise split on both ends, because this way
+you will be using just a single 5 chars key.
 
 ## The char ':'
 Avoid using the char ':' in `name`, `description` or `nth` fields because it is used by the JsonTalkie for recovering corrupt messages.
