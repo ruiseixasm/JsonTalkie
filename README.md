@@ -572,10 +572,10 @@ SPI Slave.
 Note2: The number after the Socket description has two algorisms, the first one is the link type, 1 for *up_linked*, and the
 seconds one is for the *bridged* condition, where 1 means bridged.
 ### Unit testing
-One difficulty in dealing with embedded development, is the ability of testing and debugging single methods,
-this can be easily accomplished with the JsonTalkie. You can create a Manifesto that does just that.
+One difficulty in dealing with embedded development, is the ability to test and debug single methods,
+however, this can be easily accomplished with the JsonTalkie. You can create a Manifesto intended to do just that.
 
-Bellow is an example of a series of unit tests done to the class `JsonMessage` during its development.
+Bellow is the interaction with the `M_MessageTester` manifesto that does unit tests to the class `JsonMessage`.
 ```
 >>> talk test
 	[talk test]          	   I test the JsonMessage class
@@ -602,9 +602,9 @@ Bellow is an example of a series of unit tests done to the class `JsonMessage` d
 	[call test 0]        	   roger
 >>>
 ```
-In the example above, specific edge cases are tested, the *roger* return means that the test passed, otherwise
-the return value would be *negative*. It is also possible to run all tests at once, with roger meaning all
-have passed. You can find the *test* Manifesto in the [manifestos folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos).
+In the example above, specific edge cases are also tested, the *roger* return means that the test passed, otherwise
+the return would be *negative*. It is also possible to run all tests at once, with roger meaning all
+have passed. You can find this `M_MessageTester` manifesto in the [manifestos folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos).
 ### Inside calls
 So far we have been doing remote calls from a computer via Python, but there are cases that would be useful
 to do a call from inside the board's Talker itself. This is the case of the *spy* manifesto.
