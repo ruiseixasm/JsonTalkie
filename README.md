@@ -217,6 +217,10 @@ Then, on top of the length above for each type of field, you start adding the le
 numbers, it may be needed to transmit it in a single *32bits* numerical field and manage the bitwise split on both ends, because this way
 you will be using just a single 5 chars key.
 
+### Buffer size
+The buffer size is by default *128 Bytes* as explained above. However, for specific scenarios, you can set higher sizes, but given the specifics
+of certain SPI Sockets, the new size should be a multiple of *4* and not greater than *256 Bytes*, so, typical ideal values above *128 Bytes* are *160* and *192 Bytes*.
+
 ## The char ':'
 Avoid using the char ':' in `name`, `description` or `nth` fields because it is used by the JsonTalkie for recovering corrupt messages.
 
