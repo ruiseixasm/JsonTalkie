@@ -828,7 +828,7 @@ without any computer evolvement. The calling is done inside the `_loop` method a
 ```
 
 The *nano* talker is also in the [examples](https://github.com/ruiseixasm/JsonTalkie/tree/main/examples) folder
-in the example *TalkieEtherCard* that contains the manifesto *M_BlackManifesto* that can also be found in the
+in the example `TalkieEtherCard` that contains the manifesto `M_BlackManifesto` that can also be found in the
 [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) folder and is as follows.
 ```cpp
 #ifndef BLACK_MANIFESTO_HPP
@@ -979,6 +979,6 @@ public:
 #endif // BLACK_MANIFESTO_HPP
 ```
 
-So, as expected, by being Walkie-Talkie alike, in JsonTalkie the communication is peer-to-peer and not necessarily centralized in a
+So, as expected, by being Walkie-Talkie alike, JsonTalkie communicates as peer-to-peer and not necessarily in a centralized fashion like a
 commander device or computer.
 
