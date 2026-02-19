@@ -625,11 +625,13 @@ to do a call from inside the board's Talker itself. This is the case of the *spy
 	[ping green]         	   8
 >>>
 ```
-In the interaction above, we have the ping results, from inside the ESP32 board (spy Talker), 1 and 4 milliseconds respectively.
-From the computer those results are greater because they reflect the wi-fi latency too. Note that the latency values above include
-the return time, so, in reality, it takes around half those values to reach the Talker.
+In the interaction above, we can clearly see different ping results, from the board we have 1 and 4 milliseconds, while from the computer we
+have 3 and 8 milliseconds respectively.
 
-Nevertheless, with the help of the spy, we can see that the SPI connections represents an increase of 3 milliseconds in latency (4 - 1).
+From the WiFi connected computer those results are greater because they also reflect the wi-fi latency. Note that the latency values above include
+the return time, so, in reality, it takes less than half those values to reach the Talker.
+
+Nevertheless, thanks to the 'spy' Talker, we can see that the SPI connections represents an increase of 3 milliseconds in latency (4 - 1).
 ### Talker as Caller
 So far the calls were made via Python command line with [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy), but a device can be a caller too.
 Most of the time the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) is used to configure Arduino talkers and not to act on themselves directly,
