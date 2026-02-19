@@ -73,7 +73,7 @@ After the includes above you have to create the needed list of instantiations an
 // TALKERS 
 // M_Spy Talker
 const char t_spy_name[] = "spy";
-const char t_spy_desc[] = "I'm a M_Spy and I spy the talkers' pings";
+const char t_spy_desc[] = "I'm a Spy and I spy the talkers' pings";
 M_Spy spy_manifesto;
 JsonTalker t_spy = JsonTalker(t_spy_name, t_spy_desc, &spy_manifesto);
 
@@ -606,7 +606,7 @@ In the example above, specific edge cases are also tested, the *roger* return me
 the return would be *negative*. It is also possible to run all tests at once, with roger meaning all
 have passed. You can find this `M_MessageTester` manifesto in the [manifestos folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos).
 ### Inside calls
-So far we have been doing remote calls from a computer via Python, but there are cases that would be useful
+So far we have been doing remote calls from a computer via Python, but there are cases when it is useful
 to do a call from inside the board's Talker itself. This is the case of the *spy* manifesto.
 ```
 >>> talk spy

@@ -32,7 +32,7 @@ https://github.com/ruiseixasm/JsonTalkie
 
 // M_Spy Talker
 const char t_spy_name[] = "spy";
-const char t_spy_desc[] = "I'm a M_Spy and I spy the talkers' pings";
+const char t_spy_desc[] = "I'm a Spy and I spy the talkers' pings";
 M_Spy spy_manifesto;
 JsonTalker t_spy = JsonTalker(t_spy_name, t_spy_desc, &spy_manifesto);
 
