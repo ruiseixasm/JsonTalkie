@@ -270,10 +270,10 @@ This Socket is intended to be used in an Arduino board as a SPI Slave.
 #### S_Broadcast_SPI_ESP_Arduino_Master
 This Socket is intended to be used in an ESP32 board that will work as a SPI Master. The targeted SPI Slaves must be Arduino boards.
 
-#### S_Broadcast_SPI_2xESP_128Bytes_Master
+#### S_Broadcast_SPI_2xESP_4MHz_Master
 This Socket is intended to be used in an ESP32 board that will work as a SPI Master. The targeted SPI Slaves must also be ESP32 boards.
 
-#### S_Broadcast_SPI_2xESP_128Bytes_Slave
+#### S_Broadcast_SPI_2xESP_4MHz_Slave
 This Socket is intended to be used in an ESP32 board as a SPI Slave.
 
 

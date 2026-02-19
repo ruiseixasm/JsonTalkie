@@ -1,5 +1,5 @@
 /**
- * @file    S_Broadcast_SPI_2xESP_128Bytes_Slave.hpp
+ * @file    S_Broadcast_SPI_2xESP_4MHz_Slave.hpp
  * @author  Rui Seixas Monteiro
  * @brief   A Broadcast Socket for an ESP32 to work as a SPI Slave, by being Broadcast it means
  * 			that the SPI Slaves have to have the protection resistor in the MISO pin referred bellow.
@@ -35,12 +35,12 @@ extern "C" {
 // #define BROADCAST_SPI_DEBUG_TIMING
 
 
-class S_Broadcast_SPI_2xESP_128Bytes_Slave : public BroadcastSocket {
+class S_Broadcast_SPI_2xESP_4MHz_Slave : public BroadcastSocket {
 public:
 
 	// The Socket class description shouldn't be greater than 35 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*10) = 35
-    const char* class_description() const override { return "Broadcast_SPI_2xESP_128Bytes_Slave"; }
+    const char* class_description() const override { return "Broadcast_SPI_2xESP_4MHz_Slave"; }
 
 
 	#ifdef BROADCAST_SPI_DEBUG_TIMING
@@ -66,7 +66,7 @@ protected:
 	uint8_t _stacked_transmissions = 0;
 
     // Constructor
-    S_Broadcast_SPI_2xESP_128Bytes_Slave(spi_host_device_t host) : BroadcastSocket(), _host(host) {
+    S_Broadcast_SPI_2xESP_4MHz_Slave(spi_host_device_t host) : BroadcastSocket(), _host(host) {
             
 		_max_delay_ms = 0;  // SPI is sequencial, no need to control out of order packages
 	}
@@ -206,8 +206,8 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_Broadcast_SPI_2xESP_128Bytes_Slave& instance(spi_host_device_t host = HSPI_HOST) {
-        static S_Broadcast_SPI_2xESP_128Bytes_Slave instance(host);
+    static S_Broadcast_SPI_2xESP_4MHz_Slave& instance(spi_host_device_t host = HSPI_HOST) {
+        static S_Broadcast_SPI_2xESP_4MHz_Slave instance(host);
 
         return instance;
     }

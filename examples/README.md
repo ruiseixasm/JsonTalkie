@@ -154,10 +154,10 @@ This Sketch concerns the testing of an Arduino SPI Master that is intended to co
 ### ArduinoTestPair_Broadcast_SPI_Arduino_Slave
 This Sketch concerns the testing of each Arduino SPI Slave controlled by the SPI Master referred above.
 
-### ESP32TestPair_Broadcast_SPI_2xESP_128Bytes_Master
+### ESP32TestPair_Broadcast_SPI_2xESP_4MHz_Master
 This Sketch concerns the testing of an ESP32 SPI Master that is intended to control many ESP32 SPI Slaves.
 
-### ESP32TestPair_Broadcast_SPI_2xESP_128Bytes_Slave
+### ESP32TestPair_Broadcast_SPI_2xESP_4MHz_Slave
 This Sketch concerns the testing of each ESP32 SPI Slave controlled by the SPI Master referred above.
 
 ### ESP32TestPair_Broadcast_SPI_ESP_Arduino_Master

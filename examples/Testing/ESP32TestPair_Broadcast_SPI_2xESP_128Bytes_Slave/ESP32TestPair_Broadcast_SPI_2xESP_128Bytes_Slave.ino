@@ -1,9 +1,9 @@
 /**
- * @file    ESP32TestPair_Broadcast_SPI_2xESP_128Bytes_Slave.ino
+ * @file    ESP32TestPair_Broadcast_SPI_2xESP_4MHz_Slave.ino
  * @author  Rui Seixas Monteiro
  * @brief   This is an ESP32 SPI Slave testing sketch.
  *
- * This sketch is intended to test the socket `S_Broadcast_SPI_2xESP_128Bytes_Slave` that is targeted for the
+ * This sketch is intended to test the socket `S_Broadcast_SPI_2xESP_4MHz_Slave` that is targeted for the
  * ESP32 board as SPI Slave to be controlled by an ESP32 board as SPI Master.
  *
  * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
@@ -23,7 +23,7 @@
  *   [3rd Slave ESP32 MISO] ----[500Ω]----┘
  *
  * Sockets:
- * - S_Broadcast_SPI_2xESP_128Bytes_Slave
+ * - S_Broadcast_SPI_2xESP_4MHz_Slave
  * 
  * Manifestos:
  * - M_LedManifesto
@@ -41,7 +41,7 @@
 #endif
 
 #include <JsonTalkie.hpp>
-#include "S_Broadcast_SPI_2xESP_128Bytes_Slave.hpp"
+#include "S_Broadcast_SPI_2xESP_4MHz_Slave.hpp"
 #include "M_LedManifesto.hpp"
 
 
@@ -56,7 +56,7 @@ JsonTalker l_led = JsonTalker(l_led_name, l_led_desc, &led_manifesto);
 
 // SOCKETS
 // Singleton requires the & (to get a reference variable)
-auto& spi_socket = S_Broadcast_SPI_2xESP_128Bytes_Slave::instance(VSPI_HOST);
+auto& spi_socket = S_Broadcast_SPI_2xESP_4MHz_Slave::instance(VSPI_HOST);
 
 
 // SETTING THE REPEATER

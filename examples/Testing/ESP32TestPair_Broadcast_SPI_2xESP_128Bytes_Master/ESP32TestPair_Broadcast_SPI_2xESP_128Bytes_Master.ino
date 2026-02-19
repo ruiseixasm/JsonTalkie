@@ -1,9 +1,9 @@
 /**
- * @file    ESP32TestPair_Broadcast_SPI_2xESP_128Bytes_Master.ino
+ * @file    ESP32TestPair_Broadcast_SPI_2xESP_4MHz_Master.ino
  * @author  Rui Seixas Monteiro
  * @brief   This is an ESP32 SPI Master testing sketch.
  *
- * This sketch is intended to test the socket `S_Broadcast_SPI_2xESP_128Bytes_Master` that is targeted for the
+ * This sketch is intended to test the socket `S_Broadcast_SPI_2xESP_4MHz_Master` that is targeted for the
  * ESP32 board as SPI Master to control one or more ESP32 boards as SPI Slaves.
  *
  * @see https://github.com/ruiseixasm/JsonTalkie/tree/main/examples
@@ -23,7 +23,7 @@
  *   [3rd Slave ESP32 MISO] ----[500Ω]----┘
  *
  * Sockets:
- * - S_Broadcast_SPI_2xESP_128Bytes_Master
+ * - S_Broadcast_SPI_2xESP_4MHz_Master
  * - S_SocketSerial
  * 
  * Manifestos:
@@ -42,7 +42,7 @@
 #endif
 
 #include <JsonTalkie.hpp>
-#include "S_Broadcast_SPI_2xESP_128Bytes_Master.hpp"
+#include "S_Broadcast_SPI_2xESP_4MHz_Master.hpp"
 #include "S_SocketSerial.hpp"
 #include "M_SPIMasterManifesto.hpp"
 
@@ -71,7 +71,7 @@ auto& serial_socket = S_SocketSerial::instance();
  *
  */
 const int spi_pins[] = {4, HSPI_CS, 16};
-auto& spi_socket = S_Broadcast_SPI_2xESP_128Bytes_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
+auto& spi_socket = S_Broadcast_SPI_2xESP_4MHz_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 
 
 // SETTING THE REPEATER

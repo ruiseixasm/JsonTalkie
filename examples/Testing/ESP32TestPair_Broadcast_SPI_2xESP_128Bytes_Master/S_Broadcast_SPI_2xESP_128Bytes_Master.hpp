@@ -1,5 +1,5 @@
 /**
- * @file    S_Broadcast_SPI_2xESP_128Bytes_Master.hpp
+ * @file    S_Broadcast_SPI_2xESP_4MHz_Master.hpp
  * @author  Rui Seixas Monteiro
  * @brief   A Broadcast Socket for an ESP32 to work as a SPI Master, by being Broadcast it means
  * 			that the SPI Slaves have to have the protection resistor in the MISO pin referred bellow.
@@ -37,12 +37,12 @@
 #define beacon_time_slot_us 100		// Avoids too frequent beacons (used to collect data from the SPI Slaves)
 
 
-class S_Broadcast_SPI_2xESP_128Bytes_Master : public BroadcastSocket {
+class S_Broadcast_SPI_2xESP_4MHz_Master : public BroadcastSocket {
 public:
 
 	// The Socket class description shouldn't be greater than 35 chars
 	// {"m":7,"f":"","s":3,"b":1,"t":"","i":58485,"0":1,"1":"","2":11,"c":11266} <-- 128 - (73 + 2*10) = 35
-    const char* class_description() const override { return "Broadcast_SPI_2xESP_128Bytes_Master"; }
+    const char* class_description() const override { return "Broadcast_SPI_2xESP_4MHz_Master"; }
 
 
 	#ifdef BROADCAST_SPI_DEBUG_TIMING
@@ -70,7 +70,7 @@ protected:
 
 
     // Constructor
-    S_Broadcast_SPI_2xESP_128Bytes_Master(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host)
+    S_Broadcast_SPI_2xESP_4MHz_Master(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host)
 		: BroadcastSocket(), _spi_cs_pins(ss_pins), _ss_pins_count(ss_pins_count), _host(host) {
             
 		_max_delay_ms = 0;  // SPI is sequencial, no need to control out of order packages
@@ -233,8 +233,8 @@ protected:
 public:
 
     // Move ONLY the singleton instance method to subclass
-    static S_Broadcast_SPI_2xESP_128Bytes_Master& instance(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host = HSPI_HOST) {
-        static S_Broadcast_SPI_2xESP_128Bytes_Master instance(ss_pins, ss_pins_count, host);
+    static S_Broadcast_SPI_2xESP_4MHz_Master& instance(const int* ss_pins, uint8_t ss_pins_count, spi_host_device_t host = HSPI_HOST) {
+        static S_Broadcast_SPI_2xESP_4MHz_Master instance(ss_pins, ss_pins_count, host);
 
         return instance;
     }
