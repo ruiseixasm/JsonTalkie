@@ -631,12 +631,12 @@ have 3 and 8 milliseconds respectively.
 From the WiFi connected computer those results are greater because they also reflect the wi-fi latency. Note that the latency values above include
 the return time, so, in reality, it takes less than half those values to reach the Talker.
 
-Nevertheless, thanks to the 'spy' Talker, we can see that the SPI connections represents an increase of 3 milliseconds in latency (4 - 1).
+Nevertheless, thanks to the *spy* Talker, we can see that the SPI connections represents an increase of 3 milliseconds in latency (4 - 1).
 ### Talker as Caller
 So far the calls were made via Python command line with [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy), but a device can be a caller too.
-Most of the time the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) is used to configure Arduino talkers and not to act on themselves directly,
-like in this example, the talker *caller* is activated and then set with the current minutes. Then is up to the *caller* to call the *nano* talker
-and on the action *buzz*. This is done once as it follows.
+Most of the time the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) shall be used to configure Arduino talkers and not to act on themselves directly,
+like in this example, where the talker *caller* is activated and then set with the current time minutes. Then is up to the *caller* to call the *nano* talker's
+action *buzz*. This is done once as it follows.
 ```
 >>> talk caller
     [talk caller]              I'm a 60 minutes buzzer caller
@@ -653,9 +653,9 @@ and on the action *buzz*. This is done once as it follows.
     [call caller 1]            roger           3
 >>>
 ```
-After this, the *caller* has its minutes synced with the actual minutes and will call the *buzz* of the *nano* each hour.
-In the example bellow, named *TalkieEthernet*, that you can find in the [examples](https://github.com/ruiseixasm/JsonTalkie/tree/main/examples) folder,
-it is used the manifesto *M_CallerManifesto*, that you can find in the [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) folder, is as follows.
+After this, the *caller* has its minutes synced with the actual minutes and will call the *buzz* of the *nano* every hour.
+The example named `Mega_Ethernet`, that you can find in the [examples](https://github.com/ruiseixasm/JsonTalkie/tree/main/examples) folder,
+uses the manifesto `M_CallerManifesto`, that you can find in the [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) folder, this manifesto is as follows.
 ```cpp
 #ifndef CALLER_MANIFESTO_HPP
 #define CALLER_MANIFESTO_HPP
