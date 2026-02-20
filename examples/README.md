@@ -168,8 +168,22 @@ This Sketch concerns the testing of each Arduino SPI Slave controlled by the SPI
 ### ESP32TestPair_Broadcast_SPI_2xESP_4MHz_Master
 This Sketch concerns the testing of an ESP32 SPI Master that is intended to control many ESP32 SPI Slaves.
 
+Note that this Sketch is configured to use the **HSPI** SPI bus. So, adapt it to your specific wiring.
+```cpp
+	// ================== INITIALIZE HSPI ==================
+	// Initialize SPI with HSPI pins: MOSI=13, MISO=12, SCK=14
+    spi_socket.begin(13, 12, 14);	// MOSI, MISO, SCK
+```
+
 ### ESP32TestPair_Broadcast_SPI_2xESP_4MHz_Slave
 This Sketch concerns the testing of each ESP32 SPI Slave controlled by the SPI Master referred above.
+
+Note that this Sketch is configured to use the **VSPI** SPI bus. So, adapt it to your specific wiring.
+```cpp
+	// ================== INITIALIZE VSPI ==================
+	// Initialize SPI with VSPI pins: MOSI=23, MISO=19, SCK=18, CS=5
+    spi_socket.begin(23, 19, 18, 5);	// MOSI, MISO, SCK, CS
+```
 
 ### ESP32TestPair_Broadcast_SPI_ESP_Arduino_Master
 This Sketch is homologous to the `ArduinoTestPair_Broadcast_SPI_2xArduino_Master` one, the only difference is that
