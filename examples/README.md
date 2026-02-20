@@ -36,7 +36,7 @@ In any case, the ping is clearly higher, given the low priority of broadcasted m
 >>> ping 2
     [ping esp]                 58
 ```
-The ping duration of `58` vs `3` milliseconds is caused by using a `channel` (broadcast) instead of the Talker `name` (unicast) over WiFi, this represents a relative delay of 55 microseconds just for using broadcast over WiFi.
+The ping duration of `58` vs `3` milliseconds is caused by using a `channel` (broadcast) instead of the Talker `name` (unicast) over WiFi, this represents a relative delay of 55 milliseconds just for using broadcast over WiFi.
 
 ## ESP32_EthernetENC_Arduino_Broadcast_SPI_Master
 This example combines two Sockets in one Sketch. It shows the capacity of the board ESP32 handle two SPI busses, *HSPI* and *VSPI*, to handle the Ethernet shield and the the Arduino boards connected to it, respectively.
