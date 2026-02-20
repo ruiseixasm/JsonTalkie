@@ -98,30 +98,36 @@ on the other hand, it only works with two boards in a one-to-one connection, so,
 This is most useful for developing new Sockets or testing Manifestos given that you can connect to
 boards right away via Serial and simulate that way more complex types of connectivity. See **Testing** bellow.
 
+To connect the Board via Serial you start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
+```sh
+python talk.py --socket SERIAL --port COM4
+```
+
 ## Nano_Serial_Broadcast_SPI_Master
 Besides implementing a Serial Socket, it also works as a SPI Master, this way it is possible to
-use command the SPI Master device via Serial in order to communicate with its multiple SPI Master devices, transforming a non broadcasting Socket, the Serial one, into a broadcast
-communication the SPI one.
+command the SPI Master device via Serial in order to communicate with its multiple SPI Master devices,
+transforming a non broadcasting Socket, the Serial one, into a broadcasting one the SPI.
 
 ## NanoBuzzer_Broadcast_SPI_Slave
-A Sketch concerning the Arduino SPI Slave intended to be used together with a Sketch that implements the SPI Master socket like the `Broadcast_SPI_ESP_Arduino_Master` or
+A Sketch for the Arduino SPI Slave intended to be used together with a Sketch that implements the SPI Master socket like the `Broadcast_SPI_ESP_Arduino_Master` or
 `ArduinoTestPair_Broadcast_SPI_2xArduino_Master`. This sketch controls a Buzzer on pin 2.
 
 ## NanoGreen_Broadcast_SPI_Slave
-A Sketch concerning the Arduino SPI Slave intended to be used together with a Sketch that implements the SPI Master socket like the `Broadcast_SPI_ESP_Arduino_Master` or
+A Sketch for the Arduino SPI Slave intended to be used together with a Sketch that implements the SPI Master socket like the `Broadcast_SPI_ESP_Arduino_Master` or
 `ArduinoTestPair_Broadcast_SPI_2xArduino_Master`. This sketch controls a Green led on pin 2 and an Yellow led on pin 19.
 
 ## Testing
-These sketches are examples of Socket implementation testing that you can adapt to use for your own Socket implementations.
+These sketches are used to test Socket implementation that you can adapt to use for your own Socket implementations.
 
-Because these sketches are do SPI Broadcasting, the hardware shall have the MISO 500 Ohms resistor on each SPI Slave board pin, like so:
+Because these sketches do SPI Broadcasting, the hardware shall have the MISO **500 Ohms** resistor on each SPI Slave board pin, like so:
 ```
      [1st Slave MISO] ----[500Ω]----┐
      [2nd Slave MISO] ----[500Ω]----┼---- [Master MISO]
      [3rd Slave MISO] ----[500Ω]----┘
 ```
 
-All of the SPI Master examples bellow, also implement the Serial Socket, so that you can send commands to both, the SPI Master and the SPI Slave.
+All of the SPI Master examples bellow, also implement the Serial Socket, so that you can send commands to the *master* and the *slave* Talker,
+concerning the SPI Master and the SPI Slave respectively.
 
 To connect the Board via Serial you start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program like so:
 ```sh
