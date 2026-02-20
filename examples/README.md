@@ -41,7 +41,7 @@ The ping duration of `58` vs `3` milliseconds is caused by using a `channel` (br
 ## ESP32_EthernetENC_Arduino_Broadcast_SPI_Master
 This example combines two Sockets in one Sketch. It shows the capacity of the board ESP32 to handle two SPI busses, the *HSPI* and *VSPI* busses, the ones that handle the Ethernet shield and the the Arduino boards connected to them respectively.
 
-Because the SPI connections with the Arduinos are done via SPI Broadcast, you must add a resistor of **around 500 Ohms** to each SPI Slave MISO pin, like so:
+Because the SPI connections with the Arduinos are done via SPI Broadcast, you must add a resistor of **around 500 Ohms** to each Arduino SPI Slave MISO pin (D12), like so:
 ```
      [1st Slave Arduino MISO] ----[500Ω]----┐
      [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master ESP32 MISO]
