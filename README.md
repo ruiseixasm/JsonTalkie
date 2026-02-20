@@ -103,7 +103,7 @@ auto& ethernet_socket = S_EthernetENC_Broadcast::instance();
  *   [3rd Slave Arduino MISO] ----[500Ω]----┘
  *
  */
-const int spi_pins[] = {4, 16};	// To which each Arduino CS pin is connected on the ESP32
+const int spi_pins[] = {4, 16};	// To which each Arduino CS (D10) pin is connected on the ESP32
 auto& spi_socket = S_Broadcast_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 
 

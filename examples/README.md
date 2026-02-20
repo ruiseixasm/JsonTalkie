@@ -39,17 +39,17 @@ In any case, the ping is clearly higher, given the low priority of broadcasted m
 The ping duration of `58` vs `3` milliseconds is caused by using a `channel` (broadcast) instead of the Talker `name` (unicast) over WiFi, this represents a relative delay of 55 milliseconds just for using broadcast over WiFi.
 
 ## ESP32_EthernetENC_Arduino_Broadcast_SPI_Master
-This example combines two Sockets in one Sketch. It shows the capacity of the board ESP32 handle two SPI busses, *HSPI* and *VSPI*, to handle the Ethernet shield and the the Arduino boards connected to it, respectively.
+This example combines two Sockets in one Sketch. It shows the capacity of the board ESP32 to handle two SPI busses, the *HSPI* and *VSPI* busses, the ones that handle the Ethernet shield and the the Arduino boards connected to them respectively.
 
-Because the SPI connection with the Arduinos is done via SPI Broadcast, you must add a resistor of **around 500 Ohms** to each SPI Slave MISO pin, like so:
+Because the SPI connections with the Arduinos are done via SPI Broadcast, you must add a resistor of **around 500 Ohms** to each SPI Slave MISO pin, like so:
 ```
      [1st Slave Arduino MISO] ----[500Ω]----┐
-     [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master Arduino MISO]
+     [2nd Slave Arduino MISO] ----[500Ω]----┼---- [Master ESP32 MISO]
      [3rd Slave Arduino MISO] ----[500Ω]----┘
 ```
-Then, and only then, you can safely enable the SS pins for each Arduino, like so:
+Then, and only then, you can safely enable the SS pins for each Arduino board, like so:
 ```cpp
-const int spi_pins[] = {4, 16};	// To which each Arduino CS pin is connected on the ESP32
+const int spi_pins[] = {4, 16};	// To which each Arduino CS (D10) pin is connected on the ESP32
 auto& spi_socket = S_Broadcast_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 ```
 The existing `spy` Talker in this sketch lets you ping the existing local Talkers from the ESP32 board itself:
