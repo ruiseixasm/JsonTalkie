@@ -188,3 +188,12 @@ Note that this Sketch is configured to use the **VSPI** bus. So, adapt it to you
 ### ESP32TestPair_Broadcast_SPI_ESP_Arduino_Master
 This Sketch is homologous to the `ArduinoTestPair_Broadcast_SPI_2xArduino_Master` one, the only difference is that
 it's intended to be uploaded to an ESP32 instead of an Arduino with all the rest being equal.
+
+Note that this Sketch is configured to use the **HSPI** bus. So, adapt it to your specific wiring.
+```cpp
+	SPIClass* hspi = new SPIClass(HSPI);  // heap variable!
+	// ================== INITIALIZE HSPI ==================
+	// Initialize SPI with HSPI pins: SCK=14, MISO=12, MOSI=13, SS=15
+	hspi->begin(14, 12, 13, 15);  // SCK, MISO, MOSI, SS
+    spi_socket.begin(hspi);
+```
