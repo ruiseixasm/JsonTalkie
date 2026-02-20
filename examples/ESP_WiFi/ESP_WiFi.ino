@@ -155,7 +155,7 @@ void setup() {
 
 	#endif
 	
-	t_esp_name.set_channel(5);	// Sets the channel 5 on "t_esp_name"
+	t_esp.set_channel(5);	// Sets the channel 5 on "t_esp"
     Serial.println("Setup completed - Ready for JSON communication!");
 }
 
