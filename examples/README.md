@@ -52,7 +52,7 @@ Then, and only then, you can safely enable the SS pins for each Arduino board, l
 const int spi_pins[] = {4, 16};	// To which each Arduino CS (D10) pin is connected on the ESP32
 auto& spi_socket = S_Broadcast_SPI_ESP_Arduino_Master::instance(spi_pins, sizeof(spi_pins)/sizeof(int));
 ```
-The existing `spy` Talker in this sketch lets you ping the existing local Talkers from the ESP32 board itself:
+The existing *spy* Talker in this sketch lets you ping the existing local Talkers from the ESP32 board itself:
 ```
 >>> list spy
     [call spy 0|ping]          Ping talkers by name or channel
@@ -75,24 +75,28 @@ The existing `spy` Talker in this sketch lets you ping the existing local Talker
     [system green sockets]     0       Broadcast_SPI_Arduino_Slave     11
 >>>
 ```
-The last numbers in front of each socket, means the link type, *up* or *down*, and the *bridged* condition (Ex. 11 means uplinked and bridged).
+The last pair of numbers in front of each socket represent the link type, *up* or *down* for the first digit and the if *bridged*
+for the second digit (Ex. 11 means uplinked and bridged).
 ## Mega_Ethernet
-This is a simple sketch that implements the Ethernet Socket concerning the W5500 or W5100 shield.
-It's targeted to the board Arduino Mega because it requires more memory than other type of Sockets.
+This is a simple sketch that implements the Ethernet Socket concerning the W5500 and W5100 shields.
+It's targeted to the board Arduino Mega because it requires more memory than the other type of Sockets.
 
 ## Mega_EthernetENC
 Also an Ethernet Socket, that is targeted to the ENC28J60 shield instead. It requires more
-memory than other Sockets, so, it should be used in high memory boards like the Arduino Mega.
+memory too, so, it should be used on high memory boards like the Arduino Mega or the ESP32.
 
 ## Nano_EtherCard
 A low memory Ethernet Socket that is also targeted to the ENC28J60 shield, but by requiring
 less memory, it can be used by the Arduino Uno or Nano. This one isn't able to communicate in
 Unicast mode thought, so, it sends messages always in broadcast mode, meaning, it shouldn't
-be used by WiFi connected devices given that WiFi may drop this types of packages.
+be used by WiFi connected devices given that WiFi delays or even drops broadcasted packages.
 
 ## Nano_Serial
-Exemplifies a very simple type of Socket, the Serial communication one, so it requires very little to start working, on the other hand, it only works with a single slave, so, not a
-truly broadcast socket.
+Exemplifies a very simple type of Socket, the Serial one, so it requires very little to start working with,
+on the other hand, it only works with two boards in a one-to-one connection, so, not a truly broadcast socket.
+
+This is most useful for developing new Sockets or testing Manifestos given that you can connect to
+boards right away via Serial and simulate that way more complex types of connectivity. See **Testing** bellow.
 
 ## Nano_Serial_Broadcast_SPI_Master
 Besides implementing a Serial Socket, it also works as a SPI Master, this way it is possible to
