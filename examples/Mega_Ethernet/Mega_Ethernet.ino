@@ -177,7 +177,7 @@ void setup() {
 
     Serial.println("Talker ready with EthernetENC!");
     Serial.println("Connecting Talkers with each other");
-	caller.set_channel(5);	// Sets the channel 5 on "caller"
+	caller.set_channel(5);	// Sets the channel 5 for the Talker "caller"
 
     // Final startup indication
     digitalWrite(LED_BUILTIN, HIGH);

@@ -367,7 +367,11 @@ The 'name' should be unique mainly in the type of network it is isolated in, `re
     [call green on]            roger
 >>>
 ```
-Note: The default channel `255` is a deaf channel, meaning, no Talker listens on it.
+The default start up channel `255` is a deaf channel, meaning, no Talker listens on it, but you can always set a different start up channel for any talker,
+you just need to add this line in the `setup` function of the Arduino sketch.
+```cpp
+	caller.set_channel(5);	// Sets the channel 5 for the Talker "caller"
+```
 ### Manifesto interface
 In the folders [manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) you can find further description and some manifesto examples for
 multiple types of actions, with descriptions and respective methods, together with implementations of the `loop`, `echo` and `error` methods.
