@@ -3,10 +3,11 @@
 Here is the description and purpose of the Examples above, where given [Sockets](https://github.com/ruiseixasm/JsonTalkie/tree/main/spckets)
 and [Manifestos](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos) are used.
 
-The command line bellow is from the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program.
+The command line shown bellow is from the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTalkiePy) program.
 
 ## ESP_WiFi
-This is an Example where the WiFi is used as the Socket interface to the Talker. By being an WiFi Socket it has limitations concerning the Broadcast usage, because WiFi has a limit of Broadcasted packages, this means that if oyu send too many Broadcasted commands they will start to drop. In order to send NON Broadcasted commands make sure you add the name of the Talker in each command, like so:
+This is an Example where the WiFi is used as the Socket interface to the Talker. By being an WiFi Socket it has limitations concerning the Broadcast usage, because WiFi protocol itself has restrictions on Broadcasted packages (IP 255.255.255.255), this means that Broadcasted commands will have high delays or can even be simply
+dropped. In order to send non Broadcasted commands make sure you add the name of the Talker in each command, like so:
 ```
 >>> talk esp
     [talk esp]                 I call on and off on the buzzer
@@ -24,7 +25,7 @@ This is an Example where the WiFi is used as the Socket interface to the Talker.
     [system esp board]         ESP8266 (ID 1253476)
 >>>
 ```
-As you can see above, by always making sure the name is used, no drops occurred, on the other hand, by using a broadcast message, like in the case of a channel, those drops may start to happen, due to the WiFi Broadcast limitations.
+As you can see above, by adding the talker name, no hig delays or drops occurred, on the other hand, by using a broadcast message, without a named Talker like in the case of a channel, those delays will start to happen, due to the WiFi Broadcast restrictions referred above.
 
 In any case, the ping is clearly higher, given the low priority of broadcasted message over WiFi.
 ```
@@ -35,7 +36,7 @@ In any case, the ping is clearly higher, given the low priority of broadcasted m
 >>> ping 2
     [ping esp]                 58
 ```
-The delay of `58` vs `3` milliseconds is caused by using a `channel` (broadcast) instead of the Talker `name` (unicast) over WiFi.
+The ping duration of `58` vs `3` milliseconds is caused by using a `channel` (broadcast) instead of the Talker `name` (unicast) over WiFi, this represents a relative delay of 55 microseconds just for using broadcast over WiFi.
 
 ## ESP32_EthernetENC_Arduino_Broadcast_SPI_Master
 This example combines two Sockets in one Sketch. It shows the capacity of the board ESP32 handle two SPI busses, *HSPI* and *VSPI*, to handle the Ethernet shield and the the Arduino boards connected to it, respectively.
