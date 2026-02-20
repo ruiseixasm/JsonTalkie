@@ -112,6 +112,11 @@ transforming a non broadcasting Socket, the Serial one, into a broadcasting one 
 A Sketch for the Arduino SPI Slave intended to be used together with a Sketch that implements the SPI Master socket like the `Broadcast_SPI_ESP_Arduino_Master` or
 `ArduinoTestPair_Broadcast_SPI_2xArduino_Master`. This sketch controls a Buzzer on pin 2.
 
+The SPI Slaves have their SPI Socket configured as *bridged*, so that it processes `local` messages too.
+```cpp
+	spi_socket.bridgeSocket();	// Makes sure it accepts LOCAL messages too
+```
+
 ## NanoGreen_Broadcast_SPI_Slave
 A Sketch for the Arduino SPI Slave intended to be used together with a Sketch that implements the SPI Master socket like the `Broadcast_SPI_ESP_Arduino_Master` or
 `ArduinoTestPair_Broadcast_SPI_2xArduino_Master`. This sketch controls a Green led on pin 2 and an Yellow led on pin 19.
