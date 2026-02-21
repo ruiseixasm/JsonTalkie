@@ -23,7 +23,7 @@ that depending on the number of the actions, it shall follow the following struc
     };
 ```
 This structure is a list of `Action` objects with a name and a description of the respective `Action`.
-Their id is given by the respective position in the array. You must make sure the number of actions is typed,
+Their `index` is given by the respective position in the array. You must make sure the number of actions is typed,
 in the case above, that is represented with `[3]`.
 
 ### Example
@@ -60,7 +60,7 @@ public:
 
 protected:
 
-	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
+	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE CORRECT!
 
 	// The Action pair name and description shouldn't be greater than 40 chars
 	// {"m":7,"b":1,"i":6442,"f":"","t":"","0":255,"1":"","2":"","c":25870} <-- 128 - (68 + 2*10) = 40

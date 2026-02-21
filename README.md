@@ -691,7 +691,7 @@ public:
 
 protected:
 
-	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
+	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE CORRECT!
 
 	// The Action pair name and description shouldn't be greater than 40 chars
 	// {"m":7,"b":1,"i":6442,"f":"","t":"","0":255,"1":"","2":"","c":25870} <-- 128 - (68 + 2*10) = 40
@@ -858,7 +858,7 @@ protected:
     uint16_t _buzz_duration_ms = 100;
 	uint16_t _buzz_start = 0;
 
-	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE THE CORRECT!
+	// ALWAYS MAKE SURE THE DIMENSIONS OF THE ARRAYS BELOW ARE CORRECT!
 
 	// The Action pair name and description shouldn't be greater than 40 chars
 	// {"m":7,"b":1,"i":6442,"f":"","t":"","0":255,"1":"","2":"","c":25870} <-- 128 - (68 + 2*10) = 40
