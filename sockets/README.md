@@ -18,7 +18,7 @@ You can always implement your own socket, by extending the `BroadcastSocket` cla
 ```
 The methods above should follow these basic rules:
 - In the `_receive` method you must create a `JsonMessage` and write on it or deserialize on it the data received, on that `new_message` you shall always call the methods `_validate_json` and `_validate_checksum`. After that, it should be called the method `_startTransmission` to process the received data. See example bellow for details;
-- In the `_send` method you must read from the `json_message` buffer with the help of the methods `_read_buffer` and `get_length`.
+- In the `_send` method you must read from the `json_message` buffer with the help of the methods `_read_buffer` and `get_length` or just serialize it into a buffer.
 ## Example
 Here is an example of such implementation for the Serial protocol:
 ```cpp
@@ -106,6 +106,8 @@ public:
 #endif // SOCKET_SERIAL_HPP
 ```
 
+You can find many other examples of implementation in this folder.
+
 ## Ethernet
 The Ethernet Broadcast Socket uses the UDP protocol and the port `5005` by default, however, you can always set a different UDP port
 if you wish to separate multiple Talkers from each other by aggregating them by UDP port.
@@ -119,13 +121,13 @@ Then you can just start the [JsonTalkiePy](https://github.com/ruiseixasm/JsonTal
 ```sh
 python talk.py --socket UDP --port 5001
 ```
-Otherwise just type:
+Otherwise, to use the default `5005` port, just type:
 ```sh
 python talk.py
 ```
 
 ### S_BroadcastSocket_EtherCard
-For this particular Socket a different port than `5005`, the default one, has to be set in the constructor, like so:
+For this particular Socket a different port than the default `5005`, has to be set in the constructor, like so:
 ```cpp
 auto& ethernet_socket = S_BroadcastSocket_EtherCard::instance(5001);
 ```
@@ -144,8 +146,7 @@ way to avoid it is to mute the Talker and in that way the `call` commands on it 
 >>> call nano 0
 >>>
 ```
-Not being able to work in unicast, means that the replies take have high latency or can even not reach the source
-if the message was sent via Wi-Fi.
+Not being able to work in unicast means that the replies will have high latency or not even reach the source if sent via WiFi.
 ```
 >>> talk uno
 >>> talk uno
@@ -155,9 +156,9 @@ if the message was sent via Wi-Fi.
 	[ping uno]           	   106
 >>>
 ```
-Above, besides a long ping, 106 milliseconds, some replies weren't even received, so, this library shouldn't be
-used via Wi-Fi if replies are critical. Must be noted however, that this huge latency is mainly due to the broadcasted reply,
-meaning that the received unicast message by the Uno board has the usual small latency.
+Looking above, besides a long ping, 106 milliseconds, some replies weren't even received, so, this library shouldn't be
+used over WiFi if replies are critical. Must be noted however, that this huge latency is mainly due to the broadcasted reply,
+meaning that the received unicast (by name) message has the usual small latency.
 #### Dependencies
 This Socket depends on the [library EtherCard](https://github.com/njh/EtherCard) that you can instal directly from the Arduino IDE.
 ### S_EthernetENC_Broadcast
