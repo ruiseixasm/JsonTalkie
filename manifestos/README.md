@@ -228,7 +228,7 @@ in this example the Talker Manifesto results in the printing of those errors rec
 		}
     }
 ```
-There are many errors types you can use in your specific implementation, here is the full `enum` of error:
+There are many errors types you can use in your specific implementation, here is the full `enum` of error types:
 ```cpp
     /**
      * @enum ErrorValue
@@ -253,19 +253,25 @@ There are many errors types you can use in your specific implementation, here is
 
 ### _noise
 The `_noise` as it implies processes messages that lost their usual meaning, this is, their usual meaning was
-removed and become noise. One typical scenario is a message that has a bad checksum and thus becomes 'noisy',
-this gives the opportunity to the Talker process it as such. This means that only the 'noisy' messages without
-any error associated end up triggering this method. So, the remaining 'noisy' messages can be processed here
-in the way you see fit.
+removed and become noise. One typical scenario is a recovery message that had a bad checksum and thus becomes 'noisy',
+this gives the opportunity to the Talker post process it in the method below. You can catch others recovery calls in this
+method too, simple because recovery messages are noisy messages.
 
 This is an example that just prints the first value of the 'noisy' message.
 ```cpp
-	void _noise(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) {
+    void _noise(JsonTalker& talker, JsonMessage& json_message, TalkerMatch talker_match) override {
 		(void)talker;		// Silence unused parameter warning
 		(void)talker_match;	// Silence unused parameter warning
 
-		char temp_string[TALKIE_MAX_LEN];
-		json_message.get_nth_value_string(0, temp_string);
-		Serial.println(temp_string);
-	}
+		if (json_message.is_recover_message()) {
+			char from_name[TALKIE_MAX_LEN];
+			json_message.get_from_name(from_name);
+			Serial.print("Recovery message from: ");
+			Serial.print(from_name);
+			Serial.print(" - ");
+			json_message.write_to(Serial);
+			Serial.print(" | ");
+			Serial.println((int)json_message.get_recover_message_value());
+		}
+    }
 ```
