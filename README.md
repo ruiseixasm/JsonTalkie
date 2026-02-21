@@ -381,7 +381,7 @@ A Manifesto **implementation** has the following attributes:
 
 An example of a actions array:
 ```cpp
-Action actions[3] = {
+const Action actions[3] = {
 	{"on", "Turns led ON"},
 	{"off", "Turns led OFF"},
 	{"actions", "Total of triggered Actions"}
@@ -698,7 +698,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action actions[3] = {
+    const Action actions[3] = {
 		{"active", "Gets or sets the active status"},
 		{"minutes", "Gets or sets the actual minutes"},
 		{"state", "The actual state of the led"}
@@ -865,7 +865,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action actions[2] = {
+    const Action actions[2] = {
 		{"buzz", "Buzz for a while"},
 		{"ms", "Gets and sets the buzzing duration"}
     };

@@ -1,8 +1,12 @@
 # JsonTalkie - Talker Manifestos
 
-Multiple manifestos that can be used with the [JsonTalkie](https://github.com/ruiseixasm/JsonTalkie)
-software by implementing its `TalkerManifesto` interface.
-You can see many examples of manifestos right in [this same folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos).
+Here you can find many Manifestos that are examples of `TalkerManifesto` interface implementation.
+
+To include any of these Manifestos, just add the following include line accordingly:
+```cpp
+#include "M_BlueManifesto.hpp"
+```
+
 ## Implementation
 You can create many Manifestos to different scenarios by extending the `TalkerManifesto` class.
 To do so, you must override, at least, the following methods:
@@ -16,7 +20,7 @@ To do so, you must override, at least, the following methods:
 As it's possible to be seen, these methods relate to the member variable `actions`,
 that depending on the number of the actions, it shall follow the following structure:
 ```cpp
-    Action actions[3] = {
+    const Action actions[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
 		{"actions", "Total of triggered Actions"}
@@ -67,7 +71,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action actions[3] = {
+    const Action actions[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
 		{"state", "The actual state of the led"}

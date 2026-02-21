@@ -50,7 +50,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action actions[18] = {
+    const Action actions[18] = {
 		{"all", "Tests all methods"},
 		{"parse_json", "Test deserialize (fill up)"},
 		{"compare", "Test if it's the same"},
