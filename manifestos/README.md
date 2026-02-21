@@ -195,6 +195,7 @@ Here is an example of a Manifesto that processes the echoes to its generated pin
 		talker.transmitToRepeater(json_message);
 	}
 ```
+
 ### _error
 The `_error` method can be used for report the errors returned by other Talkers,
 in this example the Talker Manifesto results in the printing of those errors received.
@@ -227,6 +228,29 @@ in this example the Talker Manifesto results in the printing of those errors rec
 		}
     }
 ```
+There are many errors types you can use in your specific implementation, here is the full `enum` of error:
+```cpp
+    /**
+     * @enum ErrorValue
+     * @brief Specific error conditions in communication
+     * 
+     * Detailed error codes for diagnosing communication
+     * failures and malformed messages.
+     */
+    enum ErrorValue : uint8_t {
+        TALKIE_ERR_CHECKSUM,  ///< Message checksum failure
+        TALKIE_ERR_MESSAGE,   ///< Malformed message structure
+        TALKIE_ERR_IDENTITY,  ///< Invalid sender/receiver identity
+        TALKIE_ERR_FIELD,     ///< Missing or invalid field
+        TALKIE_ERR_FROM,      ///< Invalid source specification
+        TALKIE_ERR_TO,        ///< Invalid destination specification
+        TALKIE_ERR_DELAY,     ///< Timing/delay violation
+        TALKIE_ERR_KEY,       ///< Invalid message key
+        TALKIE_ERR_VALUE,     ///< Invalid message value
+        TALKIE_ERR_MISSING    ///< Missing message
+    };
+```
+
 ### _noise
 The `_noise` as it implies processes messages that lost their usual meaning, this is, their usual meaning was
 removed and become noise. One typical scenario is a message that has a bad checksum and thus becomes 'noisy',
