@@ -1,8 +1,12 @@
 # JsonTalkie - Talker Manifestos
 
-Multiple manifestos that can be used with the [JsonTalkie](https://github.com/ruiseixasm/JsonTalkie)
-software by implementing its `TalkerManifesto` interface.
-You can see many examples of manifestos right in [this same folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/manifestos).
+Here you can find many Manifestos that are examples of `TalkerManifesto` interface implementation.
+
+To include any of these Manifestos, just add the following include line accordingly:
+```cpp
+#include "M_BlueManifesto.hpp"
+```
+
 ## Implementation
 You can create many Manifestos to different scenarios by extending the `TalkerManifesto` class.
 To do so, you must override, at least, the following methods:
