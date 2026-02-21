@@ -42,7 +42,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action actions[3] = {
+    const Action actions[3] = {
 		{"ping", "Ping talkers by name or channel"},
 		{"ping_self", "I can even ping myself"},
 		{"call", "Able to do [<talker> <action>]"}

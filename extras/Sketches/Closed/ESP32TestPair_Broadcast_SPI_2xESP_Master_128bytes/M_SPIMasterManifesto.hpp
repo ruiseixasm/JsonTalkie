@@ -70,7 +70,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action actions[8] = {
+    const Action actions[8] = {
 		{"period", "Sets cycle period milliseconds"},
 		{"enable", "Enables 1sec cyclic transmission"},
 		{"disable", "Disables 1sec cyclic transmission"},

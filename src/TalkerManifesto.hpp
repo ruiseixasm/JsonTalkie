@@ -48,7 +48,7 @@ using Action 			= JsonTalker::Action;
  * @brief An Interface to be implemented as a Manifesto to define the Talker's actions
  *
  * The implementation of this class requires de definition of a list of actions like so:
- *     `Action actions[1] = {{"on", "Turns led ON"}};`
+ *     `const Action actions[1] = {{"on", "Turns led ON"}};`
  * 
  * The number of chars combined of each `Action`'s pair name and description, shouldn't be greater than 30!
  *

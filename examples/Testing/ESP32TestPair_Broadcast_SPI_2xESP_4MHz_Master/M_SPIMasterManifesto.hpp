@@ -51,7 +51,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action actions[6] = {
+    const Action actions[6] = {
 		{"period", "Sets cycle period milliseconds"},
 		{"enabled", "Checks, enable or disable cycles"},
 		{"calls", "Gets total calls and their echoes"},

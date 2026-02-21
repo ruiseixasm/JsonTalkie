@@ -56,7 +56,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action actions[3] = {
+    const Action actions[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
 		{"state", "The actual state of the led"}

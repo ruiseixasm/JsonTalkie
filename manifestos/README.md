@@ -20,7 +20,7 @@ To do so, you must override, at least, the following methods:
 As it's possible to be seen, these methods relate to the member variable `actions`,
 that depending on the number of the actions, it shall follow the following structure:
 ```cpp
-    Action actions[3] = {
+    const Action actions[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
 		{"actions", "Total of triggered Actions"}
@@ -71,7 +71,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action actions[3] = {
+    const Action actions[3] = {
 		{"on", "Turns led ON"},
 		{"off", "Turns led OFF"},
 		{"state", "The actual state of the led"}

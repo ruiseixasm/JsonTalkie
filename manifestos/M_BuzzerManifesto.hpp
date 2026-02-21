@@ -46,7 +46,7 @@ protected:
 
 	// ------------- MAXIMUM SIZE RULER --------------|
 	//	 "name", "123456789012345678901234567890123456"
-    Action actions[4] = {
+    const Action actions[4] = {
 		{"buzz", "Buzz for a while"},
 		{"ms", "Gets and sets the buzzing duration"},
 		{"enable", "Enables 1sec cyclic transmission"},
