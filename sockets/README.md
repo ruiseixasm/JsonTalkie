@@ -148,7 +148,7 @@ way to avoid it is to mute the Talker and in that way the echoes to the `call` c
 >>> call nano 0
 >>>
 ```
-Not being able to work in unicast means that the replies will have high latency or not even reach the source if sent via WiFi.
+Not being able to work in unicast means that the replies will have high latency or not even reach the source if sent over WiFi.
 ```
 >>> talk uno
 >>> talk uno
@@ -160,7 +160,7 @@ Not being able to work in unicast means that the replies will have high latency 
 ```
 Looking above, besides a long ping, 106 milliseconds, some replies weren't even received, so, this library shouldn't be
 used over WiFi if replies are critical. Must be noted however, that this huge latency is mainly due to the broadcasted reply,
-meaning that the received unicast (by name) message has the usual small latency.
+meaning that the received unicast (by name) message has the usual small latency regardless the receiving Ethernet socket type.
 #### Dependencies
 This Socket depends on the [library EtherCard](https://github.com/njh/EtherCard) that you can instal directly from the Arduino IDE.
 ### S_EthernetENC_Broadcast
@@ -180,10 +180,10 @@ Comment the existing lines and add the new one as bellow:
     // writeRegPair(EPMCSL, 0xf7f9);
     writeReg(ERXFCON, ERXFCON_UCEN | ERXFCON_CRCEN | ERXFCON_BCEN | ERXFCON_MCEN);
 ```
-After these changes the library will start to receive broadcasted UDP messages too.
+After the change above, the Socket using this library will also receive broadcasted UDP messages.
 For more details check the data sheet of the chip [ENC28J60](https://ww1.microchip.com/downloads/en/devicedoc/39662a.pdf).
-Contrary to the socket implementation `S_BroadcastSocket_EtherCard` described above, this socket does *unicast*, so,
-it can be used via Wi-Fi too without the latency referred above, 4 instead of 106 milliseconds.
+Contrary to the socket implementation `S_BroadcastSocket_EtherCard` described above, this socket does *unicast*, so, it can be used over WiFi without the extra latency referred above, 4 instead of 106 milliseconds.
+Even though, this extra latency only concerns the `echo` message.
 ```
 >>> talk spy
 	[talk spy]           	   I'm a Spy and I spy the talkers' pings
@@ -193,12 +193,12 @@ it can be used via Wi-Fi too without the latency referred above, 4 instead of 10
 ```
 #### Dependencies
 This library is the adaptation of the EthernetENC library that allows the needed broadcast via UDP. You need to download the zip from
-the [EthernetENC_Broadcast repository](https://github.com/ruiseixasm/EthernetENC_Broadcast) as zip and then unzip it in the *libraries* Arduino folder.
+the [EthernetENC_Broadcast](https://github.com/ruiseixasm/EthernetENC_Broadcast) repository as zip and then unzip it in the *libraries* Arduino folder.
 ### S_BroadcastSocket_Ethernet
 #### Description
 This socket is intended to be used with the original [Arduino Ethernet board](https://docs.arduino.cc/retired/shields/arduino-ethernet-shield-without-poe-module/),
-or other that has the chip `W5500` or `W5100`. Take note that depending on the board, the pins may vary, so read the
-following notes first.
+or other that has the chip `W5500` or `W5100`. Take note that depending on the board, the pins may vary,
+so read the following note first.
 ```
 Arduino communicates with both the W5100 and SD card using the SPI bus (through the ICSP header).
 This is on digital pins 10, 11, 12, and 13 on the Uno and pins 50, 51, and 52 on the Mega. On both boards,
@@ -220,7 +220,7 @@ This Socket depends on the [Ethernet library](https://github.com/arduino-librari
 
 ## WiFi
 The WiFi Broadcast Socket uses the UDP protocol and the port `5005` by default, however, you can always set a different UDP port
-if you wish to separate multiple Talkers from each other by aggregating them by UDP port.
+if you wish to separate multiple Talkers from each other aggregating them by UDP port.
 
 You can set a specific UDP port like so:
 ```cpp
@@ -241,7 +241,7 @@ python talk.py
 This socket is intended to be used with the boards ESP8266 or ESP32 that come with WiFi out of the box.
 
 Contrary to the socket implementation `S_BroadcastSocket_EtherCard` described above, this socket does *unicast*, so,
-it can be used via Wi-Fi too without the latency referred above, 3 instead of 106 milliseconds.
+it can be used over WiFi too without the respective broadcast extra latency, 3 instead of 106 milliseconds.
 ```
 >>> talk blue
 	[talk blue]          	   I turn led Blue on and off
@@ -249,11 +249,11 @@ it can be used via Wi-Fi too without the latency referred above, 3 instead of 10
 	[ping blue]          	   3
 >>>
 ```
-One thing to take into consideration though, is that the fist ping can be sent in Broadcast mode because the first command is also
-used to get the Talker address and only then the messages are sent in unicast mode afterwards. So, in the example above,
-the `talk blue` command resulted in the association of the IP address with the Talker's name enabling the unicast `ping blue` command.
+One thing to take into consideration though, is that the fist ping can be sent in Broadcast mode because the first command normally has no info about the Talker IP, so the first command is sent in Broadcast and
+used to get the Talker address, afterwards the messages are sent in unicast mode to the same Talker's name.
+So, in the example above, the `talk blue` command resulted in the association of the IP address with the Talker's name enabling the fast unicast `ping blue` command that follows, only 3 milliseconds.
 #### Dependencies
-By installing the ESP8266 or ESP32 boards, you already get the WiFi library available.
+By installing the ESP8266 or ESP32 boards, you already have the WiFi library available.
 
 ## SPI
 ### Broadcast
