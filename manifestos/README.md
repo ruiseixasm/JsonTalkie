@@ -275,3 +275,5 @@ This is an example that just prints the first value of the 'noisy' message.
 		}
     }
 ```
+A use case for this method is to have a sense of the amount of recovery messages being asked and thus the quality of communication links.
+
