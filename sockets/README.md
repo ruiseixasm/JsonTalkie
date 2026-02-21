@@ -136,7 +136,7 @@ auto& ethernet_socket = S_BroadcastSocket_EtherCard::instance(5001);
 #### Description
 Lightweight socket intended to be used with low memory boards like the Uno and the Nano, for the ethernet module `ENC28J60`.
 This library has the limitation of not being able to send *unicast* messages, all its responses are in *broadcast* mode, so, one
-way to avoid it is to mute the Talker and in that way the `call` commands on it don't overload the network.
+way to avoid it is to mute the Talker and in that way the echoes to the `call` commands on it don't overload the network.
 ```
 >>> list nano
     [call nano 0|buzz]         Buzz for a while
