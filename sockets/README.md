@@ -1,7 +1,11 @@
 # JsonTalkie - Broadcast Sockets
 
-Multiple sockets that can be used with the [JsonTalkie](https://github.com/ruiseixasm/JsonTalkie) software by implementing its `BroadcastSocket` interface.
-You can see many examples of sockets right in [this same folder](https://github.com/ruiseixasm/JsonTalkie/tree/main/sockets).
+Here you can find many Sockets that are examples of `BroadcastSocket` interface implementation.
+
+To include any of these Sockets, just add the following include line accordingly:
+```cpp
+#include "S_BroadcastESP_WiFi.hpp"
+```
 
 ## Implementation
 You can always implement your own socket, by extending the `BroadcastSocket` class. To do so, you must override the following methods:
