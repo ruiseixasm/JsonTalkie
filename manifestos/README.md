@@ -136,13 +136,13 @@ public:
 ```
 
 ## Other methods
-You can go beyond the bare minimum above, here are more methods that can be overridden.
+You can go beyond the mandatory bare minimum above, here are more methods that can be overridden.
 ### _loop
 The `_loop` method is called constantly by the `MessageRepeater` class, so, you can program it
-in the same fashion as you would for the typical `loop` function in the Arduino, but here, specifically for the Talker.
+in the same fashion as you would for the typical `loop` function in an Arduino sketch, but specifically for the Talker.
 
-Here is an example of such programming, a buzzer that takes it's time that with the loop
-avoids the usage of `delay` calls that interrupt the normal flow of the program.
+Here is an example of such programming, a *buzzer* that takes its time buzzing and by using the loop
+avoids the usage of any `delay` function that interrupt the normal flow of the program.
 ```cpp
 	void _loop(JsonTalker& talker) override {
         (void)talker;		// Silence unused parameter warning
@@ -153,6 +153,7 @@ avoids the usage of `delay` calls that interrupt the normal flow of the program.
 		}
 	}
 ```
+The `_loop` method is being run each time the Arduino `loop` function is called, so, one to one run.
 ### _echo
 The `_echo` method is used to process the message responses, echoes, to the original ones sent.
 So, a talker not only is able to receive messages as also is able to send new ones created
