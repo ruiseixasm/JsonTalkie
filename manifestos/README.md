@@ -153,13 +153,21 @@ avoids the usage of any `delay` function that interrupt the normal flow of the p
 		}
 	}
 ```
-The `_loop` method is being run each time the Arduino `loop` function is called, so, one to one run.
+The `_loop` method is being run each time the Arduino `loop` function runs given the line bellow, so, one to one run.
+```cpp
+void loop() {
+	message_repeater.loop();	// Keep calling the Message Repeater
+}
+```
+
 ### _echo
 The `_echo` method is used to process the message responses, echoes, to the original ones sent.
-So, a talker not only is able to receive messages as also is able to send new ones created
-by the Talker Manifesto, and thus, is able to process the respective responses, echoes, in this method.
+So, a talker not only is able to receive commands as also is able to send their own generated
+by the Talker Manifesto, and thus, with this method, able to process the respective responses, as echoes, in this method.
 
-Here is an example of a Manifesto that processes the responses to its generated pings.
+Note that *commands* are all non response messages, so *commands* exclude `echo`, `error` and obviously `noise`.
+
+Here is an example of a Manifesto that processes the echoes to its generated pings.
 ```cpp
     void _echo(JsonTalker& talker, JsonMessage& json_message, MessageValue message_value, TalkerMatch talker_match) override {
 		(void)talker_match;	// Silence unused parameter warning
