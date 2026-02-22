@@ -265,22 +265,22 @@ at the same time on their MISO pin, so, if those pins are directly connected, th
 	[2nd Slave MISO] ----[500Ω]----┼---- [Master MISO]
 	[3rd Slave MISO] ----[500Ω]----┘
 ```
-The communication is thus done in *half-duplex*, where the SPI Master doesn't read any message while sending and *vice versa*. This reflects the nature of the protocol in
+The communication is thus done in *half-duplex*, where the SPI Master doesn't read any message while sending and *vice versa*. This reflects the nature of the *JsonTalkie* protocol in
 prioritizing the Broadcast type of messages over the Reply ones.
 #### S_Broadcast_SPI_2xArduino_Master
-This Socket is intended to be used in an Arduino board that will work as a SPI Master. By being a Broadcast socket it can connect multiple Arduino Boards as SPI Slaves right away.
+This Socket is intended to be used in an Arduino board that will work as a SPI Master of multiple **Arduino boards** as SPI Slaves.
 
 #### S_Broadcast_SPI_Arduino_Slave
-This Socket is intended to be used in an Arduino board as a SPI Slave.
+This Socket is intended to be used in an **Arduino board** as a SPI Slave.
 
 #### S_Broadcast_SPI_ESP_Arduino_Master
-This Socket is intended to be used in an ESP32 board that will work as a SPI Master. The targeted SPI Slaves must be Arduino boards.
+This Socket is intended to be used in an ESP32 board that will work as a SPI Master of multiple **Arduino boards** as SPI Slaves.
 
 #### S_Broadcast_SPI_2xESP_4MHz_Master
-This Socket is intended to be used in an ESP32 board that will work as a SPI Master. The targeted SPI Slaves must also be ESP32 boards.
+This Socket is intended to be used in an ESP32 board that will work as a SPI Master of multiple **ESP32 boards** as SPI Slaves.
 
 #### S_Broadcast_SPI_2xESP_4MHz_Slave
-This Socket is intended to be used in an ESP32 board as a SPI Slave.
+This Socket is intended to be used in an **ESP32 board** as a SPI Slave.
 
 
 ### Basic
