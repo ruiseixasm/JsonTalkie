@@ -257,7 +257,7 @@ By installing the ESP8266 or ESP32 boards, you already have the WiFi library ava
 
 ## SPI
 All these Socket implementations use the out of the box installed Arduino `SPI.h` or the ESP32
-`spi_master.h`/`spi_slave.h` library, so, no need to extra installations.
+`spi_master.h`/`spi_slave.h` library, so, no need to extra installs.
 
 ### Broadcast
 These Sockets are intended to work in Broadcast mode, meaning, while the SPI Master is sending a message on its MOSI pin, all SPI Slaves are **simultaneously**
