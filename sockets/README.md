@@ -256,7 +256,8 @@ So, in the example above, the `talk blue` command resulted in the association of
 By installing the ESP8266 or ESP32 boards, you already have the WiFi library available.
 
 ## SPI
-All these Socket implementations use the out of the box installed Arduino `SPI.h` or the ESP32 `spi_master.h` library, so, no need to extra installations.
+All these Socket implementations use the out of the box installed Arduino `SPI.h` or the ESP32
+`spi_master.h`/`spi_slave.h` library, so, no need to extra installations.
 
 ### Broadcast
 These Sockets are intended to work in Broadcast mode, meaning, while the SPI Master is sending a message on its MOSI pin, all SPI Slaves are **simultaneously**
