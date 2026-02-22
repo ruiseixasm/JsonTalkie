@@ -310,10 +310,10 @@ python talk.py --socket SERIAL --port COM4
 ```
 ### S_SocketSerial
 #### Description
-This is the simplest Socket of all, and it's not a Broadcast Socket at all, given that the Serial protocol is one-to-one, so, it's main purpose is just that, for one board to communicate with other, ideal for local communication in the same platform.
+This is the simplest Socket of all, and it's not a Broadcast Socket at all, given that the Serial protocol is one-to-one, so, it's main purpose is just that, for two boards to communicate with each other, ideal for local communication in the same platform where speed is not required.
 
 It may be used for testing too, by allowing a direct connection with a computer. Just make sure you disable any Serial print as those
-may interfere with the normal flow of communication if formatted in the same way as a json string.
+may interfere with the normal flow of Json messages if formatted in the same way as a json string.
 #### Dependencies
 This uses the Serial communication, so, no need to install any extra library.
 
